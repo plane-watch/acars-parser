@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACARS Message Review</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+        h1 {
+            font-size: 1.5rem;
+            color: #00d9ff;
+        }
+        .stats {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        select, input, button {
+            padding: 8px 12px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #16213e;
+            color: #eee;
+            font-size: 0.9rem;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+        button {
+            cursor: pointer;
+            background: #0f3460;
+            border-color: #0f3460;
+        }
+        button:hover {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+        button.active {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message-card {
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .message-card:hover {
+            border-color: #00d9ff;
+        }
+        .message-card.selected {
+            border-color: #00d9ff;
+            border-width: 2px;
+        }
+        .message-card.golden {
+            border-left: 4px solid #ffd700;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .message-id {
+            color: #888;
+            font-size: 0.8rem;
+        }
+        .message-type {
+            background: #0f3460;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .message-route {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        .message-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .confidence {
+            color: #00d9ff;
+        }
+        .confidence.low {
+            color: #ff6b6b;
+        }
+        .confidence.medium {
+            color: #ffd93d;
+        }
+        .missing-fields {
+            color: #ff6b6b;
+        }
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: #16213e;
+            border-left: 1px solid #333;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 100;
+        }
+        .detail-panel.open {
+            transform: translateX(0);
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            background: #16213e;
+        }
+        .detail-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+        .detail-close:hover {
+            color: #fff;
+        }
+        .detail-content {
+            padding: 20px;
+        }
+        .detail-section {
+            margin-bottom: 20px;
+        }
+        .detail-section h3 {
+            color: #00d9ff;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        .raw-text {
+            background: #1a1a2e;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .parsed-fields {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 8px;
+        }
+        .field-name {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .field-value {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+        .field-value.missing {
+            color: #ff6b6b;
+            font-style: italic;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .golden-btn {
+            background: #ffd700;
+            color: #1a1a2e;
+        }
+        .golden-btn.active {
+            background: #1a1a2e;
+            color: #ffd700;
+            border-color: #ffd700;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #1a1a2e;
+            color: #eee;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 60px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        @media (max-width: 1200px) {
+            .detail-panel {
+                width: 70%;
+            }
+        }
+        @media (max-width: 768px) {
+            .detail-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ACARS Message Review</h1>
+            <div class="stats" id="stats">Loading...</div>
+        </header>
+
+        <div class="filters">
+            <select id="type-filter">
+                <option value="">All Types</option>
+            </select>
+            <select id="missing-filter">
+                <option value="">Any Missing</option>
+                <option value="has_missing">Has Missing Fields</option>
+            </select>
+            <input type="text" id="search" placeholder="Search raw text...">
+            <button id="golden-filter">Golden Only</button>
+            <button id="refresh">Refresh</button>
+            <span style="margin-left: 20px; color: #666;">|</span>
+            <button id="export-json" title="Export golden messages as JSON">Export JSON</button>
+            <button id="export-go" title="Export golden messages as Go test">Export Go Test</button>
+        </div>
+
+        <div class="message-list" id="message-list">
+            <div class="loading">Loading messages...</div>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <div class="detail-panel" id="detail-panel">
+        <div class="detail-header">
+            <h2>Message Details</h2>
+            <span class="detail-close" id="detail-close">&times;</span>
+        </div>
+        <div class="detail-content" id="detail-content"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
