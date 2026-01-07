@@ -23,6 +23,7 @@ acars_parser/
 │   └── parsers/            # Individual parser implementations
 │       ├── adsc/           # ADS-C (B6)
 │       ├── agfsr/          # AGFSR flight status (4T)
+│       ├── cpdlc/          # CPDLC FANS-1/A (AA)
 │       ├── eta/            # ETA/timing (5Z)
 │       ├── fst/            # FST reports (15)
 │       ├── h1/             # H1 FPN/POS/PWI
@@ -344,6 +345,46 @@ Parses data link status messages reporting which communication links (VHF, SATCO
 ```
 Extracts: link status (established/lost), current link type, timestamp, available links.
 
+### CPDLC - Controller-Pilot Data Link Communications (AA)
+Parses FANS-1/A CPDLC messages using pure Go ASN.1 PER decoding (no libacars dependency). Supports:
+- **Downlink messages** (dM0-dM80): Pilot responses/requests to ATC
+- **Uplink messages** (uM0-uM182): ATC instructions/requests to aircraft
+- **Connection management**: Connect requests (CR1), connect confirms (CC1), disconnect (DR1)
+
+Message format:
+```
+/BOMCAYA.AT1.A4O-SI005080204A
+```
+Structure: `/<station>.<type>.<registration><hex_data>`
+
+**Decoded element types include:**
+- Altitudes (flight level, feet, metres, QNH/QFE/GNSS)
+- Speeds (knots, Mach, km/h)
+- Positions (fix, navaid, airport, lat/lon, place-bearing-distance)
+- Route clearances (departure/arrival airports, runways, SIDs/STARs, airways)
+- Frequencies (VHF, UHF, HF, SATCOM)
+- Free text messages
+- Error information
+- Vertical rates, beacon codes, ATIS codes, and more
+
+Example decoded output:
+```json
+{
+  "message_type": "cpdlc",
+  "direction": "downlink",
+  "header": {"msg_id": 0},
+  "elements": [{
+    "id": 80,
+    "label": "DEVIATING [distanceoffset] [direction] OF ROUTE",
+    "text": "DEVIATING 1 km south OF ROUTE"
+  }]
+}
+```
+
+**Limitations:**
+- Multi-element messages (containing 2-5 elements) currently only decode the primary element
+- Some complex route information types (placeBearingPlaceBearing, trackDetail, holdAtWaypoint) return placeholder text
+
 ## Output Format
 
 All extract commands output JSON with a `stats` object summarising the parsing results:
@@ -429,6 +470,7 @@ Each parser lives in `internal/parsers/<name>/parser.go`:
 | ADS-C | `B6` | `adsc` | `internal/parsers/adsc/parser.go` |
 | AGFSR | `4T` | `agfsr` | `internal/parsers/agfsr/parser.go` |
 | ATIS | `A9` | `atis` | `internal/parsers/atis/parser.go` |
+| CPDLC | `AA` | `cpdlc`, `connect_request`, `connect_confirm`, `disconnect` | `internal/parsers/cpdlc/parser.go` |
 | Envelope | `AA`, `A6` | `envelope` | `internal/parsers/envelope/parser.go` |
 | ETA | `5Z` | `eta` | `internal/parsers/eta/parser.go` |
 | FST | `15` | `fst` | `internal/parsers/fst/parser.go` |
