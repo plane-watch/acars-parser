@@ -15,7 +15,9 @@ var Formats = []patterns.Format{
 		Pattern: `^POS(?P<lat_dir>{LAT_DIR})(?P<lat>\d{5})(?P<lon_dir>{LON_DIR})(?P<lon>\d{6}),` +
 			`(?P<curr_wpt>[A-Z]+),(?P<report_time>\d{6}),(?P<altitude>\d+),` +
 			`(?P<next_wpt>[A-Z]+),(?P<eta>\d+),(?P<wpt3>[A-Z]+),(?P<temp>[MP]\d+)` +
-			`(?:,(?P<wind>\d{5}))?(?:,(?P<extra>[A-Z0-9]+))?`,
+			// Wind field is usually DDDSS (5 digits), but some feeds use DDDSSS
+			// with a leading zero (e.g. 255044 -> 255/44kts). Accept 5 or 6 digits.
+			`(?:,(?P<wind>\d{5,6}))?(?:,(?P<extra>[A-Z0-9]+))?$`,
 		Fields: []string{"lat_dir", "lat", "lon_dir", "lon", "curr_wpt", "report_time", "altitude", "next_wpt", "eta", "wpt3", "temp", "wind", "extra"},
 	},
 	// H1 POS position format with altitude (3-digit FL) - alternate format.
