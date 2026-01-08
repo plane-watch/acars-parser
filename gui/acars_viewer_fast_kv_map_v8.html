@@ -70,6 +70,22 @@
   .modal .hdr { display:flex; justify-content: space-between; align-items:center; padding: 10px 12px; border-bottom: 1px solid #eee; gap: 10px; }
   .modal .hdr .title { font-weight: 600; }
   #map { flex: 1; }
+
+  /* Raw message text block (keeps newlines) */
+  .rawtext {
+    margin: 8px 0 0;
+    padding: 10px;
+    background: #0b1020;
+    color: #e6edf3;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.10);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    white-space: pre-wrap;     /* preserve \r\n but wrap long lines */
+    word-break: break-word;    /* break very long tokens */
+    overflow-wrap: anywhere;
+  }
+
 </style>
 </head>
 <body>
@@ -398,8 +414,8 @@ function renderDetailsObject(obj){
 function normalizeInput(parsed){
   if (!Array.isArray(parsed)) return [];
 
-  // Case 1: raw extractor output
-  if (parsed.length && parsed[0] && parsed[0].message && parsed[0].results){
+  // Case 1: raw extractor output (results optional)
+  if (parsed.length && parsed[0] && parsed[0].message){
     return parsed.map((it) => {
       const msg = it.message || {};
       const res = it.results || [];
@@ -430,7 +446,7 @@ function normalizeInput(parsed){
         type: String(typ || "unknown"),
         lat: lat,
         lon: lon,
-        summary: (msg.text || "").slice(0, 180),
+        summary: (msg.text || "").slice(0, 500),
         raw: rawObj
       };
     });
@@ -483,7 +499,7 @@ function normalizeInput(parsed){
       type: String(o.type || o.message_type || ""),
       lat: lat,
       lon: lon,
-      summary: (o.summary || o.text || "").slice(0, 180),
+      summary: (o.summary || o.text || "").slice(0, 500),
       raw: o.raw || o
     };
   });
@@ -566,6 +582,26 @@ function makeDetailsCell(rowIndex){
   if (isNum(r.lat) && isNum(r.lon)) parts.push(`lat ${r.lat}, lon ${r.lon}`);
   header.innerHTML = `<code>${escapeHtml(parts.join(" • "))}</code>`;
   wrap.appendChild(header);
+
+  // Raw message text (preserve newlines). Extract from common locations.
+  const rawText =
+    (r && r.raw && r.raw.message && (r.raw.message.text ?? r.raw.message.msg_text)) ??
+    (r && r.raw && (r.raw.text ?? r.raw.msg_text)) ??
+    "";
+  // Show raw text block only when message contains newlines (CR/LF)
+  if (rawText && /[\r\n]/.test(String(rawText))){
+    const detRaw = document.createElement('details');
+    const sumRaw = document.createElement('summary');
+    sumRaw.textContent = 'raw text';
+    detRaw.appendChild(sumRaw);
+
+    const pre = document.createElement('pre');
+    pre.className = 'rawtext';
+    pre.textContent = String(rawText);
+    detRaw.appendChild(pre);
+
+    wrap.appendChild(detRaw);
+  }
 
   const det = document.createElement('details');
   const sum = document.createElement('summary');
