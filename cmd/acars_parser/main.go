@@ -102,7 +102,7 @@ func runExtract(args []string) {
 	scanner := bufio.NewScanner(r)
 	// JSON lines can be long; bump buffer (20MB).
 	buf := make([]byte, 0, 1024*1024)
-	scanner.Buffer(buf, 20*1024*1024)
+	scanner.Buffer(buf, 60*1024*1024)
 
 	out := make([]ExtractOut, 0, 1024)
 	st := &Stats{}
