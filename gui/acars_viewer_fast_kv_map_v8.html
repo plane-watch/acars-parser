@@ -54,18 +54,46 @@
   /* Map modal */
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display:none; z-index: 9999; }
   .modal .panel { position: absolute; inset: 24px; background: #fff; border-radius: 16px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.25); display:flex; flex-direction: column; }
-  .ptlabel span {
-     font: 12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-     color:#111;
-     background: rgba(255,255,255,0.85);
-     padding: 1px 6px;
-     border-radius: 10px;
-     border: 1px solid rgba(0,0,0,0.15);
-     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-     white-space: nowrap;
-     overflow-wrap: normal;
-     word-break: normal;
-   }
+  
+.ptlabel .ptlabelbox{
+  font: 12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:#111;
+  background: rgba(255,255,255,0.85);
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  white-space: normal;     /* allow line breaks */
+  line-height: 1.15;       /* row height */
+  display: inline-block;
+}
+.ptlabel .ptl2{
+  font-size: 11px;
+  opacity: 0.9;
+  margin-top: 1px;
+}
+
+.ptlabel .ptl1{
+  white-space: nowrap;     /* keep Tail/Reg on one line */
+  hyphens: none;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+/* Per-point flight level label */
+.ptfl .ptflbox{
+  font: 11px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:#111;
+  background: rgba(255,255,255,0.82);
+  padding: 2px 6px;
+  border-radius: 9px;
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+  white-space: nowrap;
+  line-height: 1.1;
+  display: inline-block;
+}
+
 
   .modal .hdr { display:flex; justify-content: space-between; align-items:center; padding: 10px 12px; border-bottom: 1px solid #eee; gap: 10px; }
   .modal .hdr .title { font-weight: 600; }
@@ -176,6 +204,80 @@ function coerceNum(x){
   }
   return null;
 }
+
+
+// --- Flight level helpers (global, used by individual + all-maps) ---
+if (typeof getFlightLevelTextFromAny === 'undefined'){
+  function getFlightLevelTextFromAny(obj){
+    // Prefer explicit flight_level if present (already FL), otherwise use altitude in feet (altitude_ft).
+    const flRaw = (obj?.flight_level ?? obj?.flightLevel ?? obj?.FL ?? obj?.fl ?? null);
+    const flNum = coerceNum(flRaw);
+    if (isNum(flNum) && flNum > 0 && flNum <= 999){
+      return `FL ${Math.round(flNum)}`;
+    }
+
+    const altFt = coerceNum(
+      obj?.altitude_ft ?? obj?.altitudeFt ?? obj?.alt_ft ?? obj?.altFt ??
+      obj?.altitude ?? obj?.Altitude ?? obj?.alt ?? null
+    );
+    if (!isNum(altFt)) return "";
+
+    // If it's clearly feet (e.g. 32999, 40000) -> FL = ft/100
+    if (altFt > 500){
+      const fl = Math.round(altFt / 100);
+      if (isFinite(fl) && fl > 0) return `FL ${fl}`;
+    }
+
+    // Otherwise treat as FL already
+    const fl = Math.round(altFt);
+    if (!isFinite(fl) || fl <= 0) return "";
+    return `FL ${fl}`;
+  }
+}
+
+if (typeof getFlightLevelTextForRow === 'undefined'){
+  function getFlightLevelTextForRow(r){
+    if (!r) return "";
+    // 1) direct row fields (in some parsers results are already flattened)
+    let t = getFlightLevelTextFromAny(r);
+    if (t) return t;
+
+    // 2) raw wrapper {message, results}
+    const raw = r.raw || null;
+    if (raw){
+      t = getFlightLevelTextFromAny(raw);
+      if (t) return t;
+
+      const res = raw.results;
+      if (Array.isArray(res)){
+        for (const it of res){
+          t = getFlightLevelTextFromAny(it);
+          if (t) return t;
+        }
+      }
+
+      if (raw.message){
+        t = getFlightLevelTextFromAny(raw.message);
+        if (t) return t;
+      }
+    }
+    return "";
+  }
+}
+
+if (typeof addFLLabelToLayer === 'undefined'){
+  function addFLLabelToLayer(layer, latlng, flText){
+    if (!flText) return;
+    const ico = L.divIcon({
+      className: 'ptfl',
+      html: `<div class="ptflbox">${escapeHtml(flText)}</div>`,
+      iconSize: [1,1],
+      iconAnchor: [-6, -8]
+    });
+    L.marker(latlng, {icon: ico, interactive: false}).addTo(layer);
+  }
+}
+
 
 
 function extractCoords(obj){
@@ -698,6 +800,101 @@ function openMapAllFiltered(){
 
   allLayer = L.layerGroup().addTo(map);
 
+  // Label markers (Tail/Reg) — show once per aircraft to avoid clutter
+  const labeledTails = new Set();
+  
+    function getFlightLevelTextFromAny(obj){
+    // Prefer explicit flight_level if present (already FL), otherwise use altitude in feet (altitude_ft).
+    const flRaw = (obj?.flight_level ?? obj?.flightLevel ?? obj?.FL ?? obj?.fl ?? null);
+    const flNum = coerceNum(flRaw);
+    if (isNum(flNum) && flNum > 0 && flNum <= 999){
+      return `FL ${Math.round(flNum)}`;
+    }
+
+    const altFt = coerceNum(
+      obj?.altitude_ft ?? obj?.altitudeFt ?? obj?.alt_ft ?? obj?.altFt ??
+      obj?.altitude ?? obj?.Altitude ?? obj?.alt ?? null
+    );
+    if (!isNum(altFt)) return "";
+
+    // If it's clearly feet (e.g. 32999, 40000) -> FL = ft/100
+    if (altFt > 500){
+      const fl = Math.round(altFt / 100);
+      if (isFinite(fl) && fl > 0) return `FL ${fl}`;
+    }
+
+    // Otherwise treat as FL already
+    const fl = Math.round(altFt);
+    if (!isFinite(fl) || fl <= 0) return "";
+    return `FL ${fl}`;
+  }
+
+    function getFlightLevelTextForRow(r){
+    if (!r) return "";
+    // 1) try direct row fields
+    let t = getFlightLevelTextFromAny(r);
+    if (t) return t;
+
+    // 2) try raw object
+    const raw = r.raw || null;
+    if (raw){
+      t = getFlightLevelTextFromAny(raw);
+      if (t) return t;
+
+      // 3) many decoders store numeric fields in raw.results[] entries
+      const res = raw.results;
+      if (Array.isArray(res)){
+        for (const it of res){
+          t = getFlightLevelTextFromAny(it);
+          if (t) return t;
+        }
+      }
+
+      // 4) sometimes under raw.message
+      if (raw.message){
+        t = getFlightLevelTextFromAny(raw.message);
+        if (t) return t;
+      }
+    }
+    return "";
+  }
+
+  function getFlightLevelTextForPoint(p, r){
+    // prefer waypoint point altitude, fallback to row altitude
+    const t1 = getFlightLevelTextFromAny(p || {});
+    if (t1) return t1;
+    return getFlightLevelTextForRow(r);
+  }
+
+  function addTailLabel(latlng, tailLabel, flText){
+    if (!tailLabel) return;
+    const key = String(tailLabel).trim();
+    if (!key || labeledTails.has(key)) return;
+
+    const line2 = (flText && String(flText).trim()) ? `<div class="ptl2">${escapeHtml(flText)}</div>` : "";
+    const ico = L.divIcon({
+      className: 'ptlabel',
+      html: `<div class="ptlabelbox"><div class="ptl1">${escapeHtml(key)}</div>${line2}</div>`,
+      iconSize: [1,1],
+      iconAnchor: [-6, 8]
+    });
+    L.marker(latlng, {icon: ico, interactive: false}).addTo(allLayer);
+    labeledTails.add(key);
+  }
+
+  // Per-point FL label (always)
+  function addFLLabel(latlng, flText){
+    if (!flText) return;
+    const ico = L.divIcon({
+      className: 'ptfl',
+      html: `<div class="ptflbox">${escapeHtml(flText)}</div>`,
+      iconSize: [1,1],
+      iconAnchor: [-6, -8] // slightly above-right of point
+    });
+    L.marker(latlng, {icon: ico, interactive: false}).addTo(allLayer);
+  }
+
+
   // ---- Build non-clickable track polylines for H2 points per tail/reg ----
   function tsToMs(ts){
     if (ts === null || ts === undefined || ts === '') return 0;
@@ -734,19 +931,26 @@ function openMapAllFiltered(){
     const tail = (r.tail || '').trim();
     if (!tail) continue;
 
-    // Expect parsed H2 output: r.raw.points = [{latitude, longitude, ...}, ...]
-    const pArr = getWaypointsFromRow(r);
-    if (!pArr.length) continue;
-
     const tms = tsToMs(r.timestamp);
-    for (let k=0; k<pArr.length; k++){
-      const p = pArr[k];
-      const lat = coerceNum(p && (p.latitude ?? p.lat));
-      const lon = coerceNum(p && (p.longitude ?? p.lon));
-      if (!(isNum(lat) && isNum(lon))) continue;
 
+    // 1) direct coords (Label 80 POSRPT etc.)
+    if (isNum(r.lat) && isNum(r.lon)){
       if (!trackByTail.has(tail)) trackByTail.set(tail, []);
-      trackByTail.get(tail).push({lat, lon, t: tms, seq: k});
+      trackByTail.get(tail).push({lat: r.lat, lon: r.lon, t: tms, seq: -1});
+    }
+
+    // 2) multi-waypoint coords (H2 / ADS-C etc.)
+    const pArr = getWaypointsFromRow(r);
+    if (pArr && pArr.length){
+      for (let k=0; k<pArr.length; k++){
+        const p = pArr[k];
+        const lat = coerceNum(p && (p.latitude ?? p.lat));
+        const lon = coerceNum(p && (p.longitude ?? p.lon));
+        if (!(isNum(lat) && isNum(lon))) continue;
+
+        if (!trackByTail.has(tail)) trackByTail.set(tail, []);
+        trackByTail.get(tail).push({lat, lon, t: tms, seq: k});
+      }
     }
   }
 
@@ -792,7 +996,11 @@ function openMapAllFiltered(){
          </div>`;
       cm.bindPopup(popupHtml, {maxWidth: 9999, maxHeight: 9999, className: 'big-popup'});
       cm.addTo(allLayer);
-    }
+
+      // Tail/Reg label (once per aircraft)
+      addTailLabel(latlng, tailLabel, getFlightLevelTextForRow(r));
+      addFLLabel(latlng, getFlightLevelTextForRow(r));
+}
   
     // (2) waypoint markers (multi-waypoint)
     const wpts = getWaypointsFromRow(r);
@@ -808,18 +1016,10 @@ function openMapAllFiltered(){
         // smaller dot for waypoints
         const cm = L.circleMarker(latlng, { radius: 3, weight: 1, fillOpacity: 0.85 });
   
-        // label only on first waypoint to avoid clutter
-        if (tailLabel && k === 0){
-          const ico = L.divIcon({
-            className: 'ptlabel',
-            html: `<span>${escapeHtml(tailLabel)}</span>`,
-            iconSize: [1,1],
-            iconAnchor: [-6, 6]
-          });
-          L.marker(latlng, {icon: ico, interactive: false}).addTo(allLayer);
-        }
-  
-        // waypoint popup shows point fields too
+        // Tail/Reg label (once per aircraft)
+        addTailLabel(latlng, tailLabel, getFlightLevelTextForRow(r));
+        addFLLabel(latlng, getFlightLevelTextForPoint(p, r));
+// waypoint popup shows point fields too
         const popupHtml =
           `<div style="max-width:560px">
             <div class="nowrap"><b>${escapeHtml(r.tail || '')}</b> • waypoint #${k+1} • ${escapeHtml(r.label || '')}</div>
@@ -886,14 +1086,22 @@ function openMapForRow(r){
   if (marker) marker.remove();
   marker = L.circleMarker(latlng, { radius: 5, weight: 1, fillOpacity: 0.85 }).addTo(map);
   const labelText = (r.tail || r.registration || '').trim();
+  const flText = getFlightLevelTextForRow(r);
+
+  // Main Tail/Reg label (2 rows: Tail + FL)
   if (labelText){
+    const line2 = flText ? `<div class="ptl2">${escapeHtml(flText)}</div>` : '';
     const ico = L.divIcon({
       className: 'ptlabel',
-      html: `<span>${escapeHtml(labelText)}</span>`,
+      html: `<div class="ptlabelbox"><div class="ptl1">${escapeHtml(labelText)}</div>${line2}</div>`,
       iconSize: [1,1],
-      iconAnchor: [-6, 6]
+      iconAnchor: [-6, 8]
     });
     L.marker(latlng, {icon: ico, interactive: false}).addTo(map);
+  }
+  // FL label near the point (always if available)
+  if (window.L && typeof addFLLabelToLayer === 'function'){
+    addFLLabelToLayer(map, latlng, flText);
   }
 
   // Popup HTML: parsed details WITHOUT braces/quotes (rendered table)
