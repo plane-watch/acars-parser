@@ -18,7 +18,6 @@ type Result struct {
 	Tail        string  `json:"tail,omitempty"`
 	MsgType     string  `json:"msg_type"`
 	Header      string  `json:"header,omitempty"`        // CDC01, ADC01, ODO01, PBS01, LDC01
-	FlightLevel int     `json:"flight_level,omitempty"`  // From AFL
 	OriginICAO  string  `json:"origin_icao,omitempty"`   // First 4 chars of route
 	OriginName  string  `json:"origin_name,omitempty"`   // Airport name from ICAO
 	DestICAO    string  `json:"dest_icao,omitempty"`     // Last 4 chars of route
@@ -36,7 +35,7 @@ func (r *Result) MessageID() int64 { return r.MsgID }
 type Parser struct{}
 
 var (
-	// Match header: 3 letters + 2 digits + AFL + flight level
+	// Match header: 3 letters + 2 digits + AFL + flight number
 	// Example: CDC01AFL1334, ADC01AFL1334, ODO01AFL1383
 	headerAFLRe = regexp.MustCompile(`(?i)^([A-Z]{3}\d{2})AFL(\d+)`)
 
@@ -89,10 +88,9 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		MsgType:   "position_status",
 	}
 
-	// Parse header and AFL flight level
+	// Parse header and AFL flight number
 	if m := headerAFLRe.FindStringSubmatch(upper); m != nil {
 		result.Header = m[1]
-		// Note: AFL in label 39 is flight number, not flight level - do not parse as altitude
 	} else {
 		// No valid header format found
 		return nil

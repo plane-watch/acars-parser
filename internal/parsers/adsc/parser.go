@@ -126,9 +126,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	// Determine message direction from label.
-	if msg.Label == "A6" {
+	switch msg.Label {
+	case "A6":
 		result.Direction = "uplink"
-	} else if msg.Label == "B6" {
+	case "B6":
 		result.Direction = "downlink"
 	}
 

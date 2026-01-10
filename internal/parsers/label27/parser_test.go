@@ -23,7 +23,7 @@ func TestLabel27Parser(t *testing.T) {
 		wantLon    float64
 		wantETA    string
 		wantWpt    string
-		wantAlt    int
+		wantAltM   int
 	}{
 		{
 			name:       "POS01 with AFL flight level format",
@@ -40,7 +40,7 @@ func TestLabel27Parser(t *testing.T) {
 			wantLon:    38.545,
 			wantETA:    "10:13",
 			wantWpt:    "",
-			wantAlt:    21728,
+			wantAltM:   6622,
 		},
 		{
 			name:       "POS01 with flight number format (SU0245)",
@@ -58,7 +58,7 @@ func TestLabel27Parser(t *testing.T) {
 			wantLon:    38.387,
 			wantETA:    "18:13",
 			wantWpt:    "",
-			wantAlt:    36221,
+			wantAltM:   11040,
 		},
 		{
 			name:       "POS01 with no spaces in LAT/LON format",
@@ -75,7 +75,7 @@ func TestLabel27Parser(t *testing.T) {
 			wantLon:    89.709,
 			wantETA:    "19:57",
 			wantWpt:    "",
-			wantAlt:    37992,
+			wantAltM:   11579,
 		},
 		{
 			name:       "POS01 with 3-letter airline code (SDM6599)",
@@ -93,7 +93,83 @@ func TestLabel27Parser(t *testing.T) {
 			wantLon:    43.416,
 			wantETA:    "18:32",
 			wantWpt:    "",
-			wantAlt:    36977,
+			wantAltM:   11270,
+		},
+		{
+			name:       "POS02 with positive temperature",
+			text:       "POS02AFL320 /12121212EGGWLFPG FUEL 89 TEMP 15 WDIR18045 WSPD 12 LATN 51.234 LONE 00.567 ETA1345 ROMEO ALT 32000",
+			wantFormat: "POS02",
+			wantFL:     320,
+			wantOrigin: "EGGW",
+			wantDest:   "LFPG",
+			wantFuel:   89,
+			wantTemp:   15,
+			wantWDir:   180,
+			wantWSpd:   12,
+			wantLat:    51.234,
+			wantLon:    0.567,
+			wantETA:    "13:45",
+			wantWpt:    "ROMEO",
+			wantAltM:   9753,
+		},
+		{
+			name:       "POS01 with southern latitude and western longitude",
+			text:       "POS01AFL410 /09090909SBGRSCEL FUEL 120 TEMP-48 WDIR27090 WSPD 65 LATS 23.456 LONW 046.789 ETA1030 ALFA ALT 41000",
+			wantFormat: "POS01",
+			wantFL:     410,
+			wantOrigin: "SBGR",
+			wantDest:   "SCEL",
+			wantFuel:   120,
+			wantTemp:   -48,
+			wantWDir:   270,
+			wantWSpd:   65,
+			wantLat:    -23.456,
+			wantLon:    -46.789,
+			wantETA:    "10:30",
+			wantWpt:    "ALFA",
+			wantAltM:   12496,
+		},
+		{
+			name:       "POS03 with minimal data",
+			text:       "POS03AFL250 /06060606KSFOKLAX",
+			wantFormat: "POS03",
+			wantFL:     250,
+			wantOrigin: "KSFO",
+			wantDest:   "KLAX",
+		},
+		{
+			name:       "POS01 with zero fuel",
+			text:       "POS01BA1234 /14141414EGLLLFPO FUEL 0 TEMP-10 WDIR09015 WSPD 20 LATN 50.123 LONE 001.234 ETA1530 ALT 28000",
+			wantFormat: "POS01",
+			wantFlight: "BA1234",
+			wantFL:     280,
+			wantOrigin: "EGLL",
+			wantDest:   "LFPO",
+			wantFuel:   0,
+			wantTemp:   -10,
+			wantWDir:   90,
+			wantWSpd:   20,
+			wantLat:    50.123,
+			wantLon:    1.234,
+			wantETA:    "15:30",
+			wantAltM:   8534,
+		},
+		{
+			name:       "POS01 Real world example USSS-ULLI",
+			text:       "POS01AFL2827 /18190121USSSULLI FUEL 122 TEMP- 13 WDIR26384 WSPD 20 LATN 56.832 LONE 60.195 ETA0359 TUR ALT 11741",
+			wantFormat: "POS01",
+			wantFL:     117,
+			wantOrigin: "USSS",
+			wantDest:   "ULLI",
+			wantFuel:   122,
+			wantTemp:   -13,
+			wantWDir:   263,
+			wantWSpd:   20,
+			wantLat:    56.832,
+			wantLon:    60.195,
+			wantETA:    "03:59",
+			wantWpt:    "",
+			wantAltM:   3578,
 		},
 	}
 
@@ -168,8 +244,8 @@ func TestLabel27Parser(t *testing.T) {
 				t.Errorf("Waypoint = %q, want %q", r.Waypoint, tt.wantWpt)
 			}
 
-			if r.Altitude != tt.wantAlt {
-				t.Errorf("Altitude = %d, want %d", r.Altitude, tt.wantAlt)
+			if r.AltitudeM != tt.wantAltM {
+				t.Errorf("AltitudeM = %d, want %d", r.AltitudeM, tt.wantAltM)
 			}
 		})
 	}
@@ -184,8 +260,12 @@ func TestLabel27QuickCheck(t *testing.T) {
 	}{
 		{"POS01AFL1866 /16180720UUEEUDYZ", true},
 		{"POS02AFL2000", true},
+		{"POS03BA1234", true},
+		{"POS10AFL100", true},
 		{"Random message", false},
 		{"POSITION REPORT", false},
+		{"ETA01AFL1866", false},
+		{"", false},
 	}
 
 	for _, tt := range tests {

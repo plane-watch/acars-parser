@@ -33,7 +33,8 @@ type Result struct {
 	Longitude   float64 `json:"longitude,omitempty"`      // LONE/LONW
 	ETA         string  `json:"eta,omitempty"`            // ETA time
 	Waypoint    string  `json:"waypoint,omitempty"`       // Waypoint identifier
-	Altitude    int     `json:"altitude,omitempty"`       // ALT value in feet
+
+	AltitudeM int `json:"altitude_m,omitempty"` // ALT value in meters
 }
 
 func (r *Result) Type() string     { return "eta_report" }
@@ -213,7 +214,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// Parse altitude
 	if m := altRe.FindStringSubmatch(upper); m != nil {
 		if alt, err := strconv.Atoi(m[1]); err == nil {
-			result.Altitude = alt
+			// Convert feet to meters (1 foot = 0.3048 meters)
+			result.AltitudeM = int(float64(alt) * 0.3048)
 			// Calculate flight level from altitude (altitude / 100)
 			result.FlightLevel = alt / 100
 		}

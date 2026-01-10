@@ -6,6 +6,7 @@ var ICAONames = map[string]string{
 
 	"PADK": "ADAK",
 	"PAKH": "AKHIOK",
+	"ULMK": "KIROVSK-APATITY",
 	"PFAK": "AKIAK",
 	"PAUK": "ALAKANUK",
 	"PFAL": "ALLAKAKET",
@@ -8387,6 +8388,7 @@ var GroundStationNames = map[string]string{
 	"FUKJJYA": "Japan Fukuoka",
 	"GDXGWXA": "Russia Magadan",
 	"GVSCAYA": "Cape Verde Sal Oceanic",
+	"HDQBQSK": "Stockholm B-HQ",
 	"HKGCCYA": "Hong Kong HK China",
 	"HRBGWYA": "China Harbin",
 	"JAKGWXA": "Indonesia Jakarta",

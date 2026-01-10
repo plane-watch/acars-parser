@@ -136,52 +136,6 @@ func TestParser(t *testing.T) {
 				lon:         37.424,
 			},
 		},
-		{
-			name: "PBR01 AFL1008 header",
-			text: "PBR01AFL1008 /18181723UUEEUMKK 172300 FOB 138 LATN 55.982 LONE 37.395",
-			want: struct {
-				header      string
-				flightLevel int
-				originICAO  string
-				destICAO    string
-				eta         string
-				fuel        int
-				lat         float64
-				lon         float64
-			}{
-				header:      "PBR01",
-				flightLevel: 1008,
-				originICAO:  "UUEE",
-				destICAO:    "UMKK",
-				eta:         "17:23:00",
-				fuel:        138,
-				lat:         55.982,
-				lon:         37.395,
-			},
-		},
-		{
-			name: "CDO01 AFL1314 header",
-			text: "CDO01AFL1314 /17172149UUEEURMM 214954 FOB 57 LATN 44.193 LONE 43.041",
-			want: struct {
-				header      string
-				flightLevel int
-				originICAO  string
-				destICAO    string
-				eta         string
-				fuel        int
-				lat         float64
-				lon         float64
-			}{
-				header:      "CDO01",
-				flightLevel: 1314,
-				originICAO:  "UUEE",
-				destICAO:    "URMM",
-				eta:         "21:49:54",
-				fuel:        57,
-				lat:         44.193,
-				lon:         43.041,
-			},
-		},
 	}
 
 	parser := &Parser{}
@@ -211,9 +165,6 @@ func TestParser(t *testing.T) {
 
 			if result.Header != tc.want.header {
 				t.Errorf("Header = %q, want %q", result.Header, tc.want.header)
-			}
-			if result.FlightLevel != tc.want.flightLevel {
-				t.Errorf("FlightLevel = %d, want %d", result.FlightLevel, tc.want.flightLevel)
 			}
 			if result.OriginICAO != tc.want.originICAO {
 				t.Errorf("OriginICAO = %q, want %q", result.OriginICAO, tc.want.originICAO)

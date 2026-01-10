@@ -24,7 +24,7 @@ func TestParser(t *testing.T) {
 			lon         float64
 			eta         string
 			waypoint    string
-			altitude    int
+			altitudeM   int
 		}
 	}{
 		{
@@ -44,7 +44,7 @@ func TestParser(t *testing.T) {
 				lon         float64
 				eta         string
 				waypoint    string
-				altitude    int
+				altitudeM   int
 			}{
 				format:      "ETA01",
 				flightLevel: 339,
@@ -59,7 +59,7 @@ func TestParser(t *testing.T) {
 				lon:         35.290,
 				eta:         "11:05",
 				waypoint:    "",
-				altitude:    33973,
+				altitudeM:   10355,
 			},
 		},
 		{
@@ -79,7 +79,7 @@ func TestParser(t *testing.T) {
 				lon         float64
 				eta         string
 				waypoint    string
-				altitude    int
+				altitudeM   int
 			}{
 				format:      "ETA01",
 				flightLevel: 38,
@@ -94,7 +94,7 @@ func TestParser(t *testing.T) {
 				lon:         27.891,
 				eta:         "10:32",
 				waypoint:    "",
-				altitude:    3834,
+				altitudeM:   1168,
 			},
 		},
 		{
@@ -114,7 +114,7 @@ func TestParser(t *testing.T) {
 				lon         float64
 				eta         string
 				waypoint    string
-				altitude    int
+				altitudeM   int
 			}{
 				format:      "ALT01",
 				flightLevel: 45,
@@ -129,7 +129,7 @@ func TestParser(t *testing.T) {
 				lon:         28.001,
 				eta:         "10:33",
 				waypoint:    "",
-				altitude:    4562,
+				altitudeM:   1390,
 			},
 		},
 		{
@@ -149,7 +149,7 @@ func TestParser(t *testing.T) {
 				lon         float64
 				eta         string
 				waypoint    string
-				altitude    int
+				altitudeM   int
 			}{
 				format:      "ETA01",
 				flightLevel: 312,
@@ -164,7 +164,147 @@ func TestParser(t *testing.T) {
 				lon:         32.931,
 				eta:         "07:58",
 				waypoint:    "",
-				altitude:    31253,
+				altitudeM:   9525,
+			},
+		},
+		{
+			name: "ETA with flight number instead of AFL",
+			text: "ETA01SU0245 /19120815UUEEUDYZ FUEL 120 TEMP- 45 WDIR28030 WSPD 35 LATN 52.123 LONE 40.456 ETA1230 ALT 35000",
+			want: struct {
+				format      string
+				flightLevel int
+				reportTime  string
+				originICAO  string
+				destICAO    string
+				fuel        int
+				temp        int
+				windDir     int
+				windSpeed   int
+				lat         float64
+				lon         float64
+				eta         string
+				waypoint    string
+				altitudeM   int
+			}{
+				format:      "ETA01",
+				flightLevel: 350,
+				reportTime:  "19:12:08",
+				originICAO:  "UUEE",
+				destICAO:    "UDYZ",
+				fuel:        120,
+				temp:        -45,
+				windDir:     280,
+				windSpeed:   35,
+				lat:         52.123,
+				lon:         40.456,
+				eta:         "12:30",
+				waypoint:    "",
+				altitudeM:   10668,
+			},
+		},
+		{
+			name: "Southern and Western coordinates",
+			text: "ETA02AFL2500 /14253042KJORLPLA FUEL 65 TEMP 12 WDIR09025 WSPD 18 LATS 33.500 LONW 118.250 ETA1545 ALT 25000",
+			want: struct {
+				format      string
+				flightLevel int
+				reportTime  string
+				originICAO  string
+				destICAO    string
+				fuel        int
+				temp        int
+				windDir     int
+				windSpeed   int
+				lat         float64
+				lon         float64
+				eta         string
+				waypoint    string
+				altitudeM   int
+			}{
+				format:      "ETA02",
+				flightLevel: 250,
+				reportTime:  "14:25:30",
+				originICAO:  "KJOR",
+				destICAO:    "LPLA",
+				fuel:        65,
+				temp:        12,
+				windDir:     90,
+				windSpeed:   18,
+				lat:         -33.500,
+				lon:         -118.250,
+				eta:         "15:45",
+				waypoint:    "",
+				altitudeM:   7620,
+			},
+		},
+		{
+			name: "Missing temperature field",
+			text: "ALT01AFL3800 /20141500EGLLLFPG FUEL 88 WDIR22045 WSPD 42 LATN 48.750 LONE 2.350 ETA1620 ALT 38000",
+			want: struct {
+				format      string
+				flightLevel int
+				reportTime  string
+				originICAO  string
+				destICAO    string
+				fuel        int
+				temp        int
+				windDir     int
+				windSpeed   int
+				lat         float64
+				lon         float64
+				eta         string
+				waypoint    string
+				altitudeM   int
+			}{
+				format:      "ALT01",
+				flightLevel: 380,
+				reportTime:  "20:14:15",
+				originICAO:  "EGLL",
+				destICAO:    "LFPG",
+				fuel:        88,
+				temp:        0,
+				windDir:     220,
+				windSpeed:   42,
+				lat:         48.750,
+				lon:         2.350,
+				eta:         "16:20",
+				waypoint:    "",
+				altitudeM:   11582,
+			},
+		},
+		{
+			name: "Zero altitude",
+			text: "ETA01AFL0050 /08301245KATLJFK FUEL 15 TEMP 22 WDIR18008 WSPD 5 LATN 35.000 LONW 85.000 ETA0910 ALT 5000",
+			want: struct {
+				format      string
+				flightLevel int
+				reportTime  string
+				originICAO  string
+				destICAO    string
+				fuel        int
+				temp        int
+				windDir     int
+				windSpeed   int
+				lat         float64
+				lon         float64
+				eta         string
+				waypoint    string
+				altitudeM   int
+			}{
+				format:      "ETA01",
+				flightLevel: 50,
+				reportTime:  "08:30:12",
+				originICAO:  "KATL",
+				destICAO:    "KJFK",
+				fuel:        15,
+				temp:        22,
+				windDir:     180,
+				windSpeed:   5,
+				lat:         35.000,
+				lon:         -85.000,
+				eta:         "09:10",
+				waypoint:    "",
+				altitudeM:   1524,
 			},
 		},
 	}
@@ -232,8 +372,8 @@ func TestParser(t *testing.T) {
 			if result.Waypoint != tc.want.waypoint {
 				t.Errorf("Waypoint = %q, want %q", result.Waypoint, tc.want.waypoint)
 			}
-			if result.Altitude != tc.want.altitude {
-				t.Errorf("Altitude = %d, want %d", result.Altitude, tc.want.altitude)
+			if result.AltitudeM != tc.want.altitudeM {
+				t.Errorf("AltitudeM = %d, want %d", result.AltitudeM, tc.want.altitudeM)
 			}
 		})
 	}

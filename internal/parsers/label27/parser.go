@@ -33,7 +33,8 @@ type Result struct {
 	Longitude   float64 `json:"longitude,omitempty"`      // LONE/LONW
 	ETA         string  `json:"eta,omitempty"`            // ETA time
 	Waypoint    string  `json:"waypoint,omitempty"`       // Waypoint identifier
-	Altitude    int     `json:"altitude,omitempty"`       // ALT value in feet
+
+	AltitudeM int `json:"altitude_m,omitempty"` // ALT value in meters
 }
 
 func (r *Result) Type() string     { return "position" }
@@ -115,8 +116,9 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// Try AFL format first (POS01AFL1866)
 	if m := posAFLRe.FindStringSubmatch(upper); m != nil {
 		result.Format = m[1]
+		// AFL can be used as flight level fallback if ALT is not present
 		if fl, err := strconv.Atoi(m[2]); err == nil {
-			result.FlightLevel = fl // AFL1866 = FL1866, AFL010 = FL10
+			result.FlightLevel = fl
 		}
 	} else if m := posFlightRe.FindStringSubmatch(upper); m != nil {
 		// Try flight number format (POS01SU0245)
@@ -212,8 +214,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// Parse altitude
 	if m := altRe.FindStringSubmatch(upper); m != nil {
 		if alt, err := strconv.Atoi(m[1]); err == nil {
-			result.Altitude = alt
-			// Calculate flight level from altitude (altitude / 100)
+			// Convert feet to meters (1 foot = 0.3048 meters) - truncate
+			result.AltitudeM = int(float64(alt) * 0.3048)
+			// Calculate flight level from altitude in feet (divide by 100)
+			// This overwrites any AFL-based flight level
 			result.FlightLevel = alt / 100
 		}
 	}
