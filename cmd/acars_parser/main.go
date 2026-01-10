@@ -7,9 +7,9 @@
 //   - text  (the ACARS/ARINC message text payload)
 //
 // In the real world, you may have any of these inputs:
-//   1) NATS feed wrapper: {"message":{...}, "airframe":{...}, ...}
-//   2) Flat message:      {"label":"H1","text":"...", ...}
-//   3) Decoder logs:      dumpvdl2 / dumphfdl JSON where ACARS is nested deep.
+//  1. NATS feed wrapper: {"message":{...}, "airframe":{...}, ...}
+//  2. Flat message:      {"label":"H1","text":"...", ...}
+//  3. Decoder logs:      dumpvdl2 / dumphfdl JSON where ACARS is nested deep.
 //
 // This CLI tries to autodetect all three. Use -all to keep messages even if no parser matched.
 package main
@@ -36,7 +36,7 @@ type ExtractOut struct {
 }
 
 type Stats struct {
-	Lines         int
+	Lines          int
 	ParsedNATS     int
 	ParsedFlat     int
 	ParsedNested   int
@@ -115,8 +115,8 @@ func runExtract(args []string) {
 		}
 		b := []byte(line)
 
-		msg, kind := decodeToMessage(b)
-		if msg == nil || (strings.TrimSpace(msg.Label) == "" && strings.TrimSpace(msg.Text) == "") {
+		msgs, kind := decodeToMessage(b)
+		if len(msgs) == 0 {
 			st.SkippedNoLabel++
 			continue
 		}
@@ -129,14 +129,20 @@ func runExtract(args []string) {
 			st.ParsedNested++
 		}
 
-		var appended bool
-		var matched bool
-		out, appended, matched = appendOut(out, msg, *includeAll)
-		if appended {
-			st.Emitted++
-		}
-		if matched {
-			st.Matched++
+		// Process all messages extracted from this line
+		for _, msg := range msgs {
+			if msg == nil || (strings.TrimSpace(msg.Label) == "" && strings.TrimSpace(msg.Text) == "") {
+				continue
+			}
+			var appended bool
+			var matched bool
+			out, appended, matched = appendOut(out, msg, *includeAll)
+			if appended {
+				st.Emitted++
+			}
+			if matched {
+				st.Matched++
+			}
 		}
 	}
 
@@ -194,12 +200,12 @@ func marshalJSON(v any, pretty bool) ([]byte, error) {
 	return json.Marshal(v)
 }
 
-func decodeToMessage(b []byte) (*acars.Message, string) {
+func decodeToMessage(b []byte) ([]*acars.Message, string) {
 	// 1) NATS wrapper
 	var w acars.NATSWrapper
 	if err := json.Unmarshal(b, &w); err == nil && w.Message != nil {
 		if msg := w.ToMessage(); msg != nil && (msg.Label != "" || msg.Text != "") {
-			return msg, "nats"
+			return []*acars.Message{msg}, "nats"
 		}
 	}
 
@@ -207,7 +213,7 @@ func decodeToMessage(b []byte) (*acars.Message, string) {
 	var m acars.Message
 	if err := json.Unmarshal(b, &m); err == nil {
 		if strings.TrimSpace(m.Label) != "" || strings.TrimSpace(m.Text) != "" {
-			return &m, "flat"
+			return []*acars.Message{&m}, "flat"
 		}
 	}
 
@@ -216,22 +222,25 @@ func decodeToMessage(b []byte) (*acars.Message, string) {
 	if err := json.Unmarshal(b, &anyObj); err != nil {
 		return nil, ""
 	}
-	msg := buildMessageFromNested(anyObj)
-	if msg != nil && (strings.TrimSpace(msg.Label) != "" || strings.TrimSpace(msg.Text) != "") {
-		return msg, "nested"
+	msgs := buildMessagesFromNested(anyObj)
+	if len(msgs) > 0 {
+		return msgs, "nested"
 	}
 	return nil, ""
 }
 
-// buildMessageFromNested tries common paths used by dumpvdl2 / dumphfdl logs.
-// It is intentionally conservative: only fills the Message fields that parsers need.
-func buildMessageFromNested(obj any) *acars.Message {
+// buildMessagesFromNested tries common paths used by dumpvdl2 / dumphfdl logs.
+// It returns multiple messages if MIAM decoded content is present (both outer and inner).
+func buildMessagesFromNested(obj any) []*acars.Message {
 	root, ok := obj.(map[string]any)
 	if !ok {
 		return nil
 	}
 
-	label := firstString(root,
+	var msgs []*acars.Message
+
+	// First, try to extract outer ACARS message (e.g., MA with compressed text)
+	outerLabel := firstString(root,
 		"label",
 		"message.label",
 		"acars.label",
@@ -241,7 +250,7 @@ func buildMessageFromNested(obj any) *acars.Message {
 		"hfdl.lpdu.hfnpdu.acars.acars_label",
 	)
 
-	text := firstString(root,
+	outerText := firstString(root,
 		"text",
 		"message.text",
 		"msg_text",
@@ -255,71 +264,95 @@ func buildMessageFromNested(obj any) *acars.Message {
 		"hfdl.lpdu.hfnpdu.acars.msg_text",
 	)
 
-	if strings.TrimSpace(label) == "" && strings.TrimSpace(text) == "" {
-		return nil
-	}
-
-	tail := firstString(root,
-		"tail",
-		"airframe.tail",
-		"vdl2.avlc.acars.reg",
-		"vdl2.avlc.acars.tail",
-		"hfdl.lpdu.hfnpdu.acars.reg",
+	// Check if MIAM decoded content exists
+	miamLabel := firstString(root,
+		"vdl2.avlc.acars.miam.single_transfer.miam_core.data.acars.label",
+		"hfdl.lpdu.hfnpdu.acars.miam.single_transfer.miam_core.data.acars.label",
 	)
 
-	ts := firstString(root,
-		"timestamp",
-		"message.timestamp",
+	miamText := firstString(root,
+		"vdl2.avlc.acars.miam.single_transfer.miam_core.data.acars.message.text",
+		"hfdl.lpdu.hfnpdu.acars.miam.single_transfer.miam_core.data.acars.message.text",
 	)
 
-	// If no timestamp string, try epoch seconds found in dumpvdl2/dumphfdl logs.
-	if ts == "" {
-		sec := firstInt64(root,
-			"vdl2.t.sec",
-			"hfdl.t.sec",
-			"t.sec",
+	// If we have both outer and MIAM content, create both messages
+	if strings.TrimSpace(outerLabel) != "" || strings.TrimSpace(outerText) != "" {
+		// Extract common metadata
+		tail := firstString(root,
+			"tail",
+			"airframe.tail",
+			"vdl2.avlc.acars.reg",
+			"vdl2.avlc.acars.tail",
+			"hfdl.lpdu.hfnpdu.acars.reg",
 		)
-		usec := firstInt64(root,
-			"vdl2.t.usec",
-			"hfdl.t.usec",
-			"t.usec",
+
+		ts := firstString(root,
+			"timestamp",
+			"message.timestamp",
 		)
-		if sec > 0 {
-			t := time.Unix(sec, usec*1000).UTC()
-			ts = t.Format(time.RFC3339Nano)
+
+		// If no timestamp string, try epoch seconds found in dumpvdl2/dumphfdl logs.
+		if ts == "" {
+			sec := firstInt64(root,
+				"vdl2.t.sec",
+				"hfdl.t.sec",
+				"t.sec",
+			)
+			usec := firstInt64(root,
+				"vdl2.t.usec",
+				"hfdl.t.usec",
+				"t.usec",
+			)
+			if sec > 0 {
+				t := time.Unix(sec, usec*1000).UTC()
+				ts = t.Format(time.RFC3339Nano)
+			}
+		}
+
+		freq := firstFloat64(root,
+			"frequency",
+			"message.frequency",
+			"vdl2.freq",
+			"hfdl.freq",
+		)
+		// Many decoder logs store Hz as int (e.g. 136975000). Convert to MHz if large.
+		if freq > 1_000_000 {
+			freq = freq / 1_000_000.0
+		}
+
+		src := firstString(root,
+			"source",
+			"vdl2.app.name",
+			"hfdl.app.name",
+			"app.name",
+		)
+
+		// Create outer message (e.g., MA with compressed text)
+		outerMsg := &acars.Message{
+			Label:     outerLabel,
+			Text:      outerText,
+			Tail:      tail,
+			Timestamp: ts,
+			Frequency: freq,
+			Source:    src,
+		}
+		msgs = append(msgs, outerMsg)
+
+		// If MIAM decoded content exists, create second message with decoded content
+		if strings.TrimSpace(miamLabel) != "" || strings.TrimSpace(miamText) != "" {
+			miamMsg := &acars.Message{
+				Label:     miamLabel,
+				Text:      miamText,
+				Tail:      tail,
+				Timestamp: ts,
+				Frequency: freq,
+				Source:    src,
+			}
+			msgs = append(msgs, miamMsg)
 		}
 	}
 
-	freq := firstFloat64(root,
-		"frequency",
-		"message.frequency",
-		"vdl2.freq",
-		"hfdl.freq",
-	)
-	// Many decoder logs store Hz as int (e.g. 136975000). Convert to MHz if large.
-	if freq > 1_000_000 {
-		freq = freq / 1_000_000.0
-	}
-
-	// Fill minimal message for parser dispatch.
-	msg := &acars.Message{
-		Label:     label,
-		Text:      text,
-		Tail:      tail,
-		Timestamp: ts,
-		Frequency: freq,
-	}
-
-	// Populate Source (best-effort)
-	src := firstString(root,
-		"source",
-		"vdl2.app.name",
-		"hfdl.app.name",
-		"app.name",
-	)
-	msg.Source = src
-
-	return msg
+	return msgs
 }
 
 func firstString(root map[string]any, paths ...string) string {
