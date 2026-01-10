@@ -8,7 +8,6 @@ import (
 	"acars_parser/internal/acars"
 )
 
-
 func TestQuickCheck(t *testing.T) {
 	parser := &Parser{}
 
@@ -276,7 +275,7 @@ func TestDecodePositionReportDM48(t *testing.T) {
 	if msg == nil {
 		t.Fatalf("nil msg")
 	}
-	if msg.Header == nil || msg.Header.MsgID != 1 {
+	if msg.Header.MsgID != 1 {
 		t.Fatalf("unexpected header: %+v", msg.Header)
 	}
 	if msg.Header.Timestamp == nil || msg.Header.Timestamp.Hours != 12 || msg.Header.Timestamp.Minutes != 44 {
