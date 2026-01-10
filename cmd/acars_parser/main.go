@@ -339,9 +339,10 @@ func buildMessagesFromNested(obj any) []*acars.Message {
 		msgs = append(msgs, outerMsg)
 
 		// If MIAM decoded content exists, create second message with decoded content
+		// Use label "MB" for MIAM decoded messages to distinguish from outer "MA" message
 		if strings.TrimSpace(miamLabel) != "" || strings.TrimSpace(miamText) != "" {
 			miamMsg := &acars.Message{
-				Label:     miamLabel,
+				Label:     "MB",
 				Text:      miamText,
 				Tail:      tail,
 				Timestamp: ts,
