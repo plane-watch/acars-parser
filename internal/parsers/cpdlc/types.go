@@ -93,12 +93,12 @@ func (s *Speed) String() string {
 
 // Position represents a geographic position.
 type Position struct {
-	Type         string   `json:"type"`                   // "latlon", "fix", "navaid", "place_bearing_distance", etc.
-	Latitude     *float64 `json:"latitude,omitempty"`     // Decimal degrees.
-	Longitude    *float64 `json:"longitude,omitempty"`    // Decimal degrees.
-	Name         string   `json:"name,omitempty"`         // Fix/navaid name.
-	Bearing      *int     `json:"bearing,omitempty"`      // Bearing in degrees (for place_bearing_distance).
-	Distance     *int     `json:"distance,omitempty"`     // Distance value (for place_bearing_distance).
+	Type         string   `json:"type"`                    // "latlon", "fix", "navaid", "place_bearing_distance", etc.
+	Latitude     *float64 `json:"latitude,omitempty"`      // Decimal degrees.
+	Longitude    *float64 `json:"longitude,omitempty"`     // Decimal degrees.
+	Name         string   `json:"name,omitempty"`          // Fix/navaid name.
+	Bearing      *int     `json:"bearing,omitempty"`       // Bearing in degrees (for place_bearing_distance).
+	Distance     *int     `json:"distance,omitempty"`      // Distance value (for place_bearing_distance).
 	DistanceUnit string   `json:"distance_unit,omitempty"` // "nm" or "km" (for place_bearing_distance).
 }
 
@@ -211,8 +211,8 @@ func (p *ProcedureName) String() string {
 
 // Frequency represents a radio frequency.
 type Frequency struct {
-	Type  string `json:"type"`  // "vhf", "uhf", "hf", "satcom".
-	Value int    `json:"value"` // Frequency value (encoding depends on type).
+	Type  string  `json:"type"`  // "vhf", "uhf", "hf", "satcom".
+	Value float64 `json:"value"` // For VHF/UHF value is MHz; for HF value is kHz; for satcom channel it's an integer channel number.
 }
 
 func (f *Frequency) String() string {
@@ -221,16 +221,16 @@ func (f *Frequency) String() string {
 	}
 	switch f.Type {
 	case "vhf":
-		// Value is in kHz, display as MHz.
-		return fmt.Sprintf("%.3f MHz", float64(f.Value)/1000.0)
+		return fmt.Sprintf("%.3f MHz", f.Value)
 	case "uhf":
-		return fmt.Sprintf("%.3f MHz", float64(f.Value)/1000.0)
+		return fmt.Sprintf("%.3f MHz", f.Value)
 	case "hf":
-		return fmt.Sprintf("%d kHz", f.Value)
+		// HF in kHz
+		return fmt.Sprintf("%.0f kHz", f.Value)
 	case "satcom":
-		return fmt.Sprintf("SATCOM ch %d", f.Value)
+		return fmt.Sprintf("SATCOM ch %.0f", f.Value)
 	default:
-		return fmt.Sprintf("%d", f.Value)
+		return fmt.Sprintf("%v", f.Value)
 	}
 }
 
@@ -280,6 +280,127 @@ func (b *BeaconCode) String() string {
 // FreeText represents free-form text.
 type FreeText struct {
 	Text string `json:"text"`
+}
+
+// Temperature represents an air temperature.
+type Temperature struct {
+	Type  string  `json:"type"`  // "C" or "F"
+	Value float64 `json:"value"` // degrees
+}
+
+func (t *Temperature) String() string {
+	if t == nil {
+		return ""
+	}
+	unit := t.Type
+	if unit == "" {
+		unit = "C"
+	}
+	// Keep one decimal max, but avoid trailing .0 for integer-ish values.
+	if t.Value == float64(int(t.Value)) {
+		return fmt.Sprintf("%d %s", int(t.Value), unit)
+	}
+	return fmt.Sprintf("%.1f %s", t.Value, unit)
+}
+
+// WindSpeed represents wind speed.
+type WindSpeed struct {
+	Type  string `json:"type"`  // "kts" or "kmh"
+	Value int    `json:"value"` // speed
+}
+
+func (w *WindSpeed) String() string {
+	if w == nil {
+		return ""
+	}
+	suffix := w.Type
+	if suffix == "" {
+		suffix = "kts"
+	}
+	return fmt.Sprintf("%d %s", w.Value, suffix)
+}
+
+// Winds represents wind direction and speed.
+type Winds struct {
+	Direction int        `json:"direction"` // degrees
+	Speed     *WindSpeed `json:"speed,omitempty"`
+}
+
+func (w *Winds) String() string {
+	if w == nil {
+		return ""
+	}
+	if w.Speed != nil {
+		return fmt.Sprintf("%d°/%s", w.Direction, w.Speed.String())
+	}
+	return fmt.Sprintf("%d°", w.Direction)
+}
+
+// PositionReport represents a downlink POSITION REPORT (dM48).
+// Field set matches what is commonly seen in FANS-1/A position reports.
+type PositionReport struct {
+	PosCurrent       *Position    `json:"pos_current,omitempty"`
+	TimeAtPosCurrent *Time        `json:"time_at_pos_current,omitempty"`
+	Alt              *Altitude    `json:"alt,omitempty"`
+	NextFix          *Position    `json:"next_fix,omitempty"`
+	EtaAtFixNext     *Time        `json:"eta_at_fix_next,omitempty"`
+	NextNextFix      *Position    `json:"next_next_fix,omitempty"`
+	EtaAtDest        *Time        `json:"eta_at_dest,omitempty"`
+	Temp             *Temperature `json:"temp,omitempty"`
+	Winds            *Winds       `json:"winds,omitempty"`
+	Speed            *Speed       `json:"speed,omitempty"`
+	ReportedWptPos   *Position    `json:"reported_wpt_pos,omitempty"`
+	ReportedWptTime  *Time        `json:"reported_wpt_time,omitempty"`
+	ReportedWptAlt   *Altitude    `json:"reported_wpt_alt,omitempty"`
+}
+
+func (p *PositionReport) String() string {
+	if p == nil {
+		return ""
+	}
+	// Compact summary for label substitution.
+	parts := []string{}
+	if p.PosCurrent != nil {
+		parts = append(parts, p.PosCurrent.String())
+	}
+	if p.TimeAtPosCurrent != nil {
+		parts = append(parts, p.TimeAtPosCurrent.String())
+	}
+	if p.Alt != nil {
+		parts = append(parts, p.Alt.String())
+	}
+	if p.NextFix != nil && p.EtaAtFixNext != nil {
+		parts = append(parts, fmt.Sprintf("next %s %s", p.NextFix.String(), p.EtaAtFixNext.String()))
+	} else if p.NextFix != nil {
+		parts = append(parts, fmt.Sprintf("next %s", p.NextFix.String()))
+	}
+	if p.Winds != nil {
+		parts = append(parts, "wind "+p.Winds.String())
+	}
+	if p.Speed != nil {
+		parts = append(parts, "spd "+p.Speed.String())
+	}
+	if len(parts) == 0 {
+		return "(position report)"
+	}
+	return fmt.Sprintf("%s", joinNonEmpty(parts, "; "))
+}
+
+func joinNonEmpty(parts []string, sep string) string {
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return ""
+	}
+	res := out[0]
+	for i := 1; i < len(out); i++ {
+		res += sep + out[i]
+	}
+	return res
 }
 
 // ErrorInfo represents CPDLC error information.

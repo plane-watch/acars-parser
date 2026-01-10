@@ -30,6 +30,18 @@ func (br *BitReader) Remaining() int {
 	return br.nbits - br.offset
 }
 
+// Offset returns the current bit offset.
+func (br *BitReader) Offset() int { return br.offset }
+
+// SetOffset sets the current bit offset (used for decode retries).
+func (br *BitReader) SetOffset(off int) error {
+	if off < 0 || off > br.nbits {
+		return errors.New("invalid bit offset")
+	}
+	br.offset = off
+	return nil
+}
+
 // ReadBits reads up to 31 bits from the stream.
 func (br *BitReader) ReadBits(nbits int) (uint32, error) {
 	if nbits < 0 || nbits > 31 {
@@ -98,6 +110,11 @@ func (br *BitReader) ReadConstrainedInt(lower, upper int) (int, error) {
 	v, err := br.ReadBits(nbits)
 	if err != nil {
 		return 0, err
+	}
+
+	// UPER uses the minimum number of bits; some code points are unused.
+	if int(v) > rangeVal {
+		return 0, errors.New("constrained integer out of range")
 	}
 
 	return lower + int(v), nil

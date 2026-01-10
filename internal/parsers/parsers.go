@@ -16,6 +16,7 @@ import (
 	_ "acars_parser/internal/parsers/h2wind"
 	_ "acars_parser/internal/parsers/label10"
 	_ "acars_parser/internal/parsers/label16"
+	_ "acars_parser/internal/parsers/label17"
 	_ "acars_parser/internal/parsers/label21"
 	_ "acars_parser/internal/parsers/label22"
 	_ "acars_parser/internal/parsers/label44"

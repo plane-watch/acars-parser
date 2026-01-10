@@ -111,8 +111,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 			}
 
 		case "position":
-			result.Latitude = patterns.ParseDecimalCoord(match.Captures["lat"], match.Captures["lat_dir"])
-			result.Longitude = patterns.ParseDecimalCoord(match.Captures["lon"], match.Captures["lon_dir"])
+			result.Latitude = parseLabel80Coord(match.Captures["lat"], match.Captures["lat_dir"])
+			result.Longitude = parseLabel80Coord(match.Captures["lon"], match.Captures["lon_dir"])
 
 		case "altitude":
 			if alt, err := strconv.Atoi(match.Captures["altitude"]); err == nil {
@@ -155,4 +155,35 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	return result
+}
+
+
+// parseLabel80Coord parses /POS coordinates that may be encoded as:
+// - decimal degrees with a dot: "44.038"
+// - compact decimal degrees without a dot: "44038" (=> 44.038), "019408" (=> 19.408)
+// For compact form we insert a dot after degree digits (lat:2, lon:2 or 3 depending on length).
+func parseLabel80Coord(s string, dir string) float64 {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0
+	}
+	if strings.Contains(s, ".") {
+		return patterns.ParseDecimalCoord(s, dir)
+	}
+	// compact digits-only form
+	if dir == "E" || dir == "W" {
+		degDigits := 3
+		if len(s) <= 5 { // e.g. "19408" => 19.408
+			degDigits = 2
+		}
+		if len(s) > degDigits {
+			s = s[:degDigits] + "." + s[degDigits:]
+		}
+	} else {
+		degDigits := 2
+		if len(s) > degDigits {
+			s = s[:degDigits] + "." + s[degDigits:]
+		}
+	}
+	return patterns.ParseDecimalCoord(s, dir)
 }

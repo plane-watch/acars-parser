@@ -201,3 +201,38 @@ func TestDetectTruncation(t *testing.T) {
 		})
 	}
 }
+
+func TestH1PosParse_WindSpeedThreeDigits(t *testing.T) {
+	// Example where wind is encoded as DDDSSS (3-digit speed with leading zero): 255044 => 255° / 44 kts.
+	msg := &acars.Message{
+		ID:        1,
+		Label:     "H1",
+		Text:      "POSN43451E017323,VRANA,032901,370,PETAK,034717,PINDO,M46,255044,141C21C",
+		Timestamp: "2025-10-06T04:45:10.137514Z",
+		Tail:      "TEST",
+	}
+
+	parser := &H1PosParser{}
+	res := parser.Parse(msg)
+	if res == nil {
+		t.Fatalf("expected parse result, got nil")
+	}
+
+	pos, ok := res.(*H1PosResult)
+	if !ok {
+		t.Fatalf("expected *H1PosResult, got %T", res)
+	}
+
+	if pos.FlightLevel != 370 {
+		t.Fatalf("flight level = %d, want 370", pos.FlightLevel)
+	}
+	if pos.Temperature != -46 {
+		t.Fatalf("temperature = %d, want -46", pos.Temperature)
+	}
+	if pos.WindDir != 255 {
+		t.Fatalf("wind_dir = %d, want 255", pos.WindDir)
+	}
+	if pos.WindSpeed != 44 {
+		t.Fatalf("wind_speed = %d, want 44", pos.WindSpeed)
+	}
+}

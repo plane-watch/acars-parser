@@ -103,12 +103,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	result.RawHex = hexData
 
 	// Determine direction based on message label.
-	// AA = downlink (aircraft to ground).
-	// BA = uplink (ground to aircraft).
+	// For CPDLC in our pipeline (dumpvdl2/acarsdec):
+	//   AA = uplink   (ground -> aircraft)
+	//   BA = downlink (aircraft -> ground)
 	if msg.Label == "AA" {
-		result.Direction = "downlink"
-	} else {
 		result.Direction = "uplink"
+	} else {
+		result.Direction = "downlink"
 	}
 
 	// For connection messages, we don't have CPDLC payload to decode.
@@ -126,6 +127,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if err != nil {
 		result.Error = "invalid hex data: " + err.Error()
 		return result
+	}
+
+	// AT1 payloads in this project include a trailing 2-byte checksum/FCS which is
+	// *not* part of the ASN.1 PER CPDLC message. Keep raw_hex as-is for debugging,
+	// but trim those 2 bytes before decoding.
+	if len(data) > 2 {
+		data = data[:len(data)-2]
 	}
 
 	// Decode the CPDLC message.
@@ -208,18 +216,25 @@ func isValidHex(s string) bool {
 
 // formatMessage creates a human-readable summary of the CPDLC message.
 func formatMessage(msg *Message) string {
-	if len(msg.Elements) == 0 {
+	if msg == nil || len(msg.Elements) == 0 {
 		return ""
+	}
+
+	// If a free-text element is present, prefer that as the main summary
+	// (this matches what libacars/acarslib typically surfaces for many uplinks/requests).
+	for _, elem := range msg.Elements {
+		if strings.EqualFold(strings.TrimSpace(elem.Label), "[freetext]") && strings.TrimSpace(elem.Text) != "" {
+			return strings.TrimSpace(elem.Text)
+		}
 	}
 
 	parts := make([]string, 0, len(msg.Elements))
 	for _, elem := range msg.Elements {
-		if elem.Text != "" {
-			parts = append(parts, elem.Text)
-		} else {
-			parts = append(parts, elem.Label)
+		if strings.TrimSpace(elem.Text) != "" {
+			parts = append(parts, strings.TrimSpace(elem.Text))
+		} else if strings.TrimSpace(elem.Label) != "" {
+			parts = append(parts, strings.TrimSpace(elem.Label))
 		}
 	}
-
 	return strings.Join(parts, "; ")
 }

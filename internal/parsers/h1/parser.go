@@ -562,13 +562,18 @@ func (p *H1PosParser) Parse(msg *acars.Message) registry.Result {
 			result.FlightLevel = alt
 		}
 
-		// Parse wind data (5 digits: DDDSS = direction + speed).
-		if windStr := match.Captures["wind"]; len(windStr) == 5 {
-			if dir, err := parseIntField(windStr[:3]); err == nil {
-				result.WindDir = dir
-			}
-			if spd, err := parseIntField(windStr[3:]); err == nil {
-				result.WindSpeed = spd
+		// Parse wind data.
+		// Typical: DDDSS (5 digits), but some feeds use DDDSSS (6 digits) with a leading zero
+		// for speed (e.g. 255044 -> 255° / 44 kts).
+		if windStr := match.Captures["wind"]; len(windStr) >= 5 {
+			windStr = strings.TrimSpace(windStr)
+			if len(windStr) == 5 || len(windStr) == 6 {
+				if dir, err := parseIntField(windStr[:3]); err == nil {
+					result.WindDir = dir
+				}
+				if spd, err := parseIntField(windStr[3:]); err == nil {
+					result.WindSpeed = spd
+				}
 			}
 		}
 	} else {

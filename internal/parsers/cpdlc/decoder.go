@@ -13,10 +13,10 @@ type Message struct {
 
 // MessageElement represents a single message element (uplink or downlink).
 type MessageElement struct {
-	ID    int         `json:"id"`              // Element ID (uM0-uM182 for uplink, dM0-dM128 for downlink).
-	Label string      `json:"label"`           // Human-readable message template.
-	Data  interface{} `json:"data,omitempty"`  // Element-specific data.
-	Text  string      `json:"text,omitempty"`  // Formatted message text.
+	ID    int         `json:"id"`             // Element ID (uM0-uM182 for uplink, dM0-dM128 for downlink).
+	Label string      `json:"label"`          // Human-readable message template.
+	Data  interface{} `json:"data,omitempty"` // Element-specific data.
+	Text  string      `json:"text,omitempty"` // Formatted message text.
 }
 
 // Decoder decodes FANS-1/A CPDLC messages.
@@ -35,46 +35,115 @@ func NewDecoder(data []byte, direction MessageDirection) *Decoder {
 
 // Decode decodes the message.
 func (d *Decoder) Decode() (*Message, error) {
+	// We see both encodings in the wild:
+	//  1) Standard UPER SEQUENCE optional field presence bit for the optional element_id_seq (multi-element messages)
+	//  2) Legacy/non-standard encodings where that presence bit is omitted
+	//
+	// To be robust, try both and select the decode that succeeds with the least leftover bits.
+	msgA, remA, errA := d.decodeAttempt(true, false) // standard: presence bit for optional element_id_seq
+	msgB, remB, errB := d.decodeAttempt(false, true) // legacy: no presence bit; optionally try to decode trailing elements heuristically
+
+	// Choose best successful attempt.
+	if errA != nil && errB != nil {
+		return nil, fmt.Errorf("decode failed (std): %v; (legacy): %v", errA, errB)
+	}
+	if errA == nil && errB != nil {
+		return msgA, nil
+	}
+	if errB == nil && errA != nil {
+		return msgB, nil
+	}
+
+	// Both succeeded: choose the one that consumes more bits (smaller remainder),
+	// and as a tie-breaker, prefer the one with more elements.
+	if remA < remB {
+		return msgA, nil
+	}
+	if remB < remA {
+		return msgB, nil
+	}
+	if len(msgA.Elements) > len(msgB.Elements) {
+		return msgA, nil
+	}
+	if len(msgB.Elements) > len(msgA.Elements) {
+		return msgB, nil
+	}
+	return msgA, nil
+}
+
+func (d *Decoder) decodeAttempt(withSeqPresenceBit bool, heuristicTailSeq bool) (*Message, int, error) {
+	// reset reader
+	_ = d.br.SetOffset(0)
+
 	msg := &Message{
 		Direction: d.direction,
 	}
 
-	// NOTE on multi-element messages:
-	// According to ASN.1 PER, FANSATCDownlinkMessage/FANSATCUplinkMessage should have
-	// a presence bit at the start indicating whether the optional seqOf field is present.
-	// However, real-world FANS-1/A implementations do NOT include this presence bit.
-	// The libacars asn1c-generated code would expect it, but actual aircraft/ATC systems
-	// apparently use a different encoding where multi-element detection relies on
-	// data-length exhaustion rather than an explicit presence bit.
-	//
-	// This was verified empirically: hex data `005080204A` correctly decodes to dM80
-	// when the header starts at bit 0, but decodes incorrectly (dM161) when a presence
-	// bit is read first. Therefore, we do NOT read a presence preamble here.
-	//
-	// Multi-element messages (where seqOf contains 1-4 additional elements) are
-	// currently not supported because there's no reliable way to detect them without
-	// the presence bit. In practice, single-element messages are the most common case.
+	hasSeq := false
+	if withSeqPresenceBit {
+		b, err := d.br.ReadBit()
+		if err != nil {
+			return nil, d.br.Remaining(), fmt.Errorf("seqPresent: %w", err)
+		}
+		hasSeq = b
+	}
 
 	// Decode header (presence bits for optional header fields come first within header).
 	header, err := d.decodeHeader()
 	if err != nil {
-		return nil, fmt.Errorf("header: %w", err)
+		return nil, d.br.Remaining(), fmt.Errorf("header: %w", err)
 	}
 	msg.Header = *header
 
 	// Decode primary message element.
 	elem, err := d.decodeElement()
 	if err != nil {
-		return nil, fmt.Errorf("element: %w", err)
+		return nil, d.br.Remaining(), fmt.Errorf("element: %w", err)
 	}
 	msg.Elements = append(msg.Elements, *elem)
 
-	// TODO: Multi-element message support would require either:
-	// 1. Detecting remaining data after the primary element and attempting to decode more
-	// 2. Finding real-world multi-element message samples to analyse the actual encoding
-	// For now, we only decode the primary element.
+	// Optional additional elements (SEQUENCE OF SIZE(1..4)).
+	if hasSeq {
+		seqLen, err := d.br.ReadConstrainedInt(1, 4)
+		if err != nil {
+			return nil, d.br.Remaining(), fmt.Errorf("seqLen: %w", err)
+		}
+		for i := 0; i < seqLen; i++ {
+			e, err := d.decodeElement()
+			if err != nil {
+				return nil, d.br.Remaining(), fmt.Errorf("seqElem[%d]: %w", i, err)
+			}
+			msg.Elements = append(msg.Elements, *e)
+		}
+	} else if heuristicTailSeq {
+		// Legacy heuristic: if there is remaining data, try to interpret it as a constrained
+		// SEQUENCE OF (1..4) message elements (length + elements). If it fails, roll back.
+		off := d.br.Offset()
+		if d.br.Remaining() >= 10 { // 2 bits len + >=8 bits element id
+			seqLen, err := d.br.ReadConstrainedInt(1, 4)
+			if err == nil {
+				ok := true
+				buf := make([]MessageElement, 0, seqLen)
+				for i := 0; i < seqLen; i++ {
+					e, err := d.decodeElement()
+					if err != nil {
+						ok = false
+						break
+					}
+					buf = append(buf, *e)
+				}
+				if ok {
+					msg.Elements = append(msg.Elements, buf...)
+				} else {
+					_ = d.br.SetOffset(off)
+				}
+			} else {
+				_ = d.br.SetOffset(off)
+			}
+		}
+	}
 
-	return msg, nil
+	return msg, d.br.Remaining(), nil
 }
 
 // decodeHeader decodes the ATC message header.
@@ -112,7 +181,7 @@ func (d *Decoder) decodeHeader() (*MessageHeader, error) {
 
 	// Timestamp (optional).
 	if hasTimestamp {
-		timestamp, err := d.decodeTimestamp()
+		timestamp, err := d.decodeHeaderTimestamp()
 		if err != nil {
 			return nil, fmt.Errorf("timestamp: %w", err)
 		}
@@ -122,8 +191,11 @@ func (d *Decoder) decodeHeader() (*MessageHeader, error) {
 	return header, nil
 }
 
-// decodeTimestamp decodes a FANS timestamp.
-func (d *Decoder) decodeTimestamp() (*Time, error) {
+// decodeHeaderTimestamp decodes a FANS timestamp as used in CPDLC headers.
+// NOTE: Header timestamps include seconds. We intentionally do NOT expose seconds
+// in JSON (hours/minutes are enough for most UI), but we MUST consume them from
+// the bitstream to keep decoding aligned.
+func (d *Decoder) decodeHeaderTimestamp() (*Time, error) {
 	// Hours (0-23) = 5 bits.
 	hours, err := d.br.ReadConstrainedInt(0, 23)
 	if err != nil {
@@ -131,6 +203,11 @@ func (d *Decoder) decodeTimestamp() (*Time, error) {
 	}
 	// Minutes (0-59) = 6 bits.
 	minutes, err := d.br.ReadConstrainedInt(0, 59)
+	if err != nil {
+		return nil, err
+	}
+	// Seconds (0-59) = 6 bits (consume, do not expose).
+	_, err = d.br.ReadConstrainedInt(0, 59)
 	if err != nil {
 		return nil, err
 	}
@@ -335,6 +412,10 @@ func (d *Decoder) decodeDownlinkData(elemID int) (interface{}, error) {
 		// Beacon code.
 		return d.decodeBeaconCode()
 
+	case 48:
+		// POSITION REPORT [positionreport]
+		return d.decodePositionReport()
+
 	case 62:
 		// Error information.
 		return d.decodeErrorInfo()
@@ -458,7 +539,16 @@ func (d *Decoder) decodeAltitude() (*Altitude, error) {
 }
 
 func (d *Decoder) decodeTime() (*Time, error) {
-	return d.decodeTimestamp()
+	// Most CPDLC element "time" fields are HH:MM only (no seconds).
+	hours, err := d.br.ReadConstrainedInt(0, 23)
+	if err != nil {
+		return nil, err
+	}
+	minutes, err := d.br.ReadConstrainedInt(0, 59)
+	if err != nil {
+		return nil, err
+	}
+	return &Time{Hours: hours, Minutes: minutes}, nil
 }
 
 func (d *Decoder) decodePosition() (*Position, error) {
@@ -582,6 +672,326 @@ func (d *Decoder) decodeAltitudeAltitude() (map[string]interface{}, error) {
 		return nil, err
 	}
 	return map[string]interface{}{"altitude1": alt1, "altitude2": alt2}, nil
+}
+
+// decodePositionReport decodes dM48 POSITION REPORT data.
+// In the wild, the POS-CURRENT block is often preceded by a 20-bit presence bitmap.
+// Some aircraft omit the trailing "reported waypoint" triplet; we treat it as optional.
+func (d *Decoder) decodePositionReport() (*PositionReport, error) {
+	// Keep this tolerant: try the common 20-bit bitmap form first, then fall back.
+	start := d.br.Offset()
+
+	pr, err := d.decodePositionReportImpl(true)
+	if err == nil {
+		return pr, nil
+	}
+
+	_ = d.br.SetOffset(start)
+	pr2, err2 := d.decodePositionReportImpl(false)
+	if err2 == nil {
+		return pr2, nil
+	}
+
+	// Prefer the first error (bitmap form) because it's usually closer to what aircraft send.
+	return nil, err
+}
+
+func (d *Decoder) decodePositionReportImpl(withBitmap bool) (*PositionReport, error) {
+	pr := &PositionReport{}
+
+	if withBitmap {
+		if _, err := d.br.ReadBits(20); err != nil {
+			return nil, fmt.Errorf("presence bitmap: %w", err)
+		}
+	}
+
+	// Current position (often encoded as latitude/longitude with minutes*10 precision).
+	pos, err := d.decodePositionReportPosCurrent()
+	if err != nil {
+		return nil, fmt.Errorf("pos_current: %w", err)
+	}
+	pr.PosCurrent = pos
+
+	// Time at current position: hours are commonly encoded 0..47 (6 bits) in FANS-1/A reports.
+	tCur, err := d.decodeTime48()
+	if err != nil {
+		return nil, fmt.Errorf("time_at_pos_current: %w", err)
+	}
+	pr.TimeAtPosCurrent = tCur
+
+	// Altitude.
+	alt, err := d.decodeAltitude()
+	if err != nil {
+		return nil, fmt.Errorf("alt: %w", err)
+	}
+	pr.Alt = alt
+
+	// Next fix.
+	nextFix, err := d.decodePosition()
+	if err != nil {
+		return nil, fmt.Errorf("next_fix: %w", err)
+	}
+	pr.NextFix = nextFix
+
+	// ETA at next fix (HH:MM).
+	etaNext, err := d.decodeTime()
+	if err != nil {
+		return nil, fmt.Errorf("eta_at_fix_next: %w", err)
+	}
+	pr.EtaAtFixNext = etaNext
+
+	// Next-next fix.
+	nextNextFix, err := d.decodePosition()
+	if err != nil {
+		return nil, fmt.Errorf("next_next_fix: %w", err)
+	}
+	pr.NextNextFix = nextNextFix
+
+	// ETA at destination (HH:MM).
+	etaDest, err := d.decodeTime()
+	if err != nil {
+		return nil, fmt.Errorf("eta_at_dest: %w", err)
+	}
+	pr.EtaAtDest = etaDest
+
+	// Temperature.
+	temp, err := d.decodeTemperature()
+	if err != nil {
+		return nil, fmt.Errorf("temp: %w", err)
+	}
+	pr.Temp = temp
+
+	// Winds.
+	winds, err := d.decodeWinds()
+	if err != nil {
+		return nil, fmt.Errorf("winds: %w", err)
+	}
+	pr.Winds = winds
+
+	// Speed.
+	spd, err := d.decodeSpeed()
+	if err != nil {
+		return nil, fmt.Errorf("speed: %w", err)
+	}
+	pr.Speed = spd
+
+	// Optional: reported waypoint (pos/time/alt).
+	// Some aircraft don't include it; if it doesn't fit, roll back and leave it empty.
+	off := d.br.Offset()
+	if d.br.Remaining() > 0 {
+		repPos, err1 := d.decodePosition()
+		repTime, err2 := d.decodeTime()
+		repAlt, err3 := d.decodeAltitude()
+		if err1 == nil && err2 == nil && err3 == nil {
+			pr.ReportedWptPos = repPos
+			pr.ReportedWptTime = repTime
+			pr.ReportedWptAlt = repAlt
+		} else {
+			_ = d.br.SetOffset(off)
+		}
+	}
+
+	return pr, nil
+}
+
+// decodePositionReportPosCurrent decodes the "pos_current" field inside dM48.
+// This position CHOICE differs from the generic FANS position used elsewhere:
+// aircraft commonly use a lat/lon encoding with minutes*10 precision.
+func (d *Decoder) decodePositionReportPosCurrent() (*Position, error) {
+	choice, err := d.br.ReadConstrainedInt(0, 7)
+	if err != nil {
+		return nil, err
+	}
+
+	pos := &Position{}
+
+	switch choice {
+	case 0: // Fix name.
+		name, err := d.decodeFixName()
+		if err != nil {
+			return nil, err
+		}
+		pos.Type = "fix"
+		pos.Name = name
+
+	case 1: // Navaid.
+		name, err := d.decodeNavaid()
+		if err != nil {
+			return nil, err
+		}
+		pos.Type = "navaid"
+		pos.Name = name
+
+	case 2: // Airport.
+		name, err := d.decodeAirport()
+		if err != nil {
+			return nil, err
+		}
+		pos.Type = "airport"
+		pos.Name = name
+
+	case 3, 7: // Latitude/Longitude (minutes*10).
+		lat, lon, err := d.decodeLatLonMin10()
+		if err != nil {
+			return nil, err
+		}
+		pos.Type = "latlon"
+		pos.Latitude = &lat
+		pos.Longitude = &lon
+
+	case 4: // Place/Bearing/Distance.
+		pbd, err := d.decodePlaceBearingDistance()
+		if err != nil {
+			return nil, err
+		}
+		pos.Type = "place_bearing_distance"
+		pos.Name = pbd.FixName
+		pos.Bearing = pbd.Bearing
+		pos.Distance = pbd.Distance
+		pos.DistanceUnit = pbd.DistanceUnit
+		if pbd.Latitude != nil && pbd.Longitude != nil {
+			pos.Latitude = pbd.Latitude
+			pos.Longitude = pbd.Longitude
+		}
+
+	default:
+		return nil, fmt.Errorf("unsupported pos_current choice %d", choice)
+	}
+
+	return pos, nil
+}
+
+// decodeLatLonMin10 decodes lat/lon as (deg, minutes*10) with hemisphere bits.
+// Observed layout (FANS-1/A position reports):
+//  - lat_deg: 0..90
+//  - lat_min10: 0..599 (minutes*10)
+//  - lat_dir: 0=north, 1=south
+//  - lon_dir: 0=west, 1=east
+//  - lon_deg: 0..180
+//  - lon_min10: 0..599 (minutes*10)
+func (d *Decoder) decodeLatLonMin10() (float64, float64, error) {
+	latDeg, err := d.br.ReadConstrainedInt(0, 90)
+	if err != nil {
+		return 0, 0, err
+	}
+	latMin10, err := d.br.ReadConstrainedInt(0, 599)
+	if err != nil {
+		return 0, 0, err
+	}
+	latSouth, err := d.br.ReadBit()
+	if err != nil {
+		return 0, 0, err
+	}
+
+	lonEast, err := d.br.ReadBit()
+	if err != nil {
+		return 0, 0, err
+	}
+	lonDeg, err := d.br.ReadConstrainedInt(0, 180)
+	if err != nil {
+		return 0, 0, err
+	}
+	lonMin10, err := d.br.ReadConstrainedInt(0, 599)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	lat := float64(latDeg) + (float64(latMin10)/10.0)/60.0
+	lon := float64(lonDeg) + (float64(lonMin10)/10.0)/60.0
+	if latSouth {
+		lat = -lat
+	}
+	if !lonEast {
+		lon = -lon
+	}
+
+	return lat, lon, nil
+}
+
+// decodeTime48 decodes a time HH:MM where hours are encoded as 0..47.
+func (d *Decoder) decodeTime48() (*Time, error) {
+	hours, err := d.br.ReadConstrainedInt(0, 47)
+	if err != nil {
+		return nil, err
+	}
+	minutes, err := d.br.ReadConstrainedInt(0, 59)
+	if err != nil {
+		return nil, err
+	}
+	return &Time{Hours: hours, Minutes: minutes}, nil
+}
+
+func (d *Decoder) decodeTemperature() (*Temperature, error) {
+	// FANSTemperature is a CHOICE.
+	// Observed in FANS-1/A position reports:
+	//  0: temperatureC  INTEGER(-80..47)   (7 bits)
+	//  1: temperatureF  INTEGER(-100..100) (fallback)
+	choice, err := d.br.ReadConstrainedInt(0, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	t := &Temperature{}
+	if choice == 0 {
+		v, err := d.br.ReadConstrainedInt(-80, 47)
+		if err != nil {
+			return nil, err
+		}
+		t.Type = "C"
+		t.Value = float64(v)
+		return t, nil
+	}
+
+	v, err := d.br.ReadConstrainedInt(-100, 100)
+	if err != nil {
+		return nil, err
+	}
+	t.Type = "F"
+	t.Value = float64(v)
+	return t, nil
+}
+
+func (d *Decoder) decodeWindSpeed() (*WindSpeed, error) {
+	// FANSWindSpeed is a CHOICE:
+	//  0: windSpeedEnglish (kts)
+	//  1: windSpeedMetric (km/h)
+	choice, err := d.br.ReadConstrainedInt(0, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	ws := &WindSpeed{}
+	if choice == 0 {
+		v, err := d.br.ReadConstrainedInt(0, 255)
+		if err != nil {
+			return nil, err
+		}
+		ws.Type = "kts"
+		ws.Value = v
+		return ws, nil
+	}
+
+	// Metric. Keep the range generous to avoid rejecting valid implementations.
+	v, err := d.br.ReadConstrainedInt(0, 511)
+	if err != nil {
+		return nil, err
+	}
+	ws.Type = "kmh"
+	ws.Value = v
+	return ws, nil
+}
+
+func (d *Decoder) decodeWinds() (*Winds, error) {
+	// Wind direction in degrees.
+	dir, err := d.br.ReadConstrainedInt(1, 360)
+	if err != nil {
+		return nil, err
+	}
+	ws, err := d.decodeWindSpeed()
+	if err != nil {
+		return nil, err
+	}
+	return &Winds{Direction: dir, Speed: ws}, nil
 }
 
 func (d *Decoder) decodeSpeed() (*Speed, error) {
@@ -781,21 +1191,21 @@ func (d *Decoder) decodeFrequency() (*Frequency, error) {
 			return nil, err
 		}
 		freq.Type = "hf"
-		freq.Value = v
+		freq.Value = float64(v)
 	case 1: // VHF (kHz).
 		v, err := d.br.ReadConstrainedInt(117000, 138000)
 		if err != nil {
 			return nil, err
 		}
 		freq.Type = "vhf"
-		freq.Value = v
+		freq.Value = float64(v) / 1000.0
 	case 2: // UHF (kHz).
 		v, err := d.br.ReadConstrainedInt(225000, 399975)
 		if err != nil {
 			return nil, err
 		}
 		freq.Type = "uhf"
-		freq.Value = v
+		freq.Value = float64(v) / 1000.0
 	case 3: // SATCOM channel (string).
 		// Skip the satellite channel for now - requires string decoding.
 		freq.Type = "satcom"
@@ -806,17 +1216,87 @@ func (d *Decoder) decodeFrequency() (*Frequency, error) {
 }
 
 func (d *Decoder) decodeUnitNameFrequency() (map[string]interface{}, error) {
-	// ICAO unit name.
-	name, err := d.decodeICAOFacility()
+	// uM117/uM120 in FANS-1/A uses ICAOUnitNameFrequency:
+	//   ICAOUnitName ::= SEQUENCE {
+	//     icaoFacilityId      CHOICE { icaoFacilityDesignation IA5String(SIZE(4)), ... },
+	//     icaoFacilityFunction ENUMERATED { center(0), approach(1), tower(2), final(3), groundControl(4),
+	//                                      clearanceDelivery(5), departure(6), control(7) }
+	//   }
+	//   Frequency ::= CHOICE { hf, vhf, uhf, satcom }
+	//
+	// NOTE: The choice bit + facility-function bits MUST be consumed, otherwise the decoder becomes
+	// misaligned and the following SEQUENCE OF elements gets decoded as garbage.
+	unit, err := d.decodeICAOUnitName()
 	if err != nil {
 		return nil, err
 	}
+
 	// Frequency.
 	freq, err := d.decodeFrequency()
 	if err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{"unit": name, "frequency": freq}, nil
+
+	// Keep backward-compat with existing JSON consumers:
+	//  - expose "frequency" as {type,value}
+	//  - include "unit" (ICAO facility designation) as a plain string
+	return map[string]interface{}{
+		"unit":      unit.Designation,
+		"unit_type": unit.Function,
+		"frequency": freq,
+	}, nil
+}
+
+// ICAOUnitName represents an ICAO unit name (facility designation + function).
+type ICAOUnitName struct {
+	Designation string
+	Function    string
+}
+
+func (d *Decoder) decodeICAOUnitName() (*ICAOUnitName, error) {
+	// icaoFacilityId choice (observed: 0 => ICAO facility designation).
+	// In practice this is 1 bit in most on-air FANS messages.
+	choice, err := d.br.ReadConstrainedInt(0, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	// ICAO facility designation (4 chars, IA5 7-bit each).
+	// If the choice is not 0, we still try to read 4 chars to stay aligned.
+	des, err := d.decodeIA5String(4)
+	if err != nil {
+		return nil, err
+	}
+	_ = choice
+
+	// Facility function (ENUM 0..7 => 3 bits).
+	fn, err := d.br.ReadConstrainedInt(0, 7)
+	if err != nil {
+		return nil, err
+	}
+	fnStr := ""
+	switch fn {
+	case 0:
+		fnStr = "center"
+	case 1:
+		fnStr = "approach"
+	case 2:
+		fnStr = "tower"
+	case 3:
+		fnStr = "final"
+	case 4:
+		fnStr = "ground"
+	case 5:
+		fnStr = "clearance"
+	case 6:
+		fnStr = "departure"
+	case 7:
+		fnStr = "control"
+	default:
+		fnStr = ""
+	}
+
+	return &ICAOUnitName{Designation: des, Function: fnStr}, nil
 }
 
 func (d *Decoder) decodeBeaconCode() (*BeaconCode, error) {
@@ -907,13 +1387,10 @@ func (d *Decoder) decodeICAOFacility() (string, error) {
 }
 
 func (d *Decoder) decodeFreeText() (*FreeText, error) {
-	// Length-prefixed IA5 string.
-	length, err := d.br.ReadLength()
+	// IA5String with SIZE(1..256) -> constrained length (8 bits) + 7-bit IA5 chars.
+	length, err := d.br.ReadConstrainedInt(1, 256)
 	if err != nil {
 		return nil, err
-	}
-	if length > 256 {
-		length = 256 // Cap at reasonable max.
 	}
 	text, err := d.decodeIA5String(length)
 	if err != nil {
@@ -1172,6 +1649,9 @@ func (d *Decoder) formatElementText(elem *MessageElement) string {
 	}
 	if data, ok := elem.Data.(*ProcedureName); ok && data != nil {
 		text = substituteText(text, "[procedurename]", data.String())
+	}
+	if data, ok := elem.Data.(*PositionReport); ok && data != nil {
+		text = substituteText(text, "[positionreport]", data.String())
 	}
 
 	// Handle map types for compound data.
