@@ -76,8 +76,8 @@ var (
 	// Match ETA1013
 	etaRe = regexp.MustCompile(`(?i)ETA(\d{4})`)
 
-	// Match ALT 21728
-	altRe = regexp.MustCompile(`(?i)ALT\s+(\d+)`)
+	// Match ALT 21728 or ALT21728 (space optional)
+	altRe = regexp.MustCompile(`(?i)ALT\s*(\d+)`)
 
 	// Match waypoint (3-5 letter word that's not a keyword)
 	waypointRe = regexp.MustCompile(`\b([A-Z]{3,5})\b`)
