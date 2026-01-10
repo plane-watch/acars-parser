@@ -93,7 +93,11 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if m := headerAFLRe.FindStringSubmatch(upper); m != nil {
 		result.Header = m[1]
 		if fl, err := strconv.Atoi(m[2]); err == nil {
-			result.FlightLevel = fl
+			// Only set flight level if it's realistic (FL600 max = 60,000 feet)
+			// AFL values > 600 are likely format identifiers, not actual altitude
+			if fl <= 600 {
+				result.FlightLevel = fl
+			}
 		}
 	} else {
 		// No valid header format found
