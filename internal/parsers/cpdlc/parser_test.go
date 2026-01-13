@@ -1,6 +1,8 @@
 package cpdlc
 
 import (
+	"encoding/hex"
+	"math"
 	"testing"
 
 	"acars_parser/internal/acars"
@@ -248,4 +250,84 @@ func TestDecodeElementID(t *testing.T) {
 	}
 
 	t.Logf("Decoded element: ID=%d, Label=%s, Text=%s", elem.ID, elem.Label, elem.Text)
+}
+
+func TestDecodePositionReportDM48(t *testing.T) {
+	// Raw hex payload (incl. FCS at the end in the ACARS message; our parser trims 2 bytes already).
+	// This is a downlink (label BA) CPDLC dM48 POSITION REPORT and should decode to a populated PositionReport.
+	rawHex := "20B2C90C3D903BAE2D1141ECCB325824E8B4A249686255AD06655B3041390B6B09360D693499564B009A26"
+
+	b, err := hex.DecodeString(rawHex)
+	if err != nil {
+		t.Fatalf("hex decode: %v", err)
+	}
+	if len(b) < 3 {
+		t.Fatalf("payload too short")
+	}
+	// Trim FCS (2 bytes) like the parser does.
+	b = b[:len(b)-2]
+
+	d := NewDecoder(b, DirectionDownlink)
+	msg, err := d.Decode()
+	if err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if msg == nil {
+		t.Fatalf("nil msg")
+	}
+	if msg.Header.MsgID != 1 {
+		t.Fatalf("unexpected header: %+v", msg.Header)
+	}
+	if msg.Header.Timestamp == nil || msg.Header.Timestamp.Hours != 12 || msg.Header.Timestamp.Minutes != 44 {
+		t.Fatalf("unexpected header timestamp: %+v", msg.Header.Timestamp)
+	}
+	if len(msg.Elements) != 1 {
+		t.Fatalf("expected 1 element, got %d", len(msg.Elements))
+	}
+	el := msg.Elements[0]
+	if el.ID != 48 {
+		t.Fatalf("expected element 48, got %d", el.ID)
+	}
+	pr, ok := el.Data.(*PositionReport)
+	if !ok || pr == nil {
+		t.Fatalf("expected PositionReport data, got %T", el.Data)
+	}
+
+	// Spot-check key fields against libacars reference decode.
+	if pr.PosCurrent == nil || pr.PosCurrent.Latitude == nil || pr.PosCurrent.Longitude == nil {
+		t.Fatalf("missing pos_current lat/lon: %+v", pr.PosCurrent)
+	}
+	if math.Abs(*pr.PosCurrent.Latitude-46.3) > 0.01 || math.Abs(*pr.PosCurrent.Longitude-20.205) > 0.01 {
+		t.Fatalf("unexpected pos_current lat/lon: %v,%v", *pr.PosCurrent.Latitude, *pr.PosCurrent.Longitude)
+	}
+	if pr.TimeAtPosCurrent == nil || pr.TimeAtPosCurrent.Hours != 12 || pr.TimeAtPosCurrent.Minutes != 44 {
+		t.Fatalf("unexpected time_at_pos_current: %+v", pr.TimeAtPosCurrent)
+	}
+	if pr.Alt == nil || pr.Alt.Type != "flight_level" || pr.Alt.Value != 330 {
+		t.Fatalf("unexpected alt: %+v", pr.Alt)
+	}
+	if pr.NextFix == nil || pr.NextFix.Name != "NERDI" {
+		t.Fatalf("unexpected next_fix: %+v", pr.NextFix)
+	}
+	if pr.NextNextFix == nil || pr.NextNextFix.Name != "UVALU" {
+		t.Fatalf("unexpected next_next_fix: %+v", pr.NextNextFix)
+	}
+	if pr.Temp == nil || pr.Temp.Type != "C" || math.Abs(pr.Temp.Value-(-48.0)) > 0.001 {
+		t.Fatalf("unexpected temp: %+v", pr.Temp)
+	}
+	if pr.Winds == nil || pr.Winds.Direction != 314 || pr.Winds.Speed == nil || pr.Winds.Speed.Type != "kts" || pr.Winds.Speed.Value != 22 {
+		t.Fatalf("unexpected winds: %+v", pr.Winds)
+	}
+	if pr.Speed == nil || pr.Speed.Type != "mach" || pr.Speed.Value != 83 {
+		t.Fatalf("unexpected speed: %+v", pr.Speed)
+	}
+	if pr.ReportedWptPos == nil || pr.ReportedWptPos.Name != "MAVIR" {
+		t.Fatalf("unexpected reported_wpt_pos: %+v", pr.ReportedWptPos)
+	}
+	if pr.ReportedWptTime == nil || pr.ReportedWptTime.Hours != 12 || pr.ReportedWptTime.Minutes != 42 {
+		t.Fatalf("unexpected reported_wpt_time: %+v", pr.ReportedWptTime)
+	}
+	if pr.ReportedWptAlt == nil || pr.ReportedWptAlt.Type != "flight_level" || pr.ReportedWptAlt.Value != 330 {
+		t.Fatalf("unexpected reported_wpt_alt: %+v", pr.ReportedWptAlt)
+	}
 }

@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/airports"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
@@ -19,19 +20,20 @@ type WaypointETA struct {
 
 // Result represents a parsed Label 10 position/route message.
 type Result struct {
-	MsgID       int64         `json:"message_id"`
-	Timestamp   string        `json:"timestamp"`
-	Tail        string        `json:"tail,omitempty"`
-	Latitude    float64       `json:"latitude"`
-	Longitude   float64       `json:"longitude"`
-	Mach        float64       `json:"mach,omitempty"`
-	Heading     int           `json:"heading,omitempty"`
-	FlightLevel int           `json:"flight_level,omitempty"`
-	Destination string        `json:"destination,omitempty"` // ICAO code
-	ETA         string        `json:"eta,omitempty"`
-	Fuel        int           `json:"fuel,omitempty"`     // Fuel remaining
-	Distance    int           `json:"distance,omitempty"` // Distance to destination
-	Waypoints   []WaypointETA `json:"waypoints,omitempty"`
+	MsgID           int64         `json:"message_id"`
+	Timestamp       string        `json:"timestamp"`
+	Tail            string        `json:"tail,omitempty"`
+	Latitude        float64       `json:"latitude"`
+	Longitude       float64       `json:"longitude"`
+	Mach            float64       `json:"mach,omitempty"`
+	Heading         int           `json:"heading,omitempty"`
+	FlightLevel     int           `json:"flight_level,omitempty"`
+	Destination     string        `json:"destination,omitempty"` // ICAO code
+	DestinationName string        `json:"destination_name,omitempty"`
+	ETA             string        `json:"eta,omitempty"`
+	Fuel            int           `json:"fuel,omitempty"`     // Fuel remaining
+	Distance        int           `json:"distance,omitempty"` // Distance to destination
+	Waypoints       []WaypointETA `json:"waypoints,omitempty"`
 }
 
 func (r *Result) Type() string     { return "label10_position" }
@@ -132,6 +134,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		// Field 4: Destination ICAO.
 		if len(fields[4]) == 4 {
 			result.Destination = fields[4]
+			result.DestinationName = airports.GetName(result.Destination)
 		}
 
 		// Field 5: ETA.

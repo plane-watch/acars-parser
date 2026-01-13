@@ -4,4 +4,33 @@ acars_parser
 *.db
 *.db-*
 TODO.md
-*.creds
+*.creds# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Archives
+*.zip
+*.7z
+*.rar
+*.tar.gz
+
+# Build artifacts
+*.db
+*.sqlite
+*.test
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups
+*_backup/
+*.bak

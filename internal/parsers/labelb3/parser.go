@@ -5,21 +5,24 @@ import (
 	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/airports"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
 // Result represents gate info from label B3 messages.
 type Result struct {
-	MsgID        int64  `json:"message_id"`
-	Timestamp    string `json:"timestamp"`
-	Tail         string `json:"tail,omitempty"`
-	FlightNum    string `json:"flight_num,omitempty"`
-	Origin       string `json:"origin,omitempty"`
-	Destination  string `json:"destination,omitempty"`
-	Gate         string `json:"gate,omitempty"`
-	ATIS         string `json:"atis,omitempty"`
-	AircraftType string `json:"aircraft_type,omitempty"`
+	MsgID           int64  `json:"message_id"`
+	Timestamp       string `json:"timestamp"`
+	Tail            string `json:"tail,omitempty"`
+	FlightNum       string `json:"flight_num,omitempty"`
+	Origin          string `json:"origin,omitempty"`
+	Destination     string `json:"destination,omitempty"`
+	OriginName      string `json:"origin_name,omitempty"`
+	DestinationName string `json:"destination_name,omitempty"`
+	Gate            string `json:"gate,omitempty"`
+	ATIS            string `json:"atis,omitempty"`
+	AircraftType    string `json:"aircraft_type,omitempty"`
 }
 
 func (r *Result) Type() string     { return "gate_info" }
@@ -84,6 +87,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 			result.Origin = match.Captures["origin"]
 			result.Gate = match.Captures["gate"]
 			result.Destination = match.Captures["dest"]
+			result.OriginName = airports.GetName(result.Origin)
+			result.DestinationName = airports.GetName(result.Destination)
 		case "atis":
 			result.ATIS = match.Captures["atis"]
 		case "aircraft_type":

@@ -7,25 +7,28 @@ import (
 	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/airports"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
 // Result represents a parsed Label 83 position report.
 type Result struct {
-	MsgID       int64   `json:"message_id"`
-	Timestamp   string  `json:"timestamp"`
-	Tail        string  `json:"tail,omitempty"`
-	MessageType string  `json:"message_type"` // PR or ZSPD
-	DayOfMonth  int     `json:"day_of_month,omitempty"`
-	ReportTime  string  `json:"report_time,omitempty"`
-	Latitude    float64 `json:"latitude"`
-	Longitude   float64 `json:"longitude"`
-	Altitude    int     `json:"altitude,omitempty"`
-	Heading     int     `json:"heading,omitempty"`
-	GroundSpeed float64 `json:"ground_speed,omitempty"`
-	Origin      string  `json:"origin,omitempty"`
-	Destination string  `json:"destination,omitempty"`
+	MsgID           int64   `json:"message_id"`
+	Timestamp       string  `json:"timestamp"`
+	Tail            string  `json:"tail,omitempty"`
+	MessageType     string  `json:"message_type"` // PR or ZSPD
+	DayOfMonth      int     `json:"day_of_month,omitempty"`
+	ReportTime      string  `json:"report_time,omitempty"`
+	Latitude        float64 `json:"latitude"`
+	Longitude       float64 `json:"longitude"`
+	Altitude        int     `json:"altitude,omitempty"`
+	Heading         int     `json:"heading,omitempty"`
+	GroundSpeed     float64 `json:"ground_speed,omitempty"`
+	Origin          string  `json:"origin,omitempty"`
+	Destination     string  `json:"destination,omitempty"`
+	OriginName      string  `json:"origin_name,omitempty"`
+	DestinationName string  `json:"destination_name,omitempty"`
 }
 
 func (r *Result) Type() string     { return "label83_position" }
@@ -110,6 +113,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		result.MessageType = "ZSPD"
 		result.Origin = match.Captures["origin"]
 		result.Destination = match.Captures["dest"]
+		result.OriginName = airports.GetName(result.Origin)
+		result.DestinationName = airports.GetName(result.Destination)
 		result.ReportTime = match.Captures["time"]
 
 		// Parse latitude (decimal).

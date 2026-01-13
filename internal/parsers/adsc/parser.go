@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/airports"
 	"acars_parser/internal/crc"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
@@ -16,10 +17,10 @@ import (
 
 // MeteoData contains meteorological information.
 type MeteoData struct {
-	WindSpeed      float64 `json:"wind_speed_kts"`       // Wind speed in knots.
-	WindDirection  float64 `json:"wind_direction_deg"`   // True wind direction in degrees.
-	WindDirInvalid bool    `json:"wind_dir_invalid"`     // True if wind direction is invalid.
-	Temperature    float64 `json:"temperature_c"`        // Temperature in Celsius.
+	WindSpeed      float64 `json:"wind_speed_kts"`     // Wind speed in knots.
+	WindDirection  float64 `json:"wind_direction_deg"` // True wind direction in degrees.
+	WindDirInvalid bool    `json:"wind_dir_invalid"`   // True if wind direction is invalid.
+	Temperature    float64 `json:"temperature_c"`      // Temperature in Celsius.
 }
 
 // EarthRef contains earth-referenced velocity data (ground track).
@@ -32,10 +33,10 @@ type EarthRef struct {
 
 // AirRef contains air-referenced velocity data (heading/mach).
 type AirRef struct {
-	Heading        float64 `json:"heading_deg"`      // True heading in degrees.
-	HeadingInvalid bool    `json:"heading_invalid"`  // True if heading is invalid.
-	Mach           float64 `json:"mach"`             // Mach number.
-	VertSpeed      int     `json:"vert_speed_fpm"`   // Vertical speed in ft/min.
+	Heading        float64 `json:"heading_deg"`     // True heading in degrees.
+	HeadingInvalid bool    `json:"heading_invalid"` // True if heading is invalid.
+	Mach           float64 `json:"mach"`            // Mach number.
+	VertSpeed      int     `json:"vert_speed_fpm"`  // Vertical speed in ft/min.
 }
 
 // Waypoint contains predicted waypoint data.
@@ -52,18 +53,27 @@ type PredictedRoute struct {
 	NextNextWaypoint *Waypoint `json:"next_next_waypoint,omitempty"`
 }
 
-// Result represents a decoded ADS-C message (Label B6).
+// ContractRequest contains uplink contract request data.
+type ContractRequest struct {
+	ContractNum  int `json:"contract_num"`
+	IntervalSecs int `json:"interval_secs,omitempty"`
+}
+
+// Result represents a decoded ADS-C message (Label B6 or A6).
 type Result struct {
-	MsgID         int64   `json:"message_id"`
-	Timestamp     string  `json:"timestamp"`
-	FlightID      string  `json:"flight_id,omitempty"`
-	Registration  string  `json:"registration"`
-	GroundStation string  `json:"ground_station,omitempty"`
-	MessageType   string  `json:"message_type"`
-	PayloadBytes  int     `json:"payload_bytes"` // Length of decoded payload.
-	Latitude      float64 `json:"latitude,omitempty"`
-	Longitude     float64 `json:"longitude,omitempty"`
-	Altitude      int     `json:"altitude,omitempty"`
+	MsgID             int64            `json:"message_id"`
+	Timestamp         string           `json:"timestamp"`
+	Direction         string           `json:"direction,omitempty"` // "uplink" or "downlink"
+	FlightID          string           `json:"flight_id,omitempty"`
+	Registration      string           `json:"registration"`
+	GroundStation     string           `json:"ground_station,omitempty"`
+	GroundStationName string           `json:"ground_station_name,omitempty"`
+	MessageType       string           `json:"message_type"`
+	PayloadBytes      int              `json:"payload_bytes"` // Length of decoded payload.
+	Latitude          float64          `json:"latitude,omitempty"`
+	Longitude         float64          `json:"longitude,omitempty"`
+	Altitude          int              `json:"altitude,omitempty"`
+	ContractRequest   *ContractRequest `json:"contract_request,omitempty"`
 
 	// Enhanced fields from tag parsing.
 	ReportTime     float64         `json:"report_time_sec,omitempty"` // Seconds past the hour.
@@ -90,7 +100,7 @@ func init() {
 }
 
 func (p *Parser) Name() string     { return "adsc" }
-func (p *Parser) Labels() []string { return []string{"B6"} }
+func (p *Parser) Labels() []string { return []string{"B6", "A6"} }
 func (p *Parser) Priority() int    { return 10 }
 
 func (p *Parser) QuickCheck(text string) bool {
@@ -115,10 +125,19 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
+	// Determine message direction from label.
+	switch msg.Label {
+	case "A6":
+		result.Direction = "uplink"
+	case "B6":
+		result.Direction = "downlink"
+	}
+
 	// Parse prefix: [link][flight]/[station].
 	prefix := text[:adsIdx]
 	if idx := strings.LastIndex(prefix, "/"); idx >= 0 {
 		result.GroundStation = prefix[idx+1:]
+		result.GroundStationName = airports.GetGroundStationName(result.GroundStation)
 		prefix = prefix[:idx]
 	}
 	// Extract flight ID (format like L46AKL0628 or J77ABA024R).
@@ -151,16 +170,46 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	// Extract clean registration from text prefix (chars 4-10, after "ADS.").
-	regPart := textPrefix[3:] // Skip "ADS".
+	regPart := textPrefix[3:]                // Skip "ADS".
 	regPart = strings.TrimLeft(regPart, ".") // Strip leading dots.
 	result.Registration = regPart
 	result.RawHex = hexPayload
 
 	// Strip CRC from payload before decoding.
 	data = data[:len(data)-2]
-	decodePayloadData(result, data)
+
+	// Handle uplink (Label A6) vs downlink (Label B6) differently.
+	if msg.Label == "A6" {
+		decodeUplinkPayload(result, data)
+	} else {
+		decodePayloadData(result, data)
+	}
 
 	return result
+}
+
+// decodeUplinkPayload decodes uplink (Label A6) contract request data.
+// Format: byte[0]=header(0x07), byte[1]=contract_num, byte[2]=interval_modulus, byte[3+]=additional_data
+// Interval is calculated as: modulus * 64 seconds
+func decodeUplinkPayload(result *Result, data []byte) {
+	if len(data) < 3 {
+		return
+	}
+
+	result.PayloadBytes = len(data)
+	result.MessageType = "uplink_contract_request"
+
+	// Byte 0 is header (typically 0x07).
+	// Byte 1 is contract number.
+	// Byte 2 is interval modulus (multiply by 64 to get seconds).
+	contractNum := int(data[1])
+	intervalModulus := int(data[2])
+	intervalSecs := intervalModulus * 64
+
+	result.ContractRequest = &ContractRequest{
+		ContractNum:  contractNum,
+		IntervalSecs: intervalSecs,
+	}
 }
 
 // decodePayloadData decodes the binary ADS-C payload using tag-based parsing.
@@ -444,14 +493,13 @@ func decodeCoordinate(raw uint32) float64 {
 	return maxVal * float64(signed) / float64(0xFFFFF)
 }
 
-// decodeAltitude decodes a 16-bit signed altitude value.
-// Resolution is 2 feet per bit (ARINC 745 / ED-100A basic report format).
+// Per ADS-C Basic Report encoding, altitude is (altitude_ft - 20000) with 2 ft resolution.
+// altitude_ft = signed(raw) * 2 + 20000.
 func decodeAltitude(raw uint32) int {
-	// Sign extend 16-bit value.
 	if raw&0x8000 != 0 {
 		raw |= 0xFFFF0000
 	}
-	return int(int32(raw)) * 2
+	return int(int32(raw))*2 + 20000
 }
 
 // decodeHeading decodes a 12-bit signed heading/track value.

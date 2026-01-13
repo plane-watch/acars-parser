@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/airports"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
@@ -20,6 +21,8 @@ type Result struct {
 	OriginICAO string `json:"origin_icao"`
 	DestIATA   string `json:"dest_iata,omitempty"`
 	DestICAO   string `json:"dest_icao"`
+	OriginName string `json:"origin_name,omitempty"`
+	DestName   string `json:"dest_name,omitempty"`
 	FlightID   string `json:"flight_id,omitempty"`
 	Date       string `json:"date,omitempty"`
 	DepSched   string `json:"dep_sched,omitempty"`
@@ -103,6 +106,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		ArrSched:   strings.TrimSpace(match.Captures["arr_sched"]),
 		ArrActual:  strings.TrimSpace(match.Captures["arr_actual"]),
 	}
+
+	// Resolve airport names
+	result.OriginName = airports.GetName(result.OriginICAO)
+	result.DestName = airports.GetName(result.DestICAO)
 
 	// Handle destination IATA (may be "---").
 	destIATA := strings.TrimSpace(match.Captures["dest_iata"])

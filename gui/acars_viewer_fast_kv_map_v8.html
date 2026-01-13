@@ -1,0 +1,1216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACARS Viewer (Fast + Map)</title>
+
+<!-- Leaflet (online). If offline, map button falls back to OpenStreetMap link. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 18px; }
+  h1 { margin: 0 0 10px 0; font-size: 20px; }
+  .muted { color: #666; }
+  .bar, .toprow { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin: 10px 0 14px; }
+  input[type="search"] { padding: 8px 10px; min-width: 320px; border:1px solid #ccc; border-radius: 10px; }
+  select, button { padding: 8px 10px; border:1px solid #ccc; border-radius: 10px; background: #fff; }
+  label.cb { display:flex; gap:6px; align-items:center; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { border-bottom: 1px solid #eee; padding: 8px 8px; vertical-align: top; }
+  th { text-align: left; position: sticky; top: 0; background: #fafafa; z-index: 2; }
+  .main-table > tbody > tr:hover > td { background: #fcfcff; }
+  .kvbox, .kvbox * { background-clip: padding-box; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+  .pill { display:inline-block; padding: 2px 8px; border:1px solid #ddd; border-radius: 999px; font-size: 12px; background:#fff; }
+  .type { font-weight: 600; }
+  details { margin: 6px 0; }
+  .kvbox { margin: 8px 0 0; padding: 10px; background: #0b1020 !important; color: #e6edf3 !important; border-radius: 12px; overflow: visible; max-height: none; }
+  .kvrows { display: flex; flex-direction: column; gap: 6px; }
+  .kvrow { display: grid; grid-template-columns: minmax(170px, var(--keyw, 320px)) minmax(220px, 1fr); gap: 10px; padding: 6px 6px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .kvk { color: #9cd1ff; overflow-wrap: break-word; word-break: normal; white-space: normal; }
+  .kvv { color: #e6edf3; overflow-wrap: break-word; word-break: normal; white-space: normal; }
+  .kvmini { color:#b7c2cf; font-size: 12px; }
+
+  /* Big Leaflet popups: 75% viewport */
+    .leaflet-popup.big-popup .leaflet-popup-content-wrapper { width: auto; height: auto; max-width: 75vw; max-height: 75vh; }
+  .leaflet-popup.big-popup .leaflet-popup-content { width: auto !important; max-width: calc(75vw - 28px) !important; height: auto !important; max-height: calc(75vh - 28px) !important; overflow: auto; margin: 14px; }
+  .leaflet-popup.big-popup .kvbox { max-height: none; }
+  .leaflet-popup.big-popup .kvrows { max-width: 100%; }
+
+  .kvtable { width: 100% !important; table-layout: fixed; }
+  .kvtable td { background: transparent !important; }
+  .kvkey { width: 220px; }
+  .kvmini { color:#b7c2cf; font-size: 12px; }
+  .right { text-align:right; }
+  input[type="file"] { border:1px solid #ccc; border-radius: 10px; padding: 6px 10px; }
+  .pager { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin: 10px 0; }
+  .pager button { padding: 6px 10px; }
+  .small { font-size: 12px; }
+  .btn-mini { padding: 4px 8px; border-radius: 10px; }
+  .nowrap { white-space: nowrap; }
+
+  /* Map modal */
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display:none; z-index: 9999; }
+  .modal .panel { position: absolute; inset: 24px; background: #fff; border-radius: 16px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.25); display:flex; flex-direction: column; }
+  
+.ptlabel .ptlabelbox{
+  font: 12px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:#111;
+  background: rgba(255,255,255,0.85);
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  white-space: normal;     /* allow line breaks */
+  line-height: 1.15;       /* row height */
+  display: inline-block;
+}
+.ptlabel .ptl2{
+  font-size: 11px;
+  opacity: 0.9;
+  margin-top: 1px;
+}
+
+.ptlabel .ptl1{
+  white-space: nowrap;     /* keep Tail/Reg on one line */
+  hyphens: none;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+/* Per-point flight level label */
+.ptfl .ptflbox{
+  font: 11px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:#111;
+  background: rgba(255,255,255,0.82);
+  padding: 2px 6px;
+  border-radius: 9px;
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.10);
+  white-space: nowrap;
+  line-height: 1.1;
+  display: inline-block;
+}
+
+
+  .modal .hdr { display:flex; justify-content: space-between; align-items:center; padding: 10px 12px; border-bottom: 1px solid #eee; gap: 10px; }
+  .modal .hdr .title { font-weight: 600; }
+  #map { flex: 1; }
+
+  /* Raw message text block (keeps newlines) */
+  .rawtext {
+    margin: 8px 0 0;
+    padding: 10px;
+    background: #0b1020;
+    color: #e6edf3;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.10);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    white-space: pre-wrap;     /* preserve \r\n but wrap long lines */
+    word-break: break-word;    /* break very long tokens */
+    overflow-wrap: anywhere;
+  }
+
+</style>
+</head>
+<body>
+  <h1>ACARS Viewer (Fast + Map)</h1>
+  <div class="muted" id="subtitle">Load JSON to start.</div>
+
+  <div class="toprow">
+    <span class="pill">Load JSON:</span>
+    <input id="file" type="file" accept=".json,application/json">
+    <button id="showAllMap">Prikaži sve na mapi</button>
+    <label class="cb small"><input id="lazyDetails" type="checkbox" checked> lazy details (recommended)</label>
+  </div>
+
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search (tail / label / type / text)..." autocomplete="off">
+    <select id="label"></select>
+    <select id="type"></select>
+    <label class="cb"><input id="onlyCoords" type="checkbox"> only with coords</label>
+    <label class="cb small">page size
+      <select id="pageSize">
+        <option value="50">50</option>
+        <option value="100" selected>100</option>
+        <option value="200">200</option>
+        <option value="500">500</option>
+      </select>
+    </label>
+    <button id="reset">Reset</button>
+  </div>
+
+  <div class="pager">
+    <button id="prev">&larr; Prev</button>
+    <button id="next">Next &rarr;</button>
+    <span class="pill" id="pageInfo">Page</span>
+  </div>
+
+  <table class="main-table">
+    <thead>
+      <tr>
+        <th style="width:170px">Timestamp</th>
+        <th style="width:120px">Tail/Reg</th>
+        <th style="width:90px">Label</th>
+        <th style="width:130px">Type</th>
+        <th style="width:110px">Coords</th>
+        <th style="width:120px">Map</th>
+        <th>Summary / Details</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <!-- Map modal -->
+  <div class="modal" id="mapModal">
+    <div class="panel">
+      <div class="hdr">
+        <div class="title" id="mapTitle">Map</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <a id="osmLink" class="pill" target="_blank" rel="noopener">Open in OSM</a>
+          <button id="closeMap" class="btn-mini">Close</button>
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
+  </div>
+
+<script>
+let rows = [];
+let filteredIdx = [];
+let page = 0;
+
+// Map globals
+let map = null;
+let marker = null;
+let allLayer = null;
+
+function isNum(x){
+  return (typeof x === 'number') && Number.isFinite(x);
+}
+function coerceNum(x){
+  if (x === null || x === undefined) return null;
+  if (typeof x === 'number') return Number.isFinite(x) ? x : null;
+  if (typeof x === 'string'){
+    const s = x.trim();
+    if (s === '') return null;
+    if (/^-?\d+(?:\.\d+)?$/.test(s)){
+      const n = Number(s);
+      return Number.isFinite(n) ? n : null;
+    }
+  }
+  return null;
+}
+
+
+// --- Flight level helpers (global, used by individual + all-maps) ---
+if (typeof getFlightLevelTextFromAny === 'undefined'){
+  function getFlightLevelTextFromAny(obj){
+    // Prefer explicit flight_level if present (already FL), otherwise use altitude in feet (altitude_ft).
+    const flRaw = (obj?.flight_level ?? obj?.flightLevel ?? obj?.FL ?? obj?.fl ?? null);
+    const flNum = coerceNum(flRaw);
+    if (isNum(flNum) && flNum > 0 && flNum <= 999){
+      return `FL ${Math.round(flNum)}`;
+    }
+
+    const altFt = coerceNum(
+      obj?.altitude_ft ?? obj?.altitudeFt ?? obj?.alt_ft ?? obj?.altFt ??
+      obj?.altitude ?? obj?.Altitude ?? obj?.alt ?? null
+    );
+    if (!isNum(altFt)) return "";
+
+    // If it's clearly feet (e.g. 32999, 40000) -> FL = ft/100
+    if (altFt > 500){
+      const fl = Math.round(altFt / 100);
+      if (isFinite(fl) && fl > 0) return `FL ${fl}`;
+    }
+
+    // Otherwise treat as FL already
+    const fl = Math.round(altFt);
+    if (!isFinite(fl) || fl <= 0) return "";
+    return `FL ${fl}`;
+  }
+}
+
+if (typeof getFlightLevelTextForRow === 'undefined'){
+  function getFlightLevelTextForRow(r){
+    if (!r) return "";
+    // 1) direct row fields (in some parsers results are already flattened)
+    let t = getFlightLevelTextFromAny(r);
+    if (t) return t;
+
+    // 2) raw wrapper {message, results}
+    const raw = r.raw || null;
+    if (raw){
+      t = getFlightLevelTextFromAny(raw);
+      if (t) return t;
+
+      const res = raw.results;
+      if (Array.isArray(res)){
+        for (const it of res){
+          t = getFlightLevelTextFromAny(it);
+          if (t) return t;
+        }
+      }
+
+      if (raw.message){
+        t = getFlightLevelTextFromAny(raw.message);
+        if (t) return t;
+      }
+    }
+    return "";
+  }
+}
+
+if (typeof addFLLabelToLayer === 'undefined'){
+  function addFLLabelToLayer(layer, latlng, flText){
+    if (!flText) return;
+    const ico = L.divIcon({
+      className: 'ptfl',
+      html: `<div class="ptflbox">${escapeHtml(flText)}</div>`,
+      iconSize: [1,1],
+      iconAnchor: [-6, -8]
+    });
+    L.marker(latlng, {icon: ico, interactive: false}).addTo(layer);
+  }
+}
+
+
+
+function extractCoords(obj){
+  // Try to find a sensible lat/lon pair anywhere in object.
+  // Priority: latitude/longitude; then lat/lon; validate ranges.
+  const maxDepth = 10;
+
+  function valid(lat, lon){
+    return isNum(lat) && isNum(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
+  }
+
+  function walk(o, depth){
+    if (depth > maxDepth || o === null || o === undefined) return null;
+
+    // If object has direct pair
+    if (typeof o === 'object'){
+      const lat1 = coerceNum(o.latitude !== undefined ? o.latitude : (o.lat !== undefined ? o.lat : null));
+      const lon1 = coerceNum(o.longitude !== undefined ? o.longitude : (o.lon !== undefined ? o.lon : null));
+      if (valid(lat1, lon1)) return {lat: lat1, lon: lon1};
+    }
+
+    if (Array.isArray(o)){
+      for (const it of o){
+        const r = walk(it, depth+1);
+        if (r) return r;
+      }
+      return null;
+    }
+
+    if (typeof o === 'object'){
+      for (const k of Object.keys(o)){
+        const r = walk(o[k], depth+1);
+        if (r) return r;
+      }
+    }
+    return null;
+  }
+
+  return walk(obj, 0);
+}
+function escapeHtml(s){
+  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+}
+
+function uniq(arr){ return [...new Set(arr)].sort(); }
+
+function scheduleHeavy(fn){
+  if ('requestIdleCallback' in window){
+    requestIdleCallback(() => fn(), {timeout: 1000});
+  } else {
+    setTimeout(fn, 0);
+  }
+}
+
+function formatTimestamp(ts){
+  if (ts === null || ts === undefined || ts === '') return '';
+  // ISO string?
+  if (typeof ts === 'string'){
+    const d = new Date(ts);
+    if (!isNaN(d.getTime())){
+      return d.toISOString().replace('T',' ').replace('Z',' UTC');
+    }
+    // numeric string?
+    const s = ts.trim();
+    if (/^-?\d+(?:\.\d+)?$/.test(s)){
+      ts = Number(s);
+    } else {
+      return ts;
+    }
+  }
+  if (typeof ts === 'number' && isFinite(ts)){
+    let ms = ts;
+    if (ts < 1e12) ms = ts * 1000;
+    else if (ts >= 1e14 && ts < 1e17) ms = ts / 1000;
+    else if (ts >= 1e17) ms = ts / 1e6;
+    const d = new Date(ms);
+    if (!isNaN(d.getTime())){
+      return d.toISOString().replace('T',' ').replace('Z',' UTC');
+    }
+  }
+  return String(ts);
+}
+
+/* ---- Parsed-details rendering WITHOUT braces/quotes ----
+   Instead of nesting tables (which can look "razvučeno" and cause huge whitespace),
+   we FLATTEN the object into key paths, then render a 2-column table.
+*/
+function isPlainObject(x){
+  return x && typeof x === 'object' && !Array.isArray(x);
+}
+
+function fmtScalar(v){
+  if (v === null) return 'null';
+  if (v === undefined) return 'undefined';
+  const t = typeof v;
+  if (t === 'string') return v;
+  if (t === 'number' || t === 'boolean') return String(v);
+  return String(v);
+}
+
+function flattenPairs(obj, prefix, out, depth){
+  const maxDepth = 8;
+  if (depth > maxDepth){
+    out.push([prefix || '(root)', '{…}']);
+    return;
+  }
+
+  if (obj === null || obj === undefined){
+    out.push([prefix || '(root)', fmtScalar(obj)]);
+    return;
+  }
+
+  if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean'){
+    out.push([prefix || '(root)', fmtScalar(obj)]);
+    return;
+  }
+
+  if (Array.isArray(obj)){
+    if (!obj.length){
+      out.push([prefix || '(root)', '(empty array)']);
+      return;
+    }
+    const allPrim = obj.every(x => x === null || ['string','number','boolean'].includes(typeof x));
+    if (allPrim){
+      out.push([prefix || '(root)', obj.map(x => fmtScalar(x)).join(', ')]);
+      return;
+    }
+    for (let i=0; i<obj.length; i++){
+      let pfx = `${prefix}[${i}]`;
+      if (pfx === 'results[0]') pfx = 'results';
+      if (pfx.startsWith('results[0].')) pfx = pfx.slice('results[0].'.length);
+      flattenPairs(obj[i], pfx, out, depth+1);
+    }
+    return;
+  }
+
+  if (isPlainObject(obj)){
+    const keys = Object.keys(obj).sort((a,b)=>a.localeCompare(b));
+    if (!keys.length){
+      out.push([prefix || '(root)', '(empty object)']);
+      return;
+    }
+    for (const k of keys){
+      const v = obj[k];
+      const p = prefix ? `${prefix}.${k}` : k;
+      // Hide 'message' section entirely (already shown in list / header)
+      if (p === 'message' || p.startsWith('message.')) {
+        continue;
+      }
+
+      // Remove noisy 'results[0].' prefix for single-item results
+      let p2 = p;
+      if (p2 === 'results[0]') p2 = 'results';
+      if (p2.startsWith('results[0].')) {
+        p2 = p2.slice('results[0].'.length);
+      }
+      // Hide 'results' header line
+      if (p2 === 'results') {
+        // still descend into results object/array below, but don't show the header row
+      }
+      // Also drop 'results.' prefix (we want plain field names)
+      if (p2.startsWith('results.')) {
+        p2 = p2.slice('results.'.length);
+      }
+      if (v === null || v === undefined || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'){
+        if (p2 !== 'results') out.push([p2, fmtScalar(v)]);
+      } else if (Array.isArray(v) && v.length && v.every(x => x === null || ['string','number','boolean'].includes(typeof x))){
+        if (p2 !== 'results') out.push([p2, v.map(x => fmtScalar(x)).join(', ')]);
+      } else {
+        // mark object/array header then descend (gives better readability)
+        if (p2 !== 'results') out.push([p2, Array.isArray(v) ? `[${v.length} items]` : '{…}']);
+        flattenPairs(v, p2, out, depth+1);
+      }
+    }
+    return;
+  }
+
+  // fallback
+  out.push([prefix || '(root)', fmtScalar(obj)]);
+}
+
+function renderDetailsObject(obj){
+  const pairs = [];
+  flattenPairs(obj, '', pairs, 0);
+
+  // Compute a good key-column width based on the longest rendered key.
+  // This keeps values close to keys without truncating keys.
+  const baseFont = '13px system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
+  const canvas = renderDetailsObject._c || (renderDetailsObject._c = document.createElement('canvas'));
+  const ctx = canvas.getContext('2d');
+  ctx.font = baseFont;
+
+  let maxW = 0;
+  // Use modest indent for nesting, but don't push values too far right
+  for (const [k,_v] of pairs){
+    const depth = (k.match(/\./g) || []).length + (k.match(/\[/g) || []).length;
+    const pad = Math.min(8*depth, 24); // px
+    const w = ctx.measureText(k).width + pad;
+    if (w > maxW) maxW = w;
+  }
+  // Clamp to sensible bounds
+  const keyW = Math.max(180, Math.min(Math.ceil(maxW) + 16, 420));
+
+  let html = `<div class="kvbox" style="--keyw:${keyW}px"><div class="kvrows">`;
+  for (let [k,v] of pairs){
+    // Wind speed conversion to km/h
+    if (typeof v === 'string' && (k.endsWith('wind_speed_kts') || k.endsWith('wind_speed'))){
+      const n = coerceNum(v);
+      if (isNum(n)){
+        const kmh = n * 1.852;
+        // Keep original unit hint
+        if (k.endsWith('wind_speed_kts')) v = `${n} kts (${kmh.toFixed(1)} km/h)`;
+        else v = `${n} (${kmh.toFixed(1)} km/h)`;
+      }
+    } else if (typeof v === 'number' && (k.endsWith('wind_speed_kts') || k.endsWith('wind_speed'))){
+      const kmh = v * 1.852;
+      if (k.endsWith('wind_speed_kts')) v = `${v} kts (${kmh.toFixed(1)} km/h)`;
+      else v = `${v} (${kmh.toFixed(1)} km/h)`;
+    }
+  
+    const depth = (k.match(/\./g) || []).length + (k.match(/\[/g) || []).length;
+    const pad = Math.min(10*depth, 30);
+    const kEsc = escapeHtml(k);
+    const vEsc = escapeHtml(v);
+    html += `<div class="kvrow"><div class="kvk" title="${kEsc}" style="padding-left:${pad}px">${kEsc}</div><div class="kvv">${vEsc}</div></div>`;
+  }
+  html += '</div></div>';
+  return html;
+}
+
+/* ---- Input formats supported ----
+   1) Raw extractor output: [{message:{...}, results:[...]}]
+   2) Viewer rows: [{timestamp, tail, label, type, lat, lon, raw, ...}]
+   3) Parsed list like your example: [{timestamp, registration, message_type, latitude, longitude, ...}]
+*/
+function normalizeInput(parsed){
+  if (!Array.isArray(parsed)) return [];
+
+  // Case 1: raw extractor output (results optional)
+  if (parsed.length && parsed[0] && parsed[0].message){
+    return parsed.map((it) => {
+      const msg = it.message || {};
+      const res = it.results || [];
+      const found = (Array.isArray(res) ? res.find(x => x && (x.message_type || x.msg_type)) : null) || {};
+      const typ =
+        (found.message_type || found.msg_type) ||
+        (Array.isArray(res) && res.some(x => x && x.current_link) ? "link_mgmt" :
+          (Array.isArray(res) && res.some(x => x && x.latitude !== undefined && x.longitude !== undefined) ? "pos_report" : "unknown"));
+
+      // Attempt to find coords in any result entry too
+      let lat = null, lon = null;
+      for (const r of (Array.isArray(res) ? res : [])){
+        if (r && typeof r === 'object' && r.latitude !== undefined && r.longitude !== undefined){
+          lat = coerceNum(r.latitude);
+          lon = coerceNum(r.longitude);
+          break;
+        }
+      }
+      const rawObj = { message: msg, results: res };
+      if (!isNum(lat) || !isNum(lon)){
+        const c = extractCoords(rawObj);
+        if (c){ lat = c.lat; lon = c.lon; }
+      }
+      return {
+        timestamp: msg.timestamp ?? "",
+        tail: msg.tail || msg.reg || msg.registration || "",
+        label: String(msg.label || ""),
+        type: String(typ || "unknown"),
+        lat: lat,
+        lon: lon,
+        summary: (msg.text || "").slice(0, 500),
+        raw: rawObj
+      };
+    });
+  }
+
+  // Case 3: parsed list like your example (has message_id + registration + latitude/longitude)
+  if (parsed.length && parsed[0] && typeof parsed[0] === 'object' &&
+      (('message_id' in parsed[0]) || ('registration' in parsed[0])) &&
+      (('latitude' in parsed[0]) || ('longitude' in parsed[0]) || ('message_type' in parsed[0])) ){
+    return parsed.map((o) => {
+      const lat = coerceNum(o.latitude !== undefined ? o.latitude : (o.lat !== undefined ? o.lat : null));
+      const lon = coerceNum(o.longitude !== undefined ? o.longitude : (o.lon !== undefined ? o.lon : null));
+      const reg = o.registration || o.tail || "";
+      const typ = o.message_type || o.type || "parsed";
+      const lbl = o.ground_station || o.label || "";
+      const summaryParts = [];
+      if (o.adsc_flight_id) summaryParts.push(`FID ${o.adsc_flight_id}`);
+      if (o.ground_station) summaryParts.push(`GS ${o.ground_station}`);
+      if (o.payload_bytes !== undefined) summaryParts.push(`bytes ${o.payload_bytes}`);
+      let lat2 = lat, lon2 = lon;
+      if (!isNum(lat2) || !isNum(lon2)){
+        const c = extractCoords(o);
+        if (c){ lat2 = c.lat; lon2 = c.lon; }
+      }
+      return {
+        timestamp: o.timestamp ?? "",
+        tail: reg,
+        label: String(lbl || ""),
+        type: String(typ || "parsed"),
+        lat: lat2,
+        lon: lon2,
+        summary: summaryParts.join(" • "),
+        raw: o
+      };
+    });
+  }
+
+  // Case 2: already rows (try best effort)
+  return parsed.map((o) => {
+    let lat = coerceNum((o.lat ?? o.latitude ?? null));
+    let lon = coerceNum((o.lon ?? o.longitude ?? null));
+    if (!isNum(lat) || !isNum(lon)){
+      const c = extractCoords(o.raw || o);
+      if (c){ lat = c.lat; lon = c.lon; }
+    }
+    return {
+      timestamp: o.timestamp ?? "",
+      tail: o.tail || o.registration || "",
+      label: String(o.label || o.ground_station || ""),
+      type: String(o.type || o.message_type || ""),
+      lat: lat,
+      lon: lon,
+      summary: (o.summary || o.text || "").slice(0, 500),
+      raw: o.raw || o
+    };
+  });
+}
+
+function buildSelect(select, values, allLabel){
+  select.innerHTML = '';
+  const opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = allLabel;
+  select.appendChild(opt0);
+  for (const v of values){
+    const o = document.createElement('option');
+    o.value = v;
+    o.textContent = v;
+    select.appendChild(o);
+  }
+}
+
+function applyData(newRows){
+  rows = Array.isArray(newRows) ? newRows : [];
+  buildSelect(document.getElementById('label'), uniq(rows.map(r => r.label).filter(Boolean)), 'All labels');
+  buildSelect(document.getElementById('type'), uniq(rows.map(r => r.type).filter(Boolean)), 'All types');
+  page = 0;
+  recomputeFilterAndRender();
+}
+
+function recomputeFilter(){
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const lbl = document.getElementById('label').value;
+  const typ = document.getElementById('type').value;
+  const onlyCoords = document.getElementById('onlyCoords').checked;
+
+  const idx = [];
+  for (let i=0; i<rows.length; i++){
+    const r = rows[i];
+    if (onlyCoords && !(isNum(r.lat) && isNum(r.lon))) continue;
+    if (lbl && r.label !== lbl) continue;
+    if (typ && r.type !== typ) continue;
+    if (q){
+      const hay = `${r.tail} ${r.label} ${r.type} ${r.summary}`.toLowerCase();
+      if (!hay.includes(q)) continue;
+    }
+    idx.push(i);
+  }
+  filteredIdx = idx;
+}
+
+function pageSize(){
+  return parseInt(document.getElementById('pageSize').value || "100", 10);
+}
+
+function clampPage(){
+  const ps = pageSize();
+  const maxPage = Math.max(0, Math.ceil(filteredIdx.length / ps) - 1);
+  if (page > maxPage) page = maxPage;
+  if (page < 0) page = 0;
+}
+
+function updatePageInfo(){
+  const ps = pageSize();
+  const maxPage = Math.max(0, Math.ceil(filteredIdx.length / ps) - 1);
+  document.getElementById('pageInfo').textContent =
+    `Page ${page+1} / ${maxPage+1} • Filtered: ${filteredIdx.length} • Total: ${rows.length}`;
+}
+
+function recomputeFilterAndRender(){
+  recomputeFilter();
+  clampPage();
+  renderPage();
+}
+
+function makeDetailsCell(rowIndex){
+  const r = rows[rowIndex];
+  const wrap = document.createElement('div');
+
+  const header = document.createElement('div');
+  const parts = [];
+  if (r.summary) parts.push(r.summary);
+  if (isNum(r.lat) && isNum(r.lon)) parts.push(`lat ${r.lat}, lon ${r.lon}`);
+  header.innerHTML = `<code>${escapeHtml(parts.join(" • "))}</code>`;
+  wrap.appendChild(header);
+
+  // Raw message text (preserve newlines). Extract from common locations.
+  const rawText =
+    (r && r.raw && r.raw.message && (r.raw.message.text ?? r.raw.message.msg_text)) ??
+    (r && r.raw && (r.raw.text ?? r.raw.msg_text)) ??
+    "";
+  // Show raw text block only when message contains newlines (CR/LF)
+  if (rawText && /[\r\n]/.test(String(rawText))){
+    const detRaw = document.createElement('details');
+    const sumRaw = document.createElement('summary');
+    sumRaw.textContent = 'raw text';
+    detRaw.appendChild(sumRaw);
+
+    const pre = document.createElement('pre');
+    pre.className = 'rawtext';
+    pre.textContent = String(rawText);
+    detRaw.appendChild(pre);
+
+    wrap.appendChild(detRaw);
+  }
+
+  const det = document.createElement('details');
+  const sum = document.createElement('summary');
+  sum.textContent = 'parsed details';
+  det.appendChild(sum);
+
+  det.addEventListener('toggle', () => {
+    const lazy = document.getElementById('lazyDetails').checked;
+    if (!det.open){
+      const box = det.querySelector('.kvbox');
+      if (box) box.remove();
+      return;
+    }
+    if (det.querySelector('.kvbox')) return;
+
+    const placeholder = document.createElement('div');
+    placeholder.className = 'kvbox';
+    placeholder.textContent = 'Rendering...';
+    det.appendChild(placeholder);
+
+    const renderNow = () => {
+      try {
+        placeholder.outerHTML = renderDetailsObject(r.raw);
+      } catch(e){
+        placeholder.textContent = String(e);
+      }
+    };
+    if (lazy) scheduleHeavy(renderNow); else renderNow();
+  });
+
+  wrap.appendChild(det);
+  return wrap;
+}
+
+function coordStr(lat, lon){
+  if (!(isNum(lat) && isNum(lon))) return '';
+  return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+}
+
+
+function openMapAllFiltered(){
+  // Collect filtered rows that have either direct coords OR waypoint points
+  const pts = [];
+  for (const idx of filteredIdx){
+    const r = rows[idx];
+    const hasDirect = isNum(r.lat) && isNum(r.lon);
+    const hasWpts =
+      (r && r.raw && Array.isArray(r.raw.points) && r.raw.points.length) ||
+      (r && r.raw && Array.isArray(r.raw.results) && r.raw.results.some(x => x && Array.isArray(x.points) && x.points.length));
+    if (hasDirect || hasWpts){
+      pts.push(r);
+    }
+  }
+  if (!pts.length){
+    alert("No points with coords or multi-waypoint (in current filter).");
+    return;
+  }
+
+  // If Leaflet missing (offline), open OSM with first point
+  const first = pts[0];
+  const osm = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(first.lat)}&mlon=${encodeURIComponent(first.lon)}#map=6/${encodeURIComponent(first.lat)}/${encodeURIComponent(first.lon)}`;
+  const osmLink = document.getElementById('osmLink');
+  osmLink.href = osm;
+
+  if (!window.L){
+    window.open(osm, "_blank", "noopener");
+    return;
+  }
+
+  document.getElementById('mapTitle').textContent =
+    `Sve koordinate • tačaka: ${pts.length}`;
+
+  const modal = document.getElementById('mapModal');
+  modal.style.display = 'block';
+
+  if (!map){
+    map = L.map('map', { zoomControl: true });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+  }
+
+  // Non-interactive pane for track lines (so lines never steal clicks)
+  if (!map.getPane('trackPane')){
+    map.createPane('trackPane');
+    map.getPane('trackPane').style.zIndex = 250;       // below markers
+    map.getPane('trackPane').style.pointerEvents = 'none'; // critical: no clicks
+  }
+
+  // Clear single marker and previous layer
+  if (marker) { try { marker.remove(); } catch(e) {} marker = null; }
+  if (allLayer) { try { allLayer.remove(); } catch(e) {} allLayer = null; }
+
+  allLayer = L.layerGroup().addTo(map);
+
+  // Label markers (Tail/Reg) — show once per aircraft to avoid clutter
+  const labeledTails = new Set();
+  
+    function getFlightLevelTextFromAny(obj){
+    // Prefer explicit flight_level if present (already FL), otherwise use altitude in feet (altitude_ft).
+    const flRaw = (obj?.flight_level ?? obj?.flightLevel ?? obj?.FL ?? obj?.fl ?? null);
+    const flNum = coerceNum(flRaw);
+    if (isNum(flNum) && flNum > 0 && flNum <= 999){
+      return `FL ${Math.round(flNum)}`;
+    }
+
+    const altFt = coerceNum(
+      obj?.altitude_ft ?? obj?.altitudeFt ?? obj?.alt_ft ?? obj?.altFt ??
+      obj?.altitude ?? obj?.Altitude ?? obj?.alt ?? null
+    );
+    if (!isNum(altFt)) return "";
+
+    // If it's clearly feet (e.g. 32999, 40000) -> FL = ft/100
+    if (altFt > 500){
+      const fl = Math.round(altFt / 100);
+      if (isFinite(fl) && fl > 0) return `FL ${fl}`;
+    }
+
+    // Otherwise treat as FL already
+    const fl = Math.round(altFt);
+    if (!isFinite(fl) || fl <= 0) return "";
+    return `FL ${fl}`;
+  }
+
+    function getFlightLevelTextForRow(r){
+    if (!r) return "";
+    // 1) try direct row fields
+    let t = getFlightLevelTextFromAny(r);
+    if (t) return t;
+
+    // 2) try raw object
+    const raw = r.raw || null;
+    if (raw){
+      t = getFlightLevelTextFromAny(raw);
+      if (t) return t;
+
+      // 3) many decoders store numeric fields in raw.results[] entries
+      const res = raw.results;
+      if (Array.isArray(res)){
+        for (const it of res){
+          t = getFlightLevelTextFromAny(it);
+          if (t) return t;
+        }
+      }
+
+      // 4) sometimes under raw.message
+      if (raw.message){
+        t = getFlightLevelTextFromAny(raw.message);
+        if (t) return t;
+      }
+    }
+    return "";
+  }
+
+  function getFlightLevelTextForPoint(p, r){
+    // prefer waypoint point altitude, fallback to row altitude
+    const t1 = getFlightLevelTextFromAny(p || {});
+    if (t1) return t1;
+    return getFlightLevelTextForRow(r);
+  }
+
+  function addTailLabel(latlng, tailLabel, flText){
+    if (!tailLabel) return;
+    const key = String(tailLabel).trim();
+    if (!key || labeledTails.has(key)) return;
+
+    const line2 = (flText && String(flText).trim()) ? `<div class="ptl2">${escapeHtml(flText)}</div>` : "";
+    const ico = L.divIcon({
+      className: 'ptlabel',
+      html: `<div class="ptlabelbox"><div class="ptl1">${escapeHtml(key)}</div>${line2}</div>`,
+      iconSize: [1,1],
+      iconAnchor: [-6, 8]
+    });
+    L.marker(latlng, {icon: ico, interactive: false}).addTo(allLayer);
+    labeledTails.add(key);
+  }
+
+  // Per-point FL label (always)
+  function addFLLabel(latlng, flText){
+    if (!flText) return;
+    const ico = L.divIcon({
+      className: 'ptfl',
+      html: `<div class="ptflbox">${escapeHtml(flText)}</div>`,
+      iconSize: [1,1],
+      iconAnchor: [-6, -8] // slightly above-right of point
+    });
+    L.marker(latlng, {icon: ico, interactive: false}).addTo(allLayer);
+  }
+
+
+  // ---- Build non-clickable track polylines for H2 points per tail/reg ----
+  function tsToMs(ts){
+    if (ts === null || ts === undefined || ts === '') return 0;
+    if (typeof ts === 'number' && isFinite(ts)){
+      return ts < 1e12 ? ts * 1000 : ts;
+    }
+    if (typeof ts === 'string'){
+      const s = ts.trim();
+      if (/^-?\d+(?:\.\d+)?$/.test(s)){
+        const n = Number(s);
+        return isFinite(n) ? (n < 1e12 ? n * 1000 : n) : 0;
+      }
+      const d = new Date(ts);
+      return isNaN(d.getTime()) ? 0 : d.getTime();
+    }
+    return 0;
+  }
+
+  function getWaypointsFromRow(r){
+    // Returns array of waypoint objects where lat/lon are inside.
+    if (!r || !r.raw) return [];
+    if (Array.isArray(r.raw.points) && r.raw.points.length) return r.raw.points;
+  
+    if (Array.isArray(r.raw.results)){
+      for (const it of r.raw.results){
+        if (it && Array.isArray(it.points) && it.points.length) return it.points;
+      }
+    }
+    return [];
+  }
+
+  const trackByTail = new Map(); // tail -> [{lat,lon,t,seq}]
+  for (const r of pts){
+    const tail = (r.tail || '').trim();
+    if (!tail) continue;
+
+    const tms = tsToMs(r.timestamp);
+
+    // 1) direct coords (Label 80 POSRPT etc.)
+    if (isNum(r.lat) && isNum(r.lon)){
+      if (!trackByTail.has(tail)) trackByTail.set(tail, []);
+      trackByTail.get(tail).push({lat: r.lat, lon: r.lon, t: tms, seq: -1});
+    }
+
+    // 2) multi-waypoint coords (H2 / ADS-C etc.)
+    const pArr = getWaypointsFromRow(r);
+    if (pArr && pArr.length){
+      for (let k=0; k<pArr.length; k++){
+        const p = pArr[k];
+        const lat = coerceNum(p && (p.latitude ?? p.lat));
+        const lon = coerceNum(p && (p.longitude ?? p.lon));
+        if (!(isNum(lat) && isNum(lon))) continue;
+
+        if (!trackByTail.has(tail)) trackByTail.set(tail, []);
+        trackByTail.get(tail).push({lat, lon, t: tms, seq: k});
+      }
+    }
+  }
+
+  // Draw one polyline per tail (sorted by message time, then point order in message)
+  for (const [tail, arr] of trackByTail.entries()){
+    if (arr.length < 2) continue;
+
+    arr.sort((a,b) => (a.t - b.t) || (a.seq - b.seq));
+
+    // Optional: dedupe consecutive identical points
+    const latlngs = [];
+    let prev = null;
+    for (const p of arr){
+      const cur = `${p.lat.toFixed(6)},${p.lon.toFixed(6)}`;
+      if (cur === prev) continue;
+      prev = cur;
+      latlngs.push([p.lat, p.lon]);
+    }
+    if (latlngs.length < 2) continue;
+
+    L.polyline(latlngs, {
+      pane: 'trackPane',
+      interactive: false,
+      bubblingMouseEvents: false,
+      weight: 2,
+      opacity: 0.7
+    }).addTo(allLayer);
+  }
+
+  // Add markers: (1) direct row coords if present, (2) all waypoints if present
+  for (const r of pts){
+    const tailLabel = (r.tail || r.registration || '').trim();
+  
+    // (1) direct coords marker (optional)
+    if (isNum(r.lat) && isNum(r.lon)){
+      const latlng = [r.lat, r.lon];
+      const cm = L.circleMarker(latlng, { radius: 4, weight: 1, fillOpacity: 0.8 });
+      const popupHtml =
+        `<div style="max-width:560px">
+          <div class="nowrap"><b>${escapeHtml(r.tail || '')}</b> • ${escapeHtml(r.type || '')} • ${escapeHtml(r.label || '')}</div>
+          <div class="kvmini" style="margin:4px 0 8px 0">${escapeHtml(formatTimestamp(r.timestamp))} • ${escapeHtml(coordStr(r.lat, r.lon))}</div>
+          ${renderDetailsObject(r.raw)}
+         </div>`;
+      cm.bindPopup(popupHtml, {maxWidth: 9999, maxHeight: 9999, className: 'big-popup'});
+      cm.addTo(allLayer);
+
+      // Tail/Reg label (once per aircraft)
+      addTailLabel(latlng, tailLabel, getFlightLevelTextForRow(r));
+      addFLLabel(latlng, getFlightLevelTextForRow(r));
+}
+  
+    // (2) waypoint markers (multi-waypoint)
+    const wpts = getWaypointsFromRow(r);
+    if (wpts && wpts.length){
+      for (let k=0; k<wpts.length; k++){
+        const p = wpts[k];
+        const lat = coerceNum(p && (p.latitude ?? p.lat));
+        const lon = coerceNum(p && (p.longitude ?? p.lon));
+        if (!(isNum(lat) && isNum(lon))) continue;
+  
+        const latlng = [lat, lon];
+  
+        // smaller dot for waypoints
+        const cm = L.circleMarker(latlng, { radius: 3, weight: 1, fillOpacity: 0.85 });
+  
+        // Tail/Reg label (once per aircraft)
+        addTailLabel(latlng, tailLabel, getFlightLevelTextForRow(r));
+        addFLLabel(latlng, getFlightLevelTextForPoint(p, r));
+// waypoint popup shows point fields too
+        const popupHtml =
+          `<div style="max-width:560px">
+            <div class="nowrap"><b>${escapeHtml(r.tail || '')}</b> • waypoint #${k+1} • ${escapeHtml(r.label || '')}</div>
+            <div class="kvmini" style="margin:4px 0 8px 0">${escapeHtml(formatTimestamp(r.timestamp))} • ${escapeHtml(coordStr(lat, lon))}</div>
+            ${renderDetailsObject(p)}
+           </div>`;
+        cm.bindPopup(popupHtml, {maxWidth: 9999, maxHeight: 9999, className: 'big-popup'});
+        cm.addTo(allLayer);
+      }
+    }
+  }
+
+  // Fit bounds
+  const allLatLngs = [];
+  for (const r of pts){
+    if (isNum(r.lat) && isNum(r.lon)) allLatLngs.push([r.lat, r.lon]);
+    const wpts = getWaypointsFromRow(r);
+    for (const p of wpts){
+      const lat = coerceNum(p && (p.latitude ?? p.lat));
+      const lon = coerceNum(p && (p.longitude ?? p.lon));
+      if (isNum(lat) && isNum(lon)) allLatLngs.push([lat, lon]);
+    }
+  }
+  const bounds = L.latLngBounds(allLatLngs);
+  map.fitBounds(bounds.pad(0.15));
+
+  setTimeout(() => { try { map.invalidateSize(); } catch(e) {} }, 60);
+}
+
+function openMapForRow(r){
+  if (!(isNum(r.lat) && isNum(r.lon))){
+    alert("No coordinates on this row.");
+    return;
+  }
+
+  // Always set OSM fallback link
+  const osm = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(r.lat)}&mlon=${encodeURIComponent(r.lon)}#map=8/${encodeURIComponent(r.lat)}/${encodeURIComponent(r.lon)}`;
+  const osmLink = document.getElementById('osmLink');
+  osmLink.href = osm;
+
+  // If Leaflet missing (offline), fallback to opening OSM
+  if (!window.L){
+    window.open(osm, "_blank", "noopener");
+    return;
+  }
+
+  document.getElementById('mapTitle').textContent =
+    `${r.tail || 'Aircraft'} • ${formatTimestamp(r.timestamp)}`;
+
+  const modal = document.getElementById('mapModal');
+  modal.style.display = 'block';
+
+  if (!map){
+    map = L.map('map', { zoomControl: true });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+  }
+
+  const latlng = [r.lat, r.lon];
+  map.setView(latlng, 7);
+
+  if (marker) marker.remove();
+  marker = L.circleMarker(latlng, { radius: 5, weight: 1, fillOpacity: 0.85 }).addTo(map);
+  const labelText = (r.tail || r.registration || '').trim();
+  const flText = getFlightLevelTextForRow(r);
+
+  // Main Tail/Reg label (2 rows: Tail + FL)
+  if (labelText){
+    const line2 = flText ? `<div class="ptl2">${escapeHtml(flText)}</div>` : '';
+    const ico = L.divIcon({
+      className: 'ptlabel',
+      html: `<div class="ptlabelbox"><div class="ptl1">${escapeHtml(labelText)}</div>${line2}</div>`,
+      iconSize: [1,1],
+      iconAnchor: [-6, 8]
+    });
+    L.marker(latlng, {icon: ico, interactive: false}).addTo(map);
+  }
+  // FL label near the point (always if available)
+  if (window.L && typeof addFLLabelToLayer === 'function'){
+    addFLLabelToLayer(map, latlng, flText);
+  }
+
+  // Popup HTML: parsed details WITHOUT braces/quotes (rendered table)
+  const popupHtml =
+    `<div style="max-width:520px">
+      <div class="nowrap"><b>${escapeHtml(r.tail || '')}</b> • ${escapeHtml(r.type || '')} • ${escapeHtml(r.label || '')}</div>
+      <div class="kvmini" style="margin:4px 0 8px 0">${escapeHtml(formatTimestamp(r.timestamp))} • ${escapeHtml(coordStr(r.lat, r.lon))}</div>
+      ${renderDetailsObject(r.raw)}
+     </div>`;
+
+  marker.bindPopup(popupHtml, {maxWidth: 9999, maxHeight: 9999, className: 'big-popup'}).openPopup();
+
+  // Leaflet needs invalidateSize when modal opens
+  setTimeout(() => { try { map.invalidateSize(); } catch(e) {} }, 60);
+}
+
+function renderPage(){
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  const ps = pageSize();
+  const start = page * ps;
+  const end = Math.min(filteredIdx.length, start + ps);
+
+  for (let j=start; j<end; j++){
+    const i = filteredIdx[j];
+    const r = rows[i];
+
+    const tr = document.createElement('tr');
+
+    const tdTs = document.createElement('td'); tdTs.textContent = formatTimestamp(r.timestamp);
+    const tdTail = document.createElement('td'); tdTail.textContent = r.tail || '';
+    const tdLbl = document.createElement('td'); tdLbl.innerHTML = `<span class="pill">${escapeHtml(r.label||'')}</span>`;
+    const tdT = document.createElement('td'); tdT.innerHTML = `<span class="type">${escapeHtml(r.type||'')}</span>`;
+    const tdC = document.createElement('td'); tdC.textContent = coordStr(r.lat, r.lon);
+
+    const tdM = document.createElement('td');
+    if (isNum(r.lat) && isNum(r.lon)){
+      const btn = document.createElement('button');
+      btn.className = 'btn-mini';
+      btn.textContent = 'Prikaži na mapi';
+      btn.addEventListener('click', () => openMapForRow(r));
+      tdM.appendChild(btn);
+    } else {
+      tdM.innerHTML = '<span class="kvmini">—</span>';
+    }
+
+    const tdD = document.createElement('td');
+    tdD.appendChild(makeDetailsCell(i));
+
+    tr.appendChild(tdTs);
+    tr.appendChild(tdTail);
+    tr.appendChild(tdLbl);
+    tr.appendChild(tdT);
+    tr.appendChild(tdC);
+    tr.appendChild(tdM);
+    tr.appendChild(tdD);
+    tbody.appendChild(tr);
+  }
+
+  updatePageInfo();
+  document.getElementById('subtitle').textContent =
+    `Showing rows ${start+1}-${end} of ${filteredIdx.length} (filtered)`;
+}
+
+document.getElementById('file').addEventListener('change', async (ev) => {
+  const f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  try {
+    const txt = await f.text();
+    const parsed = JSON.parse(txt);
+    applyData(normalizeInput(parsed));
+  } catch (e){
+    alert("Failed to load JSON: " + e);
+  }
+});
+
+for (const id of ['q','label','type','onlyCoords','pageSize']){
+  document.getElementById(id).addEventListener('input', () => { page = 0; recomputeFilterAndRender(); });
+  document.getElementById(id).addEventListener('change', () => { page = 0; recomputeFilterAndRender(); });
+}
+
+document.getElementById('reset').addEventListener('click', () => {
+  document.getElementById('q').value = '';
+  document.getElementById('label').value = '';
+  document.getElementById('type').value = '';
+  document.getElementById('onlyCoords').checked = false;
+  document.getElementById('pageSize').value = '100';
+  page = 0;
+  recomputeFilterAndRender();
+});
+
+document.getElementById('prev').addEventListener('click', () => { page--; clampPage(); renderPage(); });
+document.getElementById('next').addEventListener('click', () => { page++; clampPage(); renderPage(); });
+
+document.getElementById('showAllMap').addEventListener('click', () => {
+  // Use current filter; if nothing loaded yet, warn
+  if (!rows || !rows.length){ alert('Prvo učitaj JSON.'); return; }
+  openMapAllFiltered();
+});
+
+document.getElementById('closeMap').addEventListener('click', () => {
+  document.getElementById('mapModal').style.display = 'none';
+});
+document.getElementById('mapModal').addEventListener('click', (ev) => {
+  if (ev.target && ev.target.id === 'mapModal'){
+    document.getElementById('mapModal').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
