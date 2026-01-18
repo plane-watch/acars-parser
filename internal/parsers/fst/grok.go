@@ -11,8 +11,8 @@ var Formats = []patterns.Format{
 	{
 		Name: "fst_5digit_lon",
 		Pattern: `FST(?P<seq>\d{2})(?P<origin>{ICAO})(?P<dest>{ICAO})` +
-			`(?P<lat_dir>{LAT_DIR})(?P<lat>\d{5,6})` +
-			`(?P<lon_dir>{LON_DIR})(?P<lon>\d{5})(?P<rest>\d.+)`,
+			`(?P<lat_dir>[NS])(?P<lat>\d{5,7})` +
+			`(?P<lon_dir>[EW])(?P<lon>\d{5,7})(?P<rest>\d.+)`,
 		Fields: []string{"seq", "origin", "dest", "lat_dir", "lat", "lon_dir", "lon", "rest"},
 	},
 	// FST format with 6-digit longitude.
@@ -20,8 +20,8 @@ var Formats = []patterns.Format{
 	{
 		Name: "fst_6digit",
 		Pattern: `FST(?P<seq>\d{2})(?P<origin>{ICAO})(?P<dest>{ICAO})` +
-			`(?P<lat_dir>{LAT_DIR})(?P<lat>{LON_6D})` +
-			`(?P<lon_dir>{LON_DIR})(?P<lon>{LON_6D})(?P<rest>.+)`,
+			`(?P<lat_dir>[NS])(?P<lat>{LON_6D})` +
+			`(?P<lon_dir>[EW])(?P<lon>{LON_6D})(?P<rest>.+)`,
 		Fields: []string{"seq", "origin", "dest", "lat_dir", "lat", "lon_dir", "lon", "rest"},
 	},
 }

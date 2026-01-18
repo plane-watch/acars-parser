@@ -2,7 +2,6 @@
 package fst
 
 import (
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -12,27 +11,31 @@ import (
 	"acars_parser/internal/registry"
 )
 
-// Result represents a parsed Label 15 FST (Flight Status) report.
+// Result represents a parsed FST flight status report.
 type Result struct {
-	MsgID       int64   `json:"message_id"`
-	Timestamp   string  `json:"timestamp"`
-	Tail        string  `json:"tail,omitempty"`
-	Sequence    string  `json:"sequence,omitempty"`    // Usually "01"
-	Origin      string  `json:"origin,omitempty"`      // ICAO code
-	Destination string  `json:"destination,omitempty"` // ICAO code
-	Latitude    float64 `json:"latitude,omitempty"`
-	Longitude   float64 `json:"longitude,omitempty"`
-	FlightLevel int     `json:"flight_level,omitempty"`
-	Heading     int     `json:"heading,omitempty"`
-	GroundSpeed int     `json:"ground_speed,omitempty"`
-	Temperature int     `json:"temperature,omitempty"` // Celsius, can be negative
-	RawData     string  `json:"raw_data,omitempty"`    // Remaining unparsed data
+	MsgID         int64   `json:"message_id"`
+	Timestamp     string  `json:"timestamp"`
+	Tail          string  `json:"tail,omitempty"`
+	Sequence      string  `json:"sequence,omitempty"`
+	Origin        string  `json:"origin,omitempty"`
+	Destination   string  `json:"destination,omitempty"`
+	Latitude      float64 `json:"latitude,omitempty"`
+	Longitude     float64 `json:"longitude,omitempty"`
+	FlightLevel   int     `json:"flight_level,omitempty"`
+	Heading       int     `json:"heading,omitempty"`
+	GroundSpeed   int     `json:"ground_speed,omitempty"`
+	WindDirection int     `json:"wind_direction,omitempty"`
+	WindSpeed     int     `json:"wind_speed,omitempty"`
+	Track         int     `json:"track,omitempty"`    // Actual ground track
+	Unknown1      int     `json:"unknown1,omitempty"` // Nepoznati parametar (možda TAS, IAS, Mach*100)
+	Temperature   int     `json:"temperature,omitempty"`
+	RawData       string  `json:"raw_data,omitempty"`
 }
 
 func (r *Result) Type() string     { return "fst" }
 func (r *Result) MessageID() int64 { return r.MsgID }
 
-// Parser parses Label 15 FST messages.
+// Parser parses FST flight status messages.
 type Parser struct{}
 
 // Grok compiler singleton.
@@ -42,7 +45,6 @@ var (
 	grokErr      error
 )
 
-// getCompiler returns the singleton grok compiler.
 func getCompiler() (*patterns.Compiler, error) {
 	grokOnce.Do(func() {
 		grokCompiler = patterns.NewCompiler(Formats, nil)
@@ -60,9 +62,7 @@ func (p *Parser) Labels() []string { return []string{"15"} }
 func (p *Parser) Priority() int    { return 100 }
 
 func (p *Parser) QuickCheck(text string) bool {
-	return strings.HasPrefix(strings.TrimSpace(text), "FST") ||
-		strings.Contains(text, "FST01") ||
-		strings.Contains(text, "FST02")
+	return strings.HasPrefix(text, "FST")
 }
 
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
@@ -70,164 +70,187 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
-	text := strings.TrimSpace(msg.Text)
-
-	// Strip any prefix before FST (like M51ABA0012).
-	if idx := strings.Index(text, "FST"); idx > 0 {
-		text = text[idx:]
-	}
-
-	// Try grok-based parsing.
 	compiler, err := getCompiler()
 	if err != nil {
 		return nil
 	}
 
+	text := strings.TrimSpace(msg.Text)
 	match := compiler.Parse(text)
 	if match == nil {
 		return nil
 	}
 
 	result := &Result{
-		MsgID:       int64(msg.ID),
-		Timestamp:   msg.Timestamp,
-		Tail:        msg.Tail,
-		Sequence:    match.Captures["seq"],
-		Origin:      match.Captures["origin"],
-		Destination: match.Captures["dest"],
+		MsgID:     int64(msg.ID),
+		Timestamp: msg.Timestamp,
+		Tail:      msg.Tail,
+		RawData:   msg.Text,
 	}
 
-	// Parse latitude (DDMMD or DDMMDD format - degrees, minutes, tenths).
-	lat := parseCoord(match.Captures["lat"])
-	if match.Captures["lat_dir"] == "S" {
-		lat = -lat
-	}
+	result.Sequence = match.Captures["seq"]
+	result.Origin = match.Captures["origin"]
+	result.Destination = match.Captures["dest"]
+
+	// Parse coordinates
+	latStr := match.Captures["lat"]
+	lonStr := match.Captures["lon"]
+	latDir := match.Captures["lat_dir"]
+	lonDir := match.Captures["lon_dir"]
+	lat := parseCoord(latStr, latDir)
+	lon := parseCoord(lonStr, lonDir)
 	result.Latitude = lat
-
-	// Parse longitude.
-	lon := parseCoord(match.Captures["lon"])
-	if match.Captures["lon_dir"] == "W" {
-		lon = -lon
-	}
 	result.Longitude = lon
 
-	// Parse the rest of the fields.
+	// Parse rest of fields from the "rest" group if present
 	rest := match.Captures["rest"]
-	if len(rest) > 0 {
-		result.RawData = rest
-		parseFields(rest, result)
+	fields := strings.Fields(rest)
+
+	// Field 0: Flight Level
+	if len(fields) >= 1 {
+		if fl, err := strconv.Atoi(fields[0]); err == nil {
+			result.FlightLevel = fl
+		}
+	}
+
+	// Field 1: Ground Speed, Heading, ili nepoznati parametar
+	// Ako je > 360, onda je ground speed
+	// Ako je u rasponu heading (120-200 ili 295-335), onda heading - ALI samo ako odgovara smeru leta
+	// Inače je nepoznati parametar (možda TAS, IAS, Mach*100, itd.)
+	if len(fields) >= 2 {
+		val, err := strconv.Atoi(fields[1])
+		if err == nil {
+			if val > 360 {
+				result.GroundSpeed = val
+			} else if (val >= 120 && val <= 200) || (val >= 295 && val <= 335) {
+				// Proveri da li heading ima smisla u kontekstu smera leta
+				westbound := isWestbound(result.Origin, result.Destination)
+				
+				// Westbound letovi (Azija → Evropa) bi trebalo da imaju heading oko 295-335°
+				// Eastbound letovi (Evropa → Azija) bi trebalo da imaju heading oko 120-200°
+				if westbound && val >= 295 && val <= 335 {
+					result.Heading = val
+				} else if !westbound && val >= 120 && val <= 200 {
+					result.Heading = val
+				} else {
+					// Heading je u validnom opsegu ali ne odgovara smeru leta
+					result.Unknown1 = val
+				}
+			} else {
+				// Nepoznati parametar
+				result.Unknown1 = val
+			}
+		}
+	}
+
+	// Field 2: Ground Speed, Heading, Wind Direction, Wind Speed ili Track
+	if len(fields) >= 3 {
+		windField := fields[2]
+		windField = strings.TrimSuffix(windField, "M")
+		windField = strings.TrimSuffix(windField, "K")
+		if val, err := strconv.Atoi(windField); err == nil {
+			// Ako field 1 nije bio ground speed, proveri da li je field 2 ground speed
+			if result.GroundSpeed == 0 && val > 360 {
+				result.GroundSpeed = val
+			} else if result.Heading == 0 && ((val >= 120 && val <= 200) || (val >= 295 && val <= 335)) {
+				result.Heading = val
+			} else if val >= 290 && val <= 360 {
+				result.WindDirection = val
+			} else if val < 200 {
+				result.WindSpeed = val
+			}
+		}
+	}
+
+	// Parse temperature - find first field ending with 'C'
+	var tempIdx int
+	for i, field := range fields {
+		if strings.HasSuffix(field, "C") && len(field) > 1 {
+			tempField := strings.TrimSuffix(field, "C")
+			if strings.HasPrefix(tempField, "M") {
+				tempField = strings.TrimPrefix(tempField, "M")
+				if temp, err := strconv.Atoi(tempField); err == nil {
+					result.Temperature = -temp
+					tempIdx = i
+					break
+				}
+			} else {
+				if temp, err := strconv.Atoi(tempField); err == nil {
+					result.Temperature = temp
+					tempIdx = i
+					break
+				}
+			}
+		}
+	}
+
+	// Parse dodatna polja posle temperature (wind direction/speed mogu biti tu)
+	if tempIdx > 0 && tempIdx+1 < len(fields) {
+		// Sledeći field posle temperature može sadržati dodatne podatke
+		extraData := fields[tempIdx+1]
+		// Format: SSWWW... (SS=wind speed, WWW=wind direction)
+		if len(extraData) >= 5 {
+			// Wind speed iz prvih 2 cifre
+			if ws, err := strconv.Atoi(extraData[0:2]); err == nil {
+				result.WindSpeed = ws
+			}
+			// Wind direction iz sledećih 3 cifre
+			if wd, err := strconv.Atoi(extraData[2:5]); err == nil && wd <= 360 {
+				result.WindDirection = wd
+			}
+		}
 	}
 
 	return result
 }
 
-// parseCoord parses FST coordinate format.
-// 5-digit: DDMMD format (deg, min, tenths) - 51420 = 51 deg 42.0' = 51.7 deg
-// 6-digit: DDMMTT format (deg, min, hundredths) - 175178 = 17 deg 51.78' = 17.863 deg
-//
-//	or DDDMMD for longitudes > 99 deg - 1043245 would be handled separately
-func parseCoord(s string) float64 {
-	if len(s) < 5 {
+// parseCoord parses a latitude or longitude string in various compact formats.
+func parseCoord(coord, dir string) float64 {
+	if coord == "" {
 		return 0
 	}
 
-	var deg int
-	var min float64
-	var err error
-
-	if len(s) == 5 {
-		// DDMMD format: 2 digits degrees, 2 digits minutes, 1 digit tenths.
-		deg, err = strconv.Atoi(s[0:2])
-		if err != nil {
-			return 0
-		}
-		minWhole, err := strconv.Atoi(s[2:4])
-		if err != nil {
-			return 0
-		}
-		minTenths, err := strconv.Atoi(s[4:5])
-		if err != nil {
-			return 0
-		}
-		min = float64(minWhole) + float64(minTenths)/10.0
-	} else if len(s) == 6 {
-		// Check if first 2 digits could be reasonable latitude (< 90) or longitude part.
-		deg2, _ := strconv.Atoi(s[0:2])
-		deg3, _ := strconv.Atoi(s[0:3])
-
-		if deg2 <= 90 {
-			// DDMMTT format: 2 digits degrees, 2 digits minutes, 2 digits hundredths.
-			deg = deg2
-			minWhole, err := strconv.Atoi(s[2:4])
-			if err != nil {
-				return 0
-			}
-			minHundredths, err := strconv.Atoi(s[4:6])
-			if err != nil {
-				return 0
-			}
-			min = float64(minWhole) + float64(minHundredths)/100.0
-		} else if deg3 <= 180 {
-			// DDDMMD format for longitude > 99 deg.
-			deg = deg3
-			minWhole, err := strconv.Atoi(s[3:5])
-			if err != nil {
-				return 0
-			}
-			minTenths, err := strconv.Atoi(s[5:6])
-			if err != nil {
-				return 0
-			}
-			min = float64(minWhole) + float64(minTenths)/10.0
-		} else {
-			return 0
-		}
-	} else {
-		return 0
+	// Format: decimalni stepeni bez decimalne tačke
+	// Primer: 418071 = 41.8071°, 0214075 = 021.4075° = 21.4075°
+	if val, err := strconv.ParseFloat(coord, 64); err == nil {
+		result := val / 10000.0
+		return applyDir(result, dir)
 	}
-
-	if min >= 60 {
-		return 0
-	}
-
-	return float64(deg) + min/60.0
+	return 0
 }
 
-// parseFields tries to extract additional fields from the FST data.
-func parseFields(data string, result *Result) {
-	// Look for temperature pattern (M/P followed by digits, optionally ending with C).
-	// M020 = -20 deg C, P5C = +5 deg C, M34C = -34 deg C.
-	tempPattern := regexp.MustCompile(`([MP])\s*(\d{1,3})C?`)
-	if m := tempPattern.FindStringSubmatch(data); m != nil {
-		if temp, err := strconv.Atoi(m[2]); err == nil {
-			if m[1] == "M" {
-				result.Temperature = -temp
-			} else {
-				result.Temperature = temp
-			}
-		}
+func applyDir(val float64, dir string) float64 {
+	if dir == "S" || dir == "W" {
+		return -val
 	}
+	return val
+}
 
-	// Try to extract FL from the beginning of rest data.
-	// Often format is 3-digit FL followed by other data.
-	if len(data) >= 3 {
-		if fl, err := strconv.Atoi(data[0:3]); err == nil && fl >= 0 && fl <= 600 {
-			result.FlightLevel = fl
+// isWestbound proverava da li je let westbound na osnovu origin i destination.
+// Westbound letovi (Azija → Evropa) imaju heading oko 300°±30°
+// Eastbound letovi (Evropa → Azija) imaju heading oko 140°±30°
+func isWestbound(origin, dest string) bool {
+	// Evropski aerodromi: EG** (UK), LP** (Portugal), LE** (Spain), LF** (France), itd.
+	// Azijski aerodromi: VO** (India), ZS** (China), OM** (Middle East), OP** (Pakistan), itd.
+	
+	europeanPrefixes := []string{"EG", "LP", "LE", "LF", "EB", "EH", "ED", "LI", "LO", "LK", "LZ", "LR", "LY"}
+	asianPrefixes := []string{"VO", "ZS", "ZG", "ZP", "OM", "OP", "OI", "VA", "VT", "VY"}
+	
+	isDestEuropean := false
+	isOriginAsian := false
+	
+	for _, prefix := range europeanPrefixes {
+		if strings.HasPrefix(dest, prefix) {
+			isDestEuropean = true
 		}
 	}
-
-	// Try to find heading and ground speed patterns.
-	// These are typically 3-digit values in specific positions.
-	nums := regexp.MustCompile(`\d{3}`).FindAllString(data, -1)
-	if len(nums) >= 2 {
-		// Heuristic: heading is usually first 3-digit after FL, GS is second.
-		if hdg, err := strconv.Atoi(nums[0]); err == nil && hdg <= 360 {
-			result.Heading = hdg
-		}
-		if len(nums) >= 2 {
-			if gs, err := strconv.Atoi(nums[1]); err == nil && gs > 0 && gs < 1000 {
-				result.GroundSpeed = gs
-			}
+	
+	for _, prefix := range asianPrefixes {
+		if strings.HasPrefix(origin, prefix) {
+			isOriginAsian = true
 		}
 	}
+	
+	// Westbound: Origin je Azija, Destination je Evropa
+	return isOriginAsian && isDestEuropean
 }

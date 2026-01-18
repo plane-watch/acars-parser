@@ -44,7 +44,7 @@ type Result struct {
 	Phase       string  `json:"phase,omitempty"`       // CRUISE, CLIMB, etc.
 	FuelRemain  int     `json:"fuel_remain,omitempty"` // In hundreds of lbs or kg
 	FuelUsed    int     `json:"fuel_used,omitempty"`
-	Mach        float64 `json:"mach,omitempty"`
+	Temperature int     `json:"temperature,omitempty"`
 	WindDir     int     `json:"wind_dir,omitempty"`
 	WindSpeed   int     `json:"wind_speed,omitempty"`
 	Heading     int     `json:"heading,omitempty"`
@@ -67,7 +67,6 @@ func init() {
 func (p *Parser) Name() string     { return "agfsr" }
 func (p *Parser) Labels() []string { return []string{"4T"} }
 func (p *Parser) Priority() int    { return 100 }
-
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "AGFSR")
@@ -133,14 +132,11 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		result.FuelUsed = fuel
 	}
 
-	// Parse mach (M37 = 0.837).
+	// Parse temperature (M60 = -60°C)
 	machStr := match.Captures["mach"]
 	if strings.HasPrefix(machStr, "M") {
-		if mach, err := strconv.Atoi(machStr[1:]); err == nil {
-			result.Mach = float64(mach) / 100.0
-			if result.Mach < 1.0 {
-				result.Mach += 0.8
-			}
+		if temp, err := strconv.Atoi(machStr[1:]); err == nil {
+			result.Temperature = -temp
 		}
 	}
 
@@ -155,28 +151,14 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		}
 	}
 
-	// Parse heading.
-	if hdg, err := strconv.Atoi(match.Captures["heading"]); err == nil {
-		result.Heading = hdg
-	}
-
-	// Fields field1 and field2 - one is ground speed, other is unknown.
+	// Fix: heading should use field1, ground_speed should use field2
 	field1 := match.Captures["field1"]
 	field2 := match.Captures["field2"]
-	val1, err1 := strconv.Atoi(field1)
-	val2, err2 := strconv.Atoi(field2)
-
-	if err1 == nil && val1 >= 100 {
-		result.GroundSpeed = val1
-		result.Unknown2 = field2
-	} else if err2 == nil && val2 >= 100 {
-		result.GroundSpeed = val2
-		result.Unknown2 = field1
-	} else {
-		result.Unknown2 = field1
-		if err2 == nil {
-			result.GroundSpeed = val2
-		}
+	if hdg, err := strconv.Atoi(field1); err == nil {
+		result.Heading = hdg
+	}
+	if gs, err := strconv.Atoi(field2); err == nil {
+		result.GroundSpeed = gs
 	}
 
 	// Parse ETA and scheduled.

@@ -493,13 +493,14 @@ func decodeCoordinate(raw uint32) float64 {
 	return maxVal * float64(signed) / float64(0xFFFFF)
 }
 
-// Per ADS-C Basic Report encoding, altitude is (altitude_ft - 20000) with 2 ft resolution.
-// altitude_ft = signed(raw) * 2 + 20000.
+// Per ARINC 622 ADS-C Basic Report encoding, altitude uses 4 ft resolution.
+// altitude_ft = signed(raw) * 4.
 func decodeAltitude(raw uint32) int {
+	// Sign extend 16-bit value.
 	if raw&0x8000 != 0 {
 		raw |= 0xFFFF0000
 	}
-	return int(int32(raw))*2 + 20000
+	return int(int32(raw)) * 4
 }
 
 // decodeHeading decodes a 12-bit signed heading/track value.

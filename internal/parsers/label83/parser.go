@@ -22,7 +22,7 @@ type Result struct {
 	ReportTime      string  `json:"report_time,omitempty"`
 	Latitude        float64 `json:"latitude"`
 	Longitude       float64 `json:"longitude"`
-	Altitude        int     `json:"altitude,omitempty"`
+	FlightLevel     int     `json:"flight_level,omitempty"`
 	Heading         int     `json:"heading,omitempty"`
 	GroundSpeed     float64 `json:"ground_speed,omitempty"`
 	Origin          string  `json:"origin,omitempty"`
@@ -104,9 +104,9 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		// Parse longitude (format: DDDMM.D - 3 degree digits, decimal minutes).
 		result.Longitude = patterns.ParseLongitude(match.Captures["lon"], match.Captures["lon_dir"])
 
-		// Parse altitude.
+		// Parse flight level from altitude (show only first 3 digits as int, e.g. 370465 -> 370)
 		if alt, err := strconv.Atoi(match.Captures["altitude"]); err == nil {
-			result.Altitude = alt
+			result.FlightLevel = alt / 1000
 		}
 
 	case "zspd_position":
@@ -127,9 +127,9 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 			result.Longitude = lon
 		}
 
-		// Parse altitude.
+		// Parse flight level from altitude (show only first 3 digits as int, e.g. 221388 -> 221)
 		if alt, err := strconv.Atoi(match.Captures["altitude"]); err == nil {
-			result.Altitude = alt
+			result.FlightLevel = alt / 1000
 		}
 
 		// Parse heading.
