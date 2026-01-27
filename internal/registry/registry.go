@@ -237,3 +237,42 @@ func (r *Registry) ParserCount() int {
 	}
 	return count
 }
+
+// AllParsers returns all registered parsers (global, label-specific, and catch-all).
+// This is useful for debugging and listing available parsers.
+func (r *Registry) AllParsers() []Parser {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	// Use a map to deduplicate parsers (some may be registered for multiple labels).
+	seen := make(map[string]bool)
+	var result []Parser
+
+	// Add global parsers.
+	for _, p := range r.global {
+		if !seen[p.Name()] {
+			seen[p.Name()] = true
+			result = append(result, p)
+		}
+	}
+
+	// Add label-specific parsers.
+	for _, parsers := range r.byLabel {
+		for _, p := range parsers {
+			if !seen[p.Name()] {
+				seen[p.Name()] = true
+				result = append(result, p)
+			}
+		}
+	}
+
+	// Add catch-all parsers.
+	for _, p := range r.catchAll {
+		if !seen[p.Name()] {
+			seen[p.Name()] = true
+			result = append(result, p)
+		}
+	}
+
+	return result
+}

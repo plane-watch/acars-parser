@@ -13,10 +13,10 @@ type Message struct {
 
 // MessageElement represents a single message element (uplink or downlink).
 type MessageElement struct {
-	ID    int         `json:"id"`              // Element ID (uM0-uM182 for uplink, dM0-dM128 for downlink).
-	Label string      `json:"label"`           // Human-readable message template.
-	Data  interface{} `json:"data,omitempty"`  // Element-specific data.
-	Text  string      `json:"text,omitempty"`  // Formatted message text.
+	ID    int         `json:"id"`             // Element ID (uM0-uM182 for uplink, dM0-dM128 for downlink).
+	Label string      `json:"label"`          // Human-readable message template.
+	Data  interface{} `json:"data,omitempty"` // Element-specific data.
+	Text  string      `json:"text,omitempty"` // Formatted message text.
 }
 
 // Decoder decodes FANS-1/A CPDLC messages.
@@ -39,21 +39,19 @@ func (d *Decoder) Decode() (*Message, error) {
 		Direction: d.direction,
 	}
 
-	// NOTE on multi-element messages:
-	// According to ASN.1 PER, FANSATCDownlinkMessage/FANSATCUplinkMessage should have
-	// a presence bit at the start indicating whether the optional seqOf field is present.
-	// However, real-world FANS-1/A implementations do NOT include this presence bit.
-	// The libacars asn1c-generated code would expect it, but actual aircraft/ATC systems
-	// apparently use a different encoding where multi-element detection relies on
-	// data-length exhaustion rather than an explicit presence bit.
+	// FANSATCDownlinkMessage/FANSATCUplinkMessage is a SEQUENCE with:
+	// 1. aTCMessageheader (mandatory)
+	// 2. aTCDownlinkmsgelementid / aTCUplinkmsgelementid (mandatory CHOICE)
+	// 3. aTCdownlinkmsgelementid_seqOf / aTCuplinkmsgelementid_seqOf (OPTIONAL)
 	//
-	// This was verified empirically: hex data `005080204A` correctly decodes to dM80
-	// when the header starts at bit 0, but decodes incorrectly (dM161) when a presence
-	// bit is read first. Therefore, we do NOT read a presence preamble here.
-	//
-	// Multi-element messages (where seqOf contains 1-4 additional elements) are
-	// currently not supported because there's no reliable way to detect them without
-	// the presence bit. In practice, single-element messages are the most common case.
+	// In ASN.1 PER SEQUENCE encoding, presence bits for optional fields come first.
+	// So the first bit indicates whether seqOf (multi-element) is present.
+
+	// Read presence bit for optional seqOf field.
+	hasSeqOf, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("seqOf presence: %w", err)
+	}
 
 	// Decode header (presence bits for optional header fields come first within header).
 	header, err := d.decodeHeader()
@@ -69,10 +67,22 @@ func (d *Decoder) Decode() (*Message, error) {
 	}
 	msg.Elements = append(msg.Elements, *elem)
 
-	// TODO: Multi-element message support would require either:
-	// 1. Detecting remaining data after the primary element and attempting to decode more
-	// 2. Finding real-world multi-element message samples to analyse the actual encoding
-	// For now, we only decode the primary element.
+	// Decode additional elements if seqOf is present.
+	if hasSeqOf {
+		// FANSATCDownlinkMsgElementIdSequence is SIZE(1..4) OF FANSATCDownlinkMsgElementId.
+		// Length is encoded as 2 bits (for 1-4 range).
+		count, err := d.br.ReadConstrainedInt(1, 4)
+		if err != nil {
+			return nil, fmt.Errorf("seqOf count: %w", err)
+		}
+		for i := 0; i < count; i++ {
+			elem, err := d.decodeElement()
+			if err != nil {
+				return nil, fmt.Errorf("seqOf element %d: %w", i, err)
+			}
+			msg.Elements = append(msg.Elements, *elem)
+		}
+	}
 
 	return msg, nil
 }
@@ -122,7 +132,8 @@ func (d *Decoder) decodeHeader() (*MessageHeader, error) {
 	return header, nil
 }
 
-// decodeTimestamp decodes a FANS timestamp.
+// decodeTimestamp decodes a FANS timestamp (hours, minutes, seconds).
+// FANSTimestamp is a SEQUENCE of hours (5 bits), minutes (6 bits), seconds (6 bits).
 func (d *Decoder) decodeTimestamp() (*Time, error) {
 	// Hours (0-23) = 5 bits.
 	hours, err := d.br.ReadConstrainedInt(0, 23)
@@ -134,27 +145,45 @@ func (d *Decoder) decodeTimestamp() (*Time, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Time{Hours: hours, Minutes: minutes}, nil
+	// Seconds (0-59) = 6 bits.
+	seconds, err := d.br.ReadConstrainedInt(0, 59)
+	if err != nil {
+		return nil, err
+	}
+	return &Time{Hours: hours, Minutes: minutes, Seconds: seconds}, nil
 }
 
 // decodeElement decodes a single message element.
 func (d *Decoder) decodeElement() (*MessageElement, error) {
 	elem := &MessageElement{}
 
-	// The element is a CHOICE with no extension marker (all alternatives are root).
-	// Downlink: 8 bits for 0-128 (129 choices).
-	// Uplink: 8 bits for 0-182 (183 choices).
+	// ASN.1 PER CHOICE encoding for FANS-1/A element IDs.
+	// According to libacars asn1c-generated constraints:
+	// - FANSATCDownlinkMsgElementId: APC_CONSTRAINED, 8, 8, 0, 128 (8 bits, no extension)
+	// - FANSATCUplinkMsgElementId: APC_CONSTRAINED, 8, 8, 0, 182 (8 bits, no extension)
+	//
+	// Both use straight 8-bit encoding with NO extension bit.
+
+	var elemID int
+	var err error
 	var maxChoice int
+
 	if d.direction == DirectionUplink {
-		maxChoice = 182 // uM0-uM182.
+		maxChoice = 182
 	} else {
-		maxChoice = 128 // dM0-dM128.
+		maxChoice = 128
 	}
 
-	// Read the element ID directly - no extension bit in FANS-1/A element choices.
-	elemID, err := d.br.ReadConstrainedInt(0, maxChoice)
+	elemID, err = d.br.ReadConstrainedInt(0, maxChoice)
 	if err != nil {
 		return nil, fmt.Errorf("element ID: %w", err)
+	}
+
+	// Validate element ID is within the valid range for this direction.
+	// Malformed/truncated messages may produce bit patterns that decode to values > maxChoice.
+	if elemID > maxChoice {
+		return nil, fmt.Errorf("element ID %d exceeds maximum %d for %s (malformed message)",
+			elemID, maxChoice, d.direction)
 	}
 
 	elem.ID = elemID
@@ -359,6 +388,10 @@ func (d *Decoder) decodeDownlinkData(elemID int) (interface{}, error) {
 		// Distance offset + direction.
 		return d.decodeDistanceOffset()
 
+	case 57:
+		// Remaining fuel and souls on board (emergency message).
+		return d.decodeRemainingFuelSouls()
+
 	case 23:
 		// ProcedureName.
 		return d.decodeProcedureName()
@@ -370,6 +403,22 @@ func (d *Decoder) decodeDownlinkData(elemID int) (interface{}, error) {
 	case 26, 59:
 		// Position + RouteClearance.
 		return d.decodePositionRouteClearance()
+
+	case 16:
+		// AT [position] REQUEST OFFSET [distanceoffset] [direction] OF ROUTE.
+		return d.decodePositionDistanceOffset()
+
+	case 17:
+		// AT [time] REQUEST OFFSET [distanceoffset] [direction] OF ROUTE.
+		return d.decodeTimeDistanceOffset()
+
+	case 48:
+		// POSITION REPORT [positionreport].
+		return d.decodePositionReport()
+
+	case 78:
+		// AT [time] [distance] [tofrom] [position].
+		return d.decodeTimeDistanceToFromPosition()
 
 	default:
 		return nil, nil
@@ -1173,6 +1222,9 @@ func (d *Decoder) formatElementText(elem *MessageElement) string {
 	if data, ok := elem.Data.(*ProcedureName); ok && data != nil {
 		text = substituteText(text, "[procedurename]", data.String())
 	}
+	if data, ok := elem.Data.(*PositionReport); ok && data != nil {
+		text = substituteText(text, "[positionreport]", data.String())
+	}
 
 	// Handle map types for compound data.
 	if data, ok := elem.Data.(map[string]interface{}); ok {
@@ -1214,6 +1266,24 @@ func (d *Decoder) formatElementText(elem *MessageElement) string {
 		}
 		if proc, ok := data["procedure"].(*ProcedureName); ok {
 			text = substituteText(text, "[procedurename]", proc.String())
+		}
+		if fuel, ok := data["remaining_fuel"].(*RemainingFuel); ok {
+			text = substituteText(text, "[remainingfuel]", fuel.String())
+		}
+		if souls, ok := data["persons_on_board"].(*PersonsOnBoard); ok {
+			text = substituteText(text, "[remainingsouls]", souls.String())
+		}
+		// Handle distance_offset for dM16/dM17.
+		if offset, ok := data["distance_offset"].(*DistanceOffset); ok {
+			text = substituteText(text, "[distanceoffset]", fmt.Sprintf("%d %s", offset.Distance, offset.Unit))
+			text = substituteText(text, "[direction]", offset.Direction)
+		}
+		// Handle distance + to_from for dM78.
+		if dist, ok := data["distance"].(*Distance); ok {
+			text = substituteText(text, "[distance]", dist.String())
+		}
+		if toFrom, ok := data["to_from"].(string); ok {
+			text = substituteText(text, "[tofrom]", toFrom)
 		}
 	}
 
@@ -1482,6 +1552,318 @@ func (d *Decoder) decodeAirwayIdentifier() (string, error) {
 
 // decodeRouteInformationElement decodes a single route information element.
 // FANSRouteInformationSequence is a CHOICE of various position types.
+// decodeRemainingFuelSouls decodes dM57: remaining fuel and persons on board.
+func (d *Decoder) decodeRemainingFuelSouls() (map[string]interface{}, error) {
+	// FANSRemainingFuel: hours (0-99) and minutes (0-59).
+	fuelHours, err := d.br.ReadConstrainedInt(0, 99)
+	if err != nil {
+		return nil, fmt.Errorf("fuel hours: %w", err)
+	}
+	fuelMinutes, err := d.br.ReadConstrainedInt(0, 59)
+	if err != nil {
+		return nil, fmt.Errorf("fuel minutes: %w", err)
+	}
+
+	// FANSPersonsOnBoard: 0-1023 (10 bits).
+	souls, err := d.br.ReadConstrainedInt(0, 1023)
+	if err != nil {
+		return nil, fmt.Errorf("souls: %w", err)
+	}
+
+	return map[string]interface{}{
+		"remaining_fuel":   &RemainingFuel{Hours: fuelHours, Minutes: fuelMinutes},
+		"persons_on_board": &PersonsOnBoard{Count: souls},
+	}, nil
+}
+
+// decodePositionDistanceOffset decodes dM16: position + distance offset.
+func (d *Decoder) decodePositionDistanceOffset() (map[string]interface{}, error) {
+	pos, err := d.decodePosition()
+	if err != nil {
+		return nil, fmt.Errorf("position: %w", err)
+	}
+	offset, err := d.decodeDistanceOffset()
+	if err != nil {
+		return nil, fmt.Errorf("distance offset: %w", err)
+	}
+	return map[string]interface{}{
+		"position":        pos,
+		"distance_offset": offset,
+	}, nil
+}
+
+// decodeTimeDistanceOffset decodes dM17: time + distance offset.
+func (d *Decoder) decodeTimeDistanceOffset() (map[string]interface{}, error) {
+	time, err := d.decodeTime()
+	if err != nil {
+		return nil, fmt.Errorf("time: %w", err)
+	}
+	offset, err := d.decodeDistanceOffset()
+	if err != nil {
+		return nil, fmt.Errorf("distance offset: %w", err)
+	}
+	return map[string]interface{}{
+		"time":            time,
+		"distance_offset": offset,
+	}, nil
+}
+
+// decodePositionReport decodes dM48: full position report.
+// FANSPositionReport is a complex SEQUENCE with multiple optional fields.
+func (d *Decoder) decodePositionReport() (*PositionReport, error) {
+	pr := &PositionReport{}
+
+	// FANSPositionReport has 10 optional fields. Read presence bits first.
+	hasTime, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasTime: %w", err)
+	}
+	hasFixNext, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasFixNext: %w", err)
+	}
+	hasFixNextETA, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasFixNextETA: %w", err)
+	}
+	hasFixNextPlusOne, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasFixNextPlusOne: %w", err)
+	}
+	hasAltitude, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasAltitude: %w", err)
+	}
+	hasSpeed, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasSpeed: %w", err)
+	}
+	hasTemperature, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasTemperature: %w", err)
+	}
+	hasWind, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasWind: %w", err)
+	}
+	hasTurbulence, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasTurbulence: %w", err)
+	}
+	hasIcing, err := d.br.ReadBit()
+	if err != nil {
+		return nil, fmt.Errorf("hasIcing: %w", err)
+	}
+
+	// Mandatory: current position.
+	pos, err := d.decodePosition()
+	if err != nil {
+		return nil, fmt.Errorf("position: %w", err)
+	}
+	pr.Position = pos
+
+	// Decode optional fields in order.
+	if hasTime {
+		time, err := d.decodeTime()
+		if err != nil {
+			return nil, fmt.Errorf("time: %w", err)
+		}
+		pr.Time = time
+	}
+
+	if hasFixNext {
+		fix, err := d.decodePosition()
+		if err != nil {
+			return nil, fmt.Errorf("fixNext: %w", err)
+		}
+		pr.FixNext = fix
+	}
+
+	if hasFixNextETA {
+		eta, err := d.decodeTime()
+		if err != nil {
+			return nil, fmt.Errorf("fixNextETA: %w", err)
+		}
+		pr.FixNextETA = eta
+	}
+
+	if hasFixNextPlusOne {
+		fix, err := d.decodePosition()
+		if err != nil {
+			return nil, fmt.Errorf("fixNextPlusOne: %w", err)
+		}
+		pr.FixNextPlusOne = fix
+	}
+
+	if hasAltitude {
+		alt, err := d.decodeAltitude()
+		if err != nil {
+			return nil, fmt.Errorf("altitude: %w", err)
+		}
+		pr.Altitude = alt
+	}
+
+	if hasSpeed {
+		spd, err := d.decodeSpeed()
+		if err != nil {
+			return nil, fmt.Errorf("speed: %w", err)
+		}
+		pr.Speed = spd
+	}
+
+	if hasTemperature {
+		// FANSTemperature is a constrained integer (-100 to +100 degrees C).
+		temp, err := d.br.ReadConstrainedInt(-100, 100)
+		if err != nil {
+			return nil, fmt.Errorf("temperature: %w", err)
+		}
+		pr.Temperature = &temp
+	}
+
+	if hasWind {
+		wind, err := d.decodeWind()
+		if err != nil {
+			return nil, fmt.Errorf("wind: %w", err)
+		}
+		pr.Wind = wind
+	}
+
+	if hasTurbulence {
+		// FANSTurbulence is an enum (0-3: none, light, moderate, severe).
+		turb, err := d.br.ReadConstrainedInt(0, 3)
+		if err != nil {
+			return nil, fmt.Errorf("turbulence: %w", err)
+		}
+		turbNames := []string{"none", "light", "moderate", "severe"}
+		if turb < len(turbNames) {
+			pr.Turbulence = turbNames[turb]
+		}
+	}
+
+	if hasIcing {
+		// FANSIcing is an enum (0-3: none, light, moderate, severe).
+		icing, err := d.br.ReadConstrainedInt(0, 3)
+		if err != nil {
+			return nil, fmt.Errorf("icing: %w", err)
+		}
+		icingNames := []string{"none", "light", "moderate", "severe"}
+		if icing < len(icingNames) {
+			pr.Icing = icingNames[icing]
+		}
+	}
+
+	return pr, nil
+}
+
+// decodeWind decodes a FANSWind structure.
+func (d *Decoder) decodeWind() (*Wind, error) {
+	// FANSWind is a SEQUENCE of direction and speed.
+	// Direction: degrees (0-359), 9 bits.
+	direction, err := d.br.ReadConstrainedInt(0, 359)
+	if err != nil {
+		return nil, fmt.Errorf("direction: %w", err)
+	}
+
+	// Speed: FANSWindSpeed is a CHOICE (0=knots, 1=kph).
+	speedChoice, err := d.br.ReadConstrainedInt(0, 1)
+	if err != nil {
+		return nil, fmt.Errorf("speed choice: %w", err)
+	}
+
+	var speed int
+	var unit string
+	if speedChoice == 0 {
+		// Knots (0-255).
+		speed, err = d.br.ReadConstrainedInt(0, 255)
+		if err != nil {
+			return nil, fmt.Errorf("speed knots: %w", err)
+		}
+		unit = "kt"
+	} else {
+		// KPH (0-511).
+		speed, err = d.br.ReadConstrainedInt(0, 511)
+		if err != nil {
+			return nil, fmt.Errorf("speed kph: %w", err)
+		}
+		unit = "km/h"
+	}
+
+	return &Wind{
+		Direction: direction,
+		Speed:     speed,
+		Unit:      unit,
+	}, nil
+}
+
+// decodeDistance decodes a FANSDistance structure.
+func (d *Decoder) decodeDistance() (*Distance, error) {
+	// FANSDistance is a CHOICE (0=nm, 1=km).
+	choice, err := d.br.ReadConstrainedInt(0, 1)
+	if err != nil {
+		return nil, fmt.Errorf("distance choice: %w", err)
+	}
+
+	dist := &Distance{}
+	if choice == 0 {
+		// Nautical miles (0-9999).
+		v, err := d.br.ReadConstrainedInt(0, 9999)
+		if err != nil {
+			return nil, fmt.Errorf("distance nm: %w", err)
+		}
+		dist.Value = v
+		dist.Unit = "nm"
+	} else {
+		// Kilometres (0-16000).
+		v, err := d.br.ReadConstrainedInt(0, 16000)
+		if err != nil {
+			return nil, fmt.Errorf("distance km: %w", err)
+		}
+		dist.Value = v
+		dist.Unit = "km"
+	}
+
+	return dist, nil
+}
+
+// decodeToFrom decodes a FANSToFrom enum.
+func (d *Decoder) decodeToFrom() (string, error) {
+	// FANSToFrom is an enum (0=to, 1=from).
+	choice, err := d.br.ReadConstrainedInt(0, 1)
+	if err != nil {
+		return "", err
+	}
+	if choice == 0 {
+		return "to", nil
+	}
+	return "from", nil
+}
+
+// decodeTimeDistanceToFromPosition decodes dM78: time + distance + toFrom + position.
+func (d *Decoder) decodeTimeDistanceToFromPosition() (map[string]interface{}, error) {
+	time, err := d.decodeTime()
+	if err != nil {
+		return nil, fmt.Errorf("time: %w", err)
+	}
+	dist, err := d.decodeDistance()
+	if err != nil {
+		return nil, fmt.Errorf("distance: %w", err)
+	}
+	toFrom, err := d.decodeToFrom()
+	if err != nil {
+		return nil, fmt.Errorf("toFrom: %w", err)
+	}
+	pos, err := d.decodePosition()
+	if err != nil {
+		return nil, fmt.Errorf("position: %w", err)
+	}
+	return map[string]interface{}{
+		"time":     time,
+		"distance": dist,
+		"to_from":  toFrom,
+		"position": pos,
+	}, nil
+}
+
 func (d *Decoder) decodeRouteInformationElement() (string, error) {
 	// FANSRouteInformationSequence has 11 alternatives (0-10), 4 bits.
 	// 0: publicationIdentifier

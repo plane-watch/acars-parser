@@ -135,6 +135,77 @@ func (p *FPNParser) Parse(msg *acars.Message) registry.Result {
 	return fp
 }
 
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *FPNParser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No FPN with :DA: section found"
+		return trace
+	}
+
+	// Use tokeniser-based parsing for tracing.
+	tokens := TokeniseFPN(msg.Text)
+
+	// Add extractors for key tokens.
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "origin",
+		Pattern: ":DA: section",
+		Matched: tokens.GetOrigin() != "",
+		Value:   tokens.GetOrigin(),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "destination",
+		Pattern: ":AA: section",
+		Matched: tokens.GetDestination() != "",
+		Value:   tokens.GetDestination(),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "departure",
+		Pattern: ":DP: section",
+		Matched: tokens.GetDeparture() != "",
+		Value:   tokens.GetDeparture(),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "arrival",
+		Pattern: ":AR: section",
+		Matched: tokens.GetArrival() != "",
+		Value:   tokens.GetArrival(),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "route",
+		Pattern: ":F: section or inline route",
+		Matched: tokens.GetRoute() != "" || tokens.GetInlineRoute() != "",
+		Value: func() string {
+			if r := tokens.GetRoute(); r != "" {
+				return r
+			}
+			return tokens.GetInlineRoute()
+		}(),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "approach",
+		Pattern: ":AP: section",
+		Matched: tokens.GetApproach() != "",
+		Value:   tokens.GetApproach(),
+	})
+
+	trace.Matched = tokens.GetOrigin() != "" && tokens.GetDestination() != ""
+	return trace
+}
+
 // parseRouteWaypoints extracts waypoints with coordinates from a route string.
 // Route format: "WAYPOINT,N31490E035327.AIRWAY..NEXT,COORDS"
 func parseRouteWaypoints(route string) []RouteWaypoint {
@@ -598,6 +669,52 @@ func (p *H1PosParser) Parse(msg *acars.Message) registry.Result {
 	return result
 }
 
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *H1PosParser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No POS prefix found (or has POS/ which is different)"
+		return trace
+	}
+
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
+	}
+
+	compilerTrace := compiler.ParseWithTrace(msg.Text)
+
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	// Check if a valid H1 position format was matched.
+	validFormat := false
+	if compilerTrace.Match != nil {
+		if compilerTrace.Match.FormatName == "h1_position_time" ||
+			compilerTrace.Match.FormatName == "h1_position_alt" {
+			validFormat = true
+		}
+	}
+
+	trace.Matched = validFormat
+	return trace
+}
+
 // parseIntField is a helper to parse integer fields.
 func parseIntField(s string) (int, error) {
 	if s == "" {
@@ -721,6 +838,91 @@ func (p *PWIParser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	return report
+}
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *PWIParser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No PWI/ marker found"
+		return trace
+	}
+
+	text := msg.Text
+
+	// Find PWI section.
+	pwiIdx := strings.Index(text, "PWI/")
+	if pwiIdx < 0 {
+		trace.QuickCheck.Reason = "PWI/ not found"
+		return trace
+	}
+	text = text[pwiIdx+4:]
+
+	// Normalise newlines.
+	text = strings.ReplaceAll(text, "\r\n", "\n")
+	text = strings.ReplaceAll(text, "\n", "")
+
+	// Add extractors for each section type.
+	sections := strings.Split(text, "/")
+	hasTS := false
+	hasCB := false
+	hasDD := false
+	hasWD := false
+
+	for _, section := range sections {
+		if len(section) < 2 {
+			continue
+		}
+		switch section[:2] {
+		case "TS":
+			hasTS = true
+		case "CB":
+			hasCB = true
+		case "DD":
+			hasDD = true
+		case "WD":
+			hasWD = true
+		}
+	}
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "timestamp",
+		Pattern: "TS section",
+		Matched: hasTS,
+		Value:   fmt.Sprintf("found=%v", hasTS),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "climb_winds",
+		Pattern: "CB section",
+		Matched: hasCB,
+		Value:   fmt.Sprintf("found=%v", hasCB),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "descent_winds",
+		Pattern: "DD section",
+		Matched: hasDD,
+		Value:   fmt.Sprintf("found=%v", hasDD),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "route_winds",
+		Pattern: "WD section",
+		Matched: hasWD,
+		Value:   fmt.Sprintf("found=%v", hasWD),
+	})
+
+	trace.Matched = hasCB || hasDD || hasWD
+	return trace
 }
 
 // parseAltitudeWinds parses altitude wind data like "100252039.150251040.200246036".

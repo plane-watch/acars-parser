@@ -147,3 +147,58 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	return result
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No TURB keyword with SIGMET/ADVISORY/WSI found"
+		return trace
+	}
+
+	text := msg.Text
+
+	// Add extractors for each regex pattern.
+	extractors := []struct {
+		name    string
+		pattern *regexp.Regexp
+	}{
+		{"type", typeRe},
+		{"id", idRe},
+		{"severity", severityRe},
+		{"severity_alt", sevRe2},
+		{"altitude", altRe},
+		{"valid_period", validRe},
+		{"movement", mvtRe},
+		{"description", discRe},
+		{"entry_exit", entryExitRe},
+	}
+
+	for _, e := range extractors {
+		ext := registry.Extractor{
+			Name:    e.name,
+			Pattern: e.pattern.String(),
+		}
+		if m := e.pattern.FindStringSubmatch(text); len(m) > 1 {
+			ext.Matched = true
+			ext.Value = m[1]
+		}
+		trace.Extractors = append(trace.Extractors, ext)
+	}
+
+	// Determine if overall match succeeds.
+	hasSeverity := severityRe.MatchString(text) || sevRe2.MatchString(text)
+	hasAltitude := altRe.MatchString(text)
+	hasID := idRe.MatchString(text)
+	trace.Matched = hasSeverity || hasAltitude || hasID
+
+	return trace
+}

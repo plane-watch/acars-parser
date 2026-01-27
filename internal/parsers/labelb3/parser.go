@@ -98,3 +98,37 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	return result
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	// QuickCheck always passes for B3.
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: true,
+		Reason: "Label check sufficient for B3",
+	}
+
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
+	}
+
+	// Get detailed trace from compiler.
+	compilerTrace := compiler.ParseWithTrace(msg.Text)
+
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	trace.Matched = compilerTrace.Match != nil
+	return trace
+}

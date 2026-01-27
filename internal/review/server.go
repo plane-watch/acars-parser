@@ -2,6 +2,7 @@
 package review
 
 import (
+	"context"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -19,15 +20,17 @@ var staticFiles embed.FS
 
 // Server provides the review web UI.
 type Server struct {
-	db     *storage.DB
+	ch     *storage.ClickHouseDB
+	pg     *storage.PostgresDB
 	port   int
-	filter string // Optional parser type filter
+	filter string // Optional parser type filter.
 }
 
 // NewServer creates a new review server.
-func NewServer(db *storage.DB, port int, filter string) *Server {
+func NewServer(ch *storage.ClickHouseDB, pg *storage.PostgresDB, port int, filter string) *Server {
 	return &Server{
-		db:     db,
+		ch:     ch,
+		pg:     pg,
 		port:   port,
 		filter: filter,
 	}
@@ -80,9 +83,9 @@ type APIMessage struct {
 	Expected      map[string]interface{} `json:"expected,omitempty"`
 }
 
-func messageToAPI(m *storage.Message) APIMessage {
+func messageToAPI(m *storage.CHMessage, annotation *storage.GoldenAnnotation) APIMessage {
 	api := APIMessage{
-		ID:          m.ID,
+		ID:          int64(m.ID),
 		Timestamp:   m.Timestamp.Format("2006-01-02 15:04:05"),
 		Label:       m.Label,
 		ParserType:  m.ParserType,
@@ -91,9 +94,7 @@ func messageToAPI(m *storage.Message) APIMessage {
 		Origin:      m.Origin,
 		Destination: m.Destination,
 		RawText:     m.RawText,
-		Confidence:  m.Confidence,
-		IsGolden:    m.IsGolden,
-		Annotation:  m.Annotation,
+		Confidence:  float64(m.Confidence),
 	}
 
 	// Parse missing fields.
@@ -105,8 +106,12 @@ func messageToAPI(m *storage.Message) APIMessage {
 	if m.ParsedJSON != "" {
 		_ = json.Unmarshal([]byte(m.ParsedJSON), &api.Parsed)
 	}
-	if m.ExpectedJSON != "" {
-		_ = json.Unmarshal([]byte(m.ExpectedJSON), &api.Expected)
+
+	// Add annotation data if available.
+	if annotation != nil {
+		api.IsGolden = annotation.IsGolden
+		api.Annotation = annotation.Annotation
+		api.Expected = annotation.ExpectedJSON
 	}
 
 	return api
@@ -118,16 +123,17 @@ func (s *Server) handleMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := context.Background()
+
 	// Parse query parameters.
 	q := r.URL.Query()
-	params := storage.QueryParams{
-		ParserType:   q.Get("type"),
-		Label:        q.Get("label"),
-		MissingField: q.Get("missing"),
-		HasMissing:   q.Get("has_missing") == "true",
-		FullText:     q.Get("search"),
-		OrderBy:      q.Get("order"),
-		OrderDesc:    q.Get("desc") != "false",
+	params := storage.CHQueryParams{
+		ParserType: q.Get("type"),
+		Label:      q.Get("label"),
+		HasMissing: q.Get("has_missing") == "true",
+		FullText:   q.Get("search"),
+		OrderBy:    q.Get("order"),
+		OrderDesc:  q.Get("desc") != "false",
 	}
 
 	// Apply server-level filter.
@@ -136,7 +142,6 @@ func (s *Server) handleMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Golden filter.
-	// Note: We'd need to add this to QueryParams, but for now we'll filter in code.
 	goldenOnly := q.Get("golden") == "true"
 
 	// Pagination.
@@ -149,7 +154,7 @@ func (s *Server) handleMessages(w http.ResponseWriter, r *http.Request) {
 		params.Offset = offset
 	}
 
-	messages, err := s.db.Query(params)
+	messages, err := s.ch.Query(ctx, params)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -158,10 +163,16 @@ func (s *Server) handleMessages(w http.ResponseWriter, r *http.Request) {
 	// Convert to API format.
 	var result []APIMessage
 	for _, m := range messages {
-		if goldenOnly && !m.IsGolden {
+		// Fetch annotation from PostgreSQL if available.
+		var annotation *storage.GoldenAnnotation
+		if s.pg != nil {
+			annotation, _ = s.pg.GetGoldenAnnotation(ctx, int64(m.ID))
+		}
+
+		if goldenOnly && (annotation == nil || !annotation.IsGolden) {
 			continue
 		}
-		result = append(result, messageToAPI(&m))
+		result = append(result, messageToAPI(&m, annotation))
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -208,7 +219,9 @@ func (s *Server) handleMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) getMessage(w http.ResponseWriter, id int64) {
-	msg, err := s.db.GetByID(id)
+	ctx := context.Background()
+
+	msg, err := s.ch.GetByID(ctx, uint64(id))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -218,68 +231,95 @@ func (s *Server) getMessage(w http.ResponseWriter, id int64) {
 		return
 	}
 
+	// Fetch annotation from PostgreSQL.
+	var annotation *storage.GoldenAnnotation
+	if s.pg != nil {
+		annotation, _ = s.pg.GetGoldenAnnotation(ctx, id)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(messageToAPI(msg))
+	_ = json.NewEncoder(w).Encode(messageToAPI(msg, annotation))
 }
 
 func (s *Server) setGolden(w http.ResponseWriter, r *http.Request, id int64) {
-	var req struct {
-		Golden bool `json:"golden"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if s.pg == nil {
+		http.Error(w, "PostgreSQL not configured", http.StatusServiceUnavailable)
 		return
 	}
 
-	if err := s.db.SetGolden(id, req.Golden); err != nil {
+	ctx := context.Background()
+
+	var body struct {
+		Golden bool `json:"golden"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if err := s.pg.SetGolden(ctx, id, body.Golden); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) setAnnotation(w http.ResponseWriter, r *http.Request, id int64) {
-	var req struct {
-		Annotation string `json:"annotation"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if s.pg == nil {
+		http.Error(w, "PostgreSQL not configured", http.StatusServiceUnavailable)
 		return
 	}
 
-	if err := s.db.SetAnnotation(id, req.Annotation); err != nil {
+	ctx := context.Background()
+
+	var body struct {
+		Annotation string `json:"annotation"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if err := s.pg.SetAnnotation(ctx, id, body.Annotation); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) setExpected(w http.ResponseWriter, r *http.Request, id int64) {
-	var req struct {
-		Expected map[string]interface{} `json:"expected"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if s.pg == nil {
+		http.Error(w, "PostgreSQL not configured", http.StatusServiceUnavailable)
 		return
 	}
 
-	expectedJSON, err := json.Marshal(req.Expected)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	ctx := context.Background()
+
+	var body map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
-	if err := s.db.SetExpectedJSON(id, string(expectedJSON)); err != nil {
+	// Get existing annotation or create new one.
+	existing, _ := s.pg.GetGoldenAnnotation(ctx, id)
+	annotation := storage.GoldenAnnotation{
+		MessageID:    id,
+		ExpectedJSON: body,
+	}
+	if existing != nil {
+		annotation.IsGolden = existing.IsGolden
+		annotation.Annotation = existing.Annotation
+	}
+
+	if err := s.pg.UpsertGoldenAnnotation(ctx, annotation); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) handleStats(w http.ResponseWriter, r *http.Request) {
@@ -288,7 +328,8 @@ func (s *Server) handleStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stats, err := s.db.GetStats()
+	ctx := context.Background()
+	stats, err := s.ch.GetStats(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -304,7 +345,8 @@ func (s *Server) handleTypes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	types, err := s.db.Distinct("parser_type")
+	ctx := context.Background()
+	types, err := s.ch.Distinct(ctx, "parser_type")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -330,32 +372,41 @@ func (s *Server) handleExportJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get all golden messages.
-	messages, err := s.db.Query(storage.QueryParams{Limit: 100000})
+	ctx := context.Background()
+
+	// Get all golden annotations from PostgreSQL.
+	if s.pg == nil {
+		http.Error(w, "PostgreSQL not configured", http.StatusServiceUnavailable)
+		return
+	}
+
+	annotations, err := s.pg.GetGoldenMessages(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	var exports []GoldenExport
-	for _, m := range messages {
-		if !m.IsGolden {
+	for _, a := range annotations {
+		// Fetch message from ClickHouse.
+		msg, err := s.ch.GetByID(ctx, uint64(a.MessageID))
+		if err != nil || msg == nil {
 			continue
 		}
 
 		export := GoldenExport{
-			ID:         m.ID,
-			RawText:    m.RawText,
-			Label:      m.Label,
-			ParserType: m.ParserType,
-			Annotation: m.Annotation,
+			ID:         a.MessageID,
+			RawText:    msg.RawText,
+			Label:      msg.Label,
+			ParserType: msg.ParserType,
+			Annotation: a.Annotation,
 		}
 
 		// Use expected_json if set, otherwise use parsed_json.
-		if m.ExpectedJSON != "" {
-			_ = json.Unmarshal([]byte(m.ExpectedJSON), &export.Expected)
-		} else if m.ParsedJSON != "" {
-			_ = json.Unmarshal([]byte(m.ParsedJSON), &export.Expected)
+		if a.ExpectedJSON != nil && len(a.ExpectedJSON) > 0 {
+			export.Expected = a.ExpectedJSON
+		} else if msg.ParsedJSON != "" {
+			_ = json.Unmarshal([]byte(msg.ParsedJSON), &export.Expected)
 		}
 
 		exports = append(exports, export)
@@ -372,20 +423,40 @@ func (s *Server) handleExportGo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get all golden messages.
-	messages, err := s.db.Query(storage.QueryParams{Limit: 100000})
+	ctx := context.Background()
+
+	// Get all golden annotations from PostgreSQL.
+	if s.pg == nil {
+		http.Error(w, "PostgreSQL not configured", http.StatusServiceUnavailable)
+		return
+	}
+
+	annotations, err := s.pg.GetGoldenMessages(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Group by parser type.
-	byType := make(map[string][]storage.Message)
-	for _, m := range messages {
-		if !m.IsGolden {
+	type goldenMsg struct {
+		ID      int64
+		RawText string
+		Label   string
+		Flight  string
+	}
+	byType := make(map[string][]goldenMsg)
+	for _, a := range annotations {
+		// Fetch message from ClickHouse.
+		msg, err := s.ch.GetByID(ctx, uint64(a.MessageID))
+		if err != nil || msg == nil {
 			continue
 		}
-		byType[m.ParserType] = append(byType[m.ParserType], m)
+		byType[msg.ParserType] = append(byType[msg.ParserType], goldenMsg{
+			ID:      a.MessageID,
+			RawText: msg.RawText,
+			Label:   msg.Label,
+			Flight:  msg.Flight,
+		})
 	}
 
 	// Generate Go test code.

@@ -3,7 +3,7 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -12,11 +12,17 @@ import (
 	"sort"
 	"strings"
 
-	_ "github.com/mattn/go-sqlite3"
+	"acars_parser/internal/storage"
 )
 
 func main() {
-	dbPath := flag.String("db", "messages.db", "SQLite database file")
+	// ClickHouse connection flags.
+	chHost := flag.String("ch-host", "localhost", "ClickHouse host")
+	chPort := flag.Int("ch-port", 9000, "ClickHouse port")
+	chUser := flag.String("ch-user", "default", "ClickHouse user")
+	chPassword := flag.String("ch-password", "", "ClickHouse password")
+	chDB := flag.String("ch-db", "acars", "ClickHouse database")
+
 	outputFormat := flag.String("format", "text", "Output format: text, json")
 	showTemplates := flag.Bool("templates", false, "Include template analysis (slower)")
 	topN := flag.Int("top", 20, "Show top N items in each category")
@@ -27,12 +33,20 @@ func main() {
 
 	flag.Parse()
 
-	db, err := sql.Open("sqlite3", *dbPath)
+	ctx := context.Background()
+
+	ch, err := storage.OpenClickHouse(ctx, storage.ClickHouseConfig{
+		Host:     *chHost,
+		Port:     *chPort,
+		Database: *chDB,
+		User:     *chUser,
+		Password: *chPassword,
+	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening database: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error opening ClickHouse: %v\n", err)
 		os.Exit(1)
 	}
-	defer db.Close()
+	defer func() { _ = ch.Close() }()
 
 	// Pattern testing mode.
 	if *testPattern != "" {
@@ -40,7 +54,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: -test requires -label\n")
 			os.Exit(1)
 		}
-		matches, total, matchIDs, nonMatchIDs := TestPattern(db, *testPattern, *label)
+		matches, total, matchIDs, nonMatchIDs := TestPattern(ctx, ch, *testPattern, *label)
 		fmt.Printf("Pattern: %s\n", *testPattern)
 		fmt.Printf("Label: %s\n", *label)
 		fmt.Printf("Result: %d/%d match (%.1f%%)\n\n", matches, total, float64(matches)/float64(total)*100)
@@ -61,13 +75,13 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Fprintf(os.Stderr, "Generating pattern suggestions for label %s...\n", *label)
-		suggestions := SuggestPatterns(db, *label, *minCluster, *topN)
+		suggestions := SuggestPatterns(ctx, ch, *label, *minCluster, *topN)
 
 		if *outputFormat == "json" {
 			data, _ := json.MarshalIndent(suggestions, "", "  ")
 			fmt.Println(string(data))
 		} else {
-			PrintSuggestions(suggestions, db)
+			PrintSuggestions(ctx, suggestions, ch, *label)
 		}
 		return
 	}
@@ -77,26 +91,26 @@ func main() {
 	// Run all analyses.
 	fmt.Fprintf(os.Stderr, "Analyzing corpus...\n")
 
-	report.Summary = analyzeSummary(db)
+	report.Summary = analyzeSummary(ctx, ch)
 	fmt.Fprintf(os.Stderr, "  - Summary complete\n")
 
-	report.LabelDistribution = analyzeLabelDistribution(db, *topN)
+	report.LabelDistribution = analyzeLabelDistribution(ctx, ch, *topN)
 	fmt.Fprintf(os.Stderr, "  - Label distribution complete\n")
 
-	report.ParserCoverage = analyzeParserCoverage(db, *topN)
+	report.ParserCoverage = analyzeParserCoverage(ctx, ch, *topN)
 	fmt.Fprintf(os.Stderr, "  - Parser coverage complete\n")
 
-	report.LabelParsing = analyzeLabelParsing(db, *label)
+	report.LabelParsing = analyzeLabelParsing(ctx, ch, *label)
 	fmt.Fprintf(os.Stderr, "  - Label parsing complete\n")
 
-	report.ContentPatterns = analyzeContentPatterns(db, *label, *topN)
+	report.ContentPatterns = analyzeContentPatterns(ctx, ch, *label, *topN)
 	fmt.Fprintf(os.Stderr, "  - Content patterns complete\n")
 
-	report.FieldCoverage = analyzeFieldCoverage(db)
+	report.FieldCoverage = analyzeFieldCoverage(ctx, ch)
 	fmt.Fprintf(os.Stderr, "  - Field coverage complete\n")
 
 	if *showTemplates {
-		report.TemplateAnalysis = analyzeTemplates(db, *label, *topN)
+		report.TemplateAnalysis = analyzeTemplates(ctx, ch, *label, *topN)
 		fmt.Fprintf(os.Stderr, "  - Template analysis complete\n")
 	}
 
@@ -111,45 +125,43 @@ func main() {
 
 // AnalysisReport contains all analysis results.
 type AnalysisReport struct {
-	Summary          SummaryStats            `json:"summary"`
+	Summary           SummaryStats           `json:"summary"`
 	LabelDistribution []LabelCount           `json:"label_distribution"`
-	ParserCoverage   []ParserCount           `json:"parser_coverage"`
-	LabelParsing     []LabelParseStats       `json:"label_parsing"`
-	ContentPatterns  []LabelContentPatterns  `json:"content_patterns"`
-	FieldCoverage    []FieldCoverageStats    `json:"field_coverage"`
-	TemplateAnalysis []LabelTemplates        `json:"template_analysis,omitempty"`
+	ParserCoverage    []ParserCount          `json:"parser_coverage"`
+	LabelParsing      []LabelParseStats      `json:"label_parsing"`
+	ContentPatterns   []LabelContentPatterns `json:"content_patterns"`
+	FieldCoverage     []FieldCoverageStats   `json:"field_coverage"`
+	TemplateAnalysis  []LabelTemplates       `json:"template_analysis,omitempty"`
 }
 
 type SummaryStats struct {
-	TotalMessages   int     `json:"total_messages"`
-	ParsedMessages  int     `json:"parsed_messages"`
-	UnparsedMessages int    `json:"unparsed_messages"`
-	ParseRate       float64 `json:"parse_rate"`
-	UniqueLabels    int     `json:"unique_labels"`
-	UniqueParserTypes int   `json:"unique_parser_types"`
-	GoldenMessages  int     `json:"golden_messages"`
-	FlaggedMessages int     `json:"flagged_messages"`
+	TotalMessages     int     `json:"total_messages"`
+	ParsedMessages    int     `json:"parsed_messages"`
+	UnparsedMessages  int     `json:"unparsed_messages"`
+	ParseRate         float64 `json:"parse_rate"`
+	UniqueLabels      int     `json:"unique_labels"`
+	UniqueParserTypes int     `json:"unique_parser_types"`
 }
 
 type LabelCount struct {
-	Label string `json:"label"`
-	Count int    `json:"count"`
+	Label string  `json:"label"`
+	Count int     `json:"count"`
 	Pct   float64 `json:"percentage"`
 }
 
 type ParserCount struct {
-	ParserType string `json:"parser_type"`
-	Count      int    `json:"count"`
+	ParserType string  `json:"parser_type"`
+	Count      int     `json:"count"`
 	Pct        float64 `json:"percentage"`
 }
 
 type LabelParseStats struct {
-	Label        string  `json:"label"`
-	Total        int     `json:"total"`
-	Parsed       int     `json:"parsed"`
-	Unparsed     int     `json:"unparsed"`
-	ParseRate    float64 `json:"parse_rate"`
-	TopParsers   []string `json:"top_parsers"`
+	Label      string   `json:"label"`
+	Total      int      `json:"total"`
+	Parsed     int      `json:"parsed"`
+	Unparsed   int      `json:"unparsed"`
+	ParseRate  float64  `json:"parse_rate"`
+	TopParsers []string `json:"top_parsers"`
 }
 
 type LabelContentPatterns struct {
@@ -159,14 +171,14 @@ type LabelContentPatterns struct {
 }
 
 type KeywordCount struct {
-	Keyword string `json:"keyword"`
-	Count   int    `json:"count"`
+	Keyword string  `json:"keyword"`
+	Count   int     `json:"count"`
 	Pct     float64 `json:"percentage"`
 }
 
 type FieldCoverageStats struct {
-	ParserType string             `json:"parser_type"`
-	Fields     []FieldCount       `json:"fields"`
+	ParserType string       `json:"parser_type"`
+	Fields     []FieldCount `json:"fields"`
 }
 
 type FieldCount struct {
@@ -189,25 +201,25 @@ type TemplateCount struct {
 	Example  string `json:"example"`
 }
 
-func analyzeSummary(db *sql.DB) SummaryStats {
+func analyzeSummary(ctx context.Context, ch *storage.ClickHouseDB) SummaryStats {
 	var stats SummaryStats
 
-	db.QueryRow("SELECT COUNT(*) FROM messages").Scan(&stats.TotalMessages)
-	db.QueryRow("SELECT COUNT(*) FROM messages WHERE parser_type != 'unparsed' AND parser_type != ''").Scan(&stats.ParsedMessages)
+	conn := ch.Conn()
+	_ = conn.QueryRow(ctx, "SELECT COUNT(*) FROM messages").Scan(&stats.TotalMessages)
+	_ = conn.QueryRow(ctx, "SELECT COUNT(*) FROM messages WHERE parser_type != 'unparsed' AND parser_type != ''").Scan(&stats.ParsedMessages)
 	stats.UnparsedMessages = stats.TotalMessages - stats.ParsedMessages
 	if stats.TotalMessages > 0 {
 		stats.ParseRate = float64(stats.ParsedMessages) / float64(stats.TotalMessages) * 100
 	}
-	db.QueryRow("SELECT COUNT(DISTINCT label) FROM messages").Scan(&stats.UniqueLabels)
-	db.QueryRow("SELECT COUNT(DISTINCT parser_type) FROM messages WHERE parser_type != ''").Scan(&stats.UniqueParserTypes)
-	db.QueryRow("SELECT COUNT(*) FROM messages WHERE is_golden = 1").Scan(&stats.GoldenMessages)
-	db.QueryRow("SELECT COUNT(*) FROM messages WHERE annotation IS NOT NULL AND annotation != ''").Scan(&stats.FlaggedMessages)
+	_ = conn.QueryRow(ctx, "SELECT COUNT(DISTINCT label) FROM messages").Scan(&stats.UniqueLabels)
+	_ = conn.QueryRow(ctx, "SELECT COUNT(DISTINCT parser_type) FROM messages WHERE parser_type != ''").Scan(&stats.UniqueParserTypes)
 
 	return stats
 }
 
-func analyzeLabelDistribution(db *sql.DB, topN int) []LabelCount {
-	rows, err := db.Query(`
+func analyzeLabelDistribution(ctx context.Context, ch *storage.ClickHouseDB, topN int) []LabelCount {
+	conn := ch.Conn()
+	rows, err := conn.Query(ctx, `
 		SELECT label, COUNT(*) as cnt
 		FROM messages
 		GROUP BY label
@@ -219,12 +231,12 @@ func analyzeLabelDistribution(db *sql.DB, topN int) []LabelCount {
 	defer rows.Close()
 
 	var total int
-	db.QueryRow("SELECT COUNT(*) FROM messages").Scan(&total)
+	_ = conn.QueryRow(ctx, "SELECT COUNT(*) FROM messages").Scan(&total)
 
 	var results []LabelCount
 	for rows.Next() {
 		var lc LabelCount
-		rows.Scan(&lc.Label, &lc.Count)
+		_ = rows.Scan(&lc.Label, &lc.Count)
 		if total > 0 {
 			lc.Pct = float64(lc.Count) / float64(total) * 100
 		}
@@ -233,9 +245,10 @@ func analyzeLabelDistribution(db *sql.DB, topN int) []LabelCount {
 	return results
 }
 
-func analyzeParserCoverage(db *sql.DB, topN int) []ParserCount {
-	rows, err := db.Query(`
-		SELECT COALESCE(NULLIF(parser_type, ''), 'unparsed') as ptype, COUNT(*) as cnt
+func analyzeParserCoverage(ctx context.Context, ch *storage.ClickHouseDB, topN int) []ParserCount {
+	conn := ch.Conn()
+	rows, err := conn.Query(ctx, `
+		SELECT if(parser_type = '', 'unparsed', parser_type) as ptype, COUNT(*) as cnt
 		FROM messages
 		GROUP BY ptype
 		ORDER BY cnt DESC
@@ -246,12 +259,12 @@ func analyzeParserCoverage(db *sql.DB, topN int) []ParserCount {
 	defer rows.Close()
 
 	var total int
-	db.QueryRow("SELECT COUNT(*) FROM messages").Scan(&total)
+	_ = conn.QueryRow(ctx, "SELECT COUNT(*) FROM messages").Scan(&total)
 
 	var results []ParserCount
 	for rows.Next() {
 		var pc ParserCount
-		rows.Scan(&pc.ParserType, &pc.Count)
+		_ = rows.Scan(&pc.ParserType, &pc.Count)
 		if total > 0 {
 			pc.Pct = float64(pc.Count) / float64(total) * 100
 		}
@@ -260,26 +273,21 @@ func analyzeParserCoverage(db *sql.DB, topN int) []ParserCount {
 	return results
 }
 
-func analyzeLabelParsing(db *sql.DB, filterLabel string) []LabelParseStats {
+func analyzeLabelParsing(ctx context.Context, ch *storage.ClickHouseDB, filterLabel string) []LabelParseStats {
+	conn := ch.Conn()
 	query := `
 		SELECT
 			label,
 			COUNT(*) as total,
-			SUM(CASE WHEN parser_type != 'unparsed' AND parser_type != '' THEN 1 ELSE 0 END) as parsed
+			countIf(parser_type != 'unparsed' AND parser_type != '') as parsed
 		FROM messages
 	`
 	if filterLabel != "" {
-		query += " WHERE label = ?"
+		query += " WHERE label = '" + filterLabel + "'"
 	}
 	query += " GROUP BY label ORDER BY total DESC LIMIT 30"
 
-	var rows *sql.Rows
-	var err error
-	if filterLabel != "" {
-		rows, err = db.Query(query, filterLabel)
-	} else {
-		rows, err = db.Query(query)
-	}
+	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil
 	}
@@ -288,14 +296,14 @@ func analyzeLabelParsing(db *sql.DB, filterLabel string) []LabelParseStats {
 	var results []LabelParseStats
 	for rows.Next() {
 		var ls LabelParseStats
-		rows.Scan(&ls.Label, &ls.Total, &ls.Parsed)
+		_ = rows.Scan(&ls.Label, &ls.Total, &ls.Parsed)
 		ls.Unparsed = ls.Total - ls.Parsed
 		if ls.Total > 0 {
 			ls.ParseRate = float64(ls.Parsed) / float64(ls.Total) * 100
 		}
 
 		// Get top parsers for this label.
-		prows, _ := db.Query(`
+		prows, _ := conn.Query(ctx, `
 			SELECT parser_type, COUNT(*) as cnt
 			FROM messages
 			WHERE label = ? AND parser_type != '' AND parser_type != 'unparsed'
@@ -306,7 +314,7 @@ func analyzeLabelParsing(db *sql.DB, filterLabel string) []LabelParseStats {
 			for prows.Next() {
 				var pt string
 				var cnt int
-				prows.Scan(&pt, &cnt)
+				_ = prows.Scan(&pt, &cnt)
 				ls.TopParsers = append(ls.TopParsers, fmt.Sprintf("%s(%d)", pt, cnt))
 			}
 			prows.Close()
@@ -339,7 +347,9 @@ var interestingKeywords = []string{
 	"SQUAWK", "XPNDR", "FLIGHT", "FLT",
 }
 
-func analyzeContentPatterns(db *sql.DB, filterLabel string, topN int) []LabelContentPatterns {
+func analyzeContentPatterns(ctx context.Context, ch *storage.ClickHouseDB, filterLabel string, topN int) []LabelContentPatterns {
+	conn := ch.Conn()
+
 	// Get labels to analyze.
 	query := "SELECT DISTINCT label FROM messages"
 	if filterLabel != "" {
@@ -347,7 +357,7 @@ func analyzeContentPatterns(db *sql.DB, filterLabel string, topN int) []LabelCon
 	}
 	query += " ORDER BY label"
 
-	labelRows, err := db.Query(query)
+	labelRows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil
 	}
@@ -356,14 +366,14 @@ func analyzeContentPatterns(db *sql.DB, filterLabel string, topN int) []LabelCon
 	var labels []string
 	for labelRows.Next() {
 		var l string
-		labelRows.Scan(&l)
+		_ = labelRows.Scan(&l)
 		labels = append(labels, l)
 	}
 
 	var results []LabelContentPatterns
 	for _, lbl := range labels {
 		// Get sample of messages for this label.
-		rows, err := db.Query(`
+		rows, err := conn.Query(ctx, `
 			SELECT raw_text FROM messages
 			WHERE label = ?
 			LIMIT 1000`, lbl)
@@ -376,7 +386,7 @@ func analyzeContentPatterns(db *sql.DB, filterLabel string, topN int) []LabelCon
 
 		for rows.Next() {
 			var text string
-			rows.Scan(&text)
+			_ = rows.Scan(&text)
 			total++
 			upper := strings.ToUpper(text)
 
@@ -421,9 +431,11 @@ func analyzeContentPatterns(db *sql.DB, filterLabel string, topN int) []LabelCon
 	return results
 }
 
-func analyzeFieldCoverage(db *sql.DB) []FieldCoverageStats {
+func analyzeFieldCoverage(ctx context.Context, ch *storage.ClickHouseDB) []FieldCoverageStats {
+	conn := ch.Conn()
+
 	// Get parser types with parsed_json.
-	rows, err := db.Query(`
+	rows, err := conn.Query(ctx, `
 		SELECT DISTINCT parser_type
 		FROM messages
 		WHERE parser_type != '' AND parser_type != 'unparsed' AND parsed_json != ''
@@ -436,14 +448,14 @@ func analyzeFieldCoverage(db *sql.DB) []FieldCoverageStats {
 	var parserTypes []string
 	for rows.Next() {
 		var pt string
-		rows.Scan(&pt)
+		_ = rows.Scan(&pt)
 		parserTypes = append(parserTypes, pt)
 	}
 
 	var results []FieldCoverageStats
 	for _, pt := range parserTypes {
 		// Sample parsed_json for this parser type.
-		jrows, err := db.Query(`
+		jrows, err := conn.Query(ctx, `
 			SELECT parsed_json FROM messages
 			WHERE parser_type = ? AND parsed_json != ''
 			LIMIT 500`, pt)
@@ -457,7 +469,7 @@ func analyzeFieldCoverage(db *sql.DB) []FieldCoverageStats {
 
 		for jrows.Next() {
 			var jsonStr string
-			jrows.Scan(&jsonStr)
+			_ = jrows.Scan(&jsonStr)
 			total++
 
 			var data map[string]interface{}
@@ -560,14 +572,16 @@ var literalKeywords = map[string]bool{
 	"ROUTE": true, "DIRECT": true, "DCT": true, "ALT": true, "FL": true,
 }
 
-func analyzeTemplates(db *sql.DB, filterLabel string, topN int) []LabelTemplates {
+func analyzeTemplates(ctx context.Context, ch *storage.ClickHouseDB, filterLabel string, topN int) []LabelTemplates {
+	conn := ch.Conn()
+
 	// Get labels to analyze.
 	query := `SELECT label, COUNT(*) as cnt FROM messages GROUP BY label HAVING cnt >= 10 ORDER BY cnt DESC LIMIT 20`
 	if filterLabel != "" {
 		query = `SELECT label, COUNT(*) as cnt FROM messages WHERE label = '` + filterLabel + `' GROUP BY label`
 	}
 
-	labelRows, err := db.Query(query)
+	labelRows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil
 	}
@@ -577,13 +591,13 @@ func analyzeTemplates(db *sql.DB, filterLabel string, topN int) []LabelTemplates
 	for labelRows.Next() {
 		var l string
 		var cnt int
-		labelRows.Scan(&l, &cnt)
+		_ = labelRows.Scan(&l, &cnt)
 		labels = append(labels, l)
 	}
 
 	var results []LabelTemplates
 	for _, lbl := range labels {
-		rows, err := db.Query(`SELECT raw_text FROM messages WHERE label = ? LIMIT 2000`, lbl)
+		rows, err := conn.Query(ctx, `SELECT raw_text FROM messages WHERE label = ? LIMIT 2000`, lbl)
 		if err != nil {
 			continue
 		}
@@ -593,36 +607,24 @@ func analyzeTemplates(db *sql.DB, filterLabel string, topN int) []LabelTemplates
 
 		for rows.Next() {
 			var text string
-			rows.Scan(&text)
+			_ = rows.Scan(&text)
 			total++
 
 			tmpl := normaliseToTemplate(text)
 			if len(templates[tmpl]) < 2 {
 				templates[tmpl] = append(templates[tmpl], text)
-			} else {
-				templates[tmpl] = templates[tmpl] // Just increment count implicitly.
 			}
 		}
 		rows.Close()
 
-		// Count templates.
-		type tmplCount struct {
-			tmpl    string
-			count   int
-			example string
-		}
-		var counts []tmplCount
-		for tmpl, examples := range templates {
-			counts = append(counts, tmplCount{tmpl, len(examples), examples[0]})
-		}
 		// Recount properly.
 		templateCounts := make(map[string]int)
 		templateExamples := make(map[string]string)
-		rows2, _ := db.Query(`SELECT raw_text FROM messages WHERE label = ? LIMIT 5000`, lbl)
+		rows2, _ := conn.Query(ctx, `SELECT raw_text FROM messages WHERE label = ? LIMIT 5000`, lbl)
 		if rows2 != nil {
 			for rows2.Next() {
 				var text string
-				rows2.Scan(&text)
+				_ = rows2.Scan(&text)
 				tmpl := normaliseToTemplate(text)
 				templateCounts[tmpl]++
 				if _, ok := templateExamples[tmpl]; !ok {
@@ -731,8 +733,6 @@ func printTextReport(report *AnalysisReport, topN int) {
 	fmt.Printf("Unparsed:           %d (%.1f%%)\n", s.UnparsedMessages, 100-s.ParseRate)
 	fmt.Printf("Unique Labels:      %d\n", s.UniqueLabels)
 	fmt.Printf("Unique Parser Types: %d\n", s.UniqueParserTypes)
-	fmt.Printf("Golden Messages:    %d\n", s.GoldenMessages)
-	fmt.Printf("Flagged Messages:   %d\n", s.FlaggedMessages)
 	fmt.Println()
 
 	// Label distribution.

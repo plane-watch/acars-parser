@@ -123,6 +123,73 @@ FILED FLT LEVEL 280`,
 				aircraftType: "B712",
 			},
 		},
+		{
+			name: "US Regional PDC with route containing destination ICAO",
+			text: `PDC
+001
+PDT5898 1772 KPHL
+E145/L P1834
+145 310
+-DITCH T416 JIMEE-
+KPHL DITCH LUIGI HNNAH CYUL`,
+			want: struct {
+				flightNum    string
+				origin       string
+				destination  string
+				runway       string
+				sid          string
+				squawk       string
+				depFreq      string
+				altitude     string
+				aircraftType string
+				atis         string
+			}{
+				flightNum:    "PDT5898",
+				origin:       "KPHL",
+				destination:  "CYUL",
+				squawk:       "1772",
+				aircraftType: "E145",
+				altitude:     "310",
+			},
+		},
+		{
+			name: "Canadian Jazz Aviation PDC",
+			text: `.ANPOCQK 170457
+AGM
+AN CGGMZ
+-  FLIGHT JZA810/17 CYVR
+KSEA
+PDC
+JZA810 0031 CYVR
+M/DH8D/R P0505
+150
+YVR MARNR MARNR8
+EDCT
+USE SID GRG7
+DEPARTURE RUNWAY 26L
+DESTINATION KSEA`,
+			want: struct {
+				flightNum    string
+				origin       string
+				destination  string
+				runway       string
+				sid          string
+				squawk       string
+				depFreq      string
+				altitude     string
+				aircraftType string
+				atis         string
+			}{
+				flightNum:    "JZA810",
+				origin:       "CYVR",
+				destination:  "KSEA",
+				runway:       "26L",
+				sid:          "GRG7",
+				squawk:       "0031",
+				altitude:     "150",
+				aircraftType: "DH8D",
+			},
+		},
 	}
 
 	p := &Parser{}
@@ -184,6 +251,50 @@ FILED FLT LEVEL 280`,
 				t.Errorf("ATIS: got %q, want %q", pdc.ATIS, tc.want.atis)
 			}
 		})
+	}
+}
+
+func TestRepublicAirways(t *testing.T) {
+	text := `QUHDQDDRP~1PDC SEQ 001
+RPA4783
+DEP/KDCA
+SKD/1229Z
+FL360
+-REBLL5 OTTTO Q80 DEWAK GROAT
+PASLY5 KBNA-
+KDCA REBLL5 OTTTO Q80./.KBNA
+
+
+CLEARED REBLL5 DEPARTURE OTTTO TRSN
+
+CLIMB VIA SID
+EXP 360 10 MIN AFT DP,DPFRQ SEE SID
+
+
+
+SQUAWK/7050
+END`
+
+	compiler := NewCompiler()
+	if err := compiler.Compile(); err != nil {
+		t.Fatalf("Compile error: %v", err)
+	}
+
+	result := compiler.Parse(text)
+	if result == nil {
+		t.Fatal("Expected match, got nil")
+	}
+
+	t.Logf("Format: %s", result.FormatName)
+	t.Logf("Flight: %s", result.FlightNumber)
+	t.Logf("Origin: %s", result.Origin)
+	t.Logf("Squawk: %s", result.Squawk)
+
+	if result.FlightNumber != "RPA4783" {
+		t.Errorf("FlightNumber: got %q, want %q", result.FlightNumber, "RPA4783")
+	}
+	if result.Origin != "KDCA" {
+		t.Errorf("Origin: got %q, want %q", result.Origin, "KDCA")
 	}
 }
 

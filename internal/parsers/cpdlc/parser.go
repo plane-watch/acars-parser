@@ -1,16 +1,18 @@
 package cpdlc
 
 import (
-	"encoding/hex"
+	"errors"
+	"fmt"
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/parsers/arinc"
 	"acars_parser/internal/registry"
 )
 
-// IMI (Interchange Message Identifier) markers for CPDLC messages.
+// IMI markers for quick check.
 const (
-	IMI_AT1 = ".AT1." // CPDLC message (ACARS text).
+	IMI_AT1 = ".AT1." // CPDLC message.
 	IMI_CR1 = ".CR1." // Connection request.
 	IMI_CC1 = ".CC1." // Connection confirm.
 	IMI_DR1 = ".DR1." // Disconnect request.
@@ -62,46 +64,6 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Timestamp: msg.Timestamp,
 	}
 
-	// Determine message type and extract payload.
-	var imi string
-	var payloadStart int
-
-	if idx := strings.Index(text, IMI_AT1); idx >= 0 {
-		result.MessageType = "cpdlc"
-		imi = IMI_AT1
-		payloadStart = idx + len(IMI_AT1)
-	} else if idx := strings.Index(text, IMI_CR1); idx >= 0 {
-		result.MessageType = "connect_request"
-		imi = IMI_CR1
-		payloadStart = idx + len(IMI_CR1)
-	} else if idx := strings.Index(text, IMI_CC1); idx >= 0 {
-		result.MessageType = "connect_confirm"
-		imi = IMI_CC1
-		payloadStart = idx + len(IMI_CC1)
-	} else if idx := strings.Index(text, IMI_DR1); idx >= 0 {
-		result.MessageType = "disconnect"
-		imi = IMI_DR1
-		payloadStart = idx + len(IMI_DR1)
-	} else {
-		return nil // No CPDLC markers found.
-	}
-
-	// Extract ground station from before the IMI marker.
-	prefix := text[:payloadStart-len(imi)]
-	if idx := strings.LastIndex(prefix, "/"); idx >= 0 {
-		result.GroundStation = prefix[idx+1:]
-	}
-
-	// Extract payload (everything after IMI).
-	payload := text[payloadStart:]
-
-	// The payload format is: REGISTRATION + HEX_DATA
-	// Registration is typically 6-7 characters followed by hex data.
-	// Try to find where the hex data starts.
-	reg, hexData := splitRegistrationAndData(payload)
-	result.Registration = reg
-	result.RawHex = hexData
-
 	// Determine direction based on message label.
 	// AA = downlink (aircraft to ground).
 	// BA = uplink (ground to aircraft).
@@ -111,33 +73,60 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		result.Direction = "uplink"
 	}
 
+	// Parse through ARINC layer (validates CRC, extracts payload).
+	arincResult, err := arinc.Parse(text)
+	if err != nil {
+		// Categorise the error type.
+		if errors.Is(err, arinc.ErrCRCFailed) {
+			result.Error = "crc_failed"
+		} else if errors.Is(err, arinc.ErrTooShort) {
+			result.Error = "message_too_short"
+		} else if errors.Is(err, arinc.ErrUnknownFormat) {
+			return nil // Not an ARINC message, let other parsers handle it.
+		} else {
+			result.Error = "parse_failed: " + err.Error()
+		}
+		return result
+	}
+
+	result.GroundStation = arincResult.GroundStation
+	result.Registration = arincResult.Registration
+	result.RawHex = arincResult.RawHex
+
+	// Determine message type from IMI.
+	switch arincResult.IMI {
+	case arinc.IMIAT1:
+		result.MessageType = "cpdlc"
+	case arinc.IMICR1:
+		result.MessageType = "connect_request"
+	case arinc.IMICC1:
+		result.MessageType = "connect_confirm"
+	case arinc.IMIDR1:
+		result.MessageType = "disconnect"
+	default:
+		result.MessageType = "unknown"
+	}
+
 	// For connection messages, we don't have CPDLC payload to decode.
 	if result.MessageType != "cpdlc" {
 		return result
 	}
 
-	// Decode the hex payload.
-	if hexData == "" {
-		result.Error = "no payload data"
+	// Decode the CPDLC payload (CRC already stripped by ARINC layer).
+	if len(arincResult.Payload) == 0 {
+		result.Error = "decode_failed: no payload data"
 		return result
 	}
 
-	data, err := hex.DecodeString(hexData)
-	if err != nil {
-		result.Error = "invalid hex data: " + err.Error()
-		return result
-	}
-
-	// Decode the CPDLC message.
 	direction := DirectionDownlink
 	if result.Direction == "uplink" {
 		direction = DirectionUplink
 	}
 
-	decoder := NewDecoder(data, direction)
+	decoder := NewDecoder(arincResult.Payload, direction)
 	cpdlcMsg, err := decoder.Decode()
 	if err != nil {
-		result.Error = "decode error: " + err.Error()
+		result.Error = "decode_failed: " + err.Error()
 		return result
 	}
 
@@ -148,62 +137,6 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	result.FormattedText = formatMessage(cpdlcMsg)
 
 	return result
-}
-
-// splitRegistrationAndData extracts the aircraft registration and hex data from the payload.
-// Registration formats vary: N12345, VH-ABC, F-GSQC, TC-LLH, etc.
-// Registrations are typically 5-7 characters including hyphens.
-func splitRegistrationAndData(payload string) (string, string) {
-	// Remove any trailing newlines or whitespace.
-	payload = strings.TrimSpace(payload)
-
-	// Handle empty or too short payloads.
-	if len(payload) < 8 {
-		return payload, ""
-	}
-
-	// Registration typically contains at least one non-hex char (e.g., hyphen, G, J, K, etc.)
-	// or specific patterns like "N" followed by digits.
-	// Strategy: find the first position where the remaining string is valid hex
-	// and has a reasonable length (at least 6 chars for a minimal CPDLC message).
-
-	// Try positions 5, 6, 7 (most common registration lengths).
-	for _, regLen := range []int{6, 7, 5} {
-		if regLen >= len(payload) {
-			continue
-		}
-		candidate := payload[regLen:]
-		if isValidHex(candidate) && len(candidate) >= 6 {
-			return payload[:regLen], candidate
-		}
-	}
-
-	// Fallback: scan for the first position where the rest is all hex.
-	// Start from minimum registration length of 5.
-	for i := 5; i < len(payload)-5; i++ {
-		candidate := payload[i:]
-		if isValidHex(candidate) {
-			return payload[:i], candidate
-		}
-	}
-
-	return payload, ""
-}
-
-// isValidHex checks if a string contains only valid hex characters.
-func isValidHex(s string) bool {
-	if len(s) == 0 || len(s)%2 != 0 {
-		return false
-	}
-	for _, c := range s {
-		isDigit := c >= '0' && c <= '9'
-		isUpperHex := c >= 'A' && c <= 'F'
-		isLowerHex := c >= 'a' && c <= 'f'
-		if !isDigit && !isUpperHex && !isLowerHex {
-			return false
-		}
-	}
-	return true
 }
 
 // formatMessage creates a human-readable summary of the CPDLC message.
@@ -222,4 +155,84 @@ func formatMessage(msg *Message) string {
 	}
 
 	return strings.Join(parts, "; ")
+}
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No CPDLC IMI marker (.AT1., .CR1., .CC1., .DR1.) found"
+		return trace
+	}
+
+	text := msg.Text
+
+	// Identify which IMI marker is present.
+	imiType := ""
+	if strings.Contains(text, IMI_AT1) {
+		imiType = "AT1 (CPDLC message)"
+	} else if strings.Contains(text, IMI_CR1) {
+		imiType = "CR1 (connection request)"
+	} else if strings.Contains(text, IMI_CC1) {
+		imiType = "CC1 (connection confirm)"
+	} else if strings.Contains(text, IMI_DR1) {
+		imiType = "DR1 (disconnect request)"
+	}
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "imi_type",
+		Pattern: ".AT1., .CR1., .CC1., or .DR1.",
+		Matched: imiType != "",
+		Value:   imiType,
+	})
+
+	// Try ARINC layer parsing.
+	arincResult, err := arinc.Parse(text)
+	arincOK := err == nil
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "arinc_parse",
+		Pattern: "ARINC envelope parsing with CRC verification",
+		Matched: arincOK,
+		Value: func() string {
+			if err != nil {
+				return "error: " + err.Error()
+			}
+			return "OK"
+		}(),
+	})
+
+	if arincOK {
+		trace.Extractors = append(trace.Extractors, registry.Extractor{
+			Name:    "ground_station",
+			Pattern: "extracted from ARINC envelope",
+			Matched: arincResult.GroundStation != "",
+			Value:   arincResult.GroundStation,
+		})
+
+		trace.Extractors = append(trace.Extractors, registry.Extractor{
+			Name:    "registration",
+			Pattern: "extracted from ARINC envelope",
+			Matched: arincResult.Registration != "",
+			Value:   arincResult.Registration,
+		})
+
+		trace.Extractors = append(trace.Extractors, registry.Extractor{
+			Name:    "payload_size",
+			Pattern: "decoded binary payload",
+			Matched: len(arincResult.Payload) > 0,
+			Value:   fmt.Sprintf("%d bytes", len(arincResult.Payload)),
+		})
+	}
+
+	trace.Matched = arincOK
+	return trace
 }

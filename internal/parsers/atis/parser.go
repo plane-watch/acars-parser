@@ -211,3 +211,68 @@ func extractRemarks(text string) []string {
 
 	return remarks
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	// Check QuickCheck first.
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No ATIS keywords found (ATIS, .TI2/, QNH, WIND)"
+		return trace
+	}
+
+	text := strings.ToUpper(msg.Text)
+
+	// Define all the patterns used for extraction.
+	extractors := []struct {
+		name    string
+		pattern *regexp.Regexp
+	}{
+		{"envelope", envelopeRe},
+		{"time", timeRe},
+		{"wind", windRe},
+		{"qnh", qnhRe},
+		{"temperature", tempRe},
+		{"dew_point", dewPointRe},
+		{"visibility", visRe},
+		{"clouds", cloudRe},
+		{"runway", runwayRe},
+		{"approach", approachRe},
+	}
+
+	// Test each extractor.
+	for _, ext := range extractors {
+		m := ext.pattern.FindStringSubmatch(text)
+		matched := len(m) > 1
+		value := ""
+		if matched {
+			value = m[1]
+		}
+		trace.Extractors = append(trace.Extractors, registry.Extractor{
+			Name:    ext.name,
+			Pattern: ext.pattern.String(),
+			Matched: matched,
+			Value:   value,
+		})
+	}
+
+	// ATIS parser doesn't use format patterns, so Formats stays empty.
+	// Determine if we matched overall (same logic as Parse).
+	if m := envelopeRe.FindStringSubmatch(text); len(m) >= 5 {
+		trace.Matched = true
+	} else if m := qnhRe.FindStringSubmatch(text); len(m) > 1 {
+		trace.Matched = true
+	} else if matches := runwayRe.FindAllStringSubmatch(text, -1); len(matches) > 0 {
+		trace.Matched = true
+	}
+
+	return trace
+}

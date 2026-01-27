@@ -58,8 +58,8 @@ func (p *Parser) Labels() []string { return []string{"SQ"} }
 func (p *Parser) Priority() int    { return 100 }
 
 func (p *Parser) QuickCheck(text string) bool {
-	// Fast check for the 02X prefix.
-	return strings.HasPrefix(text, "02X")
+	// Fast check for known prefixes: 02X (ARINC) or 02J (AVICOM Japan).
+	return strings.HasPrefix(text, "02X") || strings.HasPrefix(text, "02J")
 }
 
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
@@ -81,7 +81,12 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	match := compiler.Parse(text)
-	if match == nil || match.FormatName != "arinc_position" {
+	if match == nil {
+		return nil
+	}
+
+	// Accept both ARINC position and AVICOM frequency formats.
+	if match.FormatName != "arinc_position" && match.FormatName != "avicom_frequency" {
 		return nil
 	}
 
@@ -177,4 +182,45 @@ func parseLongitude(digits string, hemisphere string) (float64, bool) {
 	}
 
 	return lon, true
+}
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	// Check QuickCheck first.
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "Text doesn't start with '02X' or '02J'"
+		return trace
+	}
+
+	// Get the compiler trace.
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
+	}
+
+	// Get detailed trace from compiler.
+	compilerTrace := compiler.ParseWithTrace(msg.Text)
+
+	// Convert format traces to generic format traces.
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	trace.Matched = compilerTrace.Match != nil
+	return trace
 }

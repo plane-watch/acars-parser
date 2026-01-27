@@ -14,9 +14,13 @@ var BasePatterns = map[string]string{
 	"IATA": `[A-Z]{3}`,
 
 	// Flight identifiers.
-	// Allows 2-3 letter ICAO code + 1-4 digit flight number + 0-2 optional letter suffix.
-	// e.g., JST501, DAL1260, FIN5LA, QTR58U
-	"FLIGHT": `[A-Z]{2,3}\d{1,4}[A-Z]{0,2}`,
+	// Allows 2-5 letter airline code + 1-4 digit flight number + 0-2 optional letter suffix.
+	// e.g., JST501, DAL1260, FIN5LA, QTR58U, MEDVC4C
+	"FLIGHT": `[A-Z]{2,5}\d{1,4}[A-Z]{0,2}`,
+
+	// Aircraft registrations used as flight identifiers (private/corporate flights).
+	// e.g., 9HBCT (Malta), N123AB (US), GBXYZ (UK), VHABC (Australia)
+	"REGISTRATION": `[A-Z0-9]{5,6}`,
 
 	// Clearance data.
 	"SQUAWK":   `[0-7]{4}`,
@@ -24,11 +28,13 @@ var BasePatterns = map[string]string{
 	"ALTITUDE": `\d{3,5}`,
 	"FREQ":     `\d{3}\.\d{1,3}`,
 
-	// Aircraft types - letter + 2-3 digits + optional letter suffix.
-	"AIRCRAFT": `[A-Z]\d{2,3}[A-Z]?`,
+	// Aircraft types - various formats like A319, B738, E145, CRJ2, CRJ7, A21N, B38M.
+	// Pattern: 1-3 letters + 1-3 digits + optional letter suffix.
+	"AIRCRAFT": `[A-Z]{1,3}\d{1,3}[A-Z]?`,
 
 	// SID/STAR names - letters followed by digit and optional alphanumerics.
-	"SID": `[A-Z]{2,}[0-9][A-Z0-9]*`,
+	// Some SIDs have single letter prefix (e.g., P17Y9 in China).
+	"SID": `[A-Z]{1,}[0-9][A-Z0-9]*`,
 
 	// Time formats.
 	"TIME4": `\d{4}`,            // HHMM
@@ -63,6 +69,50 @@ var PDCFormats = []PDCFormat{
 		Fields: []string{"flight", "origin", "destination", "squawk"},
 	},
 
+	// Format 0b: Australian Regional (Bonza, Rex, etc)
+	// Different format from Jetstar/Qantas - uses "CLEARED AS FILED" structure.
+	// Example:
+	// QUMLBSDCR~1PDC EVY82 B38M/M
+	// ETD YSCB 0900UTC
+	// FL100
+	// CLEARED AS FILED
+	// FILED ROUTE: CULIN Y59 RIVET DCT
+	// CLEARED TO YSSY VIA CULIN 2 DEP: XXX
+	// CLIMB VIA SID TO: 10000
+	// ,DPFRQ 124.500
+	// SQUAWK 2021
+	{
+		Name: "australian_regional",
+		Pattern: `(?s)PDC\s+(?P<flight>{FLIGHT})\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+` +
+			`ETD\s+(?P<origin>{ICAO})\s+(?P<dep_time>\d{4})UTC\s+` +
+			`FL(?P<altitude>\d+)\s+` +
+			`.*?CLEARED\s+TO\s+(?P<destination>{ICAO})\s+VIA\s+` +
+			`(?P<sid>[A-Z]+\s*\d)\s+DEP` +
+			`.*?SQUAWK\s+(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "aircraft", "origin", "dep_time", "altitude", "destination", "sid", "squawk"},
+	},
+
+	// Format 0c: Virgin Australia word-SID format
+	// Uses word-based SID names like "GOLD COAST SEVEN DEP: G7"
+	// Example:
+	// PDC UPLINK
+	// VOZ083 B738 YBCG 0750
+	// CLEARED TO WADD VIA
+	// GOLD COAST SEVEN DEP: G7
+	// ROUTE:SCOTT Q47 IDRAS...
+	// CLIMB VIA SID TO: 6000
+	// DEP FREQ: 123.500
+	// SQUAWK 1074
+	{
+		Name: "virgin_australia",
+		Pattern: `(?s)PDC\s+UPLINK\s+` +
+			`(?P<flight>{FLIGHT})\s+(?P<aircraft>{AIRCRAFT})\s+(?P<origin>{ICAO})\s+(?P<dep_time>\d{4})\s+` +
+			`CLEARED\s+TO\s+(?P<destination>{ICAO})\s+VIA\s+` +
+			`.*?DEP:\s*(?P<sid>[A-Z0-9]+)\s+` +
+			`.*?SQUAWK\s+(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "aircraft", "origin", "dep_time", "destination", "sid", "squawk"},
+	},
+
 	// Format 1: Australian domestic (Jetstar, Qantas, Virgin Australia)
 	// Two variants:
 	// - "PDC 291826" (Jetstar/Qantas)
@@ -71,6 +121,9 @@ var PDCFormats = []PDCFormat{
 	// SID can be:
 	// - Digit form: "ABBEY3", "TANTA 3"
 	// - Word form: "SANEG TWO"
+	// Runway can be:
+	// - Before SID: "16L ABBEY3 DEP"
+	// - At end: "XXX EXPECT RUNWAY 01R XXX"
 	// Examples:
 	// PDC 291826
 	// JST501 A320 YSSY 1900
@@ -86,8 +139,9 @@ var PDCFormats = []PDCFormat{
 		Pattern: `(?s)PDC\s+(?:UPLINK|{PDCNUM})\s+` +
 			`(?P<flight>{FLIGHT})\s+(?P<aircraft>{AIRCRAFT})\s+(?P<origin>{ICAO})\s+(?P<dep_time>{TIME4})\s+` +
 			`CLEARED\s+TO\s+(?P<destination>{ICAO})\s+VIA\s+` +
-			`(?:(?P<runway>{RUNWAY})\s*)?(?P<sid>[A-Z]+(?:\s*[0-9]|\s+(?:ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE))?)?\s*DEP`,
-		Fields: []string{"flight", "aircraft", "origin", "dep_time", "destination", "runway", "sid"},
+			`(?:(?P<runway>{RUNWAY})\s*)?(?P<sid>[A-Z]+(?:\s*[0-9]|\s+(?:ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE))?)?\s*DEP` +
+			`(?:.*?EXPECT\s+RUNWAY\s+(?P<runway2>{RUNWAY}))?`,
+		Fields: []string{"flight", "aircraft", "origin", "dep_time", "destination", "runway", "sid", "runway2"},
 	},
 
 	// Format 2: US Delta
@@ -108,12 +162,29 @@ var PDCFormats = []PDCFormat{
 	// FLIGHT 1083/29 AUS - PHX
 	// PDC
 	// AAL1083 XPNDR 2555
-	// B738/L P1844 340
+	// A319/L P1839 350
+	// KAUS ILEXY4 ... KPHL
+	// CLEARED ILEXY4 DEPARTURE ...
 	{
 		Name: "american",
-		Pattern: `(?s)FLIGHT\s+\d+/\d+\s+{IATA}\s*-\s*{IATA}.*?PDC\s+` +
-			`(?P<flight>{FLIGHT})\s+XPNDR\s+(?P<squawk>{SQUAWK})`,
-		Fields: []string{"flight", "squawk"},
+		Pattern: `(?s)FLIGHT\s+\d+/\d+\s+(?P<origin_iata>{IATA})\s*-\s*(?P<dest_iata>{IATA}).*?PDC\s+` +
+			`(?P<flight>{FLIGHT})\s+XPNDR\s+(?P<squawk>{SQUAWK})\s+` +
+			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+P\d{4}\s+(?P<altitude>\d{2,3})`,
+		Fields: []string{"origin_iata", "dest_iata", "flight", "squawk", "aircraft", "altitude"},
+	},
+
+	// Format 3b: London Heathrow/UK CLD format (slightly different header)
+	// Uses .CLD header instead of .DC1/CLD
+	// Example:
+	// /LHRDCXA.CLD 1620 260118 EGLL PDC 691
+	// BAW99 CLRD TO CYYZ OFF 09R VIA ULTIB1J
+	// SQUAWK 5166 ADT 1705 ATIS B
+	{
+		Name: "uk_cld",
+		Pattern: `(?s)/[A-Z]+\.[A-Z]+\s+\d+\s+\d+\s+(?P<origin>{ICAO})\s+PDC\s+\d+\s+` +
+			`(?P<flight>{FLIGHT})\s+CLRD\s+TO\s+(?P<destination>{ICAO})\s+` +
+			`OFF\s*(?P<runway>{RUNWAY})\s+VIA\s+(?P<sid>{SID})`,
+		Fields: []string{"origin", "flight", "destination", "runway", "sid"},
 	},
 
 	// Format 4: DC1 Clearance (global airport ground system format)
@@ -135,8 +206,40 @@ var PDCFormats = []PDCFormat{
 		Fields: []string{"origin", "flight", "destination", "runway", "altitude", "sid"},
 	},
 
-	// Format 4b: DC1 Clearance with HDG/VECTORS (Nordic/Finnish format)
+	// Format 4a2: DC1 Clearance for private/corporate flights (registration as callsign)
+	// Same as dc1_clearance but uses aircraft registration instead of airline callsign.
+	// Example:
+	// /GVADCYA.DC1/CLD 1423 260118 LSZH PDC
+	// 174
+	// 9HBCT CLRD TO LFPB OFF 28 VIA VEBIT4W ALT 5000
+	{
+		Name: "dc1_private",
+		Pattern: `(?s)/[A-Z]+\.[A-Z0-9]+/[A-Z]+\s+\d+\s+\d+\s+(?P<origin>{ICAO})\s*` +
+			`PDC\s*{PDCNUM}?\s*` +
+			`(?P<flight>{REGISTRATION})\s+CLRD\s+TO\s+(?P<destination>{ICAO})\s+` +
+			`OFF\s*(?P<runway>{RUNWAY})\s+` +
+			`VIA\s+(?P<sid>[A-Z0-9]+)`,
+		Fields: []string{"origin", "flight", "destination", "runway", "sid"},
+	},
+
+	// Format 4b: DC1 Clearance with waypoint-based departure (no numbered SID)
+	// Similar to dc1_clearance but VIA is followed by a waypoint name, not a SID.
+	// Example:
+	// /GYDCEYA.DC1/CLD 1819 251231 UBBB PDC 093
+	// CSN6024 CLRD TO ZWWW OFF 17 VIA NAMAS 1C
+	{
+		Name: "dc1_waypoint",
+		Pattern: `(?s)/[A-Z]+\.[A-Z0-9]+/[A-Z]+\s+\d+\s+\d+\s+(?P<origin>{ICAO})\s*` +
+			`PDC\s*{PDCNUM}?\s*` +
+			`(?P<flight>{FLIGHT})\s+CLRD\s+TO\s+(?P<destination>{ICAO})\s+` +
+			`OFF\s*(?P<runway>{RUNWAY})\s+` +
+			`VIA\s+(?P<waypoint>[A-Z]{3,5})`,
+		Fields: []string{"origin", "flight", "destination", "runway", "waypoint"},
+	},
+
+	// Format 4c: DC1 Clearance with HDG/VECTORS (Nordic/Finnish format)
 	// Similar to dc1_clearance but uses HDG + VECTORS instead of VIA SID.
+	// Handles both /CLD and /CDA headers.
 	// Example:
 	// /HELCLXA.DC1/CLD 1905 251231 EFHK PDC
 	// 106
@@ -175,6 +278,310 @@ var PDCFormats = []PDCFormat{
 			`.*?(?:DEPARTURE\s+)?RUNWAY\s+(?P<runway>{RUNWAY})` +
 			`.*?DESTINATION\s+(?P<destination>{ICAO})`,
 		Fields: []string{"flight", "origin", "squawk", "route", "sid", "runway", "destination"},
+	},
+
+	// Format 6: Canadian NAV Canada / Air Canada style
+	// Uses -// ATC PA01 header with aircraft registration.
+	// Example:
+	// -// ATC PA01 YYZOWAC 03JAN/0637          C-FSIL/508/AC0348
+	// TIMESTAMP 03JAN26 06:25
+	// *PRE-DEPARTURE CLEARANCE*
+	// FLT ACA348    CYVR
+	// M/B38M/W FILED FL350
+	// XPRD 0032
+	//
+	// USE SID FSR8
+	// DEPARTURE RUNWAY 08R
+	// DESTINATION CYOW
+	{
+		Name: "canadian_nav",
+		Pattern: `(?s)-//\s+ATC\s+PA01\s+\w+\s+\d{2}[A-Z]{3}/\d{4}\s+` +
+			`[A-Z]-[A-Z]{4}/\d+/[A-Z]{2}\d+\s+` +
+			`TIMESTAMP\s+.+?\s+` +
+			`\*PRE-DEPARTURE\s+CLEARANCE\*\s+` +
+			`FLT\s+(?P<flight>{FLIGHT})\s+(?P<origin>{ICAO})\s+` +
+			`(?P<aircraft>[A-Z]/[A-Z0-9]+/[A-Z])\s+FILED\s+FL(?P<altitude>\d+)` +
+			`.*?USE\s+SID\s+(?P<sid>[A-Z0-9]+)\s+` +
+			`DEPARTURE\s+RUNWAY\s+(?P<runway>{RUNWAY})\s+` +
+			`DESTINATION\s+(?P<destination>{ICAO})`,
+		Fields: []string{"flight", "origin", "aircraft", "altitude", "sid", "runway", "destination"},
+	},
+
+	// Format 6a2: Qantas/China Airlines Pacific format (tab-separated)
+	// Uses tabs between fields, common for Pacific routes via Vancouver.
+	// Example:
+	// PDC
+	// 197
+	// QFA76	7006	CYVR
+	// H/B789/W	P0420
+	// 000	340
+	// ...
+	// USE SID GRG7
+	// DEPARTURE RUNWAY 26L
+	// DESTINATION YSSY
+	{
+		Name: "qantas_pacific",
+		Pattern: `(?s)PDC\s+` +
+			`\d+\s+` +
+			`(?P<flight>[A-Z]{3}\d{1,4})[\t\s]+(?P<squawk>{SQUAWK})[\t\s]+(?P<origin>{ICAO})\s+` +
+			`[A-Z]/(?P<aircraft>{AIRCRAFT})/[A-Z][\t\s]+P\d{4}\s+` +
+			`\d+[\t\s]+(?P<altitude>\d{2,3})\s+` +
+			`.*?USE\s+SID\s+(?P<sid>[A-Z0-9]+)\s+` +
+			`DEPARTURE\s+RUNWAY\s+(?P<runway>{RUNWAY})\s+` +
+			`DESTINATION\s+(?P<destination>{ICAO})`,
+		Fields: []string{"flight", "squawk", "origin", "aircraft", "altitude", "sid", "runway", "destination"},
+	},
+
+	// Format 6b: Canadian Jazz/Cargojet format
+	// Used by Jazz Aviation (JZA), Cargojet (CJT), and other Canadian carriers.
+	// Example:
+	// FLIGHT JZA810/17 CYVR
+	// KSEA
+	// PDC
+	// JZA810 0031 CYVR
+	// M/DH8D/R P0505
+	// 150
+	// YVR MARNR MARNR8
+	// EDCT
+	// USE SID GRG7
+	// DEPARTURE RUNWAY 26L
+	// DESTINATION KSEA
+	{
+		Name: "canadian_jazz",
+		Pattern: `(?s)FLIGHT\s+(?P<flight>{FLIGHT})/\d+\s+(?P<origin>{ICAO})\s+` +
+			`(?P<destination>{ICAO})\s+` +
+			`PDC\s+` +
+			`{FLIGHT}\s+(?P<squawk>{SQUAWK})\s+{ICAO}\s+` +
+			`[A-Z]/(?P<aircraft>{AIRCRAFT})/[A-Z]\s+P\d{4}\s+` +
+			`(?P<altitude>\d{2,3})` +
+			`.*?USE\s+SID\s+(?P<sid>[A-Z0-9]+)\s+` +
+			`DEPARTURE\s+RUNWAY\s+(?P<runway>{RUNWAY})`,
+		Fields: []string{"flight", "origin", "destination", "squawk", "aircraft", "altitude", "sid", "runway"},
+	},
+
+	// Format 6c: Southwest Airlines PDC
+	// Uses GEN01 header and similar structure to Canadian Jazz but with route to destination.
+	// Example:
+	// GEN01,00PRE DEPT CLR ,PDC MSG RECEIVED        ,
+	// FLIGHT SWA1343/07 KALB KMCO
+	// PDC
+	// SWA1343 1454 KALB
+	// B38M/L P1803
+	// 360
+	// KALB PONCT Q437 CRPLR EARZZ ... KMCO
+	// EDCT
+	// CLEARED ALB7 DEPARTURE
+	{
+		Name: "southwest",
+		Pattern: `(?s)FLIGHT\s+(?P<flight>{FLIGHT})/\d+\s+(?P<origin>{ICAO})\s+(?P<destination>{ICAO})\s+` +
+			`PDC\s+` +
+			`{FLIGHT}\s+(?P<squawk>{SQUAWK})\s+{ICAO}\s+` +
+			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+P\d{4}\s+` +
+			`(?P<altitude>\d{2,3})`,
+		Fields: []string{"flight", "origin", "destination", "squawk", "aircraft", "altitude"},
+	},
+
+	// Format 7: US Regional (Piedmont/PSA/etc) with destination in route line
+	// PDC
+	// 001
+	// PDT5898 1772 KPHL
+	// E145/L P1834
+	// 145 310
+	// -DITCH T416 JIMEE-
+	// KPHL DITCH LUIGI HNNAH CYUL
+	// The route line starts with origin ICAO and ends with destination ICAO.
+	{
+		Name: "us_regional_route",
+		Pattern: `(?s)^PDC\s+` +
+			`\d{3}\s+` +
+			`(?P<flight>[A-Z]{3}\d{3,4})\s+(?P<squawk>{SQUAWK})\s+(?P<origin>{ICAO})\s+` +
+			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+P\d{4}\s+` +
+			`\d+\s+(?P<altitude>\d{2,3})\s+` +
+			`-[A-Z0-9\s]+-\s+` +
+			`{ICAO}\s+[A-Z0-9\s]+\s+(?P<destination>{ICAO})$`,
+		Fields: []string{"flight", "squawk", "origin", "aircraft", "altitude", "destination"},
+	},
+
+	// Format 7b: US Regional (Piedmont/PSA/etc) without destination
+	// PDC
+	// 001
+	// PDT5898 1772 KPHL
+	// E145/L P1834
+	// 145 310
+	// -DITCH T416 JIMEE-
+	// KPHL DITCH V312 JIMEE WAVEY
+	{
+		Name: "us_regional",
+		Pattern: `(?s)^PDC\s+` +
+			`\d{3}\s+` +
+			`(?P<flight>[A-Z]{3}\d{3,4})\s+(?P<squawk>{SQUAWK})\s+(?P<origin>{ICAO})\s+` +
+			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+P\d{4}\s+` +
+			`\d+\s+(?P<altitude>\d{2,3})`,
+		Fields: []string{"flight", "squawk", "origin", "aircraft", "altitude"},
+	},
+
+	// Format 8: Alaska/Hawaiian Airlines style
+	// PDC MSG
+	// RECEIVED ON 31 AT 1757UTC
+	// PRE-DEPARTURE ATC CLEARANCE
+	// ASA1033  DEPART HNL AT 1841Z FL 140
+	// B712/L TRANSPONDER 3603
+	// ROUTE:
+	// PHNL KEOLA3 LIH PHLI
+	{
+		Name: "alaska_hawaiian",
+		Pattern: `(?s)PRE-DEPARTURE\s+ATC\s+CLEARANCE\s+` +
+			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin>{IATA})\s+AT\s+(?P<dep_time>\d{4})Z\s+FL\s+(?P<altitude>\d+)\s+` +
+			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+TRANSPONDER\s+(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "origin", "dep_time", "altitude", "aircraft", "squawk"},
+	},
+
+	// Format 9: Horizon/QXE format
+	// PDC
+	// **DEPARTURE CLEARANCE**
+	// FLT 2022-31 KPDX-KBZN
+	// QXE2022 KPDX
+	// E75L/L P1830
+	// REQUESTED FL 350
+	// XPDR 1605
+	{
+		Name: "horizon_qxe",
+		Pattern: `(?s)PDC\s+\*+DEPARTURE\s+CLEARANCE\*+\s+` +
+			`FLT\s+\d+-\d+\s+(?P<origin>{ICAO})-(?P<destination>{ICAO})\s+` +
+			`(?P<flight>[A-Z]{3}\d{3,4})\s+{ICAO}\s+` +
+			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+P\d{4}\s+` +
+			`REQUESTED\s+FL\s+(?P<altitude>\d+)\s+` +
+			`XPDR\s+(?P<squawk>{SQUAWK})`,
+		Fields: []string{"origin", "destination", "flight", "aircraft", "altitude", "squawk"},
+	},
+
+	// Format 10: SkyWest/regional pre-departure (full format with DESTINATION)
+	// PRE-DEPARTURE CLEARANCE
+	// SKW3630 DEPART YVR 1712Z
+	// FL 130 E75L/W XPNDR 7014
+	// USE SID GRG7 DEPARTURE
+	// RUNWAY 26L DESTINATION
+	// KSEA
+	{
+		Name: "skywest_full",
+		Pattern: `(?s)PRE-DEPARTURE\s+CLEARANCE\s+` +
+			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin>{IATA})\s+(?P<dep_time>\d{4})Z\s+` +
+			`FL\s+(?P<altitude>\d+)\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+XPNDR\s+(?P<squawk>{SQUAWK})` +
+			`.*?USE\s+SID\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE\s+` +
+			`RUNWAY\s+(?P<runway>{RUNWAY})\s+DESTINATION\s+` +
+			`(?P<destination>{ICAO})`,
+		Fields: []string{"flight", "origin", "dep_time", "altitude", "aircraft", "squawk", "sid", "runway", "destination"},
+	},
+
+	// Format 11: SkyWest/regional pre-departure (simple format)
+	// PRE-DEPARTURE CLEARANCE
+	// SKW5510 DEPART ORD 1845Z
+	// FL 320 CRJ2/L XPNDR 6520
+	// ROUTE KORD OLINN OREOS ...
+	{
+		Name: "skywest_simple",
+		Pattern: `(?s)PRE-DEPARTURE\s+CLEARANCE\s+` +
+			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin>{IATA})\s+(?P<dep_time>\d{4})Z\s+` +
+			`FL\s+(?P<altitude>\d+)\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+XPNDR\s+(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "origin", "dep_time", "altitude", "aircraft", "squawk"},
+	},
+
+	// Format 12: Republic Airways PDC
+	// Example:
+	// QUHDQDDRP~1PDC SEQ 001
+	// RPA4783
+	// DEP/KDCA
+	// SKD/1229Z
+	// FL360
+	// -REBLL5 OTTTO Q80 DEWAK GROAT PASLY5 KBNA-
+	// KDCA REBLL5 OTTTO Q80./.KBNA
+	// CLEARED REBLL5 DEPARTURE OTTTO TRSN
+	// CLIMB VIA SID
+	// SQUAWK/7050
+	{
+		Name: "republic_airways",
+		Pattern: `(?s)PDC\s+SEQ\s+\d+\s+` +
+			`(?P<flight>{FLIGHT})\s+` +
+			`DEP/(?P<origin>{ICAO})\s+` +
+			`SKD/(?P<dep_time>\d{4})Z\s+` +
+			`FL(?P<altitude>\d+)\s+` +
+			`.*?CLEARED\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE` +
+			`.*?SQUAWK/(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "origin", "dep_time", "altitude", "sid", "squawk"},
+	},
+
+	// Format 13: Private/Business jet PDC (Teterboro, etc)
+	// Example:
+	// KTEB PDC
+	// PDC LXJ559 CL35/L
+	// ETD KTEB 1233UTC
+	// FL20
+	// CLEARED AS FILED
+	// CLEARED TEB4 DEPARTURE
+	// MAINTAIN 2000FT
+	// EXP 20 10 MIN AFT DP,DPFRQ 119.2
+	{
+		Name: "private_jet",
+		Pattern: `(?s){ICAO}\s+PDC\s+` +
+			`PDC\s+(?P<flight>[A-Z]{2,3}\d{1,4})\s+(?P<aircraft>[A-Z0-9]+)/[A-Z]\s+` +
+			`ETD\s+(?P<origin>{ICAO})\s+(?P<dep_time>\d{4})UTC\s+` +
+			`FL(?P<altitude>\d+)\s+` +
+			`.*?CLEARED\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE` +
+			`.*?MAINTAIN\s+(?P<init_alt>\d+)`,
+		Fields: []string{"flight", "aircraft", "origin", "dep_time", "altitude", "sid", "init_alt"},
+	},
+
+	// Format 14: UPS/Cargo PDC
+	// Example:
+	// PDC UP0081/03 ANC-SDF
+	// ----ATC CLEARANCE----
+	// CLEARED AS FILED
+	// CLEARED ANC1 DEPARTURE
+	// SQWK: 7271
+	// MAINTAIN 4000FT EXP 350 10 MIN AFT DP,DPFRQ 118.6
+	{
+		Name: "ups_cargo",
+		Pattern: `(?s)PDC\s+(?P<flight>[A-Z]{2,3}\d{1,4})/\d+\s+(?P<origin>{ICAO})-(?P<destination>{ICAO})\s+` +
+			`.*?CLEARED\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE\s+` +
+			`SQWK:\s*(?P<squawk>{SQUAWK})\s+` +
+			`MAINTAIN\s+(?P<init_alt>\d+)`,
+		Fields: []string{"flight", "origin", "destination", "sid", "squawk", "init_alt"},
+	},
+
+	// Format 15: Frontier extended AGM format
+	// Example:
+	// .ANPOCF9 051209
+	// AGM
+	// AN N625FR
+	// -  CLD 1209 260105 PDC 001
+	// FFT22 KPHL-MDPC
+	// SQUAWK: 3354
+	// ...
+	// CLEARED PHL4 DEPARTURE
+	// MAINTAIN 5000FT
+	{
+		Name: "frontier_extended",
+		Pattern: `(?s)AGM\s+AN\s+[A-Z0-9-]+\s+-\s+CLD\s+\d+\s+\d+\s+PDC\s+\d+\s+` +
+			`(?P<flight>[A-Z]{3}\d{1,4})\s+(?P<origin>{ICAO})-(?P<destination>{ICAO})\s+` +
+			`SQUAWK:\s*(?P<squawk>{SQUAWK})` +
+			`.*?CLEARED\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE\s+` +
+			`MAINTAIN\s+(?P<init_alt>\d+)`,
+		Fields: []string{"flight", "origin", "destination", "squawk", "sid", "init_alt"},
+	},
+
+	// Format 16: Frontier/Spirit AGM format
+	// .ANPOCF9 311828
+	// AGM
+	// AN N708FR
+	// -  CLD 1828 251231 PDC 002
+	// FFT1577 KPHL-KRSW
+	// SQUAWK: 7134
+	{
+		Name: "frontier_agm",
+		Pattern: `(?s)AGM\s+AN\s+[A-Z0-9-]+\s+-\s+CLD\s+\d+\s+\d+\s+PDC\s+\d+\s+` +
+			`(?P<flight>[A-Z]{3}\d{3,4})\s+(?P<origin>{ICAO})-(?P<destination>{ICAO})\s+` +
+			`SQUAWK:\s*(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "origin", "destination", "squawk"},
 	},
 }
 
@@ -272,12 +679,32 @@ func (c *Compiler) Parse(text string) *PDCResult {
 				result.FlightNumber = value
 			case "origin":
 				result.Origin = value
+			case "origin_iata":
+				// IATA origin code - only use if no ICAO origin set.
+				if result.Origin == "" {
+					result.Origin = value
+				}
 			case "destination":
 				result.Destination = value
+			case "dest_iata":
+				// IATA destination code - only use if no ICAO destination set.
+				if result.Destination == "" {
+					result.Destination = value
+				}
+			case "waypoint":
+				// Initial waypoint (for waypoint-based departures without named SID).
+				if result.SID == "" {
+					result.SID = value
+				}
 			case "aircraft":
 				result.Aircraft = value
 			case "runway":
 				result.Runway = value
+			case "runway2":
+				// Alternate runway position (e.g., "EXPECT RUNWAY" at end of Australian format).
+				if result.Runway == "" {
+					result.Runway = value
+				}
 			case "sid":
 				result.SID = normaliseSID(value)
 			case "route":
@@ -396,12 +823,28 @@ func (c *Compiler) ParseWithTrace(text string) *PDCParseTrace {
 					trace.Result.FlightNumber = value
 				case "origin":
 					trace.Result.Origin = value
+				case "origin_iata":
+					if trace.Result.Origin == "" {
+						trace.Result.Origin = value
+					}
 				case "destination":
 					trace.Result.Destination = value
+				case "dest_iata":
+					if trace.Result.Destination == "" {
+						trace.Result.Destination = value
+					}
+				case "waypoint":
+					if trace.Result.SID == "" {
+						trace.Result.SID = value
+					}
 				case "aircraft":
 					trace.Result.Aircraft = value
 				case "runway":
 					trace.Result.Runway = value
+				case "runway2":
+					if trace.Result.Runway == "" {
+						trace.Result.Runway = value
+					}
 				case "sid":
 					trace.Result.SID = normaliseSID(value)
 				case "route":
@@ -448,6 +891,8 @@ var (
 	freqRe     = regexp.MustCompile(`(?:DEP\s*FREQ|DPFRQ|NEXT\s*FREQ|AIRBORNE\s*FREQ)[:\s]+(\d{3}\.\d{1,3})`)
 	atisRe     = regexp.MustCompile(`ATIS\s+([A-Z])\b`)
 	altitudeRe = regexp.MustCompile(`(?:CLIMB\s+(?:VIA\s+SID\s+)?TO[:\s]+|ALT\s*)(\d{3,5})`)
+	// Runway patterns - various PDC formats use different keywords.
+	runwayRe = regexp.MustCompile(`(?:EXPECT\s+RUNWAY|DEPARTURE\s+RUNWAY|DEP(?:ARTURE)?\s+RWY|RWY)\s+(\d{1,2}[LRC]?)`)
 	// Departure time patterns:
 	// - "SKED DEP TIME 1857" (Delta format)
 	// - "AT 1716Z" (Canadian/WestJet format)

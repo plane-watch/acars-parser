@@ -109,3 +109,55 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	return result
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No GATE ASSIGNMENT keyword found"
+		return trace
+	}
+
+	text := msg.Text
+
+	// Add extractors for each regex pattern.
+	extractors := []struct {
+		name    string
+		pattern *regexp.Regexp
+	}{
+		{"gate", gateRe},
+		{"in_range_gate", inRangeGateRe},
+		{"ppos", pposRe},
+		{"bag_belt", bagBeltRe},
+		{"next_leg", nextLegRe},
+		{"next_flight", nextFlightRe},
+	}
+
+	for _, e := range extractors {
+		ext := registry.Extractor{
+			Name:    e.name,
+			Pattern: e.pattern.String(),
+		}
+		if m := e.pattern.FindStringSubmatch(text); len(m) > 1 {
+			ext.Matched = true
+			ext.Value = m[1]
+		}
+		trace.Extractors = append(trace.Extractors, ext)
+	}
+
+	// Determine if overall match succeeds.
+	hasGate := gateRe.MatchString(text) || inRangeGateRe.MatchString(text)
+	hasPPOS := pposRe.MatchString(text)
+	hasNextFlight := nextLegRe.MatchString(text) || nextFlightRe.MatchString(text)
+	trace.Matched = hasGate || hasPPOS || hasNextFlight
+
+	return trace
+}

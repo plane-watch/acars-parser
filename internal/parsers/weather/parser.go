@@ -70,7 +70,7 @@ func init() {
 }
 
 func (p *Parser) Name() string     { return "weather" }
-func (p *Parser) Labels() []string { return []string{"RA", "C1"} }
+func (p *Parser) Labels() []string { return []string{"RA", "C1", "21", "H1", "3W", "27", "31", "34", "3T", "23"} }
 func (p *Parser) Priority() int    { return 50 } // Lower priority, run after more specific parsers.
 
 // QuickCheck looks for weather keywords.
@@ -308,4 +308,52 @@ func extractSigmets(text string) []SigmetReport {
 	}
 
 	return sigmets
+}
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No METAR, TAF, or SIGMET keyword found"
+		return trace
+	}
+
+	text := msg.Text
+
+	// Add extractors for each weather type.
+	metarMatches := metarRe.FindAllString(text, -1)
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "metar",
+		Pattern: metarRe.String(),
+		Matched: len(metarMatches) > 0,
+		Value:   strconv.Itoa(len(metarMatches)) + " found",
+	})
+
+	tafMatches := tafRe.FindAllString(text, -1)
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "taf",
+		Pattern: tafRe.String(),
+		Matched: len(tafMatches) > 0,
+		Value:   strconv.Itoa(len(tafMatches)) + " found",
+	})
+
+	sigmetMatches := sigmetRe.FindAllString(text, -1)
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "sigmet",
+		Pattern: sigmetRe.String(),
+		Matched: len(sigmetMatches) > 0,
+		Value:   strconv.Itoa(len(sigmetMatches)) + " found",
+	})
+
+	trace.Matched = len(metarMatches) > 0 || len(tafMatches) > 0 || len(sigmetMatches) > 0
+
+	return trace
 }

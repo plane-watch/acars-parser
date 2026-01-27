@@ -156,3 +156,46 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	return result
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	// QuickCheck always passes for label 80.
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: true,
+		Reason: "Label check sufficient for 80",
+	}
+
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
+	}
+
+	text := strings.TrimSpace(msg.Text)
+	compilerTrace := compiler.ParseWithTrace(text)
+
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	// Check if we got a header format match.
+	foundHeader := false
+	for _, ft := range compilerTrace.Formats {
+		if ft.Matched && (ft.Name == "header_format" || ft.Name == "alt_format") {
+			foundHeader = true
+			break
+		}
+	}
+	trace.Matched = foundHeader
+
+	return trace
+}

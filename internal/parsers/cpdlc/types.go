@@ -32,17 +32,18 @@ type MessageHeader struct {
 	Timestamp *Time `json:"timestamp,omitempty"` // Timestamp (optional).
 }
 
-// Time represents a FANS timestamp (hours, minutes).
+// Time represents a FANS timestamp (hours, minutes, seconds).
 type Time struct {
 	Hours   int `json:"hours"`
 	Minutes int `json:"minutes"`
+	Seconds int `json:"seconds"`
 }
 
 func (t *Time) String() string {
 	if t == nil {
 		return ""
 	}
-	return fmt.Sprintf("%02d:%02d", t.Hours, t.Minutes)
+	return fmt.Sprintf("%02d:%02d:%02d", t.Hours, t.Minutes, t.Seconds)
 }
 
 // Altitude represents an altitude value with its type.
@@ -59,7 +60,9 @@ func (a *Altitude) String() string {
 	case "flight_level":
 		return fmt.Sprintf("FL%d", a.Value)
 	case "flight_level_metric":
-		return fmt.Sprintf("FL%dm", a.Value*10) // Value is in 10s of metres.
+		// Metric flight levels (S-meter system). Value is in 10m increments.
+		// SM1000 = 10,000 metres. Display as "SM<value>" for clarity.
+		return fmt.Sprintf("SM%d", a.Value)
 	case "feet":
 		return fmt.Sprintf("%d ft", a.Value)
 	case "meters":
@@ -93,12 +96,12 @@ func (s *Speed) String() string {
 
 // Position represents a geographic position.
 type Position struct {
-	Type         string   `json:"type"`                   // "latlon", "fix", "navaid", "place_bearing_distance", etc.
-	Latitude     *float64 `json:"latitude,omitempty"`     // Decimal degrees.
-	Longitude    *float64 `json:"longitude,omitempty"`    // Decimal degrees.
-	Name         string   `json:"name,omitempty"`         // Fix/navaid name.
-	Bearing      *int     `json:"bearing,omitempty"`      // Bearing in degrees (for place_bearing_distance).
-	Distance     *int     `json:"distance,omitempty"`     // Distance value (for place_bearing_distance).
+	Type         string   `json:"type"`                    // "latlon", "fix", "navaid", "place_bearing_distance", etc.
+	Latitude     *float64 `json:"latitude,omitempty"`      // Decimal degrees.
+	Longitude    *float64 `json:"longitude,omitempty"`     // Decimal degrees.
+	Name         string   `json:"name,omitempty"`          // Fix/navaid name.
+	Bearing      *int     `json:"bearing,omitempty"`       // Bearing in degrees (for place_bearing_distance).
+	Distance     *int     `json:"distance,omitempty"`      // Distance value (for place_bearing_distance).
 	DistanceUnit string   `json:"distance_unit,omitempty"` // "nm" or "km" (for place_bearing_distance).
 }
 
@@ -298,4 +301,91 @@ func (v *VerticalRate) String() string {
 		return ""
 	}
 	return fmt.Sprintf("%d ft/min", v.Value)
+}
+
+// RemainingFuel represents fuel remaining as a time duration.
+type RemainingFuel struct {
+	Hours   int `json:"hours"`
+	Minutes int `json:"minutes"`
+}
+
+func (r *RemainingFuel) String() string {
+	if r == nil {
+		return ""
+	}
+	return fmt.Sprintf("%dh%02dm", r.Hours, r.Minutes)
+}
+
+// PersonsOnBoard represents the number of people on the aircraft.
+type PersonsOnBoard struct {
+	Count int `json:"count"`
+}
+
+func (p *PersonsOnBoard) String() string {
+	if p == nil {
+		return ""
+	}
+	return fmt.Sprintf("%d", p.Count)
+}
+
+// PositionReport represents a full position report (dM48).
+type PositionReport struct {
+	Position       *Position `json:"position"`
+	Time           *Time     `json:"time,omitempty"`
+	FixNext        *Position `json:"fix_next,omitempty"`
+	FixNextETA     *Time     `json:"fix_next_eta,omitempty"`
+	FixNextPlusOne *Position `json:"fix_next_plus_one,omitempty"`
+	Altitude       *Altitude `json:"altitude,omitempty"`
+	Speed          *Speed    `json:"speed,omitempty"`
+	Temperature    *int      `json:"temperature,omitempty"`
+	Wind           *Wind     `json:"wind,omitempty"`
+	Turbulence     string    `json:"turbulence,omitempty"`
+	Icing          string    `json:"icing,omitempty"`
+}
+
+func (pr *PositionReport) String() string {
+	if pr == nil {
+		return ""
+	}
+	result := pr.Position.String()
+	if pr.Time != nil {
+		result += " at " + pr.Time.String()
+	}
+	if pr.Altitude != nil {
+		result += " " + pr.Altitude.String()
+	}
+	if pr.FixNext != nil {
+		result += " next:" + pr.FixNext.String()
+		if pr.FixNextETA != nil {
+			result += " ETA:" + pr.FixNextETA.String()
+		}
+	}
+	return result
+}
+
+// Wind represents wind information.
+type Wind struct {
+	Direction int    `json:"direction"` // Degrees 0-359.
+	Speed     int    `json:"speed"`     // Wind speed value.
+	Unit      string `json:"unit"`      // "kt" or "km/h".
+}
+
+func (w *Wind) String() string {
+	if w == nil {
+		return ""
+	}
+	return fmt.Sprintf("%03d/%d%s", w.Direction, w.Speed, w.Unit)
+}
+
+// Distance represents a distance value.
+type Distance struct {
+	Value int    `json:"value"` // Distance value.
+	Unit  string `json:"unit"`  // "nm" or "km".
+}
+
+func (d *Distance) String() string {
+	if d == nil {
+		return ""
+	}
+	return fmt.Sprintf("%d %s", d.Value, d.Unit)
 }

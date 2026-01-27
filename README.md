@@ -8,6 +8,42 @@ A Go tool for parsing ACARS (Aircraft Communications Addressing and Reporting Sy
 go build -o acars_parser ./cmd/acars_parser
 ```
 
+## Database Setup
+
+The parser uses a two-database architecture:
+- **ClickHouse**: High-performance analytical storage for messages (11M+ rows)
+- **PostgreSQL**: Mutable state data (aircraft, waypoints, routes, flight state)
+
+### Starting the Databases
+
+```bash
+# ClickHouse
+docker run -d --name clickhouse -p 9000:9000 -p 8123:8123 \
+    -e CLICKHOUSE_PASSWORD=acars \
+    clickhouse/clickhouse-server:latest
+
+# PostgreSQL
+docker run -d --name postgres -p 5432:5432 \
+    -e POSTGRES_USER=acars \
+    -e POSTGRES_PASSWORD=acars \
+    -e POSTGRES_DB=acars_state \
+    postgres:16-alpine
+```
+
+### Migrating from SQLite
+
+If you have existing SQLite databases (`messages.db` and `state.db`), migrate them:
+
+```bash
+# Dry run to see what would be migrated
+./acars_parser migrate --dry-run
+
+# Run the full migration
+./acars_parser migrate
+```
+
+See `docs/plans/2026-01-24-clickhouse-postgres-migration-design.md` for the full schema details.
+
 ## Project Structure
 
 ```
@@ -62,7 +98,7 @@ Extracts structured data from JSONL files containing ACARS messages.
 
 ### live
 
-Connects to a live NATS feed and displays parsed messages in real-time.
+Connects to a live NATS feed and displays parsed messages in real-time. Messages are stored in ClickHouse.
 
 ```bash
 ./acars_parser live -creds credentials.creds [options]
@@ -73,9 +109,17 @@ Connects to a live NATS feed and displays parsed messages in real-time.
 - `-server URL` - NATS server URL (default: `nats://157.90.242.138:4222`)
 - `-subject SUBJ` - NATS subject to subscribe to (default: `v1.aircraft.ingest.*.message.*.created`)
 - `-output FILE` - Optional JSONL output file
-- `-db FILE` - SQLite database for message storage (default: `messages.db`)
-- `-state FILE` - SQLite database for flight state tracking (default: `state.db`)
-- `-no-store` - Disable all database storage
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-pass PASS` - ClickHouse password (default: `acars`)
+- `-ch-db DB` - ClickHouse database (default: `acars`)
+- `-pg-host HOST` - PostgreSQL host (default: `localhost`)
+- `-pg-port PORT` - PostgreSQL port (default: `5432`)
+- `-pg-user USER` - PostgreSQL user (default: `acars`)
+- `-pg-pass PASS` - PostgreSQL password
+- `-pg-db DB` - PostgreSQL database (default: `acars`)
+- `-no-store` - Disable all database storage (ClickHouse and PostgreSQL)
 - `-all` - Show all messages with text, not just parsed ones
 - `-raw` - Show raw message text
 - `-empty` - Show empty/missing fields to identify unparsed data
@@ -85,14 +129,18 @@ Connects to a live NATS feed and displays parsed messages in real-time.
 
 ### query
 
-Query stored messages in SQLite database.
+Query stored messages in ClickHouse.
 
 ```bash
 ./acars_parser query [options]
 ```
 
 **Options:**
-- `-db FILE` - SQLite database file (default: `messages.db`)
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-password PASS` - ClickHouse password
+- `-ch-db DB` - ClickHouse database (default: `acars`)
 - `-id N` - Fetch a specific message by database row ID
 - `-msg-id N` - Fetch by ACARS message ID (from parsed JSON)
 - `-type TYPE` - Filter by parser type (e.g. `h1_position`, `pdc`)
@@ -113,7 +161,7 @@ Query stored messages in SQLite database.
 
 ### reparse
 
-Re-parse stored messages to compare old vs new parsing results.
+Re-parse stored messages to compare old vs new parsing results. Useful for testing parser changes against historical data.
 
 ```bash
 ./acars_parser reparse [options]
@@ -121,6 +169,7 @@ Re-parse stored messages to compare old vs new parsing results.
 
 **Options:**
 - `-db FILE` - SQLite database file (default: `messages.db`)
+- `-id N` - Re-parse a specific message by ID and show result
 - `-type TYPE` - Filter by parser type
 - `-label LABEL` - Filter by ACARS label
 - `-v` - Verbose output: show detailed diffs
@@ -128,7 +177,7 @@ Re-parse stored messages to compare old vs new parsing results.
 - `-improvements-only` - Show only messages that improved
 - `-limit N` - Limit number of messages to process (0 = all)
 - `-json` - Output as JSON
-- `-update` - Update database with new parsed results
+- `-dump FILE` - Dump regressed messages to file (includes raw text)
 
 ### debug
 
@@ -140,8 +189,12 @@ Debug why a message didn't parse correctly.
 ```
 
 **Options:**
-- `-db FILE` - SQLite database file (default: `messages.db`)
-- `-id N` - Message ID to debug
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-password PASS` - ClickHouse password
+- `-ch-db DB` - ClickHouse database (default: `acars`)
+- `-id N` - Message ID to debug (loads from ClickHouse)
 - `-text TEXT` - Raw message text to debug (instead of -id)
 - `-label LABEL` - ACARS label for raw text (e.g. `H1`, `16`)
 - `-all` - Show all pattern attempts, not just matches
@@ -149,18 +202,63 @@ Debug why a message didn't parse correctly.
 
 ### backfill
 
-Populate state tracker from existing parsed messages.
+Populate PostgreSQL state from ClickHouse messages.
 
 ```bash
 ./acars_parser backfill [options]
 ```
 
 **Options:**
-- `-db FILE` - SQLite database with parsed messages (default: `messages.db`)
-- `-state FILE` - SQLite database for flight state (default: `state.db`)
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-password PASS` - ClickHouse password
+- `-ch-db DB` - ClickHouse database (default: `acars`)
+- `-pg-host HOST` - PostgreSQL host (default: `localhost`)
+- `-pg-port PORT` - PostgreSQL port (default: `5432`)
+- `-pg-user USER` - PostgreSQL user (default: `acars`)
+- `-pg-password PASS` - PostgreSQL password
+- `-pg-db DB` - PostgreSQL database (default: `acars`)
 - `-type TYPE` - Filter by parser type
 - `-limit N` - Limit number of messages (0 = all)
 - `-v` - Verbose output
+
+### migrate
+
+Migrate data from SQLite databases to ClickHouse and PostgreSQL.
+
+```bash
+./acars_parser migrate [options]
+```
+
+**Options:**
+- `-messages FILE` - SQLite messages database (default: `messages.db`)
+- `-state FILE` - SQLite state database (default: `state.db`)
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-pass PASS` - ClickHouse password (default: `acars`)
+- `-ch-db DB` - ClickHouse database (default: `acars`)
+- `-pg-host HOST` - PostgreSQL host (default: `localhost`)
+- `-pg-port PORT` - PostgreSQL port (default: `5432`)
+- `-pg-user USER` - PostgreSQL user (default: `acars`)
+- `-pg-pass PASS` - PostgreSQL password (default: `acars`)
+- `-pg-db DB` - PostgreSQL database (default: `acars_state`)
+- `-batch N` - Batch size for message migration (default: `10000`)
+- `-from-id N` - Resume migration from message ID
+- `-dry-run` - Show what would be migrated without making changes
+
+**Example:**
+```bash
+# Dry run to see migration plan
+./acars_parser migrate --dry-run
+
+# Migrate with custom batch size
+./acars_parser migrate -batch 50000
+
+# Resume migration from a specific ID
+./acars_parser migrate -from-id 5000000
+```
 
 ### review
 
@@ -171,7 +269,16 @@ Launch web UI for reviewing and annotating messages.
 ```
 
 **Options:**
-- `-db FILE` - SQLite database file (default: `messages.db`)
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-password PASS` - ClickHouse password
+- `-ch-db DB` - ClickHouse database (default: `acars`)
+- `-pg-host HOST` - PostgreSQL host (default: `localhost`)
+- `-pg-port PORT` - PostgreSQL port (default: `5432`)
+- `-pg-user USER` - PostgreSQL user (default: `acars`)
+- `-pg-password PASS` - PostgreSQL password
+- `-pg-db DB` - PostgreSQL database (default: `acars`)
 - `-port N` - HTTP port (default: 8080)
 - `-type TYPE` - Pre-filter to specific parser type
 
@@ -184,7 +291,11 @@ Discover message format templates by normalising messages.
 ```
 
 **Options:**
-- `-db FILE` - SQLite database file (default: `messages.db`)
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-password PASS` - ClickHouse password
+- `-ch-db DB` - ClickHouse database (default: `acars`)
 - `-type TYPE` - Filter by parser type
 - `-label LABEL` - Filter by ACARS label
 - `-limit N` - Limit number of messages (0 = all)
@@ -407,6 +518,111 @@ The live command outputs human-readable summaries:
 [UAL123 N12345 737-800] [PWI] CB:FL100-350 WD:FL360 (3 wpts) DD:FL100-390
 [DAL456 N67890] [PDC] DAL456 KJFK->KLAX RWY 31L SID DEEZZ5 SQK 1234
 ```
+
+---
+
+## Standalone Tools
+
+Additional standalone tools are located in the `tools/` directory. These have their own `go.mod` files and can be built independently.
+
+### kmlexport
+
+Exports waypoints from PostgreSQL to KML format for visualisation in Google Earth, Google Maps, or other GIS applications.
+
+```bash
+cd tools/kmlexport && go build -o kmlexport .
+./kmlexport [options]
+```
+
+**Options:**
+- `-pg-host HOST` - PostgreSQL host (default: `localhost`)
+- `-pg-port PORT` - PostgreSQL port (default: `5432`)
+- `-pg-user USER` - PostgreSQL user (default: `acars`)
+- `-pg-password PASS` - PostgreSQL password
+- `-pg-db DB` - PostgreSQL database (default: `acars`)
+- `-output FILE` - Output KML file (default: stdout)
+- `-min-sources N` - Minimum source count to include a waypoint (default: 1)
+- `-stats` - Show statistics only, don't export
+- `-v` - Verbose output
+
+**Examples:**
+```bash
+# Show waypoint statistics
+./kmlexport -pg-password acars -stats
+
+# Export all waypoints to a file
+./kmlexport -pg-password acars -output waypoints.kml
+
+# Export only frequently-seen waypoints (50+ sources)
+./kmlexport -pg-password acars -min-sources 50 -output frequent_waypoints.kml -v
+```
+
+### routeexport
+
+Exports routes from PostgreSQL to CSV format compatible with the planewatch-atc `import_routes.rake` task.
+
+```bash
+cd tools/routeexport && go build -o routeexport .
+./routeexport [options]
+```
+
+**Options:**
+- `-pg-host HOST` - PostgreSQL host (default: `localhost`)
+- `-pg-port PORT` - PostgreSQL port (default: `5432`)
+- `-pg-user USER` - PostgreSQL user (default: `acars`)
+- `-pg-password PASS` - PostgreSQL password
+- `-pg-db DB` - PostgreSQL database (default: `acars`)
+- `-output FILE` - Output CSV file (default: stdout)
+- `-min-obs N` - Minimum observation count to include a route (default: 1)
+- `-stats` - Show statistics only, don't export
+- `-v` - Verbose output
+
+**Examples:**
+```bash
+# Show route statistics
+./routeexport -pg-password acars -stats
+
+# Export all routes to a file
+./routeexport -pg-password acars -output routes.csv
+
+# Export only frequently-observed routes (100+ observations)
+./routeexport -pg-password acars -min-obs 100 -output frequent_routes.csv -v
+```
+
+**Output format:**
+The CSV output has no header row and follows the format: `callsign,ICAO1,ICAO2,...`
+
+For example:
+```
+QFA1,YSSY,WSSS,EGLL
+JL300,RJTT,RJCC
+AAL2332,KPHL,KBOS
+```
+
+Multi-stop routes include all intermediate airports in sequence.
+
+### analyzer
+
+Analyzes the message corpus in ClickHouse for label distribution, parser coverage, and format patterns.
+
+```bash
+cd tools/analyzer && go build -o analyzer .
+./analyzer [options]
+```
+
+**Options:**
+- `-ch-host HOST` - ClickHouse host (default: `localhost`)
+- `-ch-port PORT` - ClickHouse port (default: `9000`)
+- `-ch-user USER` - ClickHouse user (default: `default`)
+- `-ch-password PASS` - ClickHouse password
+- `-ch-db DB` - ClickHouse database (default: `acars`)
+- `-format FORMAT` - Output format: text, json (default: text)
+- `-templates` - Include template analysis (slower)
+- `-top N` - Show top N items in each category (default: 20)
+- `-label LABEL` - Analyze specific label only
+- `-suggest` - Generate pattern suggestions for a label (requires `-label`)
+- `-min-cluster N` - Minimum cluster size for suggestions (default: 3)
+- `-test PATTERN` - Test a regex pattern against the corpus (requires `-label`)
 
 ---
 

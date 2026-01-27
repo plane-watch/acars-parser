@@ -135,3 +135,46 @@ func isAlpha(c byte) bool {
 func isDigit(c byte) bool {
 	return c >= '0' && c <= '9'
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	// QuickCheck always passes for B2.
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: true,
+		Reason: "Label check sufficient for B2",
+	}
+
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
+	}
+
+	compilerTrace := compiler.ParseWithTrace(msg.Text)
+
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	// B2 matches if we found destination or oceanic fixes.
+	hasDestination := false
+	for _, ft := range compilerTrace.Formats {
+		if ft.Matched && ft.Name == "oceanic_dest" {
+			hasDestination = true
+			break
+		}
+	}
+	fixes := compiler.FindAllMatches(msg.Text, "oceanic_fix")
+	trace.Matched = hasDestination || len(fixes) > 0
+
+	return trace
+}

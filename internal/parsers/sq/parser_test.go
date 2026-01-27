@@ -86,6 +86,68 @@ func TestParser(t *testing.T) {
 	}
 }
 
+func TestAVICOMParser(t *testing.T) {
+	p := &Parser{}
+
+	testCases := []struct {
+		name string
+		text string
+		want struct {
+			iata, icao string
+			lat, lon   float64
+			freq       float64
+		}
+	}{
+		{
+			name: "RJTT Haneda",
+			text: "02JDHNDRJTT23533N13946EV136975/AVICOM",
+			// 23533 = 35°33' = 35.55°N, 13946 = 139°46' = 139.77°E
+			want: struct{ iata, icao string; lat, lon, freq float64 }{"HND", "RJTT", 35.55, 139.7667, 136.975},
+		},
+		{
+			name: "RJSS Sendai",
+			text: "02JDSDJRJSS23808N14055EV136975/AVICOM",
+			// 23808 = 38°08' = 38.13°N, 14055 = 140°55' = 140.92°E
+			want: struct{ iata, icao string; lat, lon, freq float64 }{"SDJ", "RJSS", 38.1333, 140.9167, 136.975},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			msg := &acars.Message{Text: tc.text, ID: 1}
+			result := p.Parse(msg)
+			if result == nil {
+				t.Fatalf("expected result, got nil")
+			}
+
+			sq, ok := result.(*Result)
+			if !ok {
+				t.Fatalf("expected *Result, got %T", result)
+			}
+
+			if sq.IATACode != tc.want.iata {
+				t.Errorf("IATA: got %q, want %q", sq.IATACode, tc.want.iata)
+			}
+
+			if sq.ICAOCode != tc.want.icao {
+				t.Errorf("ICAO: got %q, want %q", sq.ICAOCode, tc.want.icao)
+			}
+
+			if math.Abs(sq.Latitude-tc.want.lat) > 0.1 {
+				t.Errorf("Latitude: got %.4f, want %.4f", sq.Latitude, tc.want.lat)
+			}
+
+			if math.Abs(sq.Longitude-tc.want.lon) > 0.1 {
+				t.Errorf("Longitude: got %.4f, want %.4f", sq.Longitude, tc.want.lon)
+			}
+
+			if math.Abs(sq.FreqMHz-tc.want.freq) > 0.001 {
+				t.Errorf("Frequency: got %.3f, want %.3f", sq.FreqMHz, tc.want.freq)
+			}
+		})
+	}
+}
+
 func TestQuickCheck(t *testing.T) {
 	p := &Parser{}
 
@@ -95,6 +157,7 @@ func TestQuickCheck(t *testing.T) {
 	}{
 		{"02XAORDKORD04158N08754WV136975/ARINC", true},
 		{"02XSSYDYSSY03357S15111EV136975/", true},
+		{"02JDHNDRJTT23533N13946EV136975/AVICOM", true}, // AVICOM Japan
 		{"00XS", false}, // This is a short squitter with no position
 		{"FPN/FNQFA123", false},
 		{"", false},

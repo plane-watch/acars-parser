@@ -231,3 +231,46 @@ func parseFields(data string, result *Result) {
 		}
 	}
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No FST prefix found"
+		return trace
+	}
+
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
+	}
+
+	// Strip prefix as parser does.
+	text := strings.TrimSpace(msg.Text)
+	if idx := strings.Index(text, "FST"); idx > 0 {
+		text = text[idx:]
+	}
+
+	compilerTrace := compiler.ParseWithTrace(text)
+
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	trace.Matched = compilerTrace.Match != nil
+	return trace
+}

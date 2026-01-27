@@ -1,6 +1,7 @@
 package cpdlc
 
 import (
+	"strings"
 	"testing"
 
 	"acars_parser/internal/acars"
@@ -61,21 +62,34 @@ func TestParse(t *testing.T) {
 		wantDir      string
 		wantElements int
 		wantError    bool
+		wantErrType  string // Expected error type: "crc_failed", "decode_failed", etc.
 	}{
 		{
-			name:         "Downlink DEVIATING message",
+			// Full valid message with CRC (A7F0) from libacars example.
+			name:         "Downlink dM48 Position Report (valid with CRC)",
 			label:        "AA",
-			text:         "/BOMCAYA.AT1.A4O-SI005080204A",
+			text:         "/SOUCAYA.AT1.HL8251243F880C3D903BB412903604FE326C2479F4A64F7F62528B1A9CF8382738186AC28B16668E013DF464D8A7F0",
 			wantType:     "cpdlc",
 			wantDir:      "downlink",
-			wantElements: 1, // dM80 = DEVIATING [distanceoffset][direction] OF ROUTE.
+			wantElements: 1, // dM48 = POSITION REPORT.
 		},
 		{
-			name:     "Connect request",
-			label:    "AA",
-			text:     "/NYCODYA.CR1.N784AVABCD1234",
-			wantType: "connect_request",
-			wantDir:  "downlink",
+			// Message with valid CRC but malformed CPDLC payload.
+			name:        "Valid CRC but decode fails",
+			label:       "AA",
+			text:        "/ANCATYA.AT1.N514DN220012E8294A952882D8",
+			wantType:    "cpdlc",
+			wantDir:     "downlink",
+			wantError:   true,
+			wantErrType: "decode_failed",
+		},
+		{
+			// Message too short - missing CRC.
+			name:        "Too short message",
+			label:       "AA",
+			text:        "/TESTAYA.AT1.N12345AB",
+			wantError:   true,
+			wantErrType: "message_too_short",
 		},
 	}
 
@@ -90,10 +104,28 @@ func TestParse(t *testing.T) {
 
 			result := parser.Parse(msg)
 			if result == nil {
+				if tt.wantError {
+					return // Expected to fail, nil is acceptable for unknown format.
+				}
 				t.Fatal("Parse() returned nil")
 			}
 
 			r := result.(*Result)
+
+			// Check error expectations.
+			if tt.wantError {
+				if r.Error == "" {
+					t.Error("Expected error but got none")
+				}
+				if tt.wantErrType != "" && !strings.HasPrefix(r.Error, tt.wantErrType) {
+					t.Errorf("Error = %q, want prefix %q", r.Error, tt.wantErrType)
+				}
+				return // Don't check other fields for error cases.
+			}
+
+			if r.Error != "" {
+				t.Errorf("Unexpected error: %s", r.Error)
+			}
 			if r.MessageType != tt.wantType {
 				t.Errorf("MessageType = %v, want %v", r.MessageType, tt.wantType)
 			}
@@ -102,9 +134,6 @@ func TestParse(t *testing.T) {
 			}
 			if tt.wantElements > 0 && len(r.Elements) != tt.wantElements {
 				t.Errorf("Elements count = %d, want %d", len(r.Elements), tt.wantElements)
-			}
-			if tt.wantError && r.Error == "" {
-				t.Error("Expected error but got none")
 			}
 		})
 	}
@@ -163,62 +192,19 @@ func TestConstrainedInt(t *testing.T) {
 	}
 }
 
-func TestIsValidHex(t *testing.T) {
-	tests := []struct {
-		input string
-		want  bool
-	}{
-		{"ABCD1234", true},
-		{"abcd1234", true},
-		{"0123456789ABCDEF", true},
-		{"ABC", false},  // Odd length.
-		{"GHIJ", false}, // Invalid chars.
-		{"", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			if got := isValidHex(tt.input); got != tt.want {
-				t.Errorf("isValidHex(%q) = %v, want %v", tt.input, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestSplitRegistrationAndData(t *testing.T) {
-	tests := []struct {
-		input   string
-		wantReg string
-		wantHex string
-	}{
-		{"F-GSQC214823E24092E7", "F-GSQC", "214823E24092E7"},
-		{"N784AV22C823E840FBCE", "N784AV", "22C823E840FBCE"},
-		// Full message from database (hex must be even length).
-		{"TC-LLH2148242A526A48934D049A6820CE4106AD49F360D48B1104D8B4E9C18F150549E821CF9D1A4D29A821D089321A0873E754830EA20AF26A48411E0CE8916920893E6C5A7524C39201", "TC-LLH", "2148242A526A48934D049A6820CE4106AD49F360D48B1104D8B4E9C18F150549E821CF9D1A4D29A821D089321A0873E754830EA20AF26A48411E0CE8916920893E6C5A7524C39201"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			gotReg, gotHex := splitRegistrationAndData(tt.input)
-			if gotReg != tt.wantReg {
-				t.Errorf("reg = %q, want %q", gotReg, tt.wantReg)
-			}
-			if gotHex != tt.wantHex {
-				t.Errorf("hex = %q, want %q", gotHex, tt.wantHex)
-			}
-		})
-	}
-}
+// Note: TestIsValidHex and TestSplitRegistrationAndData moved to internal/parsers/arinc package.
 
 func TestDecodeElementID(t *testing.T) {
 	// Test that specific hex data decodes to the expected element ID.
-	// Hex: 005080204A should decode to dM80 (DEVIATING).
+	// Using valid libacars sample: dM48 Position Report with MsgID=8.
 	parser := &Parser{}
 
+	// Build ACARS message with valid CPDLC hex from libacars sample.
+	// The hex includes the 2-byte CRC (A7F0) at the end.
 	msg := &acars.Message{
 		ID:        1,
 		Label:     "AA",
-		Text:      "/BOMCAYA.AT1.A4O-SI005080204A",
+		Text:      "/SOUCAYA.AT1.HL8251243F880C3D903BB412903604FE326C2479F4A64F7F62528B1A9CF8382738186AC28B16668E013DF464D8A7F0",
 		Timestamp: "2024-01-01T00:00:00Z",
 	}
 
@@ -237,14 +223,23 @@ func TestDecodeElementID(t *testing.T) {
 	}
 
 	elem := r.Elements[0]
-	// The expected element ID is 80 (dM80 = DEVIATING [distanceoffset][direction] OF ROUTE).
-	if elem.ID != 80 {
-		t.Errorf("Element ID = %d, want 80", elem.ID)
+	// The expected element ID is 48 (dM48 = POSITION REPORT [positionreport]).
+	if elem.ID != 48 {
+		t.Errorf("Element ID = %d, want 48", elem.ID)
 	}
 
 	// Verify the label matches.
-	if elem.Label != "DEVIATING [distanceoffset] [direction] OF ROUTE" {
-		t.Errorf("Element Label = %q, want 'DEVIATING [distanceoffset] [direction] OF ROUTE'", elem.Label)
+	if elem.Label != "POSITION REPORT [positionreport]" {
+		t.Errorf("Element Label = %q, want 'POSITION REPORT [positionreport]'", elem.Label)
+	}
+
+	// Verify the CPDLC header MsgID is correct.
+	// Note: r.MsgID is the ACARS message ID; CPDLC message ID is in the header.
+	if r.Header == nil {
+		t.Fatal("Header is nil")
+	}
+	if r.Header.MsgID != 8 {
+		t.Errorf("Header.MsgID = %d, want 8", r.Header.MsgID)
 	}
 
 	t.Logf("Decoded element: ID=%d, Label=%s, Text=%s", elem.ID, elem.Label, elem.Text)

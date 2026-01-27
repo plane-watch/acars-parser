@@ -1,4 +1,7 @@
 // Package pdc parses Pre-Departure Clearance messages.
+// This parser uses strict grok-only extraction - no fallback pattern matching.
+// If a message doesn't match a known grok pattern, it won't be parsed.
+// This ensures accuracy over quantity.
 package pdc
 
 import (
@@ -6,7 +9,6 @@ import (
 	"sync"
 
 	"acars_parser/internal/acars"
-	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
@@ -75,7 +77,27 @@ func (p *Parser) QuickCheck(text string) bool {
 	if strings.Contains(upper, "NO DEPARTURE CLEARANCE") ||
 		strings.Contains(upper, "NO PDC ON FILE") ||
 		strings.Contains(upper, "NO PDC AVAILABLE") ||
-		strings.Contains(upper, "PDC NOT AVAILABLE") {
+		strings.Contains(upper, "PDC NOT AVAILABLE") ||
+		strings.Contains(upper, "PDC UNAVAIL") ||
+		strings.Contains(upper, "NO PDC RECEIVED") ||
+		strings.Contains(upper, "PDC CURRENTLY UNAVAILABLE") {
+		return false
+	}
+
+	// Reject PDC acknowledgment/status messages - these aren't actual clearances.
+	// PAD11 = delay messages, PDC/ASAT = acknowledgments, TRM/PDC status lines.
+	if strings.Contains(upper, "PDC/ASAT") ||
+		strings.Contains(upper, ":PAD11") ||
+		strings.Contains(upper, "TRM 0000 PDC 0000") ||
+		strings.Contains(upper, "PDC  DELAY MUST EQUAL") {
+		return false
+	}
+
+	// Reject LID (Landing Information Delivery) messages - these are arrival info, not departures.
+	// Chinese airports use this format for inbound clearances routed via departure airport systems.
+	if strings.Contains(upper, "LANDING INFORMATION DELIVER") ||
+		strings.Contains(upper, "THIS IS LID") ||
+		strings.Contains(upper, "FLW INFO ONLY FOR ADVISE") {
 		return false
 	}
 
@@ -126,92 +148,50 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		result.AircraftICAO = msg.Airframe.ICAO
 	}
 
-	// Try grok-based parsing first for format-specific extraction.
+	// Strict grok-only parsing. If no grok pattern matches, we don't parse.
+	// This ensures accuracy - we'd rather miss a PDC than extract garbage.
 	compiler, err := getCompiler()
-	if err == nil {
-		if grokResult := compiler.Parse(msg.Text); grokResult != nil {
-			// Use grok results as primary source.
-			result.PDCFormat = grokResult.FormatName
-			result.FlightNumber = grokResult.FlightNumber
-			result.Origin = grokResult.Origin
-			result.Destination = grokResult.Destination
-			result.Runway = grokResult.Runway
-			result.SID = grokResult.SID
-			result.Route = grokResult.Route
-			result.Squawk = grokResult.Squawk
-			result.AircraftType = grokResult.Aircraft
-			result.DepartureFreq = grokResult.Frequency
-			result.ATIS = grokResult.ATIS
-			if grokResult.Altitude != "" {
-				result.InitialAltitude = grokResult.Altitude
-			}
-			if grokResult.DepartureTime != "" {
-				result.DepartureTime = grokResult.DepartureTime
-			}
-		}
+	if err != nil {
+		return nil
 	}
 
-	// Use ACARS envelope flight number only as a fallback if not parsed from PDC text.
+	grokResult := compiler.Parse(msg.Text)
+	if grokResult == nil {
+		// No grok pattern matched - don't attempt fallback extraction.
+		return nil
+	}
+
+	// Use grok results as the sole source of parsed data.
+	result.PDCFormat = grokResult.FormatName
+	result.FlightNumber = grokResult.FlightNumber
+	result.Origin = grokResult.Origin
+	result.Destination = grokResult.Destination
+	result.Runway = grokResult.Runway
+	result.SID = grokResult.SID
+	result.Route = grokResult.Route
+	result.Squawk = grokResult.Squawk
+	result.AircraftType = grokResult.Aircraft
+	result.DepartureFreq = grokResult.Frequency
+	result.ATIS = grokResult.ATIS
+	if grokResult.Altitude != "" {
+		result.InitialAltitude = grokResult.Altitude
+	}
+	if grokResult.DepartureTime != "" {
+		result.DepartureTime = grokResult.DepartureTime
+	}
+
+	// Use ACARS envelope flight number only if not parsed from PDC text.
+	// This is metadata from the message envelope, not fallback extraction.
 	if result.FlightNumber == "" && msg.Flight != nil && msg.Flight.Flight != "" {
 		result.FlightNumber = msg.Flight.Flight
 	}
 
-	// Fallback extraction for fields not captured by grok.
-	tokens := strings.Fields(strings.ToUpper(msg.Text))
-
-	if result.FlightNumber == "" {
-		result.FlightNumber = patterns.ExtractFlightNumber(msg.Text, tokens)
-	}
-
-	if result.Origin == "" || result.Destination == "" {
-		origin, dest := patterns.ExtractAirports(msg.Text, tokens)
-		if result.Origin == "" {
-			result.Origin = origin
-		}
-		if result.Destination == "" {
-			result.Destination = dest
-		}
-	}
-
-	// If origin still not found, try station's nearest airport.
-	if result.Origin == "" && msg.Station != nil {
-		result.Origin = msg.Station.NearestAirportIcao
-	}
-
-	if result.Runway == "" {
-		result.Runway = patterns.ExtractRunway(msg.Text)
-	}
-	if result.SID == "" {
-		result.SID = patterns.ExtractSID(msg.Text)
-	}
-	if result.Squawk == "" {
-		result.Squawk = patterns.ExtractSquawk(msg.Text)
-	}
-	if result.DepartureFreq == "" {
-		result.DepartureFreq = patterns.ExtractFrequency(msg.Text)
-	}
-	if result.InitialAltitude == "" || result.FlightLevel == "" {
-		alt, fl := patterns.ExtractAltitude(msg.Text)
-		if result.InitialAltitude == "" {
-			result.InitialAltitude = alt
-		}
-		if result.FlightLevel == "" {
-			result.FlightLevel = fl
-		}
-	}
-	if result.AircraftType == "" {
-		result.AircraftType = patterns.ExtractAircraftType(msg.Text)
-	}
-	if result.ATIS == "" {
-		result.ATIS = patterns.ExtractATIS(msg.Text)
-	}
-
-	// Extract route waypoints from structured text.
+	// Extract route waypoints from structured text (uses grok.go's ExtractRouteWaypoints).
 	if len(result.RouteWaypoints) == 0 {
 		result.RouteWaypoints = ExtractRouteWaypoints(msg.Text)
 	}
 
-	// Extract departure time.
+	// Extract departure time if not captured by grok pattern.
 	if result.DepartureTime == "" {
 		result.DepartureTime = ExtractDepartureTime(msg.Text)
 	}
@@ -220,6 +200,57 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	result.ParseConfidence = calculateConfidence(result)
 
 	return result
+}
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	// Check QuickCheck first.
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No PDC keywords found or rejected as failed/status message"
+		return trace
+	}
+
+	// Get the compiler trace.
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
+	}
+
+	// Get detailed trace from compiler.
+	compilerTrace := compiler.ParseWithTrace(msg.Text)
+
+	// Convert PDC format traces to generic format traces.
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	// Convert extractor traces.
+	for _, et := range compilerTrace.Extractors {
+		trace.Extractors = append(trace.Extractors, registry.Extractor{
+			Name:    et.Name,
+			Pattern: et.Pattern,
+			Matched: et.Matched,
+			Value:   et.Value,
+		})
+	}
+
+	trace.Matched = compilerTrace.Result != nil
+	return trace
 }
 
 func calculateConfidence(pdc *Result) float64 {

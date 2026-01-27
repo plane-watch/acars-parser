@@ -6,12 +6,20 @@ import (
 )
 
 // ExtractFlightNumber attempts to extract a flight number from text.
+// Returns empty string if no valid flight number is found.
+// Rejects garbage like ":PAD11" and hex-like patterns (Mode-S addresses).
 func ExtractFlightNumber(text string, tokens []string) string {
-	// Try labeled patterns first.
-	if m := FlightNumFltPattern.FindStringSubmatch(text); len(m) > 1 {
-		return m[1]
-	}
+	// Try ICAO-format patterns first (e.g., "ASA329 B738" or "UAL123 CLRD").
+	// These are more reliable than numeric-only extractions.
 	if m := FlightNumCtxPattern.FindStringSubmatch(text); len(m) > 1 {
+		if isValidFlightNumber(m[1]) {
+			return m[1]
+		}
+	}
+
+	// Try "FLT XXX" pattern as fallback. Note: this extracts numeric-only,
+	// which may not be the ICAO callsign (e.g., "FLT 329" vs "ASA329").
+	if m := FlightNumFltPattern.FindStringSubmatch(text); len(m) > 1 {
 		return m[1]
 	}
 
@@ -20,71 +28,213 @@ func ExtractFlightNumber(text string, tokens []string) string {
 		if i > 10 {
 			break
 		}
-		if FlightNumPattern.MatchString(tok) {
-			// Verify it looks like a flight number (not an airport).
-			if !ICAOPattern.MatchString(tok) && len(tok) >= 4 && len(tok) <= 7 {
-				return tok
+		// Extract the actual match from the token, not the whole token.
+		// This prevents returning ":PAD11" when we only matched "PAD11".
+		if m := FlightNumPattern.FindString(tok); m != "" {
+			// Verify it looks like a flight number (not an airport or garbage).
+			if isValidFlightNumber(m) {
+				return m
 			}
 		}
 	}
 
 	// Try trailing pattern.
 	if m := FlightNumTrailPattern.FindStringSubmatch(text); len(m) > 1 {
-		return m[1]
+		if isValidFlightNumber(m[1]) {
+			return m[1]
+		}
 	}
 
 	return ""
 }
 
-// ExtractAirports extracts origin and destination ICAO codes from text.
-func ExtractAirports(text string, tokens []string) (origin, destination string) {
-	upperText := strings.ToUpper(text)
+// isValidFlightNumber checks if a string is a valid flight number.
+// Rejects:
+// - Strings that look like Mode-S hex addresses (e.g., A32AD, 8C3323)
+// - Strings that look like ICAO airport codes
+// - Strings that are too short or too long
+func isValidFlightNumber(s string) bool {
+	if len(s) < 3 || len(s) > 7 {
+		return false
+	}
 
-	// Pattern 1: "CLRD TO XXXX" - destination after CLRD TO.
-	if idx := strings.Index(upperText, "CLRD TO "); idx >= 0 {
-		after := upperText[idx+8:]
-		if m := FindValidICAO(after); m != "" {
-			destination = m
+	// Reject if it looks like an ICAO airport code.
+	if ICAOPattern.MatchString(s) {
+		return false
+	}
+
+	// Reject if it looks like a Mode-S hex address.
+	// Hex addresses are 6 hex chars (0-9A-F), often starting with country prefix.
+	// Valid flight numbers have format: 2-3 letters + 1-4 digits + optional letter.
+	// Hex addresses often have letters mixed with numbers throughout.
+	if looksLikeHexAddress(s) {
+		return false
+	}
+
+	// Must match the expected flight number format.
+	return FlightNumPattern.MatchString(s)
+}
+
+// looksLikeHexAddress checks if a string looks like a Mode-S hex address.
+// Hex addresses are typically 6 hex characters and don't follow the
+// airline code + flight number pattern.
+func looksLikeHexAddress(s string) bool {
+	// If it's all hex characters and 6 chars long, likely a hex address.
+	if len(s) == 6 && isAllHex(s) {
+		return true
+	}
+
+	// Check for patterns like A3xxxx (Greek), 8xxxxx (various), etc.
+	// These have letters mixed throughout, unlike flight numbers which
+	// have letters at start and optionally end, with digits in middle.
+	if len(s) >= 5 {
+		// Count transitions between letter and digit.
+		// Flight numbers: AAA123 = 1 transition, AA123A = 2 transitions
+		// Hex addresses: A32AD = 3 transitions, 8C3323 = 2+ transitions with digit start
+		transitions := 0
+		for i := 1; i < len(s); i++ {
+			prevIsDigit := s[i-1] >= '0' && s[i-1] <= '9'
+			currIsDigit := s[i] >= '0' && s[i] <= '9'
+			if prevIsDigit != currIsDigit {
+				transitions++
+			}
+		}
+		// Flight numbers typically have 1-2 transitions (letters then digits, maybe trailing letter).
+		// Hex with mixed patterns have more transitions or start with digit.
+		startsWithDigit := s[0] >= '0' && s[0] <= '9'
+		if startsWithDigit && transitions >= 2 {
+			return true
+		}
+		if transitions >= 3 {
+			return true
 		}
 	}
 
-	// Pattern 2: "CLEARED TO XXXX".
-	if destination == "" {
-		if idx := strings.Index(upperText, "CLEARED TO "); idx >= 0 {
-			after := upperText[idx+11:]
-			if m := FindValidICAO(after); m != "" {
+	return false
+}
+
+// isAllHex checks if a string contains only hexadecimal characters.
+func isAllHex(s string) bool {
+	for _, c := range s {
+		if !((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+			return false
+		}
+	}
+	return true
+}
+
+// findICAONextWord extracts the next word and checks if it's a valid ICAO code.
+// This is more precise than FindValidICAO which scans the entire text.
+func findICAONextWord(text string) string {
+	// Skip leading whitespace.
+	text = strings.TrimLeft(text, " \t\n\r")
+	if text == "" {
+		return ""
+	}
+
+	// Extract the next word (up to whitespace or punctuation).
+	end := 0
+	for end < len(text) && text[end] != ' ' && text[end] != '\t' && text[end] != '\n' &&
+		text[end] != '\r' && text[end] != ',' && text[end] != '/' && text[end] != '-' {
+		end++
+	}
+
+	word := text[:end]
+	if IsValidICAO(word) {
+		return word
+	}
+	return ""
+}
+
+// ExtractAirports extracts origin and destination ICAO codes from text.
+// Uses context-aware extraction - only extracts airports when there's clear
+// contextual signal (keywords, route formats). Does NOT guess based on finding
+// random 4-letter codes in the text.
+func ExtractAirports(text string, tokens []string) (origin, destination string) {
+	upperText := strings.ToUpper(text)
+
+	// Destination patterns - extract destination from clearance context.
+	destPatterns := []struct {
+		keyword string
+		offset  int
+	}{
+		{"CLRD TO ", 8},
+		{"CLEARED TO ", 11},
+		{"CLRD ", 5},
+		{"DEST ", 5},
+		{"DEST:", 5},
+		{"DESTINATION ", 12},
+		{"ARR ", 4},
+		{"ARRIVING ", 9},
+	}
+
+	for _, p := range destPatterns {
+		if destination != "" {
+			break
+		}
+		if idx := strings.Index(upperText, p.keyword); idx >= 0 {
+			after := upperText[idx+p.offset:]
+			// Only look at the next word, not the entire remaining text.
+			if m := findICAONextWord(after); m != "" {
 				destination = m
 			}
 		}
 	}
 
-	// Pattern 3: Look for "XXXX-XXXX" route format.
+	// Origin patterns - extract origin from departure context.
+	originPatterns := []struct {
+		keyword string
+		offset  int
+	}{
+		{"DEPART ", 7},
+		{"DEPARTING ", 10},
+		{"DEP ", 4},
+		{"FROM ", 5},
+		{"ORIGIN ", 7},
+		{"ORG ", 4},
+	}
+
+	for _, p := range originPatterns {
+		if origin != "" {
+			break
+		}
+		if idx := strings.Index(upperText, p.keyword); idx >= 0 {
+			after := upperText[idx+p.offset:]
+			// Only look at the next word, not the entire remaining text.
+			if m := findICAONextWord(after); m != "" {
+				origin = m
+			}
+		}
+	}
+
+	// Route format: "XXXX-XXXX" or "XXXX/XXXX".
 	if m := RoutePattern.FindStringSubmatch(upperText); len(m) == 3 {
 		if IsValidICAO(m[1]) && IsValidICAO(m[2]) {
-			origin = m[1]
-			destination = m[2]
-			return
+			if origin == "" {
+				origin = m[1]
+			}
+			if destination == "" {
+				destination = m[2]
+			}
 		}
 	}
 
-	// Pattern 4: Look for "XXXX ... XXXX" where first is origin and last is destination.
-	// Common in PDC route lines like "KPHL DITCH LUIGI HNNAH CYUL".
-	allICAO := FindAllValidICAO(upperText)
-	if len(allICAO) >= 2 {
-		origin = allICAO[0]
-		// Use the LAST valid ICAO as destination (more reliable for route lines).
-		destination = allICAO[len(allICAO)-1]
-		return
-	}
-
-	// Single ICAO found.
-	if len(allICAO) == 1 {
-		if strings.Contains(upperText, "CLRD TO") || strings.Contains(upperText, "CLEARED TO") {
-			destination = allICAO[0]
-		} else {
-			origin = allICAO[0]
+	// Slash-separated route format: "KORD/KJFK".
+	if origin == "" || destination == "" {
+		if m := routeSlashPattern.FindStringSubmatch(upperText); len(m) == 3 {
+			if IsValidICAO(m[1]) && IsValidICAO(m[2]) {
+				if origin == "" {
+					origin = m[1]
+				}
+				if destination == "" {
+					destination = m[2]
+				}
+			}
 		}
 	}
+
+	// NOTE: Route strings like "KPHL DITCH LUIGI HNNAH CYUL" should be handled
+	// by grok patterns in the appropriate parser, not by generic extraction.
 
 	return
 }

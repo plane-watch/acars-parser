@@ -12,15 +12,20 @@ var (
 	FlightNumPattern = regexp.MustCompile(`\b([A-Z]{2,3})(\d{1,4}[A-Z]?)\b`)
 
 	// FlightNumLabeledPatterns for explicit flight number markers.
-	FlightNumFltPattern   = regexp.MustCompile(`(?:FLT|FLIGHT)\s+(\d+)(?:/\d+)?`)
-	FlightNumCtxPattern   = regexp.MustCompile(`\b([A-Z]{2,3}\d{1,4}[A-Z]?)\s+(?:A\d{3}|B7\d{2}|CLRD|XPNDR)`)
+	FlightNumFltPattern = regexp.MustCompile(`(?:FLT|FLIGHT)\s+(\d+)(?:/\d+)?`)
+	// FlightNumCtxPattern matches ICAO callsigns followed by aircraft type, clearance, or airport.
+	// e.g., "ASA329 B738", "UAL123 CLRD", "ASA329 KORD"
+	FlightNumCtxPattern = regexp.MustCompile(`\b([A-Z]{2,3}\d{1,4}[A-Z]?)\s+(?:A\d{3}|B7\d{2}|CLRD|XPNDR|[KCELPYZRVOSWUABDFGHMNT][A-Z]{3})\b`)
 	FlightNumTrailPattern = regexp.MustCompile(`([A-Z]{2,3}\d{3,4}[A-Z]?)$`)
 
 	// ICAOPattern matches 4-letter ICAO airport codes with valid prefixes.
 	ICAOPattern = regexp.MustCompile(`\b([KCELPYZRVOSWUABDFGHMNT][A-Z]{3})\b`)
 
-	// RoutePattern matches ICAO-ICAO route format.
+	// RoutePattern matches ICAO-ICAO route format with dash separator.
 	RoutePattern = regexp.MustCompile(`\b([A-Z]{4})\s*-\s*([A-Z]{4})\b`)
+
+	// routeSlashPattern matches ICAO/ICAO route format with slash separator.
+	routeSlashPattern = regexp.MustCompile(`\b([A-Z]{4})/([A-Z]{4})\b`)
 )
 
 // PDC / Clearance patterns.
@@ -135,6 +140,13 @@ var ICAOBlocklist = map[string]bool{
 	"PLAN": true, "PROC": true, "PDCL": true, "PDOP": true, "PFRQ": true,
 	"CLRD": true, "CKPT": true, "CPDL": true, "TCAS": true, "SELC": true,
 	"DATE": true, "DATA": true, "DPTS": true, "DEST": true,
+	// Procedural terms often mistaken for airports.
+	"STAR": true, "CODE": true, "GATE": true, "RSTR": true,
+	// File/message markers.
+	"FILE": true, "FULL": true, "NOSE": true, "PAGE": true,
+	// British Airways internal messaging codes.
+	"ASAT": true, "ALSO": true, "MINS": true, "MUST": true,
+	"SIXI": true, "ECFG": true, "HELD": true, "CAPT": true, "TAIL": true,
 	// Oceanic FIR/control centres (not airports).
 	"EGGX": true, // Shanwick Oceanic
 	"CZQX": true, // Gander Oceanic
@@ -148,7 +160,67 @@ var ICAOBlocklist = map[string]bool{
 	"YBBB": true, // Brisbane Oceanic
 }
 
+// validICAOPrefixes contains valid ICAO regional prefixes.
+// K (USA) is handled separately as a single-letter prefix.
+var validICAOPrefixes = map[string]bool{
+	// A - South Pacific (limited).
+	"AG": true, "AN": true, "AY": true,
+	// B - Greenland, Iceland, Kosovo.
+	"BG": true, "BI": true, "BK": true,
+	// C - Canada.
+	"CY": true, "CZ": true,
+	// D - West Africa (DI = Ivory Coast).
+	"DA": true, "DB": true, "DF": true, "DG": true, "DI": true, "DN": true, "DR": true, "DT": true, "DX": true,
+	// E - Northern Europe.
+	"EB": true, "ED": true, "EE": true, "EF": true, "EG": true, "EH": true, "EI": true, "EK": true, "EL": true, "EN": true, "EP": true, "ES": true, "ET": true, "EV": true, "EY": true,
+	// F - Central/Southern Africa, Indian Ocean.
+	"FA": true, "FB": true, "FC": true, "FD": true, "FE": true, "FG": true, "FH": true, "FI": true, "FJ": true, "FK": true, "FL": true, "FM": true, "FN": true, "FO": true, "FP": true, "FQ": true, "FS": true, "FT": true, "FV": true, "FW": true, "FX": true, "FY": true, "FZ": true,
+	// G - Western Africa, Maghreb.
+	"GA": true, "GB": true, "GC": true, "GE": true, "GF": true, "GG": true, "GL": true, "GM": true, "GO": true, "GQ": true, "GS": true, "GU": true, "GV": true,
+	// H - East Africa.
+	"HA": true, "HB": true, "HC": true, "HD": true, "HE": true, "HH": true, "HK": true, "HL": true, "HR": true, "HS": true, "HT": true, "HU": true,
+	// L - Southern Europe (including LS Switzerland, LL Israel, LM Malta).
+	"LA": true, "LB": true, "LC": true, "LD": true, "LE": true, "LF": true, "LG": true, "LH": true, "LI": true, "LJ": true, "LK": true, "LL": true, "LM": true, "LN": true, "LO": true, "LP": true, "LQ": true, "LR": true, "LS": true, "LT": true, "LU": true, "LV": true, "LW": true, "LX": true, "LY": true, "LZ": true,
+	// M - Central America, Mexico, Caribbean.
+	"MB": true, "MD": true, "MG": true, "MH": true, "MK": true, "MM": true, "MN": true, "MP": true, "MR": true, "MS": true, "MT": true, "MU": true, "MW": true, "MY": true, "MZ": true,
+	// N - Pacific.
+	"NC": true, "NF": true, "NG": true, "NI": true, "NL": true, "NS": true, "NT": true, "NV": true, "NW": true, "NZ": true,
+	// O - Middle East.
+	"OA": true, "OB": true, "OE": true, "OI": true, "OJ": true, "OK": true, "OL": true, "OM": true, "OO": true, "OP": true, "OR": true, "OS": true, "OT": true, "OY": true,
+	// P - Pacific, Alaska, Hawaii.
+	"PA": true, "PB": true, "PC": true, "PF": true, "PG": true, "PH": true, "PJ": true, "PK": true, "PL": true, "PM": true, "PO": true, "PP": true, "PT": true, "PW": true,
+	// R - Far East (RO = Japan Ryukyu/Okinawa).
+	"RC": true, "RJ": true, "RK": true, "RO": true, "RP": true,
+	// S - South America.
+	"SA": true, "SB": true, "SC": true, "SD": true, "SE": true, "SF": true, "SG": true, "SK": true, "SL": true, "SM": true, "SN": true, "SO": true, "SP": true, "SS": true, "SU": true, "SV": true, "SW": true, "SY": true,
+	// T - Caribbean (TB = Barbados, TF = French Caribbean, TI = US Virgin Islands).
+	"TA": true, "TB": true, "TC": true, "TD": true, "TF": true, "TG": true, "TI": true, "TJ": true, "TK": true, "TL": true, "TN": true, "TQ": true, "TR": true, "TT": true, "TU": true, "TV": true, "TX": true,
+	// U - Russia, former USSR.
+	"UA": true, "UB": true, "UC": true, "UD": true, "UE": true, "UG": true, "UH": true, "UI": true, "UK": true, "UL": true, "UM": true, "UN": true, "UO": true, "UR": true, "US": true, "UT": true, "UU": true, "UW": true,
+	// V - South/Southeast Asia (VA/VI = India, VC = Sri Lanka, VD = Cambodia, VM = Vietnam/Macau).
+	"VA": true, "VC": true, "VD": true, "VE": true, "VG": true, "VH": true, "VI": true, "VL": true, "VM": true, "VN": true, "VO": true, "VQ": true, "VR": true, "VT": true, "VV": true, "VY": true,
+	// W - Indonesia, Malaysia.
+	"WA": true, "WB": true, "WI": true, "WM": true, "WP": true, "WR": true, "WS": true,
+	// Y - Australia.
+	"YA": true, "YB": true, "YC": true, "YD": true, "YF": true, "YG": true, "YH": true, "YI": true, "YL": true, "YM": true, "YN": true, "YO": true, "YP": true, "YR": true, "YS": true, "YT": true, "YU": true, "YV": true, "YW": true, "YY": true,
+	// Z - China.
+	"ZA": true, "ZB": true, "ZG": true, "ZH": true, "ZJ": true, "ZK": true, "ZL": true, "ZM": true, "ZP": true, "ZS": true, "ZU": true, "ZW": true, "ZY": true,
+}
+
+// hasValidICAOPrefix checks if a code starts with a valid regional prefix.
+func hasValidICAOPrefix(code string) bool {
+	if len(code) < 2 {
+		return false
+	}
+	// K is a single-letter prefix for USA.
+	if code[0] == 'K' {
+		return true
+	}
+	return validICAOPrefixes[code[:2]]
+}
+
 // IsValidICAO checks if a potential ICAO code is likely valid.
+// Validates length, character set, regional prefix, and blocklist.
 func IsValidICAO(code string) bool {
 	if len(code) != 4 {
 		return false
@@ -161,7 +233,8 @@ func IsValidICAO(code string) bool {
 			return false
 		}
 	}
-	return true
+	// Validate regional prefix to reject garbage like FSIL, FCQD, GJWO.
+	return hasValidICAOPrefix(code)
 }
 
 // FindValidICAO finds the first valid ICAO code in text./exit

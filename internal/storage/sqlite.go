@@ -1,9 +1,9 @@
 // Package storage provides persistent storage for parsed ACARS messages.
+// This file contains read-only SQLite functions for migration and legacy data access.
 package storage
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -30,181 +30,44 @@ type Message struct {
 	ExpectedJSON  string
 }
 
-// DB wraps a SQLite database connection for message storage.
-type DB struct {
+// SQLiteDB wraps a SQLite database connection for read-only message access.
+// Used for migration and legacy data queries. New data goes to ClickHouse/PostgreSQL.
+type SQLiteDB struct {
 	db *sql.DB
 }
 
-// Open opens or creates a SQLite database at the given path.
-func Open(path string) (*DB, error) {
-	db, err := sql.Open("sqlite", path)
+// OpenSQLite opens an existing SQLite database in read-only mode.
+func OpenSQLite(path string) (*SQLiteDB, error) {
+	db, err := sql.Open("sqlite", path+"?mode=ro")
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
 
-	// Enable WAL mode for better concurrent access.
-	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		_ = db.Close()
-		return nil, fmt.Errorf("enable WAL: %w", err)
-	}
-
-	// Create schema.
-	if err := createSchema(db); err != nil {
-		_ = db.Close()
-		return nil, fmt.Errorf("create schema: %w", err)
-	}
-
-	return &DB{db: db}, nil
+	return &SQLiteDB{db: db}, nil
 }
 
 // Close closes the database connection.
-func (d *DB) Close() error {
+func (d *SQLiteDB) Close() error {
 	return d.db.Close()
-}
-
-// createSchema creates the database tables and indices.
-func createSchema(db *sql.DB) error {
-	schema := `
-	CREATE TABLE IF NOT EXISTS messages (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		timestamp TEXT NOT NULL,
-		label TEXT NOT NULL,
-		parser_type TEXT NOT NULL,
-		flight TEXT,
-		tail TEXT,
-		origin TEXT,
-		destination TEXT,
-		raw_text TEXT NOT NULL,
-		parsed_json TEXT NOT NULL,
-		missing_fields TEXT,
-		confidence REAL,
-		created_at TEXT DEFAULT (datetime('now')),
-		is_golden INTEGER DEFAULT 0,
-		annotation TEXT,
-		expected_json TEXT
-	);
-
-	CREATE INDEX IF NOT EXISTS idx_messages_parser_type ON messages(parser_type);
-	CREATE INDEX IF NOT EXISTS idx_messages_label ON messages(label);
-	CREATE INDEX IF NOT EXISTS idx_messages_flight ON messages(flight);
-	CREATE INDEX IF NOT EXISTS idx_messages_missing ON messages(missing_fields);
-	CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp);
-	-- Note: idx_messages_golden created by migration for existing DBs
-
-	-- FTS5 virtual table for full-text search on raw message text.
-	CREATE VIRTUAL TABLE IF NOT EXISTS messages_fts USING fts5(
-		raw_text,
-		content='messages',
-		content_rowid='id'
-	);
-
-	-- Triggers to keep FTS index in sync.
-	CREATE TRIGGER IF NOT EXISTS messages_ai AFTER INSERT ON messages BEGIN
-		INSERT INTO messages_fts(rowid, raw_text) VALUES (new.id, new.raw_text);
-	END;
-
-	CREATE TRIGGER IF NOT EXISTS messages_ad AFTER DELETE ON messages BEGIN
-		INSERT INTO messages_fts(messages_fts, rowid, raw_text) VALUES('delete', old.id, old.raw_text);
-	END;
-
-	CREATE TRIGGER IF NOT EXISTS messages_au AFTER UPDATE ON messages BEGIN
-		INSERT INTO messages_fts(messages_fts, rowid, raw_text) VALUES('delete', old.id, old.raw_text);
-		INSERT INTO messages_fts(rowid, raw_text) VALUES (new.id, new.raw_text);
-	END;
-	`
-
-	_, err := db.Exec(schema)
-	if err != nil {
-		return err
-	}
-
-	// Run migrations for existing databases.
-	return migrateSchema(db)
-}
-
-// migrateSchema adds new columns to existing databases.
-func migrateSchema(db *sql.DB) error {
-	// Check if is_golden column exists.
-	var count int
-	err := db.QueryRow(`SELECT COUNT(*) FROM pragma_table_info('messages') WHERE name='is_golden'`).Scan(&count)
-	if err != nil {
-		return err
-	}
-
-	if count == 0 {
-		// Add new columns for review functionality.
-		migrations := []string{
-			`ALTER TABLE messages ADD COLUMN is_golden INTEGER DEFAULT 0`,
-			`ALTER TABLE messages ADD COLUMN annotation TEXT`,
-			`ALTER TABLE messages ADD COLUMN expected_json TEXT`,
-		}
-		for _, m := range migrations {
-			if _, err := db.Exec(m); err != nil {
-				// Ignore "duplicate column" errors for idempotency.
-				if !strings.Contains(err.Error(), "duplicate column") {
-					return err
-				}
-			}
-		}
-		// Create index.
-		_, _ = db.Exec(`CREATE INDEX IF NOT EXISTS idx_messages_golden ON messages(is_golden)`)
-	}
-
-	return nil
-}
-
-// InsertParams contains the parameters for inserting a message.
-type InsertParams struct {
-	Timestamp     string
-	Label         string
-	ParserType    string
-	Flight        string
-	Tail          string
-	Origin        string
-	Destination   string
-	RawText       string
-	ParsedData    interface{}
-	MissingFields []string
-	Confidence    float64
-}
-
-// Insert stores a parsed message in the database.
-func (d *DB) Insert(p InsertParams) (int64, error) {
-	parsedJSON, err := json.Marshal(p.ParsedData)
-	if err != nil {
-		return 0, fmt.Errorf("marshal parsed data: %w", err)
-	}
-
-	missingFields := strings.Join(p.MissingFields, ",")
-
-	result, err := d.db.Exec(`
-		INSERT INTO messages (timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, p.Timestamp, p.Label, p.ParserType, p.Flight, p.Tail, p.Origin, p.Destination, p.RawText, string(parsedJSON), missingFields, p.Confidence)
-	if err != nil {
-		return 0, fmt.Errorf("insert message: %w", err)
-	}
-
-	return result.LastInsertId()
 }
 
 // QueryParams contains filtering options for querying messages.
 type QueryParams struct {
-	ID            int64    // Filter by specific message ID.
-	ParserType    string   // Filter by parser type (exact match).
-	Label         string   // Filter by ACARS label (exact match).
-	Flight        string   // Filter by flight number (LIKE match).
-	MissingField  string   // Filter by specific missing field (LIKE match).
-	HasMissing    bool     // Only show messages with any missing fields.
-	FullText      string   // FTS5 full-text search on raw_text.
-	Limit         int      // Max results (default 100).
-	Offset        int      // Pagination offset.
-	OrderBy       string   // Sort field (timestamp, parser_type, confidence).
-	OrderDesc     bool     // Sort descending.
+	ID           int64  // Filter by specific message ID.
+	ParserType   string // Filter by parser type (exact match).
+	Label        string // Filter by ACARS label (exact match).
+	Flight       string // Filter by flight number (LIKE match).
+	MissingField string // Filter by specific missing field (LIKE match).
+	HasMissing   bool   // Only show messages with any missing fields.
+	FullText     string // FTS5 full-text search on raw_text.
+	Limit        int    // Max results (default 100).
+	Offset       int    // Pagination offset.
+	OrderBy      string // Sort field (timestamp, parser_type, confidence).
+	OrderDesc    bool   // Sort descending.
 }
 
 // Query retrieves messages matching the given parameters.
-func (d *DB) Query(p QueryParams) ([]Message, error) {
+func (d *SQLiteDB) Query(p QueryParams) ([]Message, error) {
 	var conditions []string
 	var args []interface{}
 
@@ -323,15 +186,15 @@ func (d *DB) Query(p QueryParams) ([]Message, error) {
 
 // Stats returns aggregate statistics about stored messages.
 type Stats struct {
-	TotalMessages   int
-	ByParserType    map[string]int
-	ByLabel         map[string]int
-	WithMissing     int
+	TotalMessages    int
+	ByParserType     map[string]int
+	ByLabel          map[string]int
+	WithMissing      int
 	TopMissingFields map[string]int
 }
 
 // GetStats returns statistics about the stored messages.
-func (d *DB) GetStats() (*Stats, error) {
+func (d *SQLiteDB) GetStats() (*Stats, error) {
 	stats := &Stats{
 		ByParserType:     make(map[string]int),
 		ByLabel:          make(map[string]int),
@@ -406,7 +269,7 @@ func (d *DB) GetStats() (*Stats, error) {
 }
 
 // Distinct returns distinct values for a given column.
-func (d *DB) Distinct(column string) ([]string, error) {
+func (d *SQLiteDB) Distinct(column string) ([]string, error) {
 	// Validate column name to prevent SQL injection.
 	validColumns := map[string]bool{
 		"parser_type": true,
@@ -438,7 +301,7 @@ func (d *DB) Distinct(column string) ([]string, error) {
 }
 
 // GetByID retrieves a single message by ID.
-func (d *DB) GetByID(id int64) (*Message, error) {
+func (d *SQLiteDB) GetByID(id int64) (*Message, error) {
 	query := `SELECT id, timestamp, label, parser_type, flight, tail,
 			origin, destination, raw_text, parsed_json, missing_fields, confidence,
 			is_golden, annotation, expected_json
@@ -482,8 +345,7 @@ func (d *DB) GetByID(id int64) (*Message, error) {
 }
 
 // GetByAcarsID retrieves a message by the ACARS message ID stored in parsed_json.
-func (d *DB) GetByAcarsID(acarsID int64) (*Message, error) {
-	// Use SQLite's JSON extraction to find the message_id in parsed_json.
+func (d *SQLiteDB) GetByAcarsID(acarsID int64) (*Message, error) {
 	query := `SELECT id, timestamp, label, parser_type, flight, tail,
 			origin, destination, raw_text, parsed_json, missing_fields, confidence,
 			is_golden, annotation, expected_json
@@ -526,63 +388,8 @@ func (d *DB) GetByAcarsID(acarsID int64) (*Message, error) {
 	return &m, nil
 }
 
-// SetGolden marks or unmarks a message as golden.
-func (d *DB) SetGolden(id int64, golden bool) error {
-	val := 0
-	if golden {
-		val = 1
-	}
-	_, err := d.db.Exec(`UPDATE messages SET is_golden = ? WHERE id = ?`, val, id)
-	return err
-}
-
-// SetAnnotation sets the annotation for a message.
-func (d *DB) SetAnnotation(id int64, annotation string) error {
-	_, err := d.db.Exec(`UPDATE messages SET annotation = ? WHERE id = ?`, annotation, id)
-	return err
-}
-
-// SetExpectedJSON sets the expected JSON for a message.
-func (d *DB) SetExpectedJSON(id int64, expectedJSON string) error {
-	_, err := d.db.Exec(`UPDATE messages SET expected_json = ? WHERE id = ?`, expectedJSON, id)
-	return err
-}
-
-// UpdateParsedParams contains parameters for updating a parsed message.
-type UpdateParsedParams struct {
-	ID            int64
-	ParserType    string
-	ParsedData    interface{}
-	MissingFields []string
-}
-
-// UpdateParsed updates the parsed result for an existing message.
-func (d *DB) UpdateParsed(p UpdateParsedParams) error {
-	parsedJSON, err := json.Marshal(p.ParsedData)
-	if err != nil {
-		return fmt.Errorf("marshal parsed data: %w", err)
-	}
-
-	missingFields := strings.Join(p.MissingFields, ",")
-
-	_, err = d.db.Exec(`UPDATE messages SET parser_type = ?, parsed_json = ?, missing_fields = ? WHERE id = ?`,
-		p.ParserType, string(parsedJSON), missingFields, p.ID)
-	if err != nil {
-		return fmt.Errorf("update message: %w", err)
-	}
-
-	return nil
-}
-
-// GetGoldenMessages retrieves all messages marked as golden.
-func (d *DB) GetGoldenMessages() ([]Message, error) {
-	return d.Query(QueryParams{
-		Limit: 100000,
-	})
-}
-
 // CountByType returns message counts grouped by parser type.
-func (d *DB) CountByType() (map[string]int, error) {
+func (d *SQLiteDB) CountByType() (map[string]int, error) {
 	counts := make(map[string]int)
 	rows, err := d.db.Query("SELECT parser_type, COUNT(*) FROM messages GROUP BY parser_type")
 	if err != nil {
@@ -599,4 +406,16 @@ func (d *DB) CountByType() (map[string]int, error) {
 		counts[typ] = count
 	}
 	return counts, rows.Err()
+}
+
+// Count returns the total number of messages, optionally filtered by parser type.
+func (d *SQLiteDB) Count(parserType string) (int, error) {
+	var count int
+	var err error
+	if parserType != "" {
+		err = d.db.QueryRow("SELECT COUNT(*) FROM messages WHERE parser_type = ?", parserType).Scan(&count)
+	} else {
+		err = d.db.QueryRow("SELECT COUNT(*) FROM messages").Scan(&count)
+	}
+	return count, err
 }

@@ -2,11 +2,13 @@
 package main
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"regexp"
 	"sort"
 	"strings"
+
+	"acars_parser/internal/storage"
 )
 
 // PatternSuggestion represents a suggested regex pattern for a message cluster.
@@ -17,21 +19,22 @@ type PatternSuggestion struct {
 	SuggestedRegex  string   `json:"suggested_regex"`
 	NamedGroups     []string `json:"named_groups"`
 	Examples        []string `json:"examples"`
-	ExampleIDs      []int64  `json:"example_ids"`
+	ExampleIDs      []uint64 `json:"example_ids"`
 	TemplatePattern string   `json:"template_pattern"`
 }
 
 // msgInfo holds message ID and text for clustering.
 type msgInfo struct {
-	id   int64
+	id   uint64
 	text string
 }
 
 // SuggestPatterns analyzes messages and suggests regex patterns for clusters.
-func SuggestPatterns(db *sql.DB, label string, minClusterSize int, maxSuggestions int) []PatternSuggestion {
+func SuggestPatterns(ctx context.Context, ch *storage.ClickHouseDB, label string, minClusterSize int, maxSuggestions int) []PatternSuggestion {
+	conn := ch.Conn()
+
 	// Get messages for the label.
-	query := `SELECT id, raw_text FROM messages WHERE label = ? LIMIT 5000`
-	rows, err := db.Query(query, label)
+	rows, err := conn.Query(ctx, `SELECT id, raw_text FROM messages WHERE label = ? LIMIT 5000`, label)
 	if err != nil {
 		return nil
 	}
@@ -41,9 +44,9 @@ func SuggestPatterns(db *sql.DB, label string, minClusterSize int, maxSuggestion
 	clusters := make(map[string][]msgInfo)
 
 	for rows.Next() {
-		var id int64
+		var id uint64
 		var text string
-		rows.Scan(&id, &text)
+		_ = rows.Scan(&id, &text)
 
 		template := normaliseToTemplate(text)
 		clusters[template] = append(clusters[template], msgInfo{id, text})
@@ -236,23 +239,23 @@ func tokenToGroupName(token string) string {
 }
 
 // TestPattern tests a regex pattern against the corpus and returns match statistics.
-func TestPattern(db *sql.DB, pattern string, label string) (matches int, total int, sampleMatches []int64, sampleNonMatches []int64) {
+func TestPattern(ctx context.Context, ch *storage.ClickHouseDB, pattern string, label string) (matches int, total int, sampleMatches []uint64, sampleNonMatches []uint64) {
 	re, err := regexp.Compile(pattern)
 	if err != nil {
 		return 0, 0, nil, nil
 	}
 
-	query := `SELECT id, raw_text FROM messages WHERE label = ? LIMIT 2000`
-	rows, err := db.Query(query, label)
+	conn := ch.Conn()
+	rows, err := conn.Query(ctx, `SELECT id, raw_text FROM messages WHERE label = ? LIMIT 2000`, label)
 	if err != nil {
 		return 0, 0, nil, nil
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var id int64
+		var id uint64
 		var text string
-		rows.Scan(&id, &text)
+		_ = rows.Scan(&id, &text)
 		total++
 
 		if re.MatchString(text) {
@@ -271,7 +274,7 @@ func TestPattern(db *sql.DB, pattern string, label string) (matches int, total i
 }
 
 // PrintSuggestions outputs pattern suggestions in a readable format.
-func PrintSuggestions(suggestions []PatternSuggestion, db *sql.DB) {
+func PrintSuggestions(ctx context.Context, suggestions []PatternSuggestion, ch *storage.ClickHouseDB, label string) {
 	fmt.Println("═══════════════════════════════════════════════════════════════")
 	fmt.Println("                    PATTERN SUGGESTIONS")
 	fmt.Println("═══════════════════════════════════════════════════════════════")
@@ -305,8 +308,8 @@ func PrintSuggestions(suggestions []PatternSuggestion, db *sql.DB) {
 		}
 
 		// Test the pattern.
-		if db != nil && s.SuggestedRegex != "" {
-			matches, total, _, _ := TestPattern(db, s.SuggestedRegex, s.Label)
+		if ch != nil && s.SuggestedRegex != "" {
+			matches, total, _, _ := TestPattern(ctx, ch, s.SuggestedRegex, label)
 			fmt.Printf("Test Results: %d/%d messages match (%.1f%%)\n", matches, total, float64(matches)/float64(total)*100)
 		}
 

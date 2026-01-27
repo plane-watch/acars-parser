@@ -691,3 +691,99 @@ func decodePredictedRoute(data []byte) *PredictedRoute {
 		},
 	}
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No .ADS. marker found"
+		return trace
+	}
+
+	text := strings.TrimSpace(msg.Text)
+
+	// Find .ADS. marker and extract components.
+	adsIdx := strings.Index(text, ".ADS.")
+	if adsIdx < 0 {
+		trace.QuickCheck.Reason = "No .ADS. marker found"
+		return trace
+	}
+
+	// Extract prefix.
+	prefix := text[:adsIdx]
+	groundStation := ""
+	flightID := ""
+	if idx := strings.LastIndex(prefix, "/"); idx >= 0 {
+		groundStation = prefix[idx+1:]
+		prefix = prefix[:idx]
+	}
+	if m := patterns.ADSCFlightPattern.FindStringSubmatch(prefix); len(m) >= 2 {
+		flightID = m[1]
+	}
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "ground_station",
+		Pattern: "prefix before .ADS. after last /",
+		Matched: groundStation != "",
+		Value:   groundStation,
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "flight_id",
+		Pattern: patterns.ADSCFlightPattern.String(),
+		Matched: flightID != "",
+		Value:   flightID,
+	})
+
+	// Extract text prefix and hex payload.
+	prefixStart := adsIdx + 1
+	if len(text) >= prefixStart+10 {
+		textPrefix := text[prefixStart : prefixStart+10]
+		hexPayload := text[prefixStart+10:]
+
+		trace.Extractors = append(trace.Extractors, registry.Extractor{
+			Name:    "text_prefix",
+			Pattern: "10-char CRC prefix after .ADS.",
+			Matched: true,
+			Value:   textPrefix,
+		})
+
+		// Validate hex.
+		validHex := len(hexPayload) >= 4 && len(hexPayload)%2 == 0
+		if validHex {
+			if _, err := hex.DecodeString(hexPayload); err != nil {
+				validHex = false
+			}
+		}
+
+		trace.Extractors = append(trace.Extractors, registry.Extractor{
+			Name:    "hex_payload",
+			Pattern: "hex-encoded binary data",
+			Matched: validHex,
+			Value:   fmt.Sprintf("%d chars", len(hexPayload)),
+		})
+
+		// Check CRC.
+		if validHex {
+			data, _ := hex.DecodeString(hexPayload)
+			crcValid := len(data) >= 3 && crc.VerifyArincBinaryRaw(textPrefix, data)
+			trace.Extractors = append(trace.Extractors, registry.Extractor{
+				Name:    "crc_valid",
+				Pattern: "ARINC binary CRC verification",
+				Matched: crcValid,
+				Value:   fmt.Sprintf("%v", crcValid),
+			})
+			trace.Matched = crcValid
+		}
+	}
+
+	return trace
+}

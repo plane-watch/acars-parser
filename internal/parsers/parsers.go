@@ -22,6 +22,7 @@ import (
 	_ "acars_parser/internal/parsers/label4j"
 	_ "acars_parser/internal/parsers/label5l"
 	_ "acars_parser/internal/parsers/label80"
+	_ "acars_parser/internal/parsers/labelrf"
 	_ "acars_parser/internal/parsers/landingdata"
 	_ "acars_parser/internal/parsers/label83"
 	_ "acars_parser/internal/parsers/labelb2"

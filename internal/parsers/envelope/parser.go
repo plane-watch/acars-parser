@@ -295,6 +295,69 @@ func decodeADSCBasic(result *Result, data []byte) {
 	}
 }
 
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	quickCheckPassed := p.QuickCheck(msg.Text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		trace.QuickCheck.Reason = "No envelope format (/.AT1., .CR1., or .ADS) found"
+		return trace
+	}
+
+	text := strings.TrimSpace(msg.Text)
+
+	// Parse envelope components.
+	station, msgType, tail, textPrefix, hexPayload := parseEnvelopeWithPrefix(text)
+
+	// Add extractors for envelope parsing steps.
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "station",
+		Pattern: "envelope header before IMI marker",
+		Matched: station != "",
+		Value:   station,
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "message_type",
+		Pattern: ".AT1, .CR1, or .ADS",
+		Matched: msgType != "",
+		Value:   msgType,
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "tail",
+		Pattern: "aircraft registration patterns",
+		Matched: tail != "",
+		Value:   tail,
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "text_prefix",
+		Pattern: "10-char CRC prefix",
+		Matched: textPrefix != "",
+		Value:   textPrefix,
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "hex_payload",
+		Pattern: "hex-encoded binary data",
+		Matched: hexPayload != "",
+		Value:   fmt.Sprintf("%d bytes", len(hexPayload)/2),
+	})
+
+	// Determine if overall match succeeds.
+	trace.Matched = tail != "" || station != ""
+
+	return trace
+}
+
 // decodeADSCPosition decodes type 0x08 earth reference group containing lat/lon.
 // TLV tags in this group:
 //   - 0x0A: Ground speed (2 bytes) - not extracted but must skip correctly.

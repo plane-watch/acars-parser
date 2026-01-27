@@ -23,6 +23,9 @@
 - Try and abide by all IDE warnings and errors, fixing them where feasible.
 - Don't begin the names of interfaces/classes with the package name.
 - If there's an issue, fix it properly, don't go for the 'quick fix'
+- Go will not run files ending in `_test.go` with `go run` - use `go test` instead or name the file differently
+- Avoid creating temp files for testing - write proper tests in the project's test infrastructure
+- If you must create temp files, write them to /tmp/ and clean them up when you're done.
 
 Project Information:
 Read the README.md file (if present) for project details.
@@ -32,3 +35,71 @@ When making changes, ensure the following:
 - Use meaningful commit messages that clearly describe the changes made.
 
 If there are any useful tools, resources or information I provide, update this file accordingly.
+
+## Database Architecture
+
+The project uses a two-database architecture:
+- **ClickHouse**: Immutable message storage (messages table)
+- **PostgreSQL**: Mutable state data (aircraft, waypoints, routes, ATIS, flight state, golden annotations)
+
+### ClickHouse Database
+
+Container name: `acars-clickhouse`
+
+Connection:
+- Host: `localhost`
+- Port: `9000`
+- User: `default`
+- Password: `acars`
+- Database: `acars`
+
+Query example:
+```bash
+docker exec -i acars-clickhouse clickhouse-client --query "SELECT * FROM acars.messages LIMIT 1"
+```
+
+Reparse example:
+```bash
+./acars_parser reparse -type unparsed -ch-user default -ch-password acars
+```
+
+Schema for `acars.messages`:
+| Column | Type |
+|--------|------|
+| id | UInt64 |
+| timestamp | DateTime64(3) |
+| label | LowCardinality(String) |
+| parser_type | LowCardinality(String) |
+| flight | LowCardinality(String) |
+| tail | LowCardinality(String) |
+| origin | LowCardinality(String) |
+| destination | LowCardinality(String) |
+| raw_text | String |
+| parsed_json | String |
+| missing_fields | String |
+| confidence | Float32 |
+| created_at | DateTime64(3) |
+
+Notes:
+- Use `parser_type = 'unparsed'` to find unparsed messages
+- Use `raw_text` for the message content (not `text`)
+
+### PostgreSQL Database
+
+Connection:
+- Host: `localhost`
+- Port: `5432`
+- User: `acars`
+- Password: `acars`
+- Database: `acars`
+
+Tables:
+- `aircraft` - Aircraft registry (icao_hex, registration, type_code, operator)
+- `waypoints` - Navigation waypoints (name, lat/lon, source_count)
+- `routes` - Flight routes (flight_pattern, origin, dest, observation_count)
+- `route_legs` - Individual route segments
+- `route_aircraft` - Aircraft seen on routes
+- `aircraft_callsigns` - IATA/ICAO callsign mappings
+- `atis_current` - Current ATIS for airports
+- `flight_state` - Ephemeral flight tracking state
+- `golden_annotations` - Message annotations for parser testing

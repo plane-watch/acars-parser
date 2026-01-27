@@ -170,3 +170,70 @@ func formatTime(h, m, s byte) string {
 		'0' + s/10, '0' + s%10,
 	})
 }
+
+// ParseWithTrace implements registry.Traceable for detailed debugging.
+func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
+	trace := &registry.TraceResult{
+		ParserName: p.Name(),
+	}
+
+	text := strings.TrimSpace(msg.Text)
+
+	quickCheckPassed := p.QuickCheck(text)
+	trace.QuickCheck = &registry.QuickCheck{
+		Passed: quickCheckPassed,
+	}
+
+	if !quickCheckPassed {
+		if len(text) < 10 {
+			trace.QuickCheck.Reason = "Message too short (need at least 10 chars)"
+		} else if text[0] != '0' {
+			trace.QuickCheck.Reason = "Version not '0'"
+		} else if text[1] != 'E' && text[1] != 'L' {
+			trace.QuickCheck.Reason = "State not 'E' (established) or 'L' (lost)"
+		} else if !isValidLink(text[2]) {
+			trace.QuickCheck.Reason = "Invalid link type code"
+		}
+		return trace
+	}
+
+	// Add extractors for each parsing step.
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "version",
+		Pattern: "position 0: '0'",
+		Matched: text[0] == '0',
+		Value:   string(text[0]),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "state",
+		Pattern: "position 1: 'E' or 'L'",
+		Matched: text[1] == 'E' || text[1] == 'L',
+		Value:   string(text[1]),
+	})
+
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "current_link",
+		Pattern: "position 2: valid link code",
+		Matched: isValidLink(text[2]),
+		Value:   string(text[2]) + " (" + getLinkType(text[2]).Description + ")",
+	})
+
+	// Check timestamp.
+	validTimestamp := len(text) >= 9
+	for i := 3; i < 9 && validTimestamp; i++ {
+		if !isDigit(text[i]) {
+			validTimestamp = false
+		}
+	}
+	trace.Extractors = append(trace.Extractors, registry.Extractor{
+		Name:    "timestamp",
+		Pattern: "positions 3-8: HHMMSS",
+		Matched: validTimestamp,
+		Value:   text[3:9],
+	})
+
+	trace.Matched = quickCheckPassed && validTimestamp
+
+	return trace
+}
