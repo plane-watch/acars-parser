@@ -114,7 +114,8 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 }
 
 // NormaliseFlightNumber strips leading zeros from flight numbers for consistent matching.
-// For example, "QF001" becomes "QF1", "QFA001" becomes "QFA1".
+// For example, "QF001" becomes "QF1", "QFA001" becomes "QFA1", "UAL0042" becomes "UAL42".
+// Handles any alphabetic prefix followed by digits, not just standard 2-3 letter airline codes.
 // Note: This function does not attempt IATA-to-ICAO airline code conversion as this
 // requires per-aircraft learned mappings (handled by the state tracker).
 func NormaliseFlightNumber(flightNum string) string {
@@ -123,21 +124,20 @@ func NormaliseFlightNumber(flightNum string) string {
 		return ""
 	}
 
-	match := flightNumRe.FindStringSubmatch(flightNum)
-	if match == nil {
-		return flightNum // Return as-is if it doesn't match expected format.
+	// Find where the numeric part starts.
+	for i, r := range flightNum {
+		if r >= '0' && r <= '9' {
+			prefix := flightNum[:i]
+			numPart := strings.TrimLeft(flightNum[i:], "0")
+			if numPart == "" {
+				numPart = "0" // Preserve at least one zero for flight "000".
+			}
+			return prefix + numPart
+		}
 	}
 
-	airlineCode := match[1]
-	number := match[2]
-
-	// Strip leading zeros from the flight number.
-	number = strings.TrimLeft(number, "0")
-	if number == "" {
-		number = "0" // Preserve at least one zero for flight "000".
-	}
-
-	return airlineCode + number
+	// No numeric part found, return as-is.
+	return flightNum
 }
 
 // IsICAOCallsign checks if a flight number uses ICAO format (3-letter airline prefix).
@@ -205,11 +205,24 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 	}
 
 	// Extract position.
-	if v, ok := m["latitude"].(float64); ok && v != 0 {
-		update.Latitude = v
-	}
-	if v, ok := m["longitude"].(float64); ok && v != 0 {
-		update.Longitude = v
+	// Note: We accept zero values here since 0,0 is a valid position (Gulf of Guinea).
+	// However, if BOTH lat and lon are exactly zero, it's likely unset data, not Null Island.
+	lat, hasLat := m["latitude"].(float64)
+	lon, hasLon := m["longitude"].(float64)
+	if hasLat && hasLon {
+		// Only skip if both are exactly zero (likely unset), otherwise accept the position.
+		if lat != 0 || lon != 0 {
+			update.Latitude = lat
+			update.Longitude = lon
+		}
+	} else {
+		// Handle case where only one coordinate is present.
+		if hasLat && lat != 0 {
+			update.Latitude = lat
+		}
+		if hasLon && lon != 0 {
+			update.Longitude = lon
+		}
 	}
 
 	// Extract altitude (could be int or float64 in JSON).
@@ -276,10 +289,17 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 							Longitude: lon,
 						})
 					}
+					// Set the first waypoint name if not already set.
+					if update.Waypoint == "" {
+						update.Waypoint = name
+					}
 				}
 			} else if wpStr, ok := wp.(string); ok && wpStr != "" {
 				// Just a waypoint name, no coordinates.
-				update.Waypoint = wpStr
+				// Only set if not already set (preserve first waypoint).
+				if update.Waypoint == "" {
+					update.Waypoint = wpStr
+				}
 			}
 		}
 	}
@@ -288,8 +308,10 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 	if waypoints, ok := m["route_waypoints"].([]interface{}); ok {
 		for _, wp := range waypoints {
 			if wpStr, ok := wp.(string); ok && wpStr != "" {
-				// Just record as a waypoint name without coordinates.
-				update.Waypoint = wpStr
+				// Only set if not already set (preserve first waypoint).
+				if update.Waypoint == "" {
+					update.Waypoint = wpStr
+				}
 			}
 		}
 	}
@@ -308,6 +330,16 @@ func extractATIS(m map[string]interface{}) *ATISUpdate {
 	letter, _ := m["atis_letter"].(string)
 
 	if airport == "" || letter == "" {
+		return nil
+	}
+
+	// Validate airport is a valid ICAO code.
+	if !patterns.IsValidICAO(airport) {
+		return nil
+	}
+
+	// Validate ATIS letter is a single uppercase letter A-Z.
+	if len(letter) != 1 || letter[0] < 'A' || letter[0] > 'Z' {
 		return nil
 	}
 

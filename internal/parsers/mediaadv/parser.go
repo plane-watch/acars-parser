@@ -5,8 +5,10 @@ package mediaadv
 
 import (
 	"strings"
+	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
@@ -59,8 +61,20 @@ func isValidLink(code byte) bool {
 	return ok
 }
 
-func isDigit(c byte) bool {
-	return c >= '0' && c <= '9'
+// Grok compiler singleton.
+var (
+	grokCompiler *patterns.Compiler
+	grokOnce     sync.Once
+	grokErr      error
+)
+
+// getCompiler returns the singleton grok compiler.
+func getCompiler() (*patterns.Compiler, error) {
+	grokOnce.Do(func() {
+		grokCompiler = patterns.NewCompiler(Formats, nil)
+		grokErr = grokCompiler.Compile()
+	})
+	return grokCompiler, grokErr
 }
 
 // Parser parses Media Advisory messages.
@@ -98,66 +112,56 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
-	// Parse version (must be 0).
-	version := int(text[0] - '0')
-	if version != 0 {
+	compiler, err := getCompiler()
+	if err != nil {
 		return nil
 	}
 
-	// Parse state: E = established, L = lost.
-	state := text[1]
-	if state != 'E' && state != 'L' {
+	match := compiler.Parse(text)
+	if match == nil {
 		return nil
 	}
 
-	// Parse current link type.
-	currentLink := text[2]
-	if !isValidLink(currentLink) {
+	// Validate timestamp components.
+	timeStr := match.Captures["time"]
+	if len(timeStr) != 6 {
 		return nil
 	}
 
-	// Parse timestamp (HHMMSS) at positions 3-8.
-	if len(text) < 9 {
-		return nil
-	}
-	for i := 3; i < 9; i++ {
-		if !isDigit(text[i]) {
-			return nil
-		}
-	}
-
-	hour := (text[3]-'0')*10 + (text[4] - '0')
-	minute := (text[5]-'0')*10 + (text[6] - '0')
-	second := (text[7]-'0')*10 + (text[8] - '0')
+	hour := (timeStr[0]-'0')*10 + (timeStr[1] - '0')
+	minute := (timeStr[2]-'0')*10 + (timeStr[3] - '0')
+	second := (timeStr[4]-'0')*10 + (timeStr[5] - '0')
 
 	if hour > 23 || minute > 59 || second > 59 {
+		return nil
+	}
+
+	// Parse state.
+	state := match.Captures["state"]
+	established := state == "E"
+
+	// Parse current link.
+	currentLinkCode := match.Captures["current_link"]
+	if len(currentLinkCode) == 0 {
 		return nil
 	}
 
 	result := &Result{
 		MsgID:       int64(msg.ID),
 		Timestamp:   msg.Timestamp,
-		Version:     version,
-		CurrentLink: getLinkType(currentLink),
-		Established: state == 'E',
+		Version:     0,
+		CurrentLink: getLinkType(currentLinkCode[0]),
+		Established: established,
 		LinkTime:    formatTime(hour, minute, second),
+		Text:        match.Captures["text"],
 	}
 
-	// Parse available links (after timestamp until '/' or end).
-	text = text[9:]
-	for len(text) > 0 && text[0] != '/' {
-		if isValidLink(text[0]) {
-			result.AvailableLinks = append(result.AvailableLinks, getLinkType(text[0]))
-		} else {
-			// Invalid character in available links.
-			return nil
+	// Parse available links.
+	available := match.Captures["available"]
+	for i := 0; i < len(available); i++ {
+		if isValidLink(available[i]) {
+			result.AvailableLinks = append(result.AvailableLinks, getLinkType(available[i]))
 		}
-		text = text[1:]
-	}
-
-	// Parse optional text after '/'.
-	if len(text) > 1 && text[0] == '/' {
-		result.Text = text[1:]
 	}
 
 	return result
@@ -197,43 +201,26 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 		return trace
 	}
 
-	// Add extractors for each parsing step.
-	trace.Extractors = append(trace.Extractors, registry.Extractor{
-		Name:    "version",
-		Pattern: "position 0: '0'",
-		Matched: text[0] == '0',
-		Value:   string(text[0]),
-	})
-
-	trace.Extractors = append(trace.Extractors, registry.Extractor{
-		Name:    "state",
-		Pattern: "position 1: 'E' or 'L'",
-		Matched: text[1] == 'E' || text[1] == 'L',
-		Value:   string(text[1]),
-	})
-
-	trace.Extractors = append(trace.Extractors, registry.Extractor{
-		Name:    "current_link",
-		Pattern: "position 2: valid link code",
-		Matched: isValidLink(text[2]),
-		Value:   string(text[2]) + " (" + getLinkType(text[2]).Description + ")",
-	})
-
-	// Check timestamp.
-	validTimestamp := len(text) >= 9
-	for i := 3; i < 9 && validTimestamp; i++ {
-		if !isDigit(text[i]) {
-			validTimestamp = false
-		}
+	// Get the compiler trace.
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
 	}
-	trace.Extractors = append(trace.Extractors, registry.Extractor{
-		Name:    "timestamp",
-		Pattern: "positions 3-8: HHMMSS",
-		Matched: validTimestamp,
-		Value:   text[3:9],
-	})
 
-	trace.Matched = quickCheckPassed && validTimestamp
+	// Get detailed trace from compiler.
+	compilerTrace := compiler.ParseWithTrace(text)
 
+	// Convert format traces to generic format traces.
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	trace.Matched = compilerTrace.Match != nil
 	return trace
 }

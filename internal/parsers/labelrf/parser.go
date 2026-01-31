@@ -4,11 +4,11 @@
 package labelrf
 
 import (
-	"fmt"
-	"regexp"
 	"strings"
+	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
@@ -31,14 +31,24 @@ type Result struct {
 func (r *Result) Type() string     { return "flight_subscription" }
 func (r *Result) MessageID() int64 { return r.MsgID }
 
+// Grok compiler singleton.
+var (
+	grokCompiler *patterns.Compiler
+	grokOnce     sync.Once
+	grokErr      error
+)
+
+// getCompiler returns the singleton grok compiler.
+func getCompiler() (*patterns.Compiler, error) {
+	grokOnce.Do(func() {
+		grokCompiler = patterns.NewCompiler(Formats, nil)
+		grokErr = grokCompiler.Compile()
+	})
+	return grokCompiler, grokErr
+}
+
 // Parser parses Label RF flight subscription messages.
 type Parser struct{}
-
-// msgTypeRe extracts the message type prefix (FDASUB, FDACOM, FSTREQ, FDAACK).
-var msgTypeRe = regexp.MustCompile(`^(FD(?:ASUB|ACOM|AACK)|FSTREQ)`)
-
-// flightNumRe validates flight numbers (2-3 letter airline code + 1-4 digits).
-var flightNumRe = regexp.MustCompile(`^[A-Z]{2,3}\d{1,4}$`)
 
 func init() {
 	registry.Register(&Parser{})
@@ -50,195 +60,84 @@ func (p *Parser) Priority() int    { return 100 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	// Only process messages that contain flight subscription data.
-	// FDASUB = Flight Data Subscription
-	// FDACOM = Flight Data Communication
-	// FSTREQ = Flight Status Request
 	return strings.Contains(text, "FDASUB") ||
 		strings.Contains(text, "FDACOM") ||
 		strings.Contains(text, "FSTREQ")
 }
 
 // Parse extracts flight subscription data from Label RF messages.
-// Format: ,<msg_type><timestamp>,<origin>,,<dest>,,<flight>,<date>,<time>,<type>,,<reg>,/<data>
-// Example: ,FDASUB01260107143821,SIN,,LHR,,QF001,260107,1535,388,,VH-OQI,/358301,349,,1,4EC0
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if msg.Text == "" {
 		return nil
 	}
 
-	text := strings.TrimSpace(msg.Text)
-
-	// Split on the first slash to separate header from tracking data.
-	parts := strings.SplitN(text, "/", 2)
-	header := parts[0]
-
-	// Split the header by commas.
-	fields := strings.Split(header, ",")
-	if len(fields) < 12 {
-		return nil // Not enough fields for flight data.
-	}
-
-	// First field is empty (leading comma), second is message type + timestamp.
-	msgTypeField := fields[1]
-	if msgTypeField == "" {
+	compiler, err := getCompiler()
+	if err != nil {
 		return nil
 	}
 
-	// Extract the message type.
-	msgMatch := msgTypeRe.FindStringSubmatch(msgTypeField)
-	if len(msgMatch) < 2 {
-		return nil
-	}
-	msgType := msgMatch[1]
-
-	// Fields layout for flight subscription messages:
-	// [0] = empty (leading comma)
-	// [1] = msg_type + timestamp
-	// [2] = origin IATA
-	// [3] = empty
-	// [4] = dest IATA
-	// [5] = empty
-	// [6] = flight number
-	// [7] = date (YYMMDD)
-	// [8] = time (HHMM)
-	// [9] = aircraft type
-	// [10] = empty
-	// [11] = registration
-
-	originIATA := strings.TrimSpace(fields[2])
-	destIATA := strings.TrimSpace(fields[4])
-	flightNum := strings.TrimSpace(fields[6])
-
-	// Validate we have actual flight data (not just position updates).
-	if originIATA == "" || destIATA == "" || flightNum == "" {
+	match := compiler.Parse(msg.Text)
+	if match == nil {
 		return nil
 	}
 
-	// Validate flight number format.
-	if !flightNumRe.MatchString(flightNum) {
+	// Validate we have actual flight data.
+	origin := match.Captures["origin"]
+	dest := match.Captures["dest"]
+	flight := match.Captures["flight"]
+
+	if origin == "" || dest == "" || flight == "" {
 		return nil
 	}
 
 	result := &Result{
-		MsgID:      int64(msg.ID),
-		Timestamp:  msg.Timestamp,
-		MsgType:    msgType,
-		OriginIATA: originIATA,
-		DestIATA:   destIATA,
-		FlightNum:  flightNum,
+		MsgID:        int64(msg.ID),
+		Timestamp:    msg.Timestamp,
+		MsgType:      match.Captures["msg_type"],
+		OriginIATA:   origin,
+		DestIATA:     dest,
+		FlightNum:    flight,
+		Date:         match.Captures["date"],
+		Time:         match.Captures["time"],
+		AircraftType: match.Captures["actype"],
+		Registration: match.Captures["reg"],
 	}
 
 	// Convert IATA to ICAO if possible.
-	if icao, ok := iataToICAO[originIATA]; ok {
+	if icao, ok := iataToICAO[origin]; ok {
 		result.OriginICAO = icao
 	}
-	if icao, ok := iataToICAO[destIATA]; ok {
+	if icao, ok := iataToICAO[dest]; ok {
 		result.DestICAO = icao
-	}
-
-	// Extract date if available.
-	if len(fields) > 7 {
-		result.Date = strings.TrimSpace(fields[7])
-	}
-
-	// Extract time if available.
-	if len(fields) > 8 {
-		result.Time = strings.TrimSpace(fields[8])
-	}
-
-	// Extract aircraft type if available.
-	if len(fields) > 9 {
-		result.AircraftType = strings.TrimSpace(fields[9])
-	}
-
-	// Extract registration if available.
-	if len(fields) > 11 {
-		result.Registration = strings.TrimSpace(fields[11])
 	}
 
 	return result
 }
 
 // iataToICAO maps common IATA airport codes to their ICAO equivalents.
-// This is a subset covering major airports seen in ACARS traffic.
 var iataToICAO = map[string]string{
 	// Australia & New Zealand.
-	"SYD": "YSSY", // Sydney
-	"MEL": "YMML", // Melbourne
-	"BNE": "YBBN", // Brisbane
-	"PER": "YPPH", // Perth
-	"ADL": "YPAD", // Adelaide
-	"CBR": "YSCB", // Canberra
-	"HBA": "YMHB", // Hobart
-	"AKL": "NZAA", // Auckland
-	"WLG": "NZWN", // Wellington
-	"CHC": "NZCH", // Christchurch
-
+	"SYD": "YSSY", "MEL": "YMML", "BNE": "YBBN", "PER": "YPPH", "ADL": "YPAD",
+	"CBR": "YSCB", "HBA": "YMHB", "AKL": "NZAA", "WLG": "NZWN", "CHC": "NZCH",
 	// Asia - Major Hubs.
-	"SIN": "WSSS", // Singapore Changi
-	"HKG": "VHHH", // Hong Kong
-	"NRT": "RJAA", // Tokyo Narita
-	"HND": "RJTT", // Tokyo Haneda
-	"ICN": "RKSI", // Seoul Incheon
-	"PEK": "ZBAA", // Beijing Capital
-	"PKX": "ZBAD", // Beijing Daxing
-	"PVG": "ZSPD", // Shanghai Pudong
-	"SHA": "ZSSS", // Shanghai Hongqiao
-	"CAN": "ZGGG", // Guangzhou
-	"TPE": "RCTP", // Taipei Taoyuan
-	"KUL": "WMKK", // Kuala Lumpur
-	"BKK": "VTBS", // Bangkok Suvarnabhumi
-	"DEL": "VIDP", // Delhi
-	"BOM": "VABB", // Mumbai
-	"BLR": "VOBL", // Bangalore
-	"MNL": "RPLL", // Manila
-	"CGK": "WIII", // Jakarta
-	"DPS": "WADD", // Bali Denpasar
-	"CTS": "RJCC", // Sapporo New Chitose
-
+	"SIN": "WSSS", "HKG": "VHHH", "NRT": "RJAA", "HND": "RJTT", "ICN": "RKSI",
+	"PEK": "ZBAA", "PKX": "ZBAD", "PVG": "ZSPD", "SHA": "ZSSS", "CAN": "ZGGG",
+	"TPE": "RCTP", "KUL": "WMKK", "BKK": "VTBS", "DEL": "VIDP", "BOM": "VABB",
+	"BLR": "VOBL", "MNL": "RPLL", "CGK": "WIII", "DPS": "WADD", "CTS": "RJCC",
 	// Europe - Major Hubs.
-	"LHR": "EGLL", // London Heathrow
-	"LGW": "EGKK", // London Gatwick
-	"CDG": "LFPG", // Paris Charles de Gaulle
-	"FRA": "EDDF", // Frankfurt
-	"AMS": "EHAM", // Amsterdam
-	"FCO": "LIRF", // Rome Fiumicino
-	"MAD": "LEMD", // Madrid
-	"BCN": "LEBL", // Barcelona
-	"MUC": "EDDM", // Munich
-	"ZRH": "LSZH", // Zurich
-	"VIE": "LOWW", // Vienna
-	"IST": "LTFM", // Istanbul
-
+	"LHR": "EGLL", "LGW": "EGKK", "CDG": "LFPG", "FRA": "EDDF", "AMS": "EHAM",
+	"FCO": "LIRF", "MAD": "LEMD", "BCN": "LEBL", "MUC": "EDDM", "ZRH": "LSZH",
+	"VIE": "LOWW", "IST": "LTFM",
 	// North America - Major Hubs.
-	"LAX": "KLAX", // Los Angeles
-	"SFO": "KSFO", // San Francisco
-	"JFK": "KJFK", // New York JFK
-	"EWR": "KEWR", // Newark
-	"ORD": "KORD", // Chicago O'Hare
-	"DFW": "KDFW", // Dallas Fort Worth
-	"ATL": "KATL", // Atlanta
-	"MIA": "KMIA", // Miami
-	"SEA": "KSEA", // Seattle
-	"YVR": "CYVR", // Vancouver
-	"YYZ": "CYYZ", // Toronto
-	"YUL": "CYUL", // Montreal
-
+	"LAX": "KLAX", "SFO": "KSFO", "JFK": "KJFK", "EWR": "KEWR", "ORD": "KORD",
+	"DFW": "KDFW", "ATL": "KATL", "MIA": "KMIA", "SEA": "KSEA", "YVR": "CYVR",
+	"YYZ": "CYYZ", "YUL": "CYUL",
 	// Middle East.
-	"DXB": "OMDB", // Dubai
-	"AUH": "OMAA", // Abu Dhabi
-	"DOH": "OTHH", // Doha
-	"RUH": "OERK", // Riyadh
-	"JED": "OEJN", // Jeddah
-
+	"DXB": "OMDB", "AUH": "OMAA", "DOH": "OTHH", "RUH": "OERK", "JED": "OEJN",
 	// South America.
-	"GRU": "SBGR", // Sao Paulo Guarulhos
-	"EZE": "SAEZ", // Buenos Aires Ezeiza
-	"SCL": "SCEL", // Santiago
-
+	"GRU": "SBGR", "EZE": "SAEZ", "SCL": "SCEL",
 	// Africa.
-	"JNB": "FAOR", // Johannesburg
-	"CPT": "FACT", // Cape Town
+	"JNB": "FAOR", "CPT": "FACT",
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.
@@ -257,61 +156,26 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 		return trace
 	}
 
-	text := strings.TrimSpace(msg.Text)
-
-	// Add extractors for each parsing step.
-	trace.Extractors = append(trace.Extractors, registry.Extractor{
-		Name:    "msg_type",
-		Pattern: msgTypeRe.String(),
-		Matched: msgTypeRe.MatchString(text),
-		Value:   func() string {
-			if m := msgTypeRe.FindStringSubmatch(text); len(m) > 1 {
-				return m[1]
-			}
-			return ""
-		}(),
-	})
-
-	// Parse fields.
-	parts := strings.SplitN(text, "/", 2)
-	fields := strings.Split(parts[0], ",")
-	hasEnoughFields := len(fields) >= 12
-
-	trace.Extractors = append(trace.Extractors, registry.Extractor{
-		Name:    "field_count",
-		Pattern: "at least 12 comma-separated fields",
-		Matched: hasEnoughFields,
-		Value:   fmt.Sprintf("%d fields", len(fields)),
-	})
-
-	if hasEnoughFields {
-		origin := strings.TrimSpace(fields[2])
-		dest := strings.TrimSpace(fields[4])
-		flight := strings.TrimSpace(fields[6])
-
-		trace.Extractors = append(trace.Extractors, registry.Extractor{
-			Name:    "origin",
-			Pattern: "field[2]: 3-letter IATA code",
-			Matched: origin != "",
-			Value:   origin,
-		})
-
-		trace.Extractors = append(trace.Extractors, registry.Extractor{
-			Name:    "destination",
-			Pattern: "field[4]: 3-letter IATA code",
-			Matched: dest != "",
-			Value:   dest,
-		})
-
-		trace.Extractors = append(trace.Extractors, registry.Extractor{
-			Name:    "flight_num",
-			Pattern: flightNumRe.String(),
-			Matched: flightNumRe.MatchString(flight),
-			Value:   flight,
-		})
-
-		trace.Matched = origin != "" && dest != "" && flightNumRe.MatchString(flight)
+	// Get the compiler trace.
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
 	}
 
+	// Get detailed trace from compiler.
+	compilerTrace := compiler.ParseWithTrace(msg.Text)
+
+	// Convert format traces to generic format traces.
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
+	}
+
+	trace.Matched = compilerTrace.Match != nil
 	return trace
 }

@@ -26,6 +26,11 @@ type ClickHouseDB struct {
 	conn driver.Conn
 }
 
+// Conn returns the underlying ClickHouse connection for direct queries.
+func (d *ClickHouseDB) Conn() driver.Conn {
+	return d.conn
+}
+
 // OpenClickHouse opens a connection to ClickHouse.
 func OpenClickHouse(ctx context.Context, cfg ClickHouseConfig) (*ClickHouseDB, error) {
 	conn, err := clickhouse.Open(&clickhouse.Options{
@@ -290,6 +295,10 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 		messages = append(messages, m)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate rows: %w", err)
+	}
+
 	return messages, nil
 }
 
@@ -338,9 +347,13 @@ func (d *ClickHouseDB) GetStats(ctx context.Context) (*CHStats, error) {
 		var count uint64
 		if err := rows.Scan(&typ, &count); err != nil {
 			rows.Close()
-			return nil, err
+			return nil, fmt.Errorf("scan parser type stats: %w", err)
 		}
 		stats.ByParserType[typ] = count
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, fmt.Errorf("iterate parser type stats: %w", err)
 	}
 	rows.Close()
 
@@ -354,9 +367,13 @@ func (d *ClickHouseDB) GetStats(ctx context.Context) (*CHStats, error) {
 		var count uint64
 		if err := rows.Scan(&label, &count); err != nil {
 			rows.Close()
-			return nil, err
+			return nil, fmt.Errorf("scan label stats: %w", err)
 		}
 		stats.ByLabel[label] = count
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return nil, fmt.Errorf("iterate label stats: %w", err)
 	}
 	rows.Close()
 
@@ -396,9 +413,12 @@ func (d *ClickHouseDB) CountByType(ctx context.Context) (map[string]uint64, erro
 		var typ string
 		var count uint64
 		if err := rows.Scan(&typ, &count); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan count by type: %w", err)
 		}
 		counts[typ] = count
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate count by type: %w", err)
 	}
 	return counts, nil
 }
@@ -428,9 +448,12 @@ func (d *ClickHouseDB) Distinct(ctx context.Context, column string) ([]string, e
 	for rows.Next() {
 		var v string
 		if err := rows.Scan(&v); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("scan distinct value: %w", err)
 		}
 		values = append(values, v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate distinct values: %w", err)
 	}
 	return values, nil
 }

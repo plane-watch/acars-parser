@@ -57,6 +57,10 @@ func (p *Parser) QuickCheck(text string) bool {
 
 // Parse parses a CPDLC message.
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
+	if msg.Text == "" {
+		return nil
+	}
+
 	text := msg.Text
 
 	result := &Result{
@@ -64,14 +68,11 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Timestamp: msg.Timestamp,
 	}
 
-	// Determine direction based on message label.
-	// AA = downlink (aircraft to ground).
-	// BA = uplink (ground to aircraft).
-	if msg.Label == "AA" {
-		result.Direction = "downlink"
-	} else {
-		result.Direction = "uplink"
-	}
+	// Determine direction using available indicators (in order of reliability):
+	// 1. LinkDirection - explicit direction from feed (most reliable).
+	// 2. BlockID - ACARS block ID: '0'-'9' = downlink, letters = uplink.
+	// 3. Label - fallback: AA = downlink, BA = uplink (least reliable for CPDLC).
+	result.Direction = determineDirection(msg)
 
 	// Parse through ARINC layer (validates CRC, extracts payload).
 	arincResult, err := arinc.Parse(text)
@@ -137,6 +138,39 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	result.FormattedText = formatMessage(cpdlcMsg)
 
 	return result
+}
+
+// determineDirection determines the message direction using available indicators.
+// Priority: LinkDirection > BlockID > Label.
+func determineDirection(msg *acars.Message) string {
+	// 1. Use explicit link_direction if available (most reliable).
+	if msg.LinkDirection != "" {
+		switch msg.LinkDirection {
+		case "uplink":
+			return "uplink"
+		case "downlink":
+			return "downlink"
+		}
+	}
+
+	// 2. Use block_id if available.
+	// Per ACARS spec: '0'-'9' = downlink (air to ground), 'A'-'X' = uplink (ground to air).
+	if msg.BlockID != "" && len(msg.BlockID) > 0 {
+		blockChar := msg.BlockID[0]
+		if blockChar >= '0' && blockChar <= '9' {
+			return "downlink"
+		}
+		if blockChar >= 'A' && blockChar <= 'Z' {
+			return "uplink"
+		}
+	}
+
+	// 3. Fallback to label-based heuristic (least reliable for CPDLC).
+	// AA is typically downlink, BA is typically uplink.
+	if msg.Label == "AA" {
+		return "downlink"
+	}
+	return "uplink"
 }
 
 // formatMessage creates a human-readable summary of the CPDLC message.

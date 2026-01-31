@@ -48,6 +48,10 @@ type Message struct {
 	Label     string    `json:"label"`
 	Frequency float64   `json:"frequency"`
 
+	// Direction indicators from the transport layer.
+	BlockID       string `json:"block_id,omitempty"`       // ACARS block ID ('0'-'9' = downlink, 'A'-'X' = uplink).
+	LinkDirection string `json:"link_direction,omitempty"` // Explicit direction: "uplink" or "downlink".
+
 	// These may be present in the message itself (old format) or at wrapper level (NATS)
 	Airframe *Airframe `json:"airframe,omitempty"`
 	Flight   *Flight   `json:"flight,omitempty"`
@@ -105,15 +109,17 @@ type NATSSource struct {
 
 // NATSInner is the inner message structure from NATS feed.
 type NATSInner struct {
-	ID        FlexInt64 `json:"id"`
-	Timestamp string    `json:"timestamp"`
-	Label     string    `json:"label"`
-	Text      string    `json:"text"`
-	Tail      string    `json:"tail"`
-	Flight    string    `json:"flight"`
-	Frequency float64   `json:"frequency"`
-	FromHex   string    `json:"from_hex,omitempty"`
-	ToHex     string    `json:"to_hex,omitempty"`
+	ID            FlexInt64 `json:"id"`
+	Timestamp     string    `json:"timestamp"`
+	Label         string    `json:"label"`
+	Text          string    `json:"text"`
+	Tail          string    `json:"tail"`
+	Flight        string    `json:"flight"`
+	Frequency     float64   `json:"frequency"`
+	FromHex       string    `json:"from_hex,omitempty"`
+	ToHex         string    `json:"to_hex,omitempty"`
+	BlockID       string    `json:"block_id,omitempty"`       // ACARS block ID ('0'-'9' = downlink, 'A'-'X' = uplink).
+	LinkDirection string    `json:"link_direction,omitempty"` // Explicit direction: "uplink" or "downlink".
 }
 
 // ToMessage converts a NATSWrapper to a unified Message.
@@ -123,15 +129,17 @@ func (w *NATSWrapper) ToMessage() *Message {
 	}
 
 	msg := &Message{
-		ID:        w.Message.ID,
-		Timestamp: w.Message.Timestamp,
-		Label:     w.Message.Label,
-		Text:      w.Message.Text,
-		Tail:      w.Message.Tail,
-		Frequency: w.Message.Frequency,
-		Airframe:  w.Airframe,
-		Flight:    w.Flight,
-		Station:   w.Station,
+		ID:            w.Message.ID,
+		Timestamp:     w.Message.Timestamp,
+		Label:         w.Message.Label,
+		Text:          w.Message.Text,
+		Tail:          w.Message.Tail,
+		Frequency:     w.Message.Frequency,
+		BlockID:       w.Message.BlockID,
+		LinkDirection: w.Message.LinkDirection,
+		Airframe:      w.Airframe,
+		Flight:        w.Flight,
+		Station:       w.Station,
 	}
 
 	// Use tail from airframe if not in message

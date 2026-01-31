@@ -176,6 +176,9 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if grokResult.Altitude != "" {
 		result.InitialAltitude = grokResult.Altitude
 	}
+	if grokResult.FlightLevel != "" {
+		result.FlightLevel = "FL" + grokResult.FlightLevel
+	}
 	if grokResult.DepartureTime != "" {
 		result.DepartureTime = grokResult.DepartureTime
 	}

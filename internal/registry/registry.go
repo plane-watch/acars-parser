@@ -134,6 +134,8 @@ func (r *Registry) Sort() {
 
 // Dispatch routes a message to appropriate parsers and returns all results.
 // Multiple parsers can match the same message (e.g., PDC + route info).
+// Note: Sort() should be called before Dispatch() for optimal performance.
+// If Sort() has not been called, parsers will be in registration order.
 func (r *Registry) Dispatch(msg *acars.Message) []Result {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -226,16 +228,28 @@ func (r *Registry) RegisteredLabels() []string {
 	return labels
 }
 
-// ParserCount returns the total number of registered parsers.
+// ParserCount returns the total number of unique registered parsers.
+// Parsers registered for multiple labels are only counted once.
 func (r *Registry) ParserCount() int {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	count := len(r.global) + len(r.catchAll)
-	for _, parsers := range r.byLabel {
-		count += len(parsers)
+	// Use a map to deduplicate parsers (some may be registered for multiple labels).
+	seen := make(map[string]bool)
+
+	for _, p := range r.global {
+		seen[p.Name()] = true
 	}
-	return count
+	for _, parsers := range r.byLabel {
+		for _, p := range parsers {
+			seen[p.Name()] = true
+		}
+	}
+	for _, p := range r.catchAll {
+		seen[p.Name()] = true
+	}
+
+	return len(seen)
 }
 
 // AllParsers returns all registered parsers (global, label-specific, and catch-all).

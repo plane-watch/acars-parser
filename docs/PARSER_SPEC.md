@@ -35,11 +35,39 @@ type Traceable interface {
 
 This is a hard requirement. Parsers without `ParseWithTrace` are incomplete and will fail code review.
 
-## Grok-Style Patterns (Mandatory)
+## Grok-Style Patterns
 
-**All new parsers must use grok-style pattern matching.** Ad-hoc regex or token-based parsing is discouraged as it produces inconsistent, hard-to-maintain code.
+### When to Use Grok Patterns
+
+Use grok patterns when the message has a **fixed structure** where a single pattern can match the whole message (or its primary content):
+
+- **Position reports**: Fixed field order (coords, altitude, speed, etc.)
+- **Clearances**: Structured format (flight, origin, dest, runway, SID, squawk)
+- **Status messages**: Fixed positional encoding (e.g., media advisory)
+
+**Indicators that grok is appropriate:**
+- The message format is consistent across all examples
+- Fields appear in a predictable order
+- One pattern (or a small set of format variants) covers all cases
+
+### When NOT to Use Grok Patterns
+
+Use independent field extractors when the message is **free-form** with fields that appear in variable order or quantity:
+
+- **Weather reports**: Multiple METAR/TAF/SIGMET per message, each with optional sub-fields
+- **ATIS broadcasts**: Envelope header + body with fields in any order
+- **Advisory messages**: Independent fields (TYPE, ID, SEVERITY, etc.) in varying order
+- **Binary protocols**: Byte-level or TLV parsing (ADS-C, CPDLC)
+
+**Indicators that grok is NOT appropriate:**
+- Fields can appear in any order
+- Multiple independent records per message
+- Highly variable structure with many optional fields
+- Binary/encoded payloads
 
 ### Why Grok Patterns?
+
+When applicable, grok patterns provide:
 
 1. **Declarative**: Pattern definitions are readable and self-documenting
 2. **Reusable**: Common patterns (coordinates, flight numbers, times) are defined once
@@ -373,11 +401,37 @@ func (p *Parser) QuickCheck(text string) bool {
 
 In rare cases, grok patterns may not be suitable:
 
-1. **Binary protocols** (e.g., ADS-C, CPDLC) - use byte-level parsing
+1. **Binary protocols** - use byte-level parsing
 2. **Highly variable formats** - where no pattern can reliably match
 3. **Performance-critical paths** - where grok overhead is measurable
 
 Even in these cases, `ParseWithTrace` must still be implemented using `registry.Extractor` entries to report what was matched.
+
+### Parsers Using Field Extractors
+
+The following parsers use independent field extractors rather than grok patterns, per the criteria above:
+
+**Binary protocols:**
+- `adsc` - ADS-C tag-based binary encoding
+- `cpdlc` - ASN.1 PER binary encoding
+- `envelope` - ARINC hex-encoded TLV with CRC
+
+**Free-form multi-field messages:**
+- `atis` - Envelope header + body with fields in variable order
+- `weather` - Multiple METAR/TAF/SIGMET reports per message
+- `turbulence` - Advisory with independent fields in varying order
+- `landingdata` - Performance data with independent fields and tabular sections
+- `takeoff` - Performance data with many fields and tabular runway sections
+- `parking` - Sparse extraction from French-format messages
+- `crew` - Multiple independent crew/schedule fields
+- `delay` - Multiple delay code and timing fields
+- `dispatch` - Multiple dispatch/MEL reference fields
+- `fuel` - Multiple fuel-related fields
+- `hazard` - Header + alert fields
+- `paxbag` - Multiple flight line extractions
+- `paxconn` - Multiple connection flight records
+
+These parsers must still implement `ParseWithTrace` with appropriate extractor entries for debugging.
 
 ## Code Style
 

@@ -4,4 +4,4 @@ acars_parser
 *.db
 *.db-*
 TODO.md
-*.creds
+*.credsdata

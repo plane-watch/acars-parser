@@ -2,10 +2,11 @@
 package gateassign
 
 import (
-	"regexp"
 	"strings"
+	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
@@ -24,6 +25,22 @@ type Result struct {
 func (r *Result) Type() string     { return "gate_assignment" }
 func (r *Result) MessageID() int64 { return r.MsgID }
 
+// Grok compiler singleton.
+var (
+	grokCompiler *patterns.Compiler
+	grokOnce     sync.Once
+	grokErr      error
+)
+
+// getCompiler returns the singleton grok compiler.
+func getCompiler() (*patterns.Compiler, error) {
+	grokOnce.Do(func() {
+		grokCompiler = patterns.NewCompiler(Formats, nil)
+		grokErr = grokCompiler.Compile()
+	})
+	return grokCompiler, grokErr
+}
+
 // Parser parses gate assignment messages.
 type Parser struct{}
 
@@ -38,32 +55,21 @@ func (p *Parser) Priority() int    { return 60 }
 // QuickCheck looks for gate assignment keywords.
 func (p *Parser) QuickCheck(text string) bool {
 	upper := strings.ToUpper(text)
-	return strings.Contains(upper, "GATE ASSIGNMENT")
+	return strings.Contains(upper, "GATE ASSIGNMENT") || strings.Contains(upper, "GATE") && strings.Contains(upper, "ASSIGNED")
 }
-
-// Pattern matchers.
-var (
-	// Simple gate: GATE ASSIGNMENT: A12 or GATE ASSIGNMENT: G5
-	gateRe = regexp.MustCompile(`GATE\s+ASSIGNMENT[:\s]+([A-Z]?\d+)`)
-
-	// IN-RANGE gate format: IWA GATE 6 ASSIGNED
-	inRangeGateRe = regexp.MustCompile(`([A-Z]{3})\s+GATE\s+(\d+)\s+ASSIGNED`)
-
-	// Parking position: PPOS:305 or PPOS:R3 (but not N/A).
-	pposRe = regexp.MustCompile(`PPOS[:\s]+([A-Z]?\d+)`)
-
-	// Bag belt: BAG BELT:206
-	bagBeltRe = regexp.MustCompile(`BAG\s+BELT[:\s]+(\d+)`)
-
-	// Next leg format: NEXT LEG: LA3709 BPS-BSB 31DEC 19:45Z
-	nextLegRe = regexp.MustCompile(`NEXT\s+LEG[:\s]+(\w+)\s+([A-Z]{3}-[A-Z]{3})`)
-
-	// IN-RANGE next flight: --NEXT FLIGHT           278 BLI-PSP 31-2002Z
-	nextFlightRe = regexp.MustCompile(`NEXT\s+FLIGHT\s+(\d+)\s+([A-Z]{3}-[A-Z]{3})`)
-)
 
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if msg.Text == "" {
+		return nil
+	}
+
+	compiler, err := getCompiler()
+	if err != nil {
+		return nil
+	}
+
+	match := compiler.Parse(msg.Text)
+	if match == nil {
 		return nil
 	}
 
@@ -73,33 +79,29 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Tail:      msg.Tail,
 	}
 
-	text := msg.Text
+	// Extract fields based on which format matched.
+	switch match.FormatName {
+	case "simple_gate":
+		result.Gate = match.Captures["gate"]
 
-	// Extract gate (try simple format first, then IN-RANGE format).
-	if m := gateRe.FindStringSubmatch(text); len(m) > 1 {
-		result.Gate = m[1]
-	} else if m := inRangeGateRe.FindStringSubmatch(text); len(m) > 2 {
-		// IN-RANGE format includes station code: IWA GATE 6 ASSIGNED
-		result.Gate = m[2]
-	}
+	case "in_range_gate":
+		result.Gate = match.Captures["gate"]
 
-	// Extract parking position.
-	if m := pposRe.FindStringSubmatch(text); len(m) > 1 {
-		result.PPOS = m[1]
-	}
+	case "structured_gate":
+		ppos := strings.TrimSpace(match.Captures["ppos"])
+		if ppos != "" && ppos != "N/A" {
+			result.PPOS = ppos
+		}
 
-	// Extract bag belt.
-	if m := bagBeltRe.FindStringSubmatch(text); len(m) > 1 {
-		result.BagBelt = m[1]
-	}
+		bagbelt := strings.TrimSpace(match.Captures["bagbelt"])
+		if bagbelt != "" {
+			result.BagBelt = bagbelt
+		}
 
-	// Extract next leg (try both formats).
-	if m := nextLegRe.FindStringSubmatch(text); len(m) > 2 {
-		result.NextFlight = m[1]
-		result.NextRoute = m[2]
-	} else if m := nextFlightRe.FindStringSubmatch(text); len(m) > 2 {
-		result.NextFlight = m[1]
-		result.NextRoute = m[2]
+		if match.Captures["next_flight"] != "" {
+			result.NextFlight = match.Captures["next_flight"]
+			result.NextRoute = match.Captures["next_route"]
+		}
 	}
 
 	// Only return if we got useful data.
@@ -122,42 +124,30 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 	}
 
 	if !quickCheckPassed {
-		trace.QuickCheck.Reason = "No GATE ASSIGNMENT keyword found"
+		trace.QuickCheck.Reason = "No GATE ASSIGNMENT or GATE...ASSIGNED keyword found"
 		return trace
 	}
 
-	text := msg.Text
-
-	// Add extractors for each regex pattern.
-	extractors := []struct {
-		name    string
-		pattern *regexp.Regexp
-	}{
-		{"gate", gateRe},
-		{"in_range_gate", inRangeGateRe},
-		{"ppos", pposRe},
-		{"bag_belt", bagBeltRe},
-		{"next_leg", nextLegRe},
-		{"next_flight", nextFlightRe},
+	// Get the compiler trace.
+	compiler, err := getCompiler()
+	if err != nil {
+		trace.QuickCheck.Reason = "Failed to get compiler: " + err.Error()
+		return trace
 	}
 
-	for _, e := range extractors {
-		ext := registry.Extractor{
-			Name:    e.name,
-			Pattern: e.pattern.String(),
-		}
-		if m := e.pattern.FindStringSubmatch(text); len(m) > 1 {
-			ext.Matched = true
-			ext.Value = m[1]
-		}
-		trace.Extractors = append(trace.Extractors, ext)
+	// Get detailed trace from compiler.
+	compilerTrace := compiler.ParseWithTrace(msg.Text)
+
+	// Convert format traces to generic format traces.
+	for _, ft := range compilerTrace.Formats {
+		trace.Formats = append(trace.Formats, registry.FormatTrace{
+			Name:     ft.Name,
+			Matched:  ft.Matched,
+			Pattern:  ft.Pattern,
+			Captures: ft.Captures,
+		})
 	}
 
-	// Determine if overall match succeeds.
-	hasGate := gateRe.MatchString(text) || inRangeGateRe.MatchString(text)
-	hasPPOS := pposRe.MatchString(text)
-	hasNextFlight := nextLegRe.MatchString(text) || nextFlightRe.MatchString(text)
-	trace.Matched = hasGate || hasPPOS || hasNextFlight
-
+	trace.Matched = compilerTrace.Match != nil
 	return trace
 }

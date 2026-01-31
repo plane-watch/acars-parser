@@ -237,8 +237,7 @@ func IsValidICAO(code string) bool {
 	return hasValidICAOPrefix(code)
 }
 
-// FindValidICAO finds the first valid ICAO code in text./exit
-
+// FindValidICAO finds the first valid ICAO code in text.
 func FindValidICAO(text string) string {
 	matches := ICAOPattern.FindAllString(text, -1)
 	for _, m := range matches {
@@ -278,12 +277,12 @@ func IATAHint(iata string) string {
 	return iata
 }
 
+// tokenReplacer is used by Tokenize for efficient single-pass replacement.
+var tokenReplacer = strings.NewReplacer("\r\n", " ", "\n", " ", "\t", " ", "/", " ")
+
 // Tokenize splits text into tokens for efficient searching.
 func Tokenize(text string) []string {
-	text = strings.ReplaceAll(text, "\r\n", " ")
-	text = strings.ReplaceAll(text, "\n", " ")
-	text = strings.ReplaceAll(text, "\t", " ")
-	text = strings.ReplaceAll(text, "/", " ")
+	text = tokenReplacer.Replace(text)
 
 	fields := strings.Fields(text)
 	tokens := make([]string, len(fields))
