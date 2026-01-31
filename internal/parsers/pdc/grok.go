@@ -59,14 +59,14 @@ type PDCFormat struct {
 var PDCFormats = []PDCFormat{
 	// Format 0: Compact APCDC format (single line)
 	// Example: C32PDC         1APCDC AC0564/31/31 YVR SFO 524 1804Z/0076/0000/  7
-	// Fields: flight, origin (IATA), destination (IATA), squawk(?), time
+	// Fields: flight, origin_iata (IATA), dest_iata (IATA), squawk(?), time
 	{
 		Name: "compact_apcdc",
 		Pattern: `(?:C32)?PDC\s+\d*APCDC\s+` +
 			`(?P<flight>[A-Z]{2}\d{3,4})/\d+/\d+\s+` +
-			`(?P<origin>{IATA})\s+(?P<destination>{IATA})\s+` +
+			`(?P<origin_iata>{IATA})\s+(?P<dest_iata>{IATA})\s+` +
 			`(?P<squawk>\d{3,4})?\s*(\d{4}Z)?`,
-		Fields: []string{"flight", "origin", "destination", "squawk"},
+		Fields: []string{"flight", "origin_iata", "dest_iata", "squawk"},
 	},
 
 	// Format 0b: Australian Regional (Bonza, Rex, etc)
@@ -85,11 +85,11 @@ var PDCFormats = []PDCFormat{
 		Name: "australian_regional",
 		Pattern: `(?s)PDC\s+(?P<flight>{FLIGHT})\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+` +
 			`ETD\s+(?P<origin>{ICAO})\s+(?P<dep_time>\d{4})UTC\s+` +
-			`FL(?P<altitude>\d+)\s+` +
+			`FL(?P<flight_level>\d+)\s+` +
 			`.*?CLEARED\s+TO\s+(?P<destination>{ICAO})\s+VIA\s+` +
 			`(?P<sid>[A-Z]+\s*\d)\s+DEP` +
 			`.*?SQUAWK\s+(?P<squawk>{SQUAWK})`,
-		Fields: []string{"flight", "aircraft", "origin", "dep_time", "altitude", "destination", "sid", "squawk"},
+		Fields: []string{"flight", "aircraft", "origin", "dep_time", "flight_level", "destination", "sid", "squawk"},
 	},
 
 	// Format 0c: Virgin Australia word-SID format
@@ -257,6 +257,34 @@ var PDCFormats = []PDCFormat{
 		Fields: []string{"origin", "flight", "destination", "runway", "altitude"},
 	},
 
+	// Format 4b: ARINC MSG generic format
+	// Standard format used by many airlines via ARINC/NAV Canada.
+	// ARINC MSG
+	// PDC <flight>
+	// <origin>-<destination>
+	// -ATC CLEARANCE-
+	// CLR AS FILED
+	// -FILED FLIGHT PLAN-
+	// <route>
+	// -REMARKS-
+	// <SID, runway, altitude, squawk, etc.>
+	{
+		Name: "arinc_msg",
+		Pattern: `(?s)ARINC\s+MSG\s+` +
+			`PDC\s+(?P<flight>{FLIGHT}|{REGISTRATION})\s+` +
+			`(?P<origin>{ICAO})-(?P<destination>{ICAO})\s+` +
+			`-ATC\s+CLEARANCE-\s+` +
+			`.*?-FILED\s+FLIGHT\s+PLAN-\s+` +
+			`(?P<route>[A-Z0-9\s]+?)\s+` +
+			`-REMARKS-` +
+			`(?:.*?(?:USE\s+)?SID\s+(?P<sid>[A-Z0-9]+))?` +
+			`(?:.*?(?:DEPARTURE\s+)?RUNWAY\s+(?P<runway>{RUNWAY}))?` +
+			`(?:.*?(?:MAINTAIN|CLIMB\s+TO)\s+(?P<altitude>\d+)(?:FT)?)?` +
+			`(?:.*?SQUAWK\s+(?P<squawk>{SQUAWK}))?` +
+			`(?:.*?DPFRQ\s+(?P<frequency>{FREQ}))?`,
+		Fields: []string{"flight", "origin", "destination", "route", "sid", "runway", "altitude", "squawk", "frequency"},
+	},
+
 	// Format 5: Canadian/WestJet style
 	// PRE-DEPARTURE ATC CLEARANCE
 	// WJA311  DEPART YEG AT 1716Z FL 400
@@ -270,14 +298,14 @@ var PDCFormats = []PDCFormat{
 	{
 		Name: "canadian_westjet",
 		Pattern: `(?s)PRE-?DEPARTURE\s+(?:ATC\s+)?CLEARANCE\s+` +
-			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin>{IATA})\s+AT\s+\d{4}Z` +
+			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin_iata>{IATA})\s+AT\s+\d{4}Z` +
 			`.*?TRANSPONDER\s+(?P<squawk>{SQUAWK})` +
 			`.*?ROUTE[:\s]+(?P<route>[A-Z0-9\s]+?)` +
 			`(?:\s*REMARKS|\s*USE\s+SID)` +
 			`.*?(?:USE\s+)?SID\s+(?P<sid>[A-Z0-9]+)` +
 			`.*?(?:DEPARTURE\s+)?RUNWAY\s+(?P<runway>{RUNWAY})` +
 			`.*?DESTINATION\s+(?P<destination>{ICAO})`,
-		Fields: []string{"flight", "origin", "squawk", "route", "sid", "runway", "destination"},
+		Fields: []string{"flight", "origin_iata", "squawk", "route", "sid", "runway", "destination"},
 	},
 
 	// Format 6: Canadian NAV Canada / Air Canada style
@@ -300,11 +328,11 @@ var PDCFormats = []PDCFormat{
 			`TIMESTAMP\s+.+?\s+` +
 			`\*PRE-DEPARTURE\s+CLEARANCE\*\s+` +
 			`FLT\s+(?P<flight>{FLIGHT})\s+(?P<origin>{ICAO})\s+` +
-			`(?P<aircraft>[A-Z]/[A-Z0-9]+/[A-Z])\s+FILED\s+FL(?P<altitude>\d+)` +
+			`(?P<aircraft>[A-Z]/[A-Z0-9]+/[A-Z])\s+FILED\s+FL(?P<flight_level>\d+)` +
 			`.*?USE\s+SID\s+(?P<sid>[A-Z0-9]+)\s+` +
 			`DEPARTURE\s+RUNWAY\s+(?P<runway>{RUNWAY})\s+` +
 			`DESTINATION\s+(?P<destination>{ICAO})`,
-		Fields: []string{"flight", "origin", "aircraft", "altitude", "sid", "runway", "destination"},
+		Fields: []string{"flight", "origin", "aircraft", "flight_level", "sid", "runway", "destination"},
 	},
 
 	// Format 6a2: Qantas/China Airlines Pacific format (tab-separated)
@@ -431,9 +459,9 @@ var PDCFormats = []PDCFormat{
 	{
 		Name: "alaska_hawaiian",
 		Pattern: `(?s)PRE-DEPARTURE\s+ATC\s+CLEARANCE\s+` +
-			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin>{IATA})\s+AT\s+(?P<dep_time>\d{4})Z\s+FL\s+(?P<altitude>\d+)\s+` +
+			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin_iata>{IATA})\s+AT\s+(?P<dep_time>\d{4})Z\s+FL\s+(?P<flight_level>\d+)\s+` +
 			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+TRANSPONDER\s+(?P<squawk>{SQUAWK})`,
-		Fields: []string{"flight", "origin", "dep_time", "altitude", "aircraft", "squawk"},
+		Fields: []string{"flight", "origin_iata", "dep_time", "flight_level", "aircraft", "squawk"},
 	},
 
 	// Format 9: Horizon/QXE format
@@ -450,9 +478,9 @@ var PDCFormats = []PDCFormat{
 			`FLT\s+\d+-\d+\s+(?P<origin>{ICAO})-(?P<destination>{ICAO})\s+` +
 			`(?P<flight>[A-Z]{3}\d{3,4})\s+{ICAO}\s+` +
 			`(?P<aircraft>{AIRCRAFT})/[A-Z]\s+P\d{4}\s+` +
-			`REQUESTED\s+FL\s+(?P<altitude>\d+)\s+` +
+			`REQUESTED\s+FL\s+(?P<flight_level>\d+)\s+` +
 			`XPDR\s+(?P<squawk>{SQUAWK})`,
-		Fields: []string{"origin", "destination", "flight", "aircraft", "altitude", "squawk"},
+		Fields: []string{"origin", "destination", "flight", "aircraft", "flight_level", "squawk"},
 	},
 
 	// Format 10: SkyWest/regional pre-departure (full format with DESTINATION)
@@ -465,12 +493,13 @@ var PDCFormats = []PDCFormat{
 	{
 		Name: "skywest_full",
 		Pattern: `(?s)PRE-DEPARTURE\s+CLEARANCE\s+` +
-			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin>{IATA})\s+(?P<dep_time>\d{4})Z\s+` +
-			`FL\s+(?P<altitude>\d+)\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+XPNDR\s+(?P<squawk>{SQUAWK})` +
+
+			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin_iata>{IATA})\s+(?P<dep_time>\d{4})Z\s+` +
+			`FL\s+(?P<flight_level>\d+)\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+XPNDR\s+(?P<squawk>{SQUAWK})` +
 			`.*?USE\s+SID\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE\s+` +
 			`RUNWAY\s+(?P<runway>{RUNWAY})\s+DESTINATION\s+` +
 			`(?P<destination>{ICAO})`,
-		Fields: []string{"flight", "origin", "dep_time", "altitude", "aircraft", "squawk", "sid", "runway", "destination"},
+		Fields: []string{"flight", "origin_iata", "dep_time", "flight_level", "aircraft", "squawk", "sid", "runway", "destination"},
 	},
 
 	// Format 11: SkyWest/regional pre-departure (simple format)
@@ -481,9 +510,9 @@ var PDCFormats = []PDCFormat{
 	{
 		Name: "skywest_simple",
 		Pattern: `(?s)PRE-DEPARTURE\s+CLEARANCE\s+` +
-			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin>{IATA})\s+(?P<dep_time>\d{4})Z\s+` +
-			`FL\s+(?P<altitude>\d+)\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+XPNDR\s+(?P<squawk>{SQUAWK})`,
-		Fields: []string{"flight", "origin", "dep_time", "altitude", "aircraft", "squawk"},
+			`(?P<flight>{FLIGHT})\s+DEPART\s+(?P<origin_iata>{IATA})\s+(?P<dep_time>\d{4})Z\s+` +
+			`FL\s+(?P<flight_level>\d+)\s+(?P<aircraft>{AIRCRAFT})/[A-Z]\s+XPNDR\s+(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "origin_iata", "dep_time", "flight_level", "aircraft", "squawk"},
 	},
 
 	// Format 12: Republic Airways PDC
@@ -504,31 +533,33 @@ var PDCFormats = []PDCFormat{
 			`(?P<flight>{FLIGHT})\s+` +
 			`DEP/(?P<origin>{ICAO})\s+` +
 			`SKD/(?P<dep_time>\d{4})Z\s+` +
-			`FL(?P<altitude>\d+)\s+` +
+			`FL(?P<flight_level>\d+)\s+` +
 			`.*?CLEARED\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE` +
 			`.*?SQUAWK/(?P<squawk>{SQUAWK})`,
-		Fields: []string{"flight", "origin", "dep_time", "altitude", "sid", "squawk"},
+		Fields: []string{"flight", "origin", "dep_time", "flight_level", "sid", "squawk"},
 	},
 
 	// Format 13: Private/Business jet PDC (Teterboro, etc)
 	// Example:
 	// KTEB PDC
-	// PDC LXJ559 CL35/L
+	// PDC LXJ559 CL35/L (or PDC PSBCO GLEX/L for registrations)
 	// ETD KTEB 1233UTC
 	// FL20
 	// CLEARED AS FILED
 	// CLEARED TEB4 DEPARTURE
 	// MAINTAIN 2000FT
 	// EXP 20 10 MIN AFT DP,DPFRQ 119.2
+	// SQUAWK 1234
 	{
 		Name: "private_jet",
 		Pattern: `(?s){ICAO}\s+PDC\s+` +
-			`PDC\s+(?P<flight>[A-Z]{2,3}\d{1,4})\s+(?P<aircraft>[A-Z0-9]+)/[A-Z]\s+` +
+			`PDC\s+(?P<flight>{FLIGHT}|{REGISTRATION})\s+(?P<aircraft>[A-Z0-9]+)/[A-Z]\s+` +
 			`ETD\s+(?P<origin>{ICAO})\s+(?P<dep_time>\d{4})UTC\s+` +
-			`FL(?P<altitude>\d+)\s+` +
+			`FL(?P<flight_level>\d+)\s+` +
 			`.*?CLEARED\s+(?P<sid>[A-Z0-9]+)\s+DEPARTURE` +
-			`.*?MAINTAIN\s+(?P<init_alt>\d+)`,
-		Fields: []string{"flight", "aircraft", "origin", "dep_time", "altitude", "sid", "init_alt"},
+			`.*?MAINTAIN\s+(?P<init_alt>\d+)FT` +
+			`.*?SQUAWK\s+(?P<squawk>{SQUAWK})`,
+		Fields: []string{"flight", "aircraft", "origin", "dep_time", "flight_level", "sid", "init_alt", "squawk"},
 	},
 
 	// Format 14: UPS/Cargo PDC
@@ -634,19 +665,22 @@ func (c *Compiler) expand(pattern string) string {
 
 // PDCResult contains the extracted fields from a PDC message.
 type PDCResult struct {
-	FormatName    string
-	FlightNumber  string
-	Origin        string
-	Destination   string
-	Aircraft      string
-	Runway        string
-	SID           string
-	Route         string
-	Squawk        string
-	Altitude      string
-	Frequency     string
-	ATIS          string
-	DepartureTime string
+	FormatName      string
+	FlightNumber    string
+	Origin          string // ICAO origin (4-letter code)
+	OriginIATA      string // IATA origin (3-letter code) - not used for enrichment
+	Destination     string // ICAO destination (4-letter code)
+	DestIATA        string // IATA destination (3-letter code) - not used for enrichment
+	Aircraft        string
+	Runway          string
+	SID             string
+	Route           string
+	Squawk          string
+	Altitude        string // Initial climb altitude (e.g., MAINTAIN 5000FT)
+	FlightLevel     string // Cruise flight level (e.g., FL410)
+	Frequency       string
+	ATIS            string
+	DepartureTime   string
 }
 
 // Parse attempts to parse a PDC message using all known formats.
@@ -680,17 +714,13 @@ func (c *Compiler) Parse(text string) *PDCResult {
 			case "origin":
 				result.Origin = value
 			case "origin_iata":
-				// IATA origin code - only use if no ICAO origin set.
-				if result.Origin == "" {
-					result.Origin = value
-				}
+				// IATA origin code - stored separately, not used for enrichment.
+				result.OriginIATA = value
 			case "destination":
 				result.Destination = value
 			case "dest_iata":
-				// IATA destination code - only use if no ICAO destination set.
-				if result.Destination == "" {
-					result.Destination = value
-				}
+				// IATA destination code - stored separately, not used for enrichment.
+				result.DestIATA = value
 			case "waypoint":
 				// Initial waypoint (for waypoint-based departures without named SID).
 				if result.SID == "" {
@@ -711,8 +741,10 @@ func (c *Compiler) Parse(text string) *PDCResult {
 				result.Route = cleanRoute(value)
 			case "squawk":
 				result.Squawk = value
-			case "altitude":
+			case "altitude", "init_alt":
 				result.Altitude = value
+			case "flight_level":
+				result.FlightLevel = value
 			case "freq":
 				result.Frequency = value
 			case "atis":
@@ -742,9 +774,25 @@ func (c *Compiler) Parse(text string) *PDCResult {
 			result.Altitude = extractAltitude(upperText)
 		}
 
+		// Post-process: extract flight level if not in pattern.
+		if result.FlightLevel == "" {
+			result.FlightLevel = extractFlightLevel(upperText)
+		}
+
 		// Post-process: extract route if present.
 		if result.Route == "" {
 			result.Route = extractRoute(upperText)
+		}
+
+		// Post-process: remove origin from start and destination from end of route if duplicated.
+		if result.Route != "" && result.Origin != "" {
+			result.Route = strings.TrimPrefix(result.Route, result.Origin+" ")
+		}
+		if result.Route != "" && result.Destination != "" {
+			result.Route = strings.TrimSuffix(result.Route, " "+result.Destination)
+		}
+		if result.Route != "" {
+			result.Route = strings.TrimSpace(result.Route)
 		}
 
 		return result
@@ -824,15 +872,11 @@ func (c *Compiler) ParseWithTrace(text string) *PDCParseTrace {
 				case "origin":
 					trace.Result.Origin = value
 				case "origin_iata":
-					if trace.Result.Origin == "" {
-						trace.Result.Origin = value
-					}
+					trace.Result.OriginIATA = value
 				case "destination":
 					trace.Result.Destination = value
 				case "dest_iata":
-					if trace.Result.Destination == "" {
-						trace.Result.Destination = value
-					}
+					trace.Result.DestIATA = value
 				case "waypoint":
 					if trace.Result.SID == "" {
 						trace.Result.SID = value
@@ -868,6 +912,7 @@ func (c *Compiler) ParseWithTrace(text string) *PDCParseTrace {
 		traceExtractor("ExtractFrequency", freqRe.String(), freqRe.FindStringSubmatch(upperText)),
 		traceExtractor("ExtractATIS", atisRe.String(), atisRe.FindStringSubmatch(upperText)),
 		traceExtractor("ExtractAltitude", altitudeRe.String(), altitudeRe.FindStringSubmatch(upperText)),
+		traceExtractor("ExtractFlightLevel", flightLevelRe.String(), flightLevelRe.FindStringSubmatch(upperText)),
 	}
 
 	return trace
@@ -890,7 +935,8 @@ var (
 	squawkRe   = regexp.MustCompile(`(?:SQUAWK|XPNDR|XPDR|TRANSPONDER)[/:\s]+([0-7]{4})`)
 	freqRe     = regexp.MustCompile(`(?:DEP\s*FREQ|DPFRQ|NEXT\s*FREQ|AIRBORNE\s*FREQ)[:\s]+(\d{3}\.\d{1,3})`)
 	atisRe     = regexp.MustCompile(`ATIS\s+([A-Z])\b`)
-	altitudeRe = regexp.MustCompile(`(?:CLIMB\s+(?:VIA\s+SID\s+)?TO[:\s]+|ALT\s*)(\d{3,5})`)
+	altitudeRe     = regexp.MustCompile(`(?:CLIMB\s+(?:VIA\s+SID\s+)?TO[:\s]+|ALT\s*)(\d{3,5})`)
+	flightLevelRe  = regexp.MustCompile(`(?:CRUISE\s+(?:FLT\s+)?LEVEL\s+|FL)(\d{2,3})\b`)
 	// Runway patterns - various PDC formats use different keywords.
 	runwayRe = regexp.MustCompile(`(?:EXPECT\s+RUNWAY|DEPARTURE\s+RUNWAY|DEP(?:ARTURE)?\s+RWY|RWY)\s+(\d{1,2}[LRC]?)`)
 	// Departure time patterns:
@@ -937,6 +983,13 @@ func extractAltitude(text string) string {
 	return ""
 }
 
+func extractFlightLevel(text string) string {
+	if m := flightLevelRe.FindStringSubmatch(text); len(m) > 1 {
+		return m[1]
+	}
+	return ""
+}
+
 // ExtractDepartureTime extracts scheduled departure time from PDC text.
 func ExtractDepartureTime(text string) string {
 	upperText := strings.ToUpper(text)
@@ -961,6 +1014,8 @@ func extractRoute(text string) string {
 // cleanRoute normalises route strings by collapsing whitespace.
 func cleanRoute(route string) string {
 	route = strings.TrimSpace(route)
+	route = strings.ReplaceAll(route, "\r\n", " ")
+	route = strings.ReplaceAll(route, "\r", " ")
 	route = strings.ReplaceAll(route, "\n", " ")
 	route = strings.ReplaceAll(route, "\t", " ")
 	// Collapse multiple spaces.
@@ -1053,6 +1108,7 @@ var excludedWaypoints = map[string]bool{
 	"EXPECT":      true,
 	"VECTORS":     true,
 	"DIRECT":      true,
+	"DCT":         true, // Direct To (abbreviation)
 	"THEN":        true,
 	"AFTER":       true,
 	"UNTIL":       true,

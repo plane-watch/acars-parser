@@ -1,0 +1,392 @@
+openapi: 3.0.3
+info:
+  title: Flight Enrichment API
+  description: |
+    REST API for accessing flight enrichment data extracted from ACARS messages.
+
+    This API provides access to operational flight data including routes, runways,
+    SIDs, squawk codes, and passenger counts. Data is keyed by aircraft ICAO hex
+    address, callsign, and flight date.
+
+    ## Authentication
+
+    When authentication is enabled, requests must include an API key via one of:
+    - `X-API-Key` header
+    - `Authorization: Bearer <key>` header
+    - `api_key` query parameter
+
+    ## Rate Limiting
+
+    No rate limiting is currently enforced, but clients should implement
+    reasonable request rates (e.g., max 10 requests/second).
+  version: 1.0.0
+  contact:
+    name: ACARS Parser
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8081/api/v1
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Enrichment
+    description: Flight enrichment data endpoints
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns the health status of the API server.
+      operationId: getHealth
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /enrichment/{icao_hex}:
+    get:
+      tags:
+        - Enrichment
+      summary: Get enrichments by aircraft
+      description: |
+        Returns all flight enrichments for an aircraft on today's date (UTC).
+        An aircraft may have multiple enrichments if it operated multiple flights.
+      operationId: getEnrichmentByAircraft
+      parameters:
+        - $ref: '#/components/parameters/ICAOHex'
+      responses:
+        '200':
+          description: Enrichment data found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightEnrichment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /enrichment/{icao_hex}/{callsign}:
+    get:
+      tags:
+        - Enrichment
+      summary: Get enrichment by aircraft and callsign
+      description: |
+        Returns the enrichment for a specific flight (aircraft + callsign) on today's date.
+      operationId: getEnrichmentByCallsign
+      parameters:
+        - $ref: '#/components/parameters/ICAOHex'
+        - $ref: '#/components/parameters/Callsign'
+      responses:
+        '200':
+          description: Enrichment data found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightEnrichment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /enrichment/{icao_hex}/{callsign}/{date}:
+    get:
+      tags:
+        - Enrichment
+      summary: Get enrichment by aircraft, callsign, and date
+      description: |
+        Returns the enrichment for a specific flight on a specific date.
+        Use this for historical lookups.
+      operationId: getEnrichmentByDate
+      parameters:
+        - $ref: '#/components/parameters/ICAOHex'
+        - $ref: '#/components/parameters/Callsign'
+        - $ref: '#/components/parameters/FlightDate'
+      responses:
+        '200':
+          description: Enrichment data found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightEnrichment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /enrichment/batch:
+    post:
+      tags:
+        - Enrichment
+      summary: Batch lookup enrichments
+      description: |
+        Look up enrichments for multiple aircraft in a single request.
+        Maximum 100 aircraft per request. Returns today's data.
+      operationId: batchEnrichment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequest'
+      responses:
+        '200':
+          description: Batch results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  parameters:
+    ICAOHex:
+      name: icao_hex
+      in: path
+      required: true
+      description: |
+        Aircraft ICAO 24-bit address in hexadecimal (e.g., "7C6CA3").
+        This is the unique identifier broadcast by aircraft transponders.
+      schema:
+        type: string
+        pattern: '^[0-9A-Fa-f]{6}$'
+        example: '7C6CA3'
+
+    Callsign:
+      name: callsign
+      in: path
+      required: true
+      description: |
+        Flight callsign/flight number (e.g., "QFA9", "UAL123").
+        Uses ICAO format (3-letter airline code + flight number).
+      schema:
+        type: string
+        pattern: '^[A-Z]{2,5}[0-9]{1,4}[A-Z]?$'
+        example: 'QFA9'
+
+    FlightDate:
+      name: date
+      in: path
+      required: true
+      description: Flight date in YYYY-MM-DD format (UTC).
+      schema:
+        type: string
+        format: date
+        example: '2026-01-30'
+
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - time
+      properties:
+        status:
+          type: string
+          description: Health status
+          example: 'ok'
+        time:
+          type: string
+          format: date-time
+          description: Current server time (UTC)
+          example: '2026-01-30T14:30:00Z'
+
+    FlightEnrichment:
+      type: object
+      required:
+        - icao_hex
+        - callsign
+        - flight_date
+        - last_updated
+      properties:
+        icao_hex:
+          type: string
+          description: Aircraft ICAO 24-bit hex address
+          example: '7C6CA3'
+        callsign:
+          type: string
+          description: Flight callsign (ICAO format)
+          example: 'QFA9'
+        flight_date:
+          type: string
+          format: date
+          description: Flight date (UTC)
+          example: '2026-01-30'
+        origin:
+          type: string
+          description: Origin airport ICAO code
+          example: 'YPPH'
+        destination:
+          type: string
+          description: Destination airport ICAO code
+          example: 'EGLL'
+        route:
+          type: array
+          description: Route waypoints
+          items:
+            type: string
+          example: ['JULIM', 'BEVLY', 'ORRSU', 'LONSU']
+        eta:
+          type: string
+          description: Estimated time of arrival (HH:MM)
+          example: '14:30'
+        departure_runway:
+          type: string
+          description: Departure runway
+          example: '03'
+        arrival_runway:
+          type: string
+          description: Arrival runway (when known)
+          example: '27R'
+        sid:
+          type: string
+          description: Standard Instrument Departure procedure
+          example: 'JULIM6'
+        squawk:
+          type: string
+          description: Assigned transponder code
+          pattern: '^[0-7]{4}$'
+          example: '4521'
+        pax_count:
+          type: integer
+          description: Total passenger count
+          example: 350
+        pax_breakdown:
+          type: object
+          description: Passenger count by cabin class
+          additionalProperties:
+            type: integer
+          example:
+            J: 14
+            W: 56
+            Y: 280
+        last_updated:
+          type: string
+          format: date-time
+          description: When this enrichment was last updated
+          example: '2026-01-30T08:45:00Z'
+
+    BatchRequest:
+      type: object
+      required:
+        - aircraft
+      properties:
+        aircraft:
+          type: array
+          description: List of aircraft to look up (max 100)
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/BatchAircraftQuery'
+
+    BatchAircraftQuery:
+      type: object
+      required:
+        - icao_hex
+      properties:
+        icao_hex:
+          type: string
+          description: Aircraft ICAO 24-bit hex address
+          example: '7C6CA3'
+        callsign:
+          type: string
+          description: Optional callsign filter
+          example: 'QFA9'
+
+    BatchResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: object
+          description: Enrichments keyed by ICAO hex
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/FlightEnrichment'
+        errors:
+          type: object
+          description: Errors keyed by ICAO hex (only present if errors occurred)
+          additionalProperties:
+            type: string
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: 'No enrichment data found'
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'Invalid date format (use YYYY-MM-DD)'
+
+    Unauthorized:
+      description: API key required or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'API key required'
+
+    NotFound:
+      description: No enrichment data found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: 'No enrichment data found'
+
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key passed in X-API-Key header
+
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: API key passed as Bearer token
+
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: API key passed as query parameter (for testing only)
+
+security:
+  - ApiKeyHeader: []
+  - BearerAuth: []
+  - ApiKeyQuery: []

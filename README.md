@@ -48,10 +48,12 @@ See `docs/plans/2026-01-24-clickhouse-postgres-migration-design.md` for the full
 
 ```
 acars_parser/
-├── cmd/acars_parser/          # Command-line entry point
-│   ├── main.go
-│   ├── extract.go          # Extract command
-│   └── live.go             # Live NATS command
+├── cmd/
+│   ├── acars_parser/       # Main CLI tool
+│   │   ├── main.go
+│   │   ├── extract.go      # Extract command
+│   │   └── live.go         # Live NATS command
+│   └── enrichment-api/     # Flight enrichment REST API
 ├── internal/
 │   ├── acars/              # ACARS message types
 │   ├── registry/           # Parser registry
@@ -302,6 +304,42 @@ Discover message format templates by normalising messages.
 - `-min N` - Minimum messages per template to show (default: 2)
 - `-examples N` - Number of example messages per template (default: 1)
 - `-v` - Verbose output: show full template strings
+
+## Enrichment API
+
+A standalone REST API server provides access to flight enrichment data for ADS-B tracking integration.
+
+```bash
+# Build and run
+go build -o enrichment-api ./cmd/enrichment-api
+./enrichment-api -port 8081
+```
+
+**Endpoints:**
+- `GET /api/v1/health` - Health check
+- `GET /api/v1/enrichment/{icao_hex}` - Get enrichments for aircraft (today)
+- `GET /api/v1/enrichment/{icao_hex}/{callsign}` - Get specific flight (today)
+- `GET /api/v1/enrichment/{icao_hex}/{callsign}/{date}` - Historical lookup
+- `POST /api/v1/enrichment/batch` - Batch lookup (max 100 aircraft)
+
+**Example:**
+```bash
+curl http://localhost:8081/api/v1/enrichment/7C6CA3
+```
+
+```json
+[{
+  "icao_hex": "7C6CA3",
+  "callsign": "QFA9",
+  "origin": "YPPH",
+  "destination": "EGLL",
+  "departure_runway": "03",
+  "sid": "JULIM6",
+  "squawk": "4521"
+}]
+```
+
+See `docs/enrichment-api.md` for full documentation and `api/openapi.yaml` for the OpenAPI spec.
 
 ## Supported Message Types
 
