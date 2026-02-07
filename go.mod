@@ -5,10 +5,11 @@ go 1.25.5
 replace github.com/shaneshort/go-asn => /Users/shanes/Documents/development/go-asn
 
 require (
-	github.com/shaneshort/go-asn v0.0.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.42.0
+	github.com/go-chi/chi/v5 v5.2.4
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/nats-io/nats.go v1.48.0
+	github.com/shaneshort/go-asn v0.0.0
 	modernc.org/sqlite v1.42.2
 )
 
@@ -17,8 +18,6 @@ require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/free5gc/aper v1.1.0 // indirect
-	github.com/go-chi/chi/v5 v5.2.4 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -36,8 +35,6 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/tim-ywliu/nested-logrus-formatter v1.3.2 // indirect
 	go.opentelemetry.io/otel v1.39.0 // indirect
 	go.opentelemetry.io/otel/trace v1.39.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
