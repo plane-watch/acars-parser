@@ -1,0 +1,165 @@
+id,message_text,response_required,intent,category
+UM0,UNABLE,N,Indicates that ATC cannot comply with the request,Responses/Acknowledgements
+UM1,STANDBY,N,Indicates that ATC has received the message and will respond,Responses/Acknowledgements
+UM2,REQUEST DEFERRED,N,Indicates that ATC has received the request but it has been deferred until later,Responses/Acknowledgements
+UM3,ROGER,N,Indicates that ATC has received and understood the message,Responses/Acknowledgements
+UM4,AFFIRM,N,Yes,Responses/Acknowledgements
+UM5,NEGATIVE,N,No,Responses/Acknowledgements
+UM211,REQUEST FORWARDED [free text],N,Indicates that the ATC has received the request and has passed it to the next control authority,Responses/Acknowledgements
+UM218,REQUEST ALREADY RECEIVED,N,Indicates to the pilot that the request has already been received on the ground,Responses/Acknowledgements
+UM235,ROGER 7500,N,Notification of receipt of unlawful interference message,Responses/Acknowledgements
+UM237,REQUEST AGAIN WITH NEXT UNIT [free text],N,Indicates that the request cannot be responded to by the current unit and should be requested from the next unit,Responses/Acknowledgements
+UM6,EXPECT [level],R,Notification that a level change instruction should be expected,Vertical Clearances
+UM7,EXPECT CLIMB AT [time],R,Notification that an instruction should be expected for the aircraft to commence climb at the specified time,Vertical Clearances
+UM8,EXPECT CLIMB AT [position],R,Notification that an instruction should be expected for the aircraft to commence climb at the specified position,Vertical Clearances
+UM9,EXPECT DESCENT AT [time],R,Notification that an instruction should be expected for the aircraft to commence descent at the specified time,Vertical Clearances
+UM10,EXPECT DESCENT AT [position],R,Notification that an instruction should be expected for the aircraft to commence descent at the specified position,Vertical Clearances
+UM11,EXPECT CRUISE CLIMB AT [time],R,Notification that an instruction should be expected for the aircraft to commence cruise climb at the specified time,Vertical Clearances
+UM12,EXPECT CRUISE CLIMB AT [position],R,Notification that an instruction should be expected for the aircraft to commence cruise climb at the specified position,Vertical Clearances
+UM19,MAINTAIN [level],W/U,Instruction to maintain the specified level,Vertical Clearances
+UM20,CLIMB TO [level],W/U,Instruction that a climb to a specified level is to commence and once reached the specified level is to be maintained,Vertical Clearances
+UM21,AT [time] CLIMB TO [level],W/U,Instruction that at the specified time a climb to the specified level is to commence,Vertical Clearances
+UM22,AT [position] CLIMB TO [level],W/U,Instruction that at the specified position a climb to the specified level is to commence,Vertical Clearances
+UM23,DESCEND TO [level],W/U,Instruction that a descent to a specified level is to commence and once reached the specified level is to be maintained,Vertical Clearances
+UM24,AT [time] DESCEND TO [level],W/U,Instruction that at a specified time a descent to a specified level is to commence,Vertical Clearances
+UM25,AT [position] DESCEND TO [level],W/U,Instruction that at the specified position a descent to the specified level is to commence,Vertical Clearances
+UM26,CLIMB TO REACH [level] BY [time],W/U,Instruction that a climb is to commence at a rate such that the specified level is reached at or before the specified time,Vertical Clearances
+UM27,CLIMB TO REACH [level] BY [position],W/U,Instruction that a climb is to commence at a rate such that the specified level is reached at or before the specified position,Vertical Clearances
+UM28,DESCEND TO REACH [level] BY [time],W/U,Instruction that a descent is to commence at a rate such that the specified level is reached at or before the specified time,Vertical Clearances
+UM29,DESCEND TO REACH [level] BY [position],W/U,Instruction that a descent is to commence at a rate such that the specified level is reached at or before the specified position,Vertical Clearances
+UM30,MAINTAIN BLOCK [level] TO [level],W/U,Instruction that a level within the defined vertical range specified is to be maintained,Vertical Clearances
+UM31,CLIMB TO AND MAINTAIN BLOCK [level] TO [level],W/U,Instruction that a climb to a level within the vertical range defined is to commence,Vertical Clearances
+UM32,DESCEND TO AND MAINTAIN BLOCK [level] TO [level],W/U,Instruction that a descent to a level within the vertical range defined is to commence,Vertical Clearances
+UM34,CRUISE CLIMB TO [level],W/U,Instruction that a cruise climb to the specified level is to commence and continue,Vertical Clearances
+UM36,EXPEDITE CLIMB TO [level],W/U,Instruction that the climb to the specified level should be made at the aircraft's best rate,Vertical Clearances
+UM37,EXPEDITE DESCENT TO [level],W/U,Instruction that the descent to the specified level should be made at the aircraft's best rate,Vertical Clearances
+UM38,IMMEDIATELY CLIMB TO [level],W/U,Urgent instruction to immediately climb to the specified level,Vertical Clearances
+UM39,IMMEDIATELY DESCEND TO [level],W/U,Urgent instruction to immediately descend to the specified level,Vertical Clearances
+UM171,CLIMB AT [vertical rate] MINIMUM,W/U,Instruction to climb at not less than the specified rate,Vertical Clearances
+UM172,CLIMB AT [vertical rate] MAXIMUM,W/U,Instruction to climb at not above the specified rate,Vertical Clearances
+UM173,DESCEND AT [vertical rate] MINIMUM,W/U,Instruction to descend at not less than the specified rate,Vertical Clearances
+UM174,DESCEND AT [vertical rate] MAXIMUM,W/U,Instruction to descend at not above the specified rate,Vertical Clearances
+UM219,STOP CLIMB AT [level],W/U,Instruction to stop the climb at the specified level,Vertical Clearances
+UM220,STOP DESCENT AT [level],W/U,Instruction to stop the descent at the specified level,Vertical Clearances
+UM46,CROSS [position] AT [level],W/U,Instruction that the specified position is to be crossed at the specified level,Crossing Constraints
+UM47,CROSS [position] AT OR ABOVE [level],W/U,Instruction that the specified position is to be crossed at or above the specified level,Crossing Constraints
+UM48,CROSS [position] AT OR BELOW [level],W/U,Instruction that the specified position is to be crossed at or below the specified level,Crossing Constraints
+UM49,CROSS [position] AT AND MAINTAIN [level],W/U,Instruction that the specified position is to be crossed at the specified level and that level is to be maintained,Crossing Constraints
+UM50,CROSS [position] BETWEEN [level] AND [level],W/U,Instruction that the specified position is to be crossed at a level between the specified levels,Crossing Constraints
+UM51,CROSS [position] AT [time],W/U,Instruction that the specified position is to be crossed at the specified time,Crossing Constraints
+UM52,CROSS [position] AT OR BEFORE [time],W/U,Instruction that the specified position is to be crossed at or before the specified time,Crossing Constraints
+UM53,CROSS [position] AT OR AFTER [time],W/U,Instruction that the specified position is to be crossed at or after the specified time,Crossing Constraints
+UM54,CROSS [position] BETWEEN [time] AND [time],W/U,Instruction that the specified position is to be crossed at a time between the specified times,Crossing Constraints
+UM55,CROSS [position] AT [speed],W/U,Instruction that the specified position is to be crossed at the specified speed,Crossing Constraints
+UM56,CROSS [position] AT OR LESS THAN [speed],W/U,Instruction that the specified position is to be crossed at a speed equal to or less than the specified speed,Crossing Constraints
+UM57,CROSS [position] AT OR GREATER THAN [speed],W/U,Instruction that the specified position is to be crossed at a speed equal to or greater than the specified speed,Crossing Constraints
+UM58,CROSS [position] AT [time] AT [level],W/U,Instruction that the specified position is to be crossed at the specified time and the specified level,Crossing Constraints
+UM59,CROSS [position] AT OR BEFORE [time] AT [level],W/U,Instruction that the specified position is to be crossed at or before the specified time and at the specified level,Crossing Constraints
+UM60,CROSS [position] AT OR AFTER [time] AT [level],W/U,Instruction that the specified position is to be crossed at or after the specified time and at the specified level,Crossing Constraints
+UM61,CROSS [position] AT AND MAINTAIN [level] AT [speed],W/U,"Instruction that the specified position is to be crossed at the specified level and speed, and the level and speed are to be maintained",Crossing Constraints
+UM62,AT [time] CROSS [position] AT AND MAINTAIN [level],W/U,Instruction that at the specified time the specified position is to be crossed at the specified level,Crossing Constraints
+UM63,AT [time] CROSS [position] AT AND MAINTAIN [level] AT [speed],W/U,Instruction that at the specified time the specified position is to be crossed at the specified level and speed,Crossing Constraints
+UM64,OFFSET [specified distance] [direction] OF ROUTE,W/U,Instruction to fly a parallel track to the cleared route at a displacement of the specified distance in the specified direction,Lateral Offsets
+UM65,AT [position] OFFSET [specified distance] [direction] OF ROUTE,W/U,Instruction to fly a parallel track to the cleared route at a displacement of the specified distance in the specified direction commencing at the specified position,Lateral Offsets
+UM66,AT [time] OFFSET [specified distance] [direction] OF ROUTE,W/U,Instruction to fly a parallel track to the cleared route at a displacement of the specified distance in the specified direction commencing at the specified time,Lateral Offsets
+UM67,PROCEED BACK ON ROUTE,W/U,Instruction that the cleared flight route is to be rejoined,Lateral Offsets
+UM68,REJOIN ROUTE BY [position],W/U,Instruction that the cleared flight route is to be rejoined at or before the specified position,Lateral Offsets
+UM69,REJOIN ROUTE BY [time],W/U,Instruction that the cleared flight route is to be rejoined at or before the specified time,Lateral Offsets
+UM70,EXPECT BACK ON ROUTE BY [position],R,Notification that a clearance may be issued to enable the aircraft to rejoin the cleared route at or before the specified position,Lateral Offsets
+UM71,EXPECT BACK ON ROUTE BY [time],R,Notification that a clearance may be issued to enable the aircraft to rejoin the cleared route at or before the specified time,Lateral Offsets
+UM72,RESUME OWN NAVIGATION,W/U,Instruction to resume own navigation following a period of tracking or heading clearances,Lateral Offsets
+UM73,[departure clearance],W/U,Instruction to be followed from departure until the specified clearance limit,Route Modifications
+UM74,PROCEED DIRECT TO [position],W/U,Instruction to proceed directly from its present position to the specified position,Route Modifications
+UM75,WHEN ABLE PROCEED DIRECT TO [position],W/U,"Instruction to proceed, when able, directly to the specified position",Route Modifications
+UM76,AT [time] PROCEED DIRECT TO [position],W/U,"Instruction to proceed, at the specified time, directly to the specified position",Route Modifications
+UM77,AT [position] PROCEED DIRECT TO [position],W/U,"Instruction to proceed, at the specified position, directly to the next specified position",Route Modifications
+UM78,AT [level] PROCEED DIRECT TO [position],W/U,"Instruction to proceed, upon reaching the specified level, directly to the specified position",Route Modifications
+UM79,CLEARED TO [position] VIA [route clearance],W/U,Instruction to proceed to the specified position via the specified route,Route Modifications
+UM80,CLEARED [route clearance],W/U,Instruction to proceed via the specified route,Route Modifications
+UM81,CLEARED [procedure name],W/U,Instruction to proceed in accordance with the specified procedure,Route Modifications
+UM82,CLEARED TO DEVIATE UP TO [specified distance] [direction] OF ROUTE,W/U,Approval to deviate up to the specified distance from the cleared route in the specified direction,Route Modifications
+UM91,HOLD AT [position] MAINTAIN [level] INBOUND TRACK [degrees] [direction] TURNS [leg type],W/U,Instruction to enter a holding pattern with the specified characteristics at the specified position and level,Route Modifications
+UM92,HOLD AT [position] AS PUBLISHED MAINTAIN [level],W/U,Instruction to enter a holding pattern with the published characteristics at the specified position and level,Route Modifications
+UM93,EXPECT FURTHER CLEARANCE AT [time],R,Notification that an onwards clearance may be issued at the specified time,Route Modifications
+UM94,TURN [direction] HEADING [degrees],W/U,Instruction to turn left or right as specified on to the specified heading,Route Modifications
+UM95,TURN [direction] GROUND TRACK [degrees],W/U,Instruction to turn left or right as specified on to the specified track,Route Modifications
+UM96,CONTINUE PRESENT HEADING,W/U,Instruction to continue to fly on the current heading,Route Modifications
+UM97,AT [position] FLY HEADING [degrees],W/U,Instruction to fly on the specified heading from the specified position,Route Modifications
+UM98,IMMEDIATELY TURN [direction] HEADING [degrees],W/U,Instruction to turn immediately left or right as specified on to the specified heading,Route Modifications
+UM190,FLY HEADING [degrees],W/U,Instruction to fly on the specified heading,Route Modifications
+UM215,TURN [direction] [degrees] DEGREES,W/U,Instruction to turn a specified number of degrees left or right,Route Modifications
+UM221,STOP TURN HEADING [degrees],W/U,Instruction to stop turn at the specified heading prior to reaching the previously assigned heading,Route Modifications
+UM100,AT [time] EXPECT [speed],R,Notification that a speed instruction may be issued to be effective at the specified time,Speed Changes
+UM101,AT [position] EXPECT [speed],R,Notification that a speed instruction may be issued to be effective at the specified position,Speed Changes
+UM102,AT [level] EXPECT [speed],R,Notification that a speed instruction may be issued to be effective at the specified level,Speed Changes
+UM106,MAINTAIN [speed],W/U,Instruction that the specified speed is to be maintained,Speed Changes
+UM107,MAINTAIN PRESENT SPEED,W/U,Instruction that the present speed is to be maintained,Speed Changes
+UM108,MAINTAIN [speed] OR GREATER,W/U,Instruction that the specified speed or a greater speed is to be maintained,Speed Changes
+UM109,MAINTAIN [speed] OR LESS,W/U,Instruction that the specified speed or a lesser speed is to be maintained,Speed Changes
+UM110,MAINTAIN [speed] TO [speed],W/U,Instruction that a speed within the specified range is to be maintained,Speed Changes
+UM111,INCREASE SPEED TO [speed],W/U,Instruction that the present speed is to be increased to the specified speed and maintained until further advised,Speed Changes
+UM112,INCREASE SPEED TO [speed] OR GREATER,W/U,Instruction that the present speed is to be increased to the specified speed or greater,Speed Changes
+UM113,REDUCE SPEED TO [speed],W/U,Instruction that the present speed is to be reduced to the specified speed and maintained until further advised,Speed Changes
+UM114,REDUCE SPEED TO [speed] OR LESS,W/U,Instruction that the present speed is to be reduced to the specified speed or less,Speed Changes
+UM115,DO NOT EXCEED [speed],W/U,Instruction that the specified speed is not to be exceeded,Speed Changes
+UM116,RESUME NORMAL SPEED,W/U,Instruction that the aircraft's normal speed be resumed. The previously issued speed restriction(s) are cancelled,Speed Changes
+UM222,NO SPEED RESTRICTION [free text],R,Notification that the aircraft may keep its preferred speed without restriction,Speed Changes
+UM117,CONTACT [unit name] [frequency],W/U,Instruction that the ATS unit with the specified ATS unit name is to be contacted on the specified frequency,Contact/Monitor
+UM118,AT [position] CONTACT [unit name] [frequency],W/U,Instruction that at the specified position the ATS unit with the specified ATS unit name is to be contacted on the specified frequency,Contact/Monitor
+UM119,AT [time] CONTACT [unit name] [frequency],W/U,Instruction that at the specified time the ATS unit with the specified ATS unit name is to be contacted on the specified frequency,Contact/Monitor
+UM120,MONITOR [unit name] [frequency],W/U,Instruction that the ATS unit with the specified ATS unit name is to be monitored on the specified frequency,Contact/Monitor
+UM121,AT [position] MONITOR [unit name] [frequency],W/U,Instruction that at the specified position the ATS unit with the specified ATS unit name is to be monitored on the specified frequency,Contact/Monitor
+UM122,AT [time] MONITOR [unit name] [frequency],W/U,Instruction that at the specified time the ATS unit with the specified ATS unit name is to be monitored on the specified frequency,Contact/Monitor
+UM123,SQUAWK [code],W/U,Instruction that the specified code (SSR code) is to be selected,Contact/Monitor
+UM124,STOP SQUAWK,W/U,Instruction that the SSR transponder responses are to be disabled,Contact/Monitor
+UM125,SQUAWK MODE CHARLIE,W/U,Instruction that the SSR transponder responses should include level information,Contact/Monitor
+UM126,STOP SQUAWK MODE CHARLIE,W/U,Instruction that the SSR transponder responses should no longer include level information,Contact/Monitor
+UM179,SQUAWK IDENT,W/U,Instruction that the 'ident' function on the SSR transponder is to be actuated,Contact/Monitor
+UM127,REPORT BACK ON ROUTE,W/U,Instruction to report when the aircraft is back on the cleared route,Report/Confirmation Requests
+UM128,REPORT LEAVING [level],W/U,Instruction to report when the aircraft has vacated the specified level,Report/Confirmation Requests
+UM129,REPORT MAINTAINING [level],W/U,Instruction to report when the aircraft is in level flight at the specified level,Report/Confirmation Requests
+UM130,REPORT PASSING [position],W/U,Instruction to report when the aircraft has passed the specified position,Report/Confirmation Requests
+UM131,REPORT REMAINING FUEL AND PERSONS ON BOARD,Y,Instruction to report the amount of fuel remaining and the number of persons on board,Report/Confirmation Requests
+UM132,REPORT POSITION,Y,Instruction to report the present position,Report/Confirmation Requests
+UM133,REPORT PRESENT LEVEL,Y,Instruction to report the present level,Report/Confirmation Requests
+UM134,REPORT [speed type] SPEED,Y,Instruction to report the requested speed,Report/Confirmation Requests
+UM135,CONFIRM ASSIGNED LEVEL,Y,Instruction to confirm the currently assigned level,Report/Confirmation Requests
+UM136,CONFIRM ASSIGNED SPEED,Y,Instruction to confirm the currently assigned speed,Report/Confirmation Requests
+UM137,CONFIRM ASSIGNED ROUTE,Y,Instruction to confirm the currently assigned route,Report/Confirmation Requests
+UM138,CONFIRM TIME OVER REPORTED WAYPOINT,Y,Instruction to confirm the previously reported time over the last reported waypoint,Report/Confirmation Requests
+UM139,CONFIRM REPORTED WAYPOINT,Y,Instruction to confirm the identity of the previously reported waypoint,Report/Confirmation Requests
+UM140,CONFIRM NEXT WAYPOINT,Y,Instruction to confirm the identity of the next waypoint,Report/Confirmation Requests
+UM141,CONFIRM NEXT WAYPOINT ETA,Y,Instruction to confirm the previously reported estimated time at the next waypoint,Report/Confirmation Requests
+UM142,CONFIRM ENSUING WAYPOINT,Y,Instruction to confirm the identity of the next but one waypoint,Report/Confirmation Requests
+UM143,CONFIRM REQUEST,Y,The request was not understood. It should be clarified and resubmitted,Report/Confirmation Requests
+UM144,CONFIRM SQUAWK,Y,Instruction to report the selected (SSR) code,Report/Confirmation Requests
+UM145,REPORT HEADING,Y,Instruction to report the present heading,Report/Confirmation Requests
+UM146,REPORT GROUND TRACK,Y,Instruction to report the present ground track,Report/Confirmation Requests
+UM147,REQUEST POSITION REPORT,Y,Instruction to make a position report,Report/Confirmation Requests
+UM148,WHEN CAN YOU ACCEPT [level],Y,Request for the earliest time or position at which the specified level can be accepted,Negotiation Requests
+UM149,CAN YOU ACCEPT [level] AT [position],A/N,Instruction to report whether or not the specified level can be accepted at the specified position,Negotiation Requests
+UM150,CAN YOU ACCEPT [level] AT [time],A/N,Instruction to report whether or not the specified level can be accepted at the specified time,Negotiation Requests
+UM151,WHEN CAN YOU ACCEPT [speed],Y,Instruction to report the earliest time or position when the specified speed can be accepted,Negotiation Requests
+UM152,WHEN CAN YOU ACCEPT [specified distance] [direction] OFFSET,Y,Instruction to report the earliest time or position when the specified offset track can be accepted,Negotiation Requests
+UM153,ALTIMETER [altimeter],R,ATS advisory that the altimeter setting should be the specified setting,Air Traffic Advisories
+UM154,RADAR SERVICE TERMINATED,R,ATS advisory that the radar service is terminated,Air Traffic Advisories
+UM155,RADAR CONTACT [position],R,ATS advisory that radar contact has been established at the specified position,Air Traffic Advisories
+UM156,RADAR CONTACT LOST,R,ATS advisory that radar contact has been lost,Air Traffic Advisories
+UM157,CHECK STUCK MICROPHONE [frequency],N,Instruction that a continuous transmission is detected on the specified frequency. Check the microphone button,Air Traffic Advisories
+UM158,ATIS [atis code],R,ATS advisory that the ATIS information identified by the specified code is the current ATIS information,Air Traffic Advisories
+UM159,ERROR [error information],N,A system generated message notifying that the ground system has detected an error,System Management
+UM160,NEXT DATA AUTHORITY [facility designation],N,Notification to the avionics that the specified data authority is the next data authority,System Management
+UM161,END SERVICE,N,Notification to the avionics that the data link connection with the current data authority is being terminated,System Management
+UM162,SERVICE UNAVAILABLE,N,Notification that the ground system does not support this message,System Management
+UM163,[facility designation],N,Notification to the pilot of an ATSU identifier,System Management
+UM227,LOGICAL ACKNOWLEDGEMENT,N,Confirmation to the aircraft system that the ground system has received the message to which the logical acknowledgement refers,System Management
+UM164,WHEN READY,N,The associated instruction may be complied with at any future time,Additional Messages
+UM165,THEN,N,"Used to link two messages, indicating the proper order of execution of clearances/instructions",Additional Messages
+UM166,DUE TO TRAFFIC,N,The associated instruction is issued due to traffic considerations,Additional Messages
+UM167,DUE TO AIRSPACE RESTRICTION,N,The associated instruction is issued due to airspace restrictions,Additional Messages
+UM168,DISREGARD,R,The indicated communication should be ignored,Additional Messages
+UM176,MAINTAIN OWN SEPARATION AND VMC,W/U,Instruction that the pilot is responsible for maintaining separation from other traffic and is also responsible for maintaining visual meteorological conditions,Additional Messages
+UM177,AT PILOTS DISCRETION,N,Used in conjunction with a clearance/instruction to indicate that the pilot may execute when prepared to do so,Additional Messages
+UM169,[free text],R,"Normal urgency attribute, low alert attribute free text",Free Text
+UM170,[free text],R,"Distress urgency attribute, high alert attribute free text",Free Text
+UM183,[free text],N,"Normal urgency attribute, medium alert attribute free text (ATN B1)",Free Text

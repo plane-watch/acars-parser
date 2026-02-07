@@ -8,12 +8,16 @@ import (
 
 func TestATISParser(t *testing.T) {
 	tests := []struct {
-		name        string
-		text        string
-		wantAirport string
-		wantLetter  string
-		wantQNH     string
-		wantRunways []string
+		name           string
+		text           string
+		wantAirport    string
+		wantLetter     string
+		wantType       string
+		wantQNH        string
+		wantTemp       string
+		wantWind       string
+		wantRunways    []string
+		wantApproaches []string
 	}{
 		{
 			name: "Hong Kong arrival",
@@ -27,10 +31,13 @@ func TestATISParser(t *testing.T) {
 	T18 DP14 QNH 1015HPA=
 	ACKNOWLEDGE INFO G ON
 	FIRST CTC WITH APP.FE6F`,
-			wantAirport: "VHHH",
-			wantLetter:  "G",
-			wantQNH:     "1015",
-			wantRunways: []string{"07C", "07R"},
+			wantAirport:    "VHHH",
+			wantLetter:     "G",
+			wantType:       "ARR",
+			wantQNH:        "1015",
+			wantTemp:       "18",
+			wantRunways:    []string{"07C", "07R"},
+			wantApproaches: []string{"ILS  APCH"},
 		},
 		{
 			name: "Incheon arrival",
@@ -47,8 +54,54 @@ func TestATISParser(t *testing.T) {
 	CAUTION BIRD ACTIVITY`,
 			wantAirport: "RKSI",
 			wantLetter:  "W",
+			wantType:    "ARR",
 			wantQNH:     "1029",
+			wantTemp:    "-8",
 			wantRunways: []string{"34L", "33L", "33R"},
+		},
+		{
+			name: "Perth ENR ATIS with WND/TMP format",
+			text: `/ATISAXS.TI2/YPPH ENR ATIS I
+1428Z
+ATIS YPPH I   311428
+   APCH: EXP RNP APCH
+   RWY: 06
++ WND: 100/25-35, MAX XW 25 KTS
+   WX: CAVOK
++ TMP: 24
+   QNH: 1016
+   SIGWX: SIGMET NOVEMBER 0 1 VALID,
+SEV TURB FCST BLW 3000 FT
+END OF ATIS I`,
+			wantAirport:    "YPPH",
+			wantLetter:     "I",
+			wantType:       "ENR",
+			wantQNH:        "1016",
+			wantTemp:       "24",
+			wantWind:       "100/25-35, MAX XW 25 KTS",
+			wantRunways:    []string{"06"},
+			wantApproaches: []string{"RNP APCH"},
+		},
+		{
+			name: "Perth DEP ATIS with RNP approach",
+			text: `/ATSEKXA.TI2/YPPH DEP ATIS H
+1312Z ATIS YPPH H   311312
++ APCH: EXP RNP APCH
++ RWY: 06
++ WND: 110/15-25, MAX XW 25 KTS
+   WX: CAVOK
++ TMP: 26
+   QNH: 1016
+   SIGWX: SIGMET NOVEMBER 0 1 VALID,
+SEV TURB FCST BLW 3000 FT`,
+			wantAirport:    "YPPH",
+			wantLetter:     "H",
+			wantType:       "DEP",
+			wantQNH:        "1016",
+			wantTemp:       "26",
+			wantWind:       "110/15-25, MAX XW 25 KTS",
+			wantRunways:    []string{"06"},
+			wantApproaches: []string{"RNP APCH"},
 		},
 	}
 
@@ -84,11 +137,25 @@ func TestATISParser(t *testing.T) {
 			if r.ATISLetter != tt.wantLetter {
 				t.Errorf("ATISLetter = %q, want %q", r.ATISLetter, tt.wantLetter)
 			}
+			if tt.wantType != "" && r.ATISType != tt.wantType {
+				t.Errorf("ATISType = %q, want %q", r.ATISType, tt.wantType)
+			}
 			if r.QNH != tt.wantQNH {
 				t.Errorf("QNH = %q, want %q", r.QNH, tt.wantQNH)
 			}
+			if tt.wantTemp != "" && r.Temperature != tt.wantTemp {
+				t.Errorf("Temperature = %q, want %q", r.Temperature, tt.wantTemp)
+			}
+			if tt.wantWind != "" && r.Wind != tt.wantWind {
+				t.Errorf("Wind = %q, want %q", r.Wind, tt.wantWind)
+			}
 			if len(r.Runways) != len(tt.wantRunways) {
 				t.Errorf("Runways = %v, want %v", r.Runways, tt.wantRunways)
+			}
+			if len(tt.wantApproaches) > 0 {
+				if len(r.Approaches) != len(tt.wantApproaches) {
+					t.Errorf("Approaches = %v, want %v", r.Approaches, tt.wantApproaches)
+				}
 			}
 		})
 	}

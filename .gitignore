@@ -4,4 +4,9 @@ acars_parser
 *.db
 *.db-*
 TODO.md
-*.credsdata
+*.creds*
+.DS_Store
+*.log
+data/
+bin/
+docs/plans/

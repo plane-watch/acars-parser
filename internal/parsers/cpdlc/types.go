@@ -2,6 +2,21 @@ package cpdlc
 
 import "fmt"
 
+// Message represents a decoded CPDLC message.
+type Message struct {
+	Direction MessageDirection `json:"direction"`
+	Header    MessageHeader    `json:"header"`
+	Elements  []MessageElement `json:"elements"`
+}
+
+// MessageElement represents a single message element (uplink or downlink).
+type MessageElement struct {
+	ID    int         `json:"id"`             // Element ID (uM0-uM182 for uplink, dM0-dM128 for downlink).
+	Label string      `json:"label"`          // Human-readable message template.
+	Data  interface{} `json:"data,omitempty"` // Element-specific data.
+	Text  string      `json:"text,omitempty"` // Formatted message text.
+}
+
 // MessageDirection indicates whether the message is uplink (ground to air) or downlink (air to ground).
 type MessageDirection int
 

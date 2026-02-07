@@ -47,35 +47,36 @@ func (p *Parser) Priority() int    { return 100 }
 
 // Patterns for ATIS parsing.
 var (
-	// Envelope: /ICNDLXA.TI2/RKSI ARR ATIS O
-	envelopeRe = regexp.MustCompile(`/([A-Z0-9]+)\.TI2/([A-Z]{4})\s+(ARR|DEP)?\s*ATIS\s+([A-Z])`)
+	// Envelope: /ICNDLXA.TI2/RKSI ARR ATIS O or /ATISAXS.TI2/YPPH ENR ATIS H
+	envelopeRe = regexp.MustCompile(`/([A-Z0-9]+)\.TI2/([A-Z]{4})\s+(ARR|DEP|ENR)?\s*ATIS\s+([A-Z])`)
 
 	// Time: 0500Z or 1806Z
 	timeRe = regexp.MustCompile(`\b(\d{4})Z\b`)
 
-	// Wind: WIND 180/4KT, WIND 360/15KT VRB BTN 130/ AND 200/
-	windRe = regexp.MustCompile(`WIND\s+(\d{3}/\d{1,3}KT(?:\s+(?:VRB|GUST)[^.]*)?|VRB\s+\d{1,3}KT)`)
+	// Wind: WIND 180/4KT, WIND 360/15KT VRB BTN 130/ AND 200/, WND: 100/25-35
+	// Handles both WIND and WND: prefixes, various formats including ranges.
+	windRe = regexp.MustCompile(`(?:WIND|WND):?\s+(\d{2,3}[-/]\d{1,3}(?:-\d{1,3})?(?:KT)?(?:,\s*MAX\s+XW\s+\d+\s*KTS?)?|VRB(?:\s+BTN)?[^.\n]*|\d{3}\s+DEG[^.\n]*)`)
 
-	// QNH: QNH 1027, QNH 1015HPA
-	qnhRe = regexp.MustCompile(`QNH\s+(\d{3,4})(?:HPA)?`)
+	// QNH: QNH 1027, QNH 1015HPA, QNH: 1016
+	qnhRe = regexp.MustCompile(`QNH:?\s+(\d{3,4})(?:\s*HPA)?`)
 
-	// Temperature: T MS 8, T 18, T MS 1
-	tempRe = regexp.MustCompile(`\bT\s+(MS\s*)?\s*(\d{1,2})\b`)
+	// Temperature: T MS 8, T 18, T MS 1, TMP: 24, T27
+	tempRe = regexp.MustCompile(`(?:\bT|TMP):?\s*(M|MS)?\s*(\d{1,2})\b`)
 
-	// Dew point: DP MS 17, DP 14, DP MS 8
-	dewPointRe = regexp.MustCompile(`\bDP\s*(MS\s*)?\s*(\d{1,2})\b`)
+	// Dew point: DP MS 17, DP 14, DP MS 8, DP23, DPM02
+	dewPointRe = regexp.MustCompile(`\bDP:?\s*(M|MS)?\s*(\d{1,2})\b`)
 
 	// Visibility: VIS 10KM, VIS 10KM OR MORE
-	visRe = regexp.MustCompile(`VIS\s+(\d+KM(?:\s+OR\s+MORE)?)`)
+	visRe = regexp.MustCompile(`VIS\s+(\d+\s*KM(?:\s+OR\s+MORE)?)`)
 
 	// Clouds: CLD BKN 3500FT, CLD FEW 2000FT, CAVOK
-	cloudRe = regexp.MustCompile(`(?:CLD\s+([A-Z]+\s+\d+FT)|CAVOK)`)
+	cloudRe = regexp.MustCompile(`(?:CLD\s+([A-Z]+\s+\d+\s*(?:FT|M))|CAVOK)`)
 
-	// Runway: RWY 15L, RWY 34, RWY 07C
-	runwayRe = regexp.MustCompile(`RWY\s+(\d{1,2}[LCR]?)`)
+	// Runway: RWY 15L, RWY 34, RWY 07C, RWY: 06
+	runwayRe = regexp.MustCompile(`RWY:?\s+(\d{1,2}[LCR]?)`)
 
-	// Approach: ILS APCH, ILS Z APCH, RNAV APCH
-	approachRe = regexp.MustCompile(`(ILS(?:\s+[A-Z])?\s+APCH|RNAV\s+APCH|VOR\s+APCH)`)
+	// Approach: ILS APCH, ILS Z APCH, RNAV APCH, RNP APCH, RNP Z APCH
+	approachRe = regexp.MustCompile(`(ILS(?:\s+[A-Z])?\s+APCH|RNAV\s+APCH|VOR\s+APCH|RNP(?:\s+[A-Z])?\s+APCH)`)
 )
 
 func (p *Parser) QuickCheck(text string) bool {
@@ -123,7 +124,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// Extract temperature.
 	if m := tempRe.FindStringSubmatch(text); len(m) > 2 {
 		temp := m[2]
-		if strings.Contains(m[1], "MS") {
+		// Handle M or MS prefix for minus temperatures.
+		if m[1] != "" && (strings.HasPrefix(m[1], "M") || strings.HasPrefix(m[1], "MS")) {
 			temp = "-" + temp
 		}
 		result.Temperature = temp
@@ -132,7 +134,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// Extract dew point.
 	if m := dewPointRe.FindStringSubmatch(text); len(m) > 2 {
 		dp := m[2]
-		if strings.Contains(m[1], "MS") {
+		// Handle M or MS prefix for minus dew points.
+		if m[1] != "" && (strings.HasPrefix(m[1], "M") || strings.HasPrefix(m[1], "MS")) {
 			dp = "-" + dp
 		}
 		result.DewPoint = dp

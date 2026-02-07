@@ -9,12 +9,12 @@ import (
 // TestValidCPDLCSamples tests samples that are known to be valid according to libacars.
 func TestValidCPDLCSamples(t *testing.T) {
 	samples := []struct {
-		hexStr       string
-		direction    MessageDirection
-		desc         string
-		wantElemID   int
-		wantMsgID    int
-		wantHasTime  bool
+		hexStr      string
+		direction   MessageDirection
+		desc        string
+		wantElemID  int
+		wantMsgID   int
+		wantHasTime bool
 	}{
 		// libacars sample (from cpdlc_get_position.c) - dM48 Position Report
 		// Verified to decode correctly in libacars with:
@@ -27,6 +27,24 @@ func TestValidCPDLCSamples(t *testing.T) {
 			wantMsgID:   8,
 			wantHasTime: true,
 		},
+		// Uplink: uM160 NEXT DATA AUTHORITY with ICAO facility designation.
+		{
+			hexStr:      "23BF9A682CCD9B341A01",
+			direction:   DirectionUplink,
+			desc:        "Uplink uM160 - NEXT DATA AUTHORITY",
+			wantElemID:  160,
+			wantMsgID:   7,
+			wantHasTime: true,
+		},
+		// Uplink: uM82 + uM127 - CLEARED TO DEVIATE + REPORT BACK ON ROUTE.
+		{
+			hexStr:      "E3BF000F520E21FC03AD",
+			direction:   DirectionUplink,
+			desc:        "Uplink uM82 + uM127 - CLEARED TO DEVIATE",
+			wantElemID:  82,
+			wantMsgID:   7,
+			wantHasTime: true,
+		},
 	}
 
 	for _, s := range samples {
@@ -36,8 +54,8 @@ func TestValidCPDLCSamples(t *testing.T) {
 				t.Fatalf("Hex decode error: %v", err)
 			}
 
-			decoder := NewDecoder(data, s.direction)
-			msg, err := decoder.Decode()
+			// Use the new UPER-based decoder.
+			msg, err := DecodeWithUPER(data, s.direction)
 			if err != nil {
 				t.Fatalf("Decode error: %v", err)
 			}
@@ -72,6 +90,59 @@ func TestValidCPDLCSamples(t *testing.T) {
 	}
 }
 
+// TestUplinkICAOUnitName tests uplink messages with ICAO unit names.
+func TestUplinkICAOUnitName(t *testing.T) {
+	// This message failed with: failed to read IA5 character 7: not enough bits
+	hexStr := "22C0659D52E9C69E01CC408880"
+	data, err := hex.DecodeString(hexStr)
+	if err != nil {
+		t.Fatalf("Hex decode error: %v", err)
+	}
+
+	fmt.Printf("\n=== Debug ICAO Unit Name Message ===\n")
+	fmt.Printf("Hex: %s\n", hexStr)
+	fmt.Printf("Length: %d bytes (%d bits)\n", len(data), len(data)*8)
+
+	// Print binary for analysis.
+	fmt.Printf("Binary: ")
+	for _, b := range data {
+		fmt.Printf("%08b ", b)
+	}
+	fmt.Printf("\n")
+
+	// Try decoding as uplink.
+	fmt.Printf("\n--- Trying as UPLINK ---\n")
+	msg, err := DecodeWithUPER(data, DirectionUplink)
+	if err != nil {
+		t.Logf("Uplink decode error: %v", err)
+	} else {
+		fmt.Printf("MsgID: %d\n", msg.Header.MsgID)
+		if msg.Header.Timestamp != nil {
+			fmt.Printf("Timestamp: %02d:%02d:%02d\n", msg.Header.Timestamp.Hours, msg.Header.Timestamp.Minutes, msg.Header.Timestamp.Seconds)
+		}
+		for i, elem := range msg.Elements {
+			fmt.Printf("Element %d: ID=%d Label=%s\n", i, elem.ID, elem.Label)
+			fmt.Printf("  Text: %s\n", elem.Text)
+		}
+	}
+
+	// Try decoding as downlink.
+	fmt.Printf("\n--- Trying as DOWNLINK ---\n")
+	msg, err = DecodeWithUPER(data, DirectionDownlink)
+	if err != nil {
+		t.Logf("Downlink decode error: %v", err)
+	} else {
+		fmt.Printf("MsgID: %d\n", msg.Header.MsgID)
+		if msg.Header.Timestamp != nil {
+			fmt.Printf("Timestamp: %02d:%02d:%02d\n", msg.Header.Timestamp.Hours, msg.Header.Timestamp.Minutes, msg.Header.Timestamp.Seconds)
+		}
+		for i, elem := range msg.Elements {
+			fmt.Printf("Element %d: ID=%d Label=%s\n", i, elem.ID, elem.Label)
+			fmt.Printf("  Text: %s\n", elem.Text)
+		}
+	}
+}
+
 // TestMalformedCPDLCSamples tests samples that are known to be malformed/truncated.
 // These samples fail to decode in libacars and should produce invalid element IDs.
 // The purpose of this test is to document known-bad samples and verify we don't crash.
@@ -97,8 +168,8 @@ func TestMalformedCPDLCSamples(t *testing.T) {
 				t.Fatalf("Hex decode error: %v", err)
 			}
 
-			decoder := NewDecoder(data, s.direction)
-			msg, err := decoder.Decode()
+			// Use the new APER-based decoder.
+			msg, err := DecodeWithUPER(data, s.direction)
 
 			// These may or may not decode without error, but the element ID should be invalid.
 			// We're mainly verifying we don't crash on malformed input.

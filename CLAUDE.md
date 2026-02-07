@@ -30,8 +30,10 @@
 Project Information:
 Read the README.md file (if present) for project details.
 
+Maintain the project structure per googles recommendations: https://raw.githubusercontent.com/golang-standards/project-layout/refs/heads/master/README.md
+
 When making changes, ensure the following:
-- Document any new features or changes in the README.md file. As well as writing any feature specific documentation into doc/ (updating any existing ones if required)
+- Document any new features or changes in the README.md file. As well as writing any feature specific documentation into docs/ (updating any existing ones if required)
 - Use meaningful commit messages that clearly describe the changes made.
 
 If there are any useful tools, resources or information I provide, update this file accordingly.

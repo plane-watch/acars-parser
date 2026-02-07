@@ -124,8 +124,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		direction = DirectionUplink
 	}
 
-	decoder := NewDecoder(arincResult.Payload, direction)
-	cpdlcMsg, err := decoder.Decode()
+	cpdlcMsg, err := DecodeWithUPER(arincResult.Payload, direction)
 	if err != nil {
 		result.Error = "decode_failed: " + err.Error()
 		return result

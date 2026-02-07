@@ -186,6 +186,18 @@ var uplinkLabels = map[int]string{
 	180: "REPORT REACHING BLOCK [altitude] TO [altitude]",
 	181: "REPORT DISTANCE [tofrom] [position]",
 	182: "CONFIRM ATIS CODE",
+	183: "[freetext]",
+	190: "FLY HEADING [degrees]",
+	211: "REQUEST FORWARDED [freetext]",
+	215: "TURN [direction] [degrees] DEGREES",
+	218: "REQUEST ALREADY RECEIVED",
+	219: "STOP CLIMB AT [altitude]",
+	220: "STOP DESCENT AT [altitude]",
+	221: "STOP TURN HEADING [degrees]",
+	222: "NO SPEED RESTRICTION [freetext]",
+	227: "LOGICAL ACKNOWLEDGEMENT",
+	235: "ROGER 7500",
+	237: "REQUEST AGAIN WITH NEXT UNIT [freetext]",
 }
 
 // Downlink message labels (air to ground).
@@ -272,6 +284,17 @@ var downlinkLabels = map[int]string{
 	78: "AT [time] [distance] [tofrom] [position]",
 	79: "ATIS [atiscode]",
 	80: "DEVIATING [distanceoffset] [direction] OF ROUTE",
+	81: "WE CAN ACCEPT [altitude] AT [time]",
+	82: "WE CANNOT ACCEPT [altitude]",
+	83: "WE CAN ACCEPT [speed] AT [time]",
+	84: "WE CANNOT ACCEPT [speed]",
+	85: "WE CAN ACCEPT [distanceoffset] [direction] AT [time]",
+	86: "WE CANNOT ACCEPT [distanceoffset] [direction]",
+	89: "MONITORING [icaounitname] [frequency]",
+	98: "[freetext]",
+	99: "CURRENT DATA AUTHORITY",
+	100: "LOGICAL ACKNOWLEDGEMENT",
+	107: "NOT AUTHORIZED NEXT DATA AUTHORITY",
 }
 
 // GetUplinkLabel returns the label template for an uplink message ID.

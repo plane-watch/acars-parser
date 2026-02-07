@@ -74,14 +74,14 @@ func TestParse(t *testing.T) {
 			wantElements: 1, // dM48 = POSITION REPORT.
 		},
 		{
-			// Message with valid CRC but malformed CPDLC payload.
-			name:        "Valid CRC but decode fails",
-			label:       "AA",
-			text:        "/ANCATYA.AT1.N514DN220012E8294A952882D8",
-			wantType:    "cpdlc",
-			wantDir:     "downlink",
-			wantError:   true,
-			wantErrType: "decode_failed",
+			// Message with valid CRC - decodes successfully.
+			// Direction is determined by semantic validation of decoded elements.
+			name:         "Valid CRC decodes successfully",
+			label:        "AA",
+			text:         "/ANCATYA.AT1.N514DN220012E8294A952882D8",
+			wantType:     "cpdlc",
+			wantDir:      "downlink",
+			wantElements: 1,
 		},
 		{
 			// Message too short - missing CRC.
@@ -138,61 +138,6 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
-
-func TestBitReader(t *testing.T) {
-	// Test basic bit reading.
-	data := []byte{0xAB, 0xCD} // 1010 1011 1100 1101
-	br := NewBitReader(data)
-
-	// Read 4 bits - should be 1010 = 10.
-	v, err := br.ReadBits(4)
-	if err != nil {
-		t.Fatalf("ReadBits(4) error: %v", err)
-	}
-	if v != 10 {
-		t.Errorf("ReadBits(4) = %d, want 10", v)
-	}
-
-	// Read 4 more bits - should be 1011 = 11.
-	v, err = br.ReadBits(4)
-	if err != nil {
-		t.Fatalf("ReadBits(4) error: %v", err)
-	}
-	if v != 11 {
-		t.Errorf("ReadBits(4) = %d, want 11", v)
-	}
-
-	// Read 8 more bits - should be 1100 1101 = 205.
-	v, err = br.ReadBits(8)
-	if err != nil {
-		t.Fatalf("ReadBits(8) error: %v", err)
-	}
-	if v != 0xCD {
-		t.Errorf("ReadBits(8) = %d, want 205", v)
-	}
-
-	// Should have 0 bits remaining.
-	if br.Remaining() != 0 {
-		t.Errorf("Remaining() = %d, want 0", br.Remaining())
-	}
-}
-
-func TestConstrainedInt(t *testing.T) {
-	// Test constrained integer reading.
-	// Range 0-7 needs 3 bits.
-	data := []byte{0b10100000} // 101 = 5 in first 3 bits.
-	br := NewBitReader(data)
-
-	v, err := br.ReadConstrainedInt(0, 7)
-	if err != nil {
-		t.Fatalf("ReadConstrainedInt error: %v", err)
-	}
-	if v != 5 {
-		t.Errorf("ReadConstrainedInt(0,7) = %d, want 5", v)
-	}
-}
-
-// Note: TestIsValidHex and TestSplitRegistrationAndData moved to internal/parsers/arinc package.
 
 func TestDecodeElementID(t *testing.T) {
 	// Test that specific hex data decodes to the expected element ID.

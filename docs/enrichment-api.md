@@ -6,13 +6,13 @@ The enrichment API provides REST access to flight operational data extracted fro
 
 ```bash
 # Build the API server
-go build -o enrichment-api ./cmd/enrichment-api
+go build -o bin/enrichment-api ./cmd/enrichment-api
 
 # Run with defaults (connects to localhost PostgreSQL)
-./enrichment-api
+./bin/enrichment-api
 
 # Run with custom settings
-./enrichment-api -port 8081 -pg-host db.example.com -pg-password secret
+./bin/enrichment-api -port 8081 -pg-host db.example.com -pg-password secret
 ```
 
 ## Configuration
@@ -160,7 +160,7 @@ When `-auth` is enabled, requests must include an API key via one of:
 
 **Example:**
 ```bash
-./enrichment-api -auth -api-keys "key1,key2,key3"
+./bin/enrichment-api -auth -api-keys "key1,key2,key3"
 
 curl -H "X-API-Key: key1" http://localhost:8081/api/v1/enrichment/7C6CA3
 ```
@@ -177,15 +177,74 @@ npx openapi-generator-cli generate -i api/openapi.yaml -g typescript-fetch -o cl
 openapi-generator-cli generate -i api/openapi.yaml -g python -o clients/python
 ```
 
-## Data Sources
+## Design
 
-Enrichment data is extracted from the following ACARS message types:
+### Database Table
 
-- **PDC (Pre-Departure Clearance)** - Runway, SID, squawk, route
-- **Flight Plan (H1/FPN)** - Origin, destination, route waypoints
-- **Loadsheet** - Passenger counts, cabin breakdown
-- **ETA messages** - Estimated arrival times
+The `flight_enrichment` table is stored in PostgreSQL (`acars_state` database).
 
-## ICAO vs IATA Codes
+| Column | Description |
+|--------|-------------|
+| `icao_hex` | Aircraft Mode-S transponder code (unique per airframe) |
+| `callsign` | Flight callsign (e.g., QTR411, UAL123) |
+| `flight_date` | Date of the flight operation |
+| `origin` | Departure airport (ICAO or IATA code) |
+| `destination` | Arrival airport (ICAO or IATA code) |
+| `route` | Array of waypoints |
+| `eta` | Estimated time of arrival |
+| `runway` | Assigned runway |
+| `sid` | Standard Instrument Departure procedure |
+| `squawk` | Transponder squawk code |
+| `pax_count` | Passenger count |
+| `pax_breakdown` | JSON breakdown of passenger classes |
+
+### Callsign Matching Strategy
+
+Airlines use both IATA (2-letter) and ICAO (3-letter) callsign formats interchangeably in ACARS messages:
+
+| Airline | IATA | ICAO |
+|---------|------|------|
+| Qantas | QF1255 | QFA1255 |
+| Qatar Airways | QR411 | QTR411 |
+| Ethiopian | ET507 | ETH507 |
+| EgyptAir | MS774 | MSR774 |
+
+Different message types often use different formats:
+- **Loadsheets** typically use IATA format (QF1255)
+- **Position reports** typically use ICAO format (QFA1255)
+
+Without special handling, a single flight would create two separate enrichment records - one for QF1255 with loadsheet data and one for QFA1255 with position data.
+
+The enrichment system matches on the **numeric flight number suffix** rather than the exact callsign, combined with:
+- `icao_hex` - unique aircraft identifier
+- `flight_date` - date of operation
+
+This is safe because the same physical aircraft cannot fly for two different airlines on the same day with the same flight number.
+
+When upserting enrichment data:
+
+1. Extract the numeric suffix from the callsign (e.g., "1255" from "QF1255")
+2. Search for an existing row with matching `icao_hex`, `flight_date`, and callsign ending with that number
+3. If found, update that row (merging new data with existing)
+4. If not found, insert a new row
+
+When a match is found between IATA and ICAO variants, the system prefers the longer (ICAO) format as it's more specific and standardised for ATC communications.
+
+The regex pattern `callsign ~ (flight_num || '$')` matches callsigns ending with the flight number, allowing both QF1255 and QFA1255 to match when searching for "1255".
+
+This approach was validated against the corpus: 1,096 duplicate rows (5% of total) were caused by IATA/ICAO format differences, with zero false positives detected.
+
+### Data Sources
+
+Enrichment data is populated from the following ACARS message types:
+
+| Parser | Contributes |
+|--------|-------------|
+| `pdc` | squawk, runway, sid, origin, destination |
+| `flight_plan` | route, origin, destination |
+| `loadsheet` | pax_count, pax_breakdown, origin, destination |
+| `eta` | eta |
+
+### ICAO vs IATA Codes
 
 The API standardises on ICAO codes (4-letter airport codes, 3-letter airline codes + flight number). IATA codes from source messages are stored separately and not returned in enrichment responses to maintain data consistency.

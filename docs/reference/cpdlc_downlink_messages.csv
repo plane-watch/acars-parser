@@ -1,0 +1,92 @@
+id,message_text,response_required,intent,category
+DM0,WILCO,N,The instruction is understood and will be complied with,Responses/Acknowledgements
+DM1,UNABLE,N,The instruction cannot be complied with,Responses/Acknowledgements
+DM2,STANDBY,N,Wait for a reply,Responses/Acknowledgements
+DM3,ROGER,N,Message received and understood,Responses/Acknowledgements
+DM4,AFFIRM,N,Yes,Responses/Acknowledgements
+DM5,NEGATIVE,N,No,Responses/Acknowledgements
+DM6,REQUEST [level],Y,Request to fly at the specified level,Vertical Requests
+DM7,REQUEST BLOCK [level] TO [level],Y,Request to fly at a level within the specified vertical range,Vertical Requests
+DM8,REQUEST CRUISE CLIMB TO [level],Y,Request to cruise climb to the specified level,Vertical Requests
+DM9,REQUEST CLIMB TO [level],Y,Request to climb to the specified level,Vertical Requests
+DM10,REQUEST DESCENT TO [level],Y,Request to descend to the specified level,Vertical Requests
+DM11,AT [position] REQUEST CLIMB TO [level],Y,Request that at the specified position a climb to the specified level be approved,Vertical Requests
+DM12,AT [position] REQUEST DESCENT TO [level],Y,Request that at the specified position a descent to the specified level be approved,Vertical Requests
+DM13,AT [time] REQUEST CLIMB TO [level],Y,Request that at the specified time a climb to the specified level be approved,Vertical Requests
+DM14,AT [time] REQUEST DESCENT TO [level],Y,Request that at the specified time a descent to the specified level be approved,Vertical Requests
+DM69,REQUEST VMC DESCENT,Y,Request that a descent be approved on a see-and-avoid basis,Vertical Requests
+DM15,REQUEST OFFSET [specified distance] [direction] OF ROUTE,Y,"Request that a parallel track, offset from the cleared track by the specified distance in the specified direction, be approved",Lateral Off-Set Requests
+DM16,AT [position] REQUEST OFFSET [specified distance] [direction] OF ROUTE,Y,"Request that a parallel track, offset from the cleared track by the specified distance in the specified direction, be approved from the specified position",Lateral Off-Set Requests
+DM17,AT [time] REQUEST OFFSET [specified distance] [direction] OF ROUTE,Y,"Request that a parallel track, offset from the cleared track by the specified distance in the specified direction, be approved from the specified time",Lateral Off-Set Requests
+DM18,REQUEST [speed],Y,Request to fly at the specified speed,Speed Requests
+DM19,REQUEST [speed] TO [speed],Y,Request to fly within the specified speed range,Speed Requests
+DM20,REQUEST VOICE CONTACT,Y,Request for voice contact,Voice Contact Requests
+DM21,REQUEST VOICE CONTACT [frequency],Y,Request for voice contact on the specified frequency,Voice Contact Requests
+DM22,REQUEST DIRECT TO [position],Y,Request to track from the present position direct to the specified position,Route Modification Requests
+DM23,REQUEST [procedure name],Y,Request for the specified procedure clearance,Route Modification Requests
+DM24,REQUEST CLEARANCE [route clearance],Y,Request for a route clearance,Route Modification Requests
+DM25,REQUEST [clearance type] CLEARANCE,Y,Request for a clearance (either pre-departure or route),Route Modification Requests
+DM26,REQUEST WEATHER DEVIATION TO [position] VIA [route clearance],Y,Request for a weather deviation to the specified position via the specified route,Route Modification Requests
+DM27,REQUEST WEATHER DEVIATION UP TO [specified distance] [direction] OF ROUTE,Y,Request for a weather deviation up to the specified distance off track in the specified direction,Route Modification Requests
+DM70,REQUEST HEADING [degrees],Y,Request a clearance to adopt the specified heading,Route Modification Requests
+DM71,REQUEST GROUND TRACK [degrees],Y,Request a clearance to adopt the specified ground track,Route Modification Requests
+DM28,LEAVING [level],N,Notification of leaving the specified level,Reports
+DM29,CLIMBING TO [level],N,Notification of climbing to the specified level,Reports
+DM30,DESCENDING TO [level],N,Notification of descending to the specified level,Reports
+DM31,PASSING [position],N,Notification of passing the specified position,Reports
+DM32,PRESENT LEVEL [level],N,Notification of the present level,Reports
+DM33,PRESENT POSITION [position],N,Notification of the present position,Reports
+DM34,PRESENT SPEED [speed],N,Notification of the present speed,Reports
+DM35,PRESENT HEADING [degrees],N,Notification of the present heading in degrees,Reports
+DM36,PRESENT GROUND TRACK [degrees],N,Notification of the present ground track in degrees,Reports
+DM37,MAINTAINING [level],N,Notification that the aircraft is maintaining the specified level,Reports
+DM38,ASSIGNED LEVEL [level],N,Read-back of the assigned level,Reports
+DM39,ASSIGNED SPEED [speed],N,Read-back of the assigned speed,Reports
+DM40,ASSIGNED ROUTE [route clearance],N,Read-back of the assigned route,Reports
+DM41,BACK ON ROUTE,N,The aircraft has regained the cleared route,Reports
+DM42,NEXT WAYPOINT [position],N,The next waypoint is the specified position,Reports
+DM43,NEXT WAYPOINT ETA [time],N,The ETA at the next waypoint is as specified,Reports
+DM44,ENSUING WAYPOINT [position],N,The next plus one waypoint is the specified position,Reports
+DM45,REPORTED WAYPOINT [position],N,Clarification of previously reported waypoint passage,Reports
+DM46,REPORTED WAYPOINT [time],N,Clarification of time over previously reported waypoint,Reports
+DM47,SQUAWKING [code],N,The specified (SSR) code has been selected,Reports
+DM48,POSITION REPORT [position report],N,Position report,Reports
+DM76,REACHING BLOCK [level] TO [level],N,Notification that the aircraft has reached a level within the specified vertical range,Reports
+DM77,ASSIGNED BLOCK [level] TO [level],N,Read-back of the assigned vertical range,Reports
+DM78,AT [time] [distance] [to/from] [position],N,"Notification that at the specified time, the aircraft's position was as specified",Reports
+DM79,ATIS [atis code],N,The code of the latest ATIS received is as specified,Reports
+DM80,DEVIATING UP TO [specified distance] [direction] OF ROUTE,N,Notification that the aircraft is deviating up to the deviating distance from the cleared route,Reports
+DM89,MONITORING [unit name] [frequency],N,The specified ATS unit is being monitored on the specified frequency,Reports
+DM49,WHEN CAN WE EXPECT [speed],Y,Request for the earliest time at which a clearance to the specified speed can be expected,Negotiation Requests
+DM50,WHEN CAN WE EXPECT [speed] TO [speed],Y,Request for the earliest time at which a clearance to a speed within the specified range can be expected,Negotiation Requests
+DM51,WHEN CAN WE EXPECT BACK ON ROUTE,Y,Request for the earliest time at which a clearance to regain the planned route can be expected,Negotiation Requests
+DM52,WHEN CAN WE EXPECT LOWER LEVEL,Y,Request for the earliest time at which a clearance to descend can be expected,Negotiation Requests
+DM53,WHEN CAN WE EXPECT HIGHER LEVEL,Y,Request for the earliest time at which a clearance to climb can be expected,Negotiation Requests
+DM54,WHEN CAN WE EXPECT CRUISE CLIMB TO [level],Y,Request for the earliest time at which a clearance to cruise climb to the specified level can be expected,Negotiation Requests
+DM81,WE CAN ACCEPT [level] AT [time],N,We can accept the specified level at the specified time,Negotiation Responses
+DM82,WE CANNOT ACCEPT [level],N,We cannot accept the specified level,Negotiation Responses
+DM83,WE CAN ACCEPT [speed] AT [time],N,We can accept the specified speed at the specified time,Negotiation Responses
+DM84,WE CANNOT ACCEPT [speed],N,We cannot accept the specified speed,Negotiation Responses
+DM85,WE CAN ACCEPT [specified distance] [direction] AT [time],N,We can accept a parallel track offset the specified distance in the specified direction at the specified time,Negotiation Responses
+DM86,WE CANNOT ACCEPT [specified distance] [direction],N,We cannot accept a parallel track offset the specified distance in the specified direction,Negotiation Responses
+DM55,PAN PAN PAN,Y,Urgency prefix,Emergency Messages
+DM56,MAYDAY MAYDAY MAYDAY,Y,Distress prefix,Emergency Messages
+DM57,[remaining fuel] OF FUEL REMAINING AND [persons on board] PERSONS ON BOARD,Y,Notification of fuel remaining and number of persons on board,Emergency Messages
+DM58,CANCEL EMERGENCY,Y,Notification that the pilot wishes to cancel the emergency condition,Emergency Messages
+DM59,DIVERTING TO [position] VIA [route clearance],Y,Notification that the aircraft is diverting to the specified position via the specified route due to an urgent need,Emergency Messages
+DM60,OFFSETTING [specified distance] [direction] OF ROUTE,Y,Notification that the aircraft is deviating the specified distance in the specified direction off the cleared route,Emergency Messages
+DM61,DESCENDING TO [level],Y,Notification that the aircraft is descending to the specified level due to an urgent need,Emergency Messages
+DM62,ERROR [error information],N,A system-generated message that the avionics has detected an error,System Management
+DM63,NOT CURRENT DATA AUTHORITY,N,A system-generated denial to any CPDLC application message sent from a ground facility that is not the current data authority,System Management
+DM64,[facility designation],N,Notification to the ground system that the specified ATSU is the current data authority,System Management
+DM73,[version number],N,A system-generated message indicating the software version number,System Management
+DM99,CURRENT DATA AUTHORITY,N,A system-generated message to inform a ground facility that it is now the current data authority,System Management
+DM100,LOGICAL ACKNOWLEDGEMENT,N,Confirmation to the ground system that the aircraft system has received the message to which the logical acknowledgement refers,System Management
+DM107,NOT AUTHORIZED NEXT DATA AUTHORITY,N,A system-generated message sent to a ground system that tries to connect to an aircraft when a current data authority has not designated the ground system as the NDA,System Management
+DM65,DUE TO WEATHER,N,Used to explain reasons for pilot's message,Additional Messages
+DM66,DUE TO AIRCRAFT PERFORMANCE,N,Used to explain reasons for pilot's message,Additional Messages
+DM74,REQUEST TO MAINTAIN OWN SEPARATION AND VMC,Y,States a desire by the pilot to provide his/her own separation and remain in VMC,Additional Messages
+DM75,AT PILOTS DISCRETION,N,Used in conjunction with another message to indicate that the pilot wishes to execute request when the pilot is prepared to do so,Additional Messages
+DM67,[free text],N,"Normal urgency, low alert free text",Free Text
+DM68,[free text],Y,"Distress urgency, high alert free text",Free Text
+DM98,[free text],N,"Normal urgency, normal alert free text (ATN B1)",Free Text

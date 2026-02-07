@@ -1,0 +1,1791 @@
+{
+  "uplink_messages": [
+    {
+      "id": "UM0",
+      "message_text": "UNABLE",
+      "response_required": "N",
+      "intent": "Indicates that ATC cannot comply with the request",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM1",
+      "message_text": "STANDBY",
+      "response_required": "N",
+      "intent": "Indicates that ATC has received the message and will respond",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM2",
+      "message_text": "REQUEST DEFERRED",
+      "response_required": "N",
+      "intent": "Indicates that ATC has received the request but it has been deferred until later",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM3",
+      "message_text": "ROGER",
+      "response_required": "N",
+      "intent": "Indicates that ATC has received and understood the message",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM4",
+      "message_text": "AFFIRM",
+      "response_required": "N",
+      "intent": "Yes",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM5",
+      "message_text": "NEGATIVE",
+      "response_required": "N",
+      "intent": "No",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM211",
+      "message_text": "REQUEST FORWARDED [free text]",
+      "response_required": "N",
+      "intent": "Indicates that the ATC has received the request and has passed it to the next control authority",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM218",
+      "message_text": "REQUEST ALREADY RECEIVED",
+      "response_required": "N",
+      "intent": "Indicates to the pilot that the request has already been received on the ground",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM235",
+      "message_text": "ROGER 7500",
+      "response_required": "N",
+      "intent": "Notification of receipt of unlawful interference message",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM237",
+      "message_text": "REQUEST AGAIN WITH NEXT UNIT [free text]",
+      "response_required": "N",
+      "intent": "Indicates that the request cannot be responded to by the current unit and should be requested from the next unit",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "UM6",
+      "message_text": "EXPECT [level]",
+      "response_required": "R",
+      "intent": "Notification that a level change instruction should be expected",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM7",
+      "message_text": "EXPECT CLIMB AT [time]",
+      "response_required": "R",
+      "intent": "Notification that an instruction should be expected for the aircraft to commence climb at the specified time",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM8",
+      "message_text": "EXPECT CLIMB AT [position]",
+      "response_required": "R",
+      "intent": "Notification that an instruction should be expected for the aircraft to commence climb at the specified position",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM9",
+      "message_text": "EXPECT DESCENT AT [time]",
+      "response_required": "R",
+      "intent": "Notification that an instruction should be expected for the aircraft to commence descent at the specified time",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM10",
+      "message_text": "EXPECT DESCENT AT [position]",
+      "response_required": "R",
+      "intent": "Notification that an instruction should be expected for the aircraft to commence descent at the specified position",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM11",
+      "message_text": "EXPECT CRUISE CLIMB AT [time]",
+      "response_required": "R",
+      "intent": "Notification that an instruction should be expected for the aircraft to commence cruise climb at the specified time",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM12",
+      "message_text": "EXPECT CRUISE CLIMB AT [position]",
+      "response_required": "R",
+      "intent": "Notification that an instruction should be expected for the aircraft to commence cruise climb at the specified position",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM19",
+      "message_text": "MAINTAIN [level]",
+      "response_required": "W/U",
+      "intent": "Instruction to maintain the specified level",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM20",
+      "message_text": "CLIMB TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that a climb to a specified level is to commence and once reached the specified level is to be maintained",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM21",
+      "message_text": "AT [time] CLIMB TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified time a climb to the specified level is to commence",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM22",
+      "message_text": "AT [position] CLIMB TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified position a climb to the specified level is to commence",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM23",
+      "message_text": "DESCEND TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that a descent to a specified level is to commence and once reached the specified level is to be maintained",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM24",
+      "message_text": "AT [time] DESCEND TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that at a specified time a descent to a specified level is to commence",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM25",
+      "message_text": "AT [position] DESCEND TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified position a descent to the specified level is to commence",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM26",
+      "message_text": "CLIMB TO REACH [level] BY [time]",
+      "response_required": "W/U",
+      "intent": "Instruction that a climb is to commence at a rate such that the specified level is reached at or before the specified time",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM27",
+      "message_text": "CLIMB TO REACH [level] BY [position]",
+      "response_required": "W/U",
+      "intent": "Instruction that a climb is to commence at a rate such that the specified level is reached at or before the specified position",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM28",
+      "message_text": "DESCEND TO REACH [level] BY [time]",
+      "response_required": "W/U",
+      "intent": "Instruction that a descent is to commence at a rate such that the specified level is reached at or before the specified time",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM29",
+      "message_text": "DESCEND TO REACH [level] BY [position]",
+      "response_required": "W/U",
+      "intent": "Instruction that a descent is to commence at a rate such that the specified level is reached at or before the specified position",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM30",
+      "message_text": "MAINTAIN BLOCK [level] TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that a level within the defined vertical range specified is to be maintained",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM31",
+      "message_text": "CLIMB TO AND MAINTAIN BLOCK [level] TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that a climb to a level within the vertical range defined is to commence",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM32",
+      "message_text": "DESCEND TO AND MAINTAIN BLOCK [level] TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that a descent to a level within the vertical range defined is to commence",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM34",
+      "message_text": "CRUISE CLIMB TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that a cruise climb to the specified level is to commence and continue",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM36",
+      "message_text": "EXPEDITE CLIMB TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the climb to the specified level should be made at the aircraft's best rate",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM37",
+      "message_text": "EXPEDITE DESCENT TO [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the descent to the specified level should be made at the aircraft's best rate",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM38",
+      "message_text": "IMMEDIATELY CLIMB TO [level]",
+      "response_required": "W/U",
+      "intent": "Urgent instruction to immediately climb to the specified level",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM39",
+      "message_text": "IMMEDIATELY DESCEND TO [level]",
+      "response_required": "W/U",
+      "intent": "Urgent instruction to immediately descend to the specified level",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM171",
+      "message_text": "CLIMB AT [vertical rate] MINIMUM",
+      "response_required": "W/U",
+      "intent": "Instruction to climb at not less than the specified rate",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM172",
+      "message_text": "CLIMB AT [vertical rate] MAXIMUM",
+      "response_required": "W/U",
+      "intent": "Instruction to climb at not above the specified rate",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM173",
+      "message_text": "DESCEND AT [vertical rate] MINIMUM",
+      "response_required": "W/U",
+      "intent": "Instruction to descend at not less than the specified rate",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM174",
+      "message_text": "DESCEND AT [vertical rate] MAXIMUM",
+      "response_required": "W/U",
+      "intent": "Instruction to descend at not above the specified rate",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM219",
+      "message_text": "STOP CLIMB AT [level]",
+      "response_required": "W/U",
+      "intent": "Instruction to stop the climb at the specified level",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM220",
+      "message_text": "STOP DESCENT AT [level]",
+      "response_required": "W/U",
+      "intent": "Instruction to stop the descent at the specified level",
+      "category": "Vertical Clearances"
+    },
+    {
+      "id": "UM46",
+      "message_text": "CROSS [position] AT [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at the specified level",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM47",
+      "message_text": "CROSS [position] AT OR ABOVE [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at or above the specified level",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM48",
+      "message_text": "CROSS [position] AT OR BELOW [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at or below the specified level",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM49",
+      "message_text": "CROSS [position] AT AND MAINTAIN [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at the specified level and that level is to be maintained",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM50",
+      "message_text": "CROSS [position] BETWEEN [level] AND [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at a level between the specified levels",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM51",
+      "message_text": "CROSS [position] AT [time]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at the specified time",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM52",
+      "message_text": "CROSS [position] AT OR BEFORE [time]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at or before the specified time",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM53",
+      "message_text": "CROSS [position] AT OR AFTER [time]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at or after the specified time",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM54",
+      "message_text": "CROSS [position] BETWEEN [time] AND [time]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at a time between the specified times",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM55",
+      "message_text": "CROSS [position] AT [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at the specified speed",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM56",
+      "message_text": "CROSS [position] AT OR LESS THAN [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at a speed equal to or less than the specified speed",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM57",
+      "message_text": "CROSS [position] AT OR GREATER THAN [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at a speed equal to or greater than the specified speed",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM58",
+      "message_text": "CROSS [position] AT [time] AT [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at the specified time and the specified level",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM59",
+      "message_text": "CROSS [position] AT OR BEFORE [time] AT [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at or before the specified time and at the specified level",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM60",
+      "message_text": "CROSS [position] AT OR AFTER [time] AT [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at or after the specified time and at the specified level",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM61",
+      "message_text": "CROSS [position] AT AND MAINTAIN [level] AT [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified position is to be crossed at the specified level and speed, and the level and speed are to be maintained",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM62",
+      "message_text": "AT [time] CROSS [position] AT AND MAINTAIN [level]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified time the specified position is to be crossed at the specified level",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM63",
+      "message_text": "AT [time] CROSS [position] AT AND MAINTAIN [level] AT [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified time the specified position is to be crossed at the specified level and speed",
+      "category": "Crossing Constraints"
+    },
+    {
+      "id": "UM64",
+      "message_text": "OFFSET [specified distance] [direction] OF ROUTE",
+      "response_required": "W/U",
+      "intent": "Instruction to fly a parallel track to the cleared route at a displacement of the specified distance in the specified direction",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM65",
+      "message_text": "AT [position] OFFSET [specified distance] [direction] OF ROUTE",
+      "response_required": "W/U",
+      "intent": "Instruction to fly a parallel track to the cleared route at a displacement of the specified distance in the specified direction commencing at the specified position",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM66",
+      "message_text": "AT [time] OFFSET [specified distance] [direction] OF ROUTE",
+      "response_required": "W/U",
+      "intent": "Instruction to fly a parallel track to the cleared route at a displacement of the specified distance in the specified direction commencing at the specified time",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM67",
+      "message_text": "PROCEED BACK ON ROUTE",
+      "response_required": "W/U",
+      "intent": "Instruction that the cleared flight route is to be rejoined",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM68",
+      "message_text": "REJOIN ROUTE BY [position]",
+      "response_required": "W/U",
+      "intent": "Instruction that the cleared flight route is to be rejoined at or before the specified position",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM69",
+      "message_text": "REJOIN ROUTE BY [time]",
+      "response_required": "W/U",
+      "intent": "Instruction that the cleared flight route is to be rejoined at or before the specified time",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM70",
+      "message_text": "EXPECT BACK ON ROUTE BY [position]",
+      "response_required": "R",
+      "intent": "Notification that a clearance may be issued to enable the aircraft to rejoin the cleared route at or before the specified position",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM71",
+      "message_text": "EXPECT BACK ON ROUTE BY [time]",
+      "response_required": "R",
+      "intent": "Notification that a clearance may be issued to enable the aircraft to rejoin the cleared route at or before the specified time",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM72",
+      "message_text": "RESUME OWN NAVIGATION",
+      "response_required": "W/U",
+      "intent": "Instruction to resume own navigation following a period of tracking or heading clearances",
+      "category": "Lateral Offsets"
+    },
+    {
+      "id": "UM73",
+      "message_text": "[departure clearance]",
+      "response_required": "W/U",
+      "intent": "Instruction to be followed from departure until the specified clearance limit",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM74",
+      "message_text": "PROCEED DIRECT TO [position]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed directly from its present position to the specified position",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM75",
+      "message_text": "WHEN ABLE PROCEED DIRECT TO [position]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed, when able, directly to the specified position",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM76",
+      "message_text": "AT [time] PROCEED DIRECT TO [position]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed, at the specified time, directly to the specified position",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM77",
+      "message_text": "AT [position] PROCEED DIRECT TO [position]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed, at the specified position, directly to the next specified position",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM78",
+      "message_text": "AT [level] PROCEED DIRECT TO [position]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed, upon reaching the specified level, directly to the specified position",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM79",
+      "message_text": "CLEARED TO [position] VIA [route clearance]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed to the specified position via the specified route",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM80",
+      "message_text": "CLEARED [route clearance]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed via the specified route",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM81",
+      "message_text": "CLEARED [procedure name]",
+      "response_required": "W/U",
+      "intent": "Instruction to proceed in accordance with the specified procedure",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM82",
+      "message_text": "CLEARED TO DEVIATE UP TO [specified distance] [direction] OF ROUTE",
+      "response_required": "W/U",
+      "intent": "Approval to deviate up to the specified distance from the cleared route in the specified direction",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM91",
+      "message_text": "HOLD AT [position] MAINTAIN [level] INBOUND TRACK [degrees] [direction] TURNS [leg type]",
+      "response_required": "W/U",
+      "intent": "Instruction to enter a holding pattern with the specified characteristics at the specified position and level",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM92",
+      "message_text": "HOLD AT [position] AS PUBLISHED MAINTAIN [level]",
+      "response_required": "W/U",
+      "intent": "Instruction to enter a holding pattern with the published characteristics at the specified position and level",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM93",
+      "message_text": "EXPECT FURTHER CLEARANCE AT [time]",
+      "response_required": "R",
+      "intent": "Notification that an onwards clearance may be issued at the specified time",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM94",
+      "message_text": "TURN [direction] HEADING [degrees]",
+      "response_required": "W/U",
+      "intent": "Instruction to turn left or right as specified on to the specified heading",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM95",
+      "message_text": "TURN [direction] GROUND TRACK [degrees]",
+      "response_required": "W/U",
+      "intent": "Instruction to turn left or right as specified on to the specified track",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM96",
+      "message_text": "CONTINUE PRESENT HEADING",
+      "response_required": "W/U",
+      "intent": "Instruction to continue to fly on the current heading",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM97",
+      "message_text": "AT [position] FLY HEADING [degrees]",
+      "response_required": "W/U",
+      "intent": "Instruction to fly on the specified heading from the specified position",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM98",
+      "message_text": "IMMEDIATELY TURN [direction] HEADING [degrees]",
+      "response_required": "W/U",
+      "intent": "Instruction to turn immediately left or right as specified on to the specified heading",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM190",
+      "message_text": "FLY HEADING [degrees]",
+      "response_required": "W/U",
+      "intent": "Instruction to fly on the specified heading",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM215",
+      "message_text": "TURN [direction] [degrees] DEGREES",
+      "response_required": "W/U",
+      "intent": "Instruction to turn a specified number of degrees left or right",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM221",
+      "message_text": "STOP TURN HEADING [degrees]",
+      "response_required": "W/U",
+      "intent": "Instruction to stop turn at the specified heading prior to reaching the previously assigned heading",
+      "category": "Route Modifications"
+    },
+    {
+      "id": "UM100",
+      "message_text": "AT [time] EXPECT [speed]",
+      "response_required": "R",
+      "intent": "Notification that a speed instruction may be issued to be effective at the specified time",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM101",
+      "message_text": "AT [position] EXPECT [speed]",
+      "response_required": "R",
+      "intent": "Notification that a speed instruction may be issued to be effective at the specified position",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM102",
+      "message_text": "AT [level] EXPECT [speed]",
+      "response_required": "R",
+      "intent": "Notification that a speed instruction may be issued to be effective at the specified level",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM106",
+      "message_text": "MAINTAIN [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified speed is to be maintained",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM107",
+      "message_text": "MAINTAIN PRESENT SPEED",
+      "response_required": "W/U",
+      "intent": "Instruction that the present speed is to be maintained",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM108",
+      "message_text": "MAINTAIN [speed] OR GREATER",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified speed or a greater speed is to be maintained",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM109",
+      "message_text": "MAINTAIN [speed] OR LESS",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified speed or a lesser speed is to be maintained",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM110",
+      "message_text": "MAINTAIN [speed] TO [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that a speed within the specified range is to be maintained",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM111",
+      "message_text": "INCREASE SPEED TO [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the present speed is to be increased to the specified speed and maintained until further advised",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM112",
+      "message_text": "INCREASE SPEED TO [speed] OR GREATER",
+      "response_required": "W/U",
+      "intent": "Instruction that the present speed is to be increased to the specified speed or greater",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM113",
+      "message_text": "REDUCE SPEED TO [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the present speed is to be reduced to the specified speed and maintained until further advised",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM114",
+      "message_text": "REDUCE SPEED TO [speed] OR LESS",
+      "response_required": "W/U",
+      "intent": "Instruction that the present speed is to be reduced to the specified speed or less",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM115",
+      "message_text": "DO NOT EXCEED [speed]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified speed is not to be exceeded",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM116",
+      "message_text": "RESUME NORMAL SPEED",
+      "response_required": "W/U",
+      "intent": "Instruction that the aircraft's normal speed be resumed. The previously issued speed restriction(s) are cancelled",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM222",
+      "message_text": "NO SPEED RESTRICTION [free text]",
+      "response_required": "R",
+      "intent": "Notification that the aircraft may keep its preferred speed without restriction",
+      "category": "Speed Changes"
+    },
+    {
+      "id": "UM117",
+      "message_text": "CONTACT [unit name] [frequency]",
+      "response_required": "W/U",
+      "intent": "Instruction that the ATS unit with the specified ATS unit name is to be contacted on the specified frequency",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM118",
+      "message_text": "AT [position] CONTACT [unit name] [frequency]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified position the ATS unit with the specified ATS unit name is to be contacted on the specified frequency",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM119",
+      "message_text": "AT [time] CONTACT [unit name] [frequency]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified time the ATS unit with the specified ATS unit name is to be contacted on the specified frequency",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM120",
+      "message_text": "MONITOR [unit name] [frequency]",
+      "response_required": "W/U",
+      "intent": "Instruction that the ATS unit with the specified ATS unit name is to be monitored on the specified frequency",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM121",
+      "message_text": "AT [position] MONITOR [unit name] [frequency]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified position the ATS unit with the specified ATS unit name is to be monitored on the specified frequency",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM122",
+      "message_text": "AT [time] MONITOR [unit name] [frequency]",
+      "response_required": "W/U",
+      "intent": "Instruction that at the specified time the ATS unit with the specified ATS unit name is to be monitored on the specified frequency",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM123",
+      "message_text": "SQUAWK [code]",
+      "response_required": "W/U",
+      "intent": "Instruction that the specified code (SSR code) is to be selected",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM124",
+      "message_text": "STOP SQUAWK",
+      "response_required": "W/U",
+      "intent": "Instruction that the SSR transponder responses are to be disabled",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM125",
+      "message_text": "SQUAWK MODE CHARLIE",
+      "response_required": "W/U",
+      "intent": "Instruction that the SSR transponder responses should include level information",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM126",
+      "message_text": "STOP SQUAWK MODE CHARLIE",
+      "response_required": "W/U",
+      "intent": "Instruction that the SSR transponder responses should no longer include level information",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM179",
+      "message_text": "SQUAWK IDENT",
+      "response_required": "W/U",
+      "intent": "Instruction that the 'ident' function on the SSR transponder is to be actuated",
+      "category": "Contact/Monitor"
+    },
+    {
+      "id": "UM127",
+      "message_text": "REPORT BACK ON ROUTE",
+      "response_required": "W/U",
+      "intent": "Instruction to report when the aircraft is back on the cleared route",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM128",
+      "message_text": "REPORT LEAVING [level]",
+      "response_required": "W/U",
+      "intent": "Instruction to report when the aircraft has vacated the specified level",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM129",
+      "message_text": "REPORT MAINTAINING [level]",
+      "response_required": "W/U",
+      "intent": "Instruction to report when the aircraft is in level flight at the specified level",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM130",
+      "message_text": "REPORT PASSING [position]",
+      "response_required": "W/U",
+      "intent": "Instruction to report when the aircraft has passed the specified position",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM131",
+      "message_text": "REPORT REMAINING FUEL AND PERSONS ON BOARD",
+      "response_required": "Y",
+      "intent": "Instruction to report the amount of fuel remaining and the number of persons on board",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM132",
+      "message_text": "REPORT POSITION",
+      "response_required": "Y",
+      "intent": "Instruction to report the present position",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM133",
+      "message_text": "REPORT PRESENT LEVEL",
+      "response_required": "Y",
+      "intent": "Instruction to report the present level",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM134",
+      "message_text": "REPORT [speed type] SPEED",
+      "response_required": "Y",
+      "intent": "Instruction to report the requested speed",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM135",
+      "message_text": "CONFIRM ASSIGNED LEVEL",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the currently assigned level",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM136",
+      "message_text": "CONFIRM ASSIGNED SPEED",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the currently assigned speed",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM137",
+      "message_text": "CONFIRM ASSIGNED ROUTE",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the currently assigned route",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM138",
+      "message_text": "CONFIRM TIME OVER REPORTED WAYPOINT",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the previously reported time over the last reported waypoint",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM139",
+      "message_text": "CONFIRM REPORTED WAYPOINT",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the identity of the previously reported waypoint",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM140",
+      "message_text": "CONFIRM NEXT WAYPOINT",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the identity of the next waypoint",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM141",
+      "message_text": "CONFIRM NEXT WAYPOINT ETA",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the previously reported estimated time at the next waypoint",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM142",
+      "message_text": "CONFIRM ENSUING WAYPOINT",
+      "response_required": "Y",
+      "intent": "Instruction to confirm the identity of the next but one waypoint",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM143",
+      "message_text": "CONFIRM REQUEST",
+      "response_required": "Y",
+      "intent": "The request was not understood. It should be clarified and resubmitted",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM144",
+      "message_text": "CONFIRM SQUAWK",
+      "response_required": "Y",
+      "intent": "Instruction to report the selected (SSR) code",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM145",
+      "message_text": "REPORT HEADING",
+      "response_required": "Y",
+      "intent": "Instruction to report the present heading",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM146",
+      "message_text": "REPORT GROUND TRACK",
+      "response_required": "Y",
+      "intent": "Instruction to report the present ground track",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM147",
+      "message_text": "REQUEST POSITION REPORT",
+      "response_required": "Y",
+      "intent": "Instruction to make a position report",
+      "category": "Report/Confirmation Requests"
+    },
+    {
+      "id": "UM148",
+      "message_text": "WHEN CAN YOU ACCEPT [level]",
+      "response_required": "Y",
+      "intent": "Request for the earliest time or position at which the specified level can be accepted",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "UM149",
+      "message_text": "CAN YOU ACCEPT [level] AT [position]",
+      "response_required": "A/N",
+      "intent": "Instruction to report whether or not the specified level can be accepted at the specified position",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "UM150",
+      "message_text": "CAN YOU ACCEPT [level] AT [time]",
+      "response_required": "A/N",
+      "intent": "Instruction to report whether or not the specified level can be accepted at the specified time",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "UM151",
+      "message_text": "WHEN CAN YOU ACCEPT [speed]",
+      "response_required": "Y",
+      "intent": "Instruction to report the earliest time or position when the specified speed can be accepted",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "UM152",
+      "message_text": "WHEN CAN YOU ACCEPT [specified distance] [direction] OFFSET",
+      "response_required": "Y",
+      "intent": "Instruction to report the earliest time or position when the specified offset track can be accepted",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "UM153",
+      "message_text": "ALTIMETER [altimeter]",
+      "response_required": "R",
+      "intent": "ATS advisory that the altimeter setting should be the specified setting",
+      "category": "Air Traffic Advisories"
+    },
+    {
+      "id": "UM154",
+      "message_text": "RADAR SERVICE TERMINATED",
+      "response_required": "R",
+      "intent": "ATS advisory that the radar service is terminated",
+      "category": "Air Traffic Advisories"
+    },
+    {
+      "id": "UM155",
+      "message_text": "RADAR CONTACT [position]",
+      "response_required": "R",
+      "intent": "ATS advisory that radar contact has been established at the specified position",
+      "category": "Air Traffic Advisories"
+    },
+    {
+      "id": "UM156",
+      "message_text": "RADAR CONTACT LOST",
+      "response_required": "R",
+      "intent": "ATS advisory that radar contact has been lost",
+      "category": "Air Traffic Advisories"
+    },
+    {
+      "id": "UM157",
+      "message_text": "CHECK STUCK MICROPHONE [frequency]",
+      "response_required": "N",
+      "intent": "Instruction that a continuous transmission is detected on the specified frequency. Check the microphone button",
+      "category": "Air Traffic Advisories"
+    },
+    {
+      "id": "UM158",
+      "message_text": "ATIS [atis code]",
+      "response_required": "R",
+      "intent": "ATS advisory that the ATIS information identified by the specified code is the current ATIS information",
+      "category": "Air Traffic Advisories"
+    },
+    {
+      "id": "UM159",
+      "message_text": "ERROR [error information]",
+      "response_required": "N",
+      "intent": "A system generated message notifying that the ground system has detected an error",
+      "category": "System Management"
+    },
+    {
+      "id": "UM160",
+      "message_text": "NEXT DATA AUTHORITY [facility designation]",
+      "response_required": "N",
+      "intent": "Notification to the avionics that the specified data authority is the next data authority",
+      "category": "System Management"
+    },
+    {
+      "id": "UM161",
+      "message_text": "END SERVICE",
+      "response_required": "N",
+      "intent": "Notification to the avionics that the data link connection with the current data authority is being terminated",
+      "category": "System Management"
+    },
+    {
+      "id": "UM162",
+      "message_text": "SERVICE UNAVAILABLE",
+      "response_required": "N",
+      "intent": "Notification that the ground system does not support this message",
+      "category": "System Management"
+    },
+    {
+      "id": "UM163",
+      "message_text": "[facility designation]",
+      "response_required": "N",
+      "intent": "Notification to the pilot of an ATSU identifier",
+      "category": "System Management"
+    },
+    {
+      "id": "UM227",
+      "message_text": "LOGICAL ACKNOWLEDGEMENT",
+      "response_required": "N",
+      "intent": "Confirmation to the aircraft system that the ground system has received the message to which the logical acknowledgement refers",
+      "category": "System Management"
+    },
+    {
+      "id": "UM164",
+      "message_text": "WHEN READY",
+      "response_required": "N",
+      "intent": "The associated instruction may be complied with at any future time",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "UM165",
+      "message_text": "THEN",
+      "response_required": "N",
+      "intent": "Used to link two messages, indicating the proper order of execution of clearances/instructions",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "UM166",
+      "message_text": "DUE TO TRAFFIC",
+      "response_required": "N",
+      "intent": "The associated instruction is issued due to traffic considerations",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "UM167",
+      "message_text": "DUE TO AIRSPACE RESTRICTION",
+      "response_required": "N",
+      "intent": "The associated instruction is issued due to airspace restrictions",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "UM168",
+      "message_text": "DISREGARD",
+      "response_required": "R",
+      "intent": "The indicated communication should be ignored",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "UM176",
+      "message_text": "MAINTAIN OWN SEPARATION AND VMC",
+      "response_required": "W/U",
+      "intent": "Instruction that the pilot is responsible for maintaining separation from other traffic and is also responsible for maintaining visual meteorological conditions",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "UM177",
+      "message_text": "AT PILOTS DISCRETION",
+      "response_required": "N",
+      "intent": "Used in conjunction with a clearance/instruction to indicate that the pilot may execute when prepared to do so",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "UM169",
+      "message_text": "[free text]",
+      "response_required": "R",
+      "intent": "Normal urgency attribute, low alert attribute free text",
+      "category": "Free Text"
+    },
+    {
+      "id": "UM170",
+      "message_text": "[free text]",
+      "response_required": "R",
+      "intent": "Distress urgency attribute, high alert attribute free text",
+      "category": "Free Text"
+    },
+    {
+      "id": "UM183",
+      "message_text": "[free text]",
+      "response_required": "N",
+      "intent": "Normal urgency attribute, medium alert attribute free text (ATN B1)",
+      "category": "Free Text"
+    }
+  ],
+  "downlink_messages": [
+    {
+      "id": "DM0",
+      "message_text": "WILCO",
+      "response_required": "N",
+      "intent": "The instruction is understood and will be complied with",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "DM1",
+      "message_text": "UNABLE",
+      "response_required": "N",
+      "intent": "The instruction cannot be complied with",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "DM2",
+      "message_text": "STANDBY",
+      "response_required": "N",
+      "intent": "Wait for a reply",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "DM3",
+      "message_text": "ROGER",
+      "response_required": "N",
+      "intent": "Message received and understood",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "DM4",
+      "message_text": "AFFIRM",
+      "response_required": "N",
+      "intent": "Yes",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "DM5",
+      "message_text": "NEGATIVE",
+      "response_required": "N",
+      "intent": "No",
+      "category": "Responses/Acknowledgements"
+    },
+    {
+      "id": "DM6",
+      "message_text": "REQUEST [level]",
+      "response_required": "Y",
+      "intent": "Request to fly at the specified level",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM7",
+      "message_text": "REQUEST BLOCK [level] TO [level]",
+      "response_required": "Y",
+      "intent": "Request to fly at a level within the specified vertical range",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM8",
+      "message_text": "REQUEST CRUISE CLIMB TO [level]",
+      "response_required": "Y",
+      "intent": "Request to cruise climb to the specified level",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM9",
+      "message_text": "REQUEST CLIMB TO [level]",
+      "response_required": "Y",
+      "intent": "Request to climb to the specified level",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM10",
+      "message_text": "REQUEST DESCENT TO [level]",
+      "response_required": "Y",
+      "intent": "Request to descend to the specified level",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM11",
+      "message_text": "AT [position] REQUEST CLIMB TO [level]",
+      "response_required": "Y",
+      "intent": "Request that at the specified position a climb to the specified level be approved",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM12",
+      "message_text": "AT [position] REQUEST DESCENT TO [level]",
+      "response_required": "Y",
+      "intent": "Request that at the specified position a descent to the specified level be approved",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM13",
+      "message_text": "AT [time] REQUEST CLIMB TO [level]",
+      "response_required": "Y",
+      "intent": "Request that at the specified time a climb to the specified level be approved",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM14",
+      "message_text": "AT [time] REQUEST DESCENT TO [level]",
+      "response_required": "Y",
+      "intent": "Request that at the specified time a descent to the specified level be approved",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM69",
+      "message_text": "REQUEST VMC DESCENT",
+      "response_required": "Y",
+      "intent": "Request that a descent be approved on a see-and-avoid basis",
+      "category": "Vertical Requests"
+    },
+    {
+      "id": "DM15",
+      "message_text": "REQUEST OFFSET [specified distance] [direction] OF ROUTE",
+      "response_required": "Y",
+      "intent": "Request that a parallel track, offset from the cleared track by the specified distance in the specified direction, be approved",
+      "category": "Lateral Off-Set Requests"
+    },
+    {
+      "id": "DM16",
+      "message_text": "AT [position] REQUEST OFFSET [specified distance] [direction] OF ROUTE",
+      "response_required": "Y",
+      "intent": "Request that a parallel track, offset from the cleared track by the specified distance in the specified direction, be approved from the specified position",
+      "category": "Lateral Off-Set Requests"
+    },
+    {
+      "id": "DM17",
+      "message_text": "AT [time] REQUEST OFFSET [specified distance] [direction] OF ROUTE",
+      "response_required": "Y",
+      "intent": "Request that a parallel track, offset from the cleared track by the specified distance in the specified direction, be approved from the specified time",
+      "category": "Lateral Off-Set Requests"
+    },
+    {
+      "id": "DM18",
+      "message_text": "REQUEST [speed]",
+      "response_required": "Y",
+      "intent": "Request to fly at the specified speed",
+      "category": "Speed Requests"
+    },
+    {
+      "id": "DM19",
+      "message_text": "REQUEST [speed] TO [speed]",
+      "response_required": "Y",
+      "intent": "Request to fly within the specified speed range",
+      "category": "Speed Requests"
+    },
+    {
+      "id": "DM20",
+      "message_text": "REQUEST VOICE CONTACT",
+      "response_required": "Y",
+      "intent": "Request for voice contact",
+      "category": "Voice Contact Requests"
+    },
+    {
+      "id": "DM21",
+      "message_text": "REQUEST VOICE CONTACT [frequency]",
+      "response_required": "Y",
+      "intent": "Request for voice contact on the specified frequency",
+      "category": "Voice Contact Requests"
+    },
+    {
+      "id": "DM22",
+      "message_text": "REQUEST DIRECT TO [position]",
+      "response_required": "Y",
+      "intent": "Request to track from the present position direct to the specified position",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM23",
+      "message_text": "REQUEST [procedure name]",
+      "response_required": "Y",
+      "intent": "Request for the specified procedure clearance",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM24",
+      "message_text": "REQUEST CLEARANCE [route clearance]",
+      "response_required": "Y",
+      "intent": "Request for a route clearance",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM25",
+      "message_text": "REQUEST [clearance type] CLEARANCE",
+      "response_required": "Y",
+      "intent": "Request for a clearance (either pre-departure or route)",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM26",
+      "message_text": "REQUEST WEATHER DEVIATION TO [position] VIA [route clearance]",
+      "response_required": "Y",
+      "intent": "Request for a weather deviation to the specified position via the specified route",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM27",
+      "message_text": "REQUEST WEATHER DEVIATION UP TO [specified distance] [direction] OF ROUTE",
+      "response_required": "Y",
+      "intent": "Request for a weather deviation up to the specified distance off track in the specified direction",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM70",
+      "message_text": "REQUEST HEADING [degrees]",
+      "response_required": "Y",
+      "intent": "Request a clearance to adopt the specified heading",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM71",
+      "message_text": "REQUEST GROUND TRACK [degrees]",
+      "response_required": "Y",
+      "intent": "Request a clearance to adopt the specified ground track",
+      "category": "Route Modification Requests"
+    },
+    {
+      "id": "DM28",
+      "message_text": "LEAVING [level]",
+      "response_required": "N",
+      "intent": "Notification of leaving the specified level",
+      "category": "Reports"
+    },
+    {
+      "id": "DM29",
+      "message_text": "CLIMBING TO [level]",
+      "response_required": "N",
+      "intent": "Notification of climbing to the specified level",
+      "category": "Reports"
+    },
+    {
+      "id": "DM30",
+      "message_text": "DESCENDING TO [level]",
+      "response_required": "N",
+      "intent": "Notification of descending to the specified level",
+      "category": "Reports"
+    },
+    {
+      "id": "DM31",
+      "message_text": "PASSING [position]",
+      "response_required": "N",
+      "intent": "Notification of passing the specified position",
+      "category": "Reports"
+    },
+    {
+      "id": "DM32",
+      "message_text": "PRESENT LEVEL [level]",
+      "response_required": "N",
+      "intent": "Notification of the present level",
+      "category": "Reports"
+    },
+    {
+      "id": "DM33",
+      "message_text": "PRESENT POSITION [position]",
+      "response_required": "N",
+      "intent": "Notification of the present position",
+      "category": "Reports"
+    },
+    {
+      "id": "DM34",
+      "message_text": "PRESENT SPEED [speed]",
+      "response_required": "N",
+      "intent": "Notification of the present speed",
+      "category": "Reports"
+    },
+    {
+      "id": "DM35",
+      "message_text": "PRESENT HEADING [degrees]",
+      "response_required": "N",
+      "intent": "Notification of the present heading in degrees",
+      "category": "Reports"
+    },
+    {
+      "id": "DM36",
+      "message_text": "PRESENT GROUND TRACK [degrees]",
+      "response_required": "N",
+      "intent": "Notification of the present ground track in degrees",
+      "category": "Reports"
+    },
+    {
+      "id": "DM37",
+      "message_text": "MAINTAINING [level]",
+      "response_required": "N",
+      "intent": "Notification that the aircraft is maintaining the specified level",
+      "category": "Reports"
+    },
+    {
+      "id": "DM38",
+      "message_text": "ASSIGNED LEVEL [level]",
+      "response_required": "N",
+      "intent": "Read-back of the assigned level",
+      "category": "Reports"
+    },
+    {
+      "id": "DM39",
+      "message_text": "ASSIGNED SPEED [speed]",
+      "response_required": "N",
+      "intent": "Read-back of the assigned speed",
+      "category": "Reports"
+    },
+    {
+      "id": "DM40",
+      "message_text": "ASSIGNED ROUTE [route clearance]",
+      "response_required": "N",
+      "intent": "Read-back of the assigned route",
+      "category": "Reports"
+    },
+    {
+      "id": "DM41",
+      "message_text": "BACK ON ROUTE",
+      "response_required": "N",
+      "intent": "The aircraft has regained the cleared route",
+      "category": "Reports"
+    },
+    {
+      "id": "DM42",
+      "message_text": "NEXT WAYPOINT [position]",
+      "response_required": "N",
+      "intent": "The next waypoint is the specified position",
+      "category": "Reports"
+    },
+    {
+      "id": "DM43",
+      "message_text": "NEXT WAYPOINT ETA [time]",
+      "response_required": "N",
+      "intent": "The ETA at the next waypoint is as specified",
+      "category": "Reports"
+    },
+    {
+      "id": "DM44",
+      "message_text": "ENSUING WAYPOINT [position]",
+      "response_required": "N",
+      "intent": "The next plus one waypoint is the specified position",
+      "category": "Reports"
+    },
+    {
+      "id": "DM45",
+      "message_text": "REPORTED WAYPOINT [position]",
+      "response_required": "N",
+      "intent": "Clarification of previously reported waypoint passage",
+      "category": "Reports"
+    },
+    {
+      "id": "DM46",
+      "message_text": "REPORTED WAYPOINT [time]",
+      "response_required": "N",
+      "intent": "Clarification of time over previously reported waypoint",
+      "category": "Reports"
+    },
+    {
+      "id": "DM47",
+      "message_text": "SQUAWKING [code]",
+      "response_required": "N",
+      "intent": "The specified (SSR) code has been selected",
+      "category": "Reports"
+    },
+    {
+      "id": "DM48",
+      "message_text": "POSITION REPORT [position report]",
+      "response_required": "N",
+      "intent": "Position report",
+      "category": "Reports"
+    },
+    {
+      "id": "DM76",
+      "message_text": "REACHING BLOCK [level] TO [level]",
+      "response_required": "N",
+      "intent": "Notification that the aircraft has reached a level within the specified vertical range",
+      "category": "Reports"
+    },
+    {
+      "id": "DM77",
+      "message_text": "ASSIGNED BLOCK [level] TO [level]",
+      "response_required": "N",
+      "intent": "Read-back of the assigned vertical range",
+      "category": "Reports"
+    },
+    {
+      "id": "DM78",
+      "message_text": "AT [time] [distance] [to/from] [position]",
+      "response_required": "N",
+      "intent": "Notification that at the specified time, the aircraft's position was as specified",
+      "category": "Reports"
+    },
+    {
+      "id": "DM79",
+      "message_text": "ATIS [atis code]",
+      "response_required": "N",
+      "intent": "The code of the latest ATIS received is as specified",
+      "category": "Reports"
+    },
+    {
+      "id": "DM80",
+      "message_text": "DEVIATING UP TO [specified distance] [direction] OF ROUTE",
+      "response_required": "N",
+      "intent": "Notification that the aircraft is deviating up to the deviating distance from the cleared route",
+      "category": "Reports"
+    },
+    {
+      "id": "DM89",
+      "message_text": "MONITORING [unit name] [frequency]",
+      "response_required": "N",
+      "intent": "The specified ATS unit is being monitored on the specified frequency",
+      "category": "Reports"
+    },
+    {
+      "id": "DM49",
+      "message_text": "WHEN CAN WE EXPECT [speed]",
+      "response_required": "Y",
+      "intent": "Request for the earliest time at which a clearance to the specified speed can be expected",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "DM50",
+      "message_text": "WHEN CAN WE EXPECT [speed] TO [speed]",
+      "response_required": "Y",
+      "intent": "Request for the earliest time at which a clearance to a speed within the specified range can be expected",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "DM51",
+      "message_text": "WHEN CAN WE EXPECT BACK ON ROUTE",
+      "response_required": "Y",
+      "intent": "Request for the earliest time at which a clearance to regain the planned route can be expected",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "DM52",
+      "message_text": "WHEN CAN WE EXPECT LOWER LEVEL",
+      "response_required": "Y",
+      "intent": "Request for the earliest time at which a clearance to descend can be expected",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "DM53",
+      "message_text": "WHEN CAN WE EXPECT HIGHER LEVEL",
+      "response_required": "Y",
+      "intent": "Request for the earliest time at which a clearance to climb can be expected",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "DM54",
+      "message_text": "WHEN CAN WE EXPECT CRUISE CLIMB TO [level]",
+      "response_required": "Y",
+      "intent": "Request for the earliest time at which a clearance to cruise climb to the specified level can be expected",
+      "category": "Negotiation Requests"
+    },
+    {
+      "id": "DM81",
+      "message_text": "WE CAN ACCEPT [level] AT [time]",
+      "response_required": "N",
+      "intent": "We can accept the specified level at the specified time",
+      "category": "Negotiation Responses"
+    },
+    {
+      "id": "DM82",
+      "message_text": "WE CANNOT ACCEPT [level]",
+      "response_required": "N",
+      "intent": "We cannot accept the specified level",
+      "category": "Negotiation Responses"
+    },
+    {
+      "id": "DM83",
+      "message_text": "WE CAN ACCEPT [speed] AT [time]",
+      "response_required": "N",
+      "intent": "We can accept the specified speed at the specified time",
+      "category": "Negotiation Responses"
+    },
+    {
+      "id": "DM84",
+      "message_text": "WE CANNOT ACCEPT [speed]",
+      "response_required": "N",
+      "intent": "We cannot accept the specified speed",
+      "category": "Negotiation Responses"
+    },
+    {
+      "id": "DM85",
+      "message_text": "WE CAN ACCEPT [specified distance] [direction] AT [time]",
+      "response_required": "N",
+      "intent": "We can accept a parallel track offset the specified distance in the specified direction at the specified time",
+      "category": "Negotiation Responses"
+    },
+    {
+      "id": "DM86",
+      "message_text": "WE CANNOT ACCEPT [specified distance] [direction]",
+      "response_required": "N",
+      "intent": "We cannot accept a parallel track offset the specified distance in the specified direction",
+      "category": "Negotiation Responses"
+    },
+    {
+      "id": "DM55",
+      "message_text": "PAN PAN PAN",
+      "response_required": "Y",
+      "intent": "Urgency prefix",
+      "category": "Emergency Messages"
+    },
+    {
+      "id": "DM56",
+      "message_text": "MAYDAY MAYDAY MAYDAY",
+      "response_required": "Y",
+      "intent": "Distress prefix",
+      "category": "Emergency Messages"
+    },
+    {
+      "id": "DM57",
+      "message_text": "[remaining fuel] OF FUEL REMAINING AND [persons on board] PERSONS ON BOARD",
+      "response_required": "Y",
+      "intent": "Notification of fuel remaining and number of persons on board",
+      "category": "Emergency Messages"
+    },
+    {
+      "id": "DM58",
+      "message_text": "CANCEL EMERGENCY",
+      "response_required": "Y",
+      "intent": "Notification that the pilot wishes to cancel the emergency condition",
+      "category": "Emergency Messages"
+    },
+    {
+      "id": "DM59",
+      "message_text": "DIVERTING TO [position] VIA [route clearance]",
+      "response_required": "Y",
+      "intent": "Notification that the aircraft is diverting to the specified position via the specified route due to an urgent need",
+      "category": "Emergency Messages"
+    },
+    {
+      "id": "DM60",
+      "message_text": "OFFSETTING [specified distance] [direction] OF ROUTE",
+      "response_required": "Y",
+      "intent": "Notification that the aircraft is deviating the specified distance in the specified direction off the cleared route",
+      "category": "Emergency Messages"
+    },
+    {
+      "id": "DM61",
+      "message_text": "DESCENDING TO [level]",
+      "response_required": "Y",
+      "intent": "Notification that the aircraft is descending to the specified level due to an urgent need",
+      "category": "Emergency Messages"
+    },
+    {
+      "id": "DM62",
+      "message_text": "ERROR [error information]",
+      "response_required": "N",
+      "intent": "A system-generated message that the avionics has detected an error",
+      "category": "System Management"
+    },
+    {
+      "id": "DM63",
+      "message_text": "NOT CURRENT DATA AUTHORITY",
+      "response_required": "N",
+      "intent": "A system-generated denial to any CPDLC application message sent from a ground facility that is not the current data authority",
+      "category": "System Management"
+    },
+    {
+      "id": "DM64",
+      "message_text": "[facility designation]",
+      "response_required": "N",
+      "intent": "Notification to the ground system that the specified ATSU is the current data authority",
+      "category": "System Management"
+    },
+    {
+      "id": "DM73",
+      "message_text": "[version number]",
+      "response_required": "N",
+      "intent": "A system-generated message indicating the software version number",
+      "category": "System Management"
+    },
+    {
+      "id": "DM99",
+      "message_text": "CURRENT DATA AUTHORITY",
+      "response_required": "N",
+      "intent": "A system-generated message to inform a ground facility that it is now the current data authority",
+      "category": "System Management"
+    },
+    {
+      "id": "DM100",
+      "message_text": "LOGICAL ACKNOWLEDGEMENT",
+      "response_required": "N",
+      "intent": "Confirmation to the ground system that the aircraft system has received the message to which the logical acknowledgement refers",
+      "category": "System Management"
+    },
+    {
+      "id": "DM107",
+      "message_text": "NOT AUTHORIZED NEXT DATA AUTHORITY",
+      "response_required": "N",
+      "intent": "A system-generated message sent to a ground system that tries to connect to an aircraft when a current data authority has not designated the ground system as the NDA",
+      "category": "System Management"
+    },
+    {
+      "id": "DM65",
+      "message_text": "DUE TO WEATHER",
+      "response_required": "N",
+      "intent": "Used to explain reasons for pilot's message",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "DM66",
+      "message_text": "DUE TO AIRCRAFT PERFORMANCE",
+      "response_required": "N",
+      "intent": "Used to explain reasons for pilot's message",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "DM74",
+      "message_text": "REQUEST TO MAINTAIN OWN SEPARATION AND VMC",
+      "response_required": "Y",
+      "intent": "States a desire by the pilot to provide his/her own separation and remain in VMC",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "DM75",
+      "message_text": "AT PILOTS DISCRETION",
+      "response_required": "N",
+      "intent": "Used in conjunction with another message to indicate that the pilot wishes to execute request when the pilot is prepared to do so",
+      "category": "Additional Messages"
+    },
+    {
+      "id": "DM67",
+      "message_text": "[free text]",
+      "response_required": "N",
+      "intent": "Normal urgency, low alert free text",
+      "category": "Free Text"
+    },
+    {
+      "id": "DM68",
+      "message_text": "[free text]",
+      "response_required": "Y",
+      "intent": "Distress urgency, high alert free text",
+      "category": "Free Text"
+    },
+    {
+      "id": "DM98",
+      "message_text": "[free text]",
+      "response_required": "N",
+      "intent": "Normal urgency, normal alert free text (ATN B1)",
+      "category": "Free Text"
+    }
+  ]
+}
