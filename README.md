@@ -53,9 +53,11 @@ acars_parser/
 │   │   ├── main.go
 │   │   ├── extract.go      # Extract command
 │   │   └── live.go         # Live NATS command
-│   └── enrichment-api/     # Flight enrichment REST API
+│   ├── enrichment-api/     # Flight enrichment REST API
+│   └── nats-relay/         # NATS message relay with deduplication
 ├── internal/
 │   ├── acars/              # ACARS message types
+│   ├── relay/              # NATS relay core (dedup, config, metrics)
 │   ├── registry/           # Parser registry
 │   ├── patterns/           # Shared regex patterns and extractors
 │   └── parsers/            # Individual parser implementations
@@ -340,6 +342,45 @@ curl http://localhost:8081/api/v1/enrichment/7C6CA3
 ```
 
 See `docs/enrichment-api.md` for full documentation and `api/openapi.yaml` for the OpenAPI spec.
+
+## NATS Relay
+
+A standalone binary that connects to the Airframes public NATS bus, deduplicates messages, and republishes them to an internal NATS server. This allows multiple internal consumers to share a single upstream connection.
+
+```bash
+# Build and run
+go build -o nats-relay ./cmd/nats-relay
+AIRFRAMES_NATS_CREDS=/path/to/airframes_nats.creds ./nats-relay
+```
+
+**Configuration** (all via environment variables):
+
+| Variable | Default | Description |
+|---|---|---|
+| `AIRFRAMES_NATS_URL` | `nats://157.90.242.138:4222` | Airframes NATS server |
+| `AIRFRAMES_NATS_CREDS` | _(required)_ | Path to .creds file or inline credential content |
+| `AIRFRAMES_NATS_SUBJECT` | `v1.aircraft.ingest.*.message.*.created` | Subject to subscribe to |
+| `INTERNAL_NATS_URL` | `nats://localhost:4222` | Internal NATS server |
+| `INTERNAL_NATS_SUBJECT` | `acars.messages` | Subject to publish on |
+| `DEDUP_TTL` | `10s` | Content hash expiry window |
+| `DEDUP_MAX_SIZE` | `100000` | Max dedup cache entries |
+| `METRICS_ADDR` | `:9090` | HTTP address for /healthz and /metrics |
+| `LOG_LEVEL` | `info` | Log verbosity (debug, info, warn, error) |
+
+**Deduplication:** Two-layer strategy. Layer 1 checks the Airframes message ID from the NATS subject (catches re-deliveries). Layer 2 computes a content hash of label + tail + text fields with a TTL window (catches multi-station duplicates where the same transmission is received by multiple ground stations with different message IDs).
+
+**Endpoints:**
+- `GET /healthz` - Returns 200 if both NATS connections are active
+- `GET /metrics` - Prometheus format metrics
+
+**Docker:**
+
+```bash
+docker build -f cmd/nats-relay/Dockerfile -t nats-relay .
+docker run -e AIRFRAMES_NATS_CREDS="$CREDS" -e INTERNAL_NATS_URL=nats://nats:4222 -p 9090:9090 nats-relay
+```
+
+See `docs/plans/2026-02-08-nats-relay-design.md` for the full design document.
 
 ## Supported Message Types
 
