@@ -1,12 +1,26 @@
+# IDE and assistant state.
 .claude
 .idea
-acars_parser
+.serena
+.DS_Store
+
+# Build output. Anchored so that the cmd/acars_parser source directory is not matched.
+/acars_parser
+/bin/
+/tools/analyzer/analyzer
+/tools/kmlexport/kmlexport
+/tools/routeexport/routeexport
+
+# Local data, databases and generated exports.
+/data/
 *.db
 *.db-*
-TODO.md
-*.creds*
-.DS_Store
 *.log
-data/
-bin/
+/tools/routeexport/routes.csv
+
+# Secrets.
+*.creds*
+
+# Local working notes and design plans (current-state docs live in docs/).
+TODO.md
 docs/plans/
