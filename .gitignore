@@ -18,6 +18,10 @@
 *.log
 /tools/routeexport/routes.csv
 
+# Local Go workspace (points go-asn at a local checkout for development).
+go.work
+go.work.sum
+
 # Secrets.
 *.creds*
 

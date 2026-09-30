@@ -11,26 +11,6 @@ type Config struct {
 	Postgres   PostgresConfig
 }
 
-// DefaultConfig returns a configuration with default local development settings.
-func DefaultConfig() Config {
-	return Config{
-		ClickHouse: ClickHouseConfig{
-			Host:     "localhost",
-			Port:     9000,
-			Database: "acars",
-			User:     "default",
-			Password: "",
-		},
-		Postgres: PostgresConfig{
-			Host:     "localhost",
-			Port:     5432,
-			Database: "acars_state",
-			User:     "acars",
-			Password: "acars",
-		},
-	}
-}
-
 // DB wraps both ClickHouse and PostgreSQL connections.
 type DB struct {
 	CH *ClickHouseDB // ClickHouse for messages and analytics.

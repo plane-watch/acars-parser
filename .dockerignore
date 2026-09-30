@@ -1,0 +1,18 @@
+# Keep the build context small and free of secrets and local data.
+.git
+.idea
+.claude
+.serena
+bin/
+data/
+docs/
+tools/*/analyzer
+tools/*/kmlexport
+tools/*/routeexport
+*.creds*
+go.work
+go.work.sum
+*.db
+*.db-*
+*.log
+*.csv
