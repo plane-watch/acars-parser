@@ -12,20 +12,20 @@ import (
 
 // RunwayData contains takeoff parameters for a specific runway.
 type RunwayData struct {
-	Airport    string  `json:"airport,omitempty"`
-	Runway     string  `json:"runway"`
-	Length     int     `json:"length,omitempty"`       // Runway length in feet
-	Shift      int     `json:"shift,omitempty"`        // Displaced threshold
-	Flaps      int     `json:"flaps,omitempty"`        // Flap setting
-	EPR        float64 `json:"epr,omitempty"`          // Engine pressure ratio
-	MRTW       float64 `json:"mrtw,omitempty"`         // Max recommended takeoff weight
-	LimitCode  string  `json:"limit_code,omitempty"`   // O=obstacle, F=field, etc.
-	V1         int     `json:"v1,omitempty"`           // Decision speed
-	VR         int     `json:"vr,omitempty"`           // Rotation speed
-	V2         int     `json:"v2,omitempty"`           // Takeoff safety speed
-	FlexTemp   int     `json:"flex_temp,omitempty"`    // Flex/assumed temp
-	FlexEPR    float64 `json:"flex_epr,omitempty"`     // Flex EPR
-	MTOW       float64 `json:"mtow,omitempty"`         // Max takeoff weight
+	Airport   string  `json:"airport,omitempty"`
+	Runway    string  `json:"runway"`
+	Length    int     `json:"length,omitempty"`     // Runway length in feet
+	Shift     int     `json:"shift,omitempty"`      // Displaced threshold
+	Flaps     int     `json:"flaps,omitempty"`      // Flap setting
+	EPR       float64 `json:"epr,omitempty"`        // Engine pressure ratio
+	MRTW      float64 `json:"mrtw,omitempty"`       // Max recommended takeoff weight
+	LimitCode string  `json:"limit_code,omitempty"` // O=obstacle, F=field, etc.
+	V1        int     `json:"v1,omitempty"`         // Decision speed
+	VR        int     `json:"vr,omitempty"`         // Rotation speed
+	V2        int     `json:"v2,omitempty"`         // Takeoff safety speed
+	FlexTemp  int     `json:"flex_temp,omitempty"`  // Flex/assumed temp
+	FlexEPR   float64 `json:"flex_epr,omitempty"`   // Flex EPR
+	MTOW      float64 `json:"mtow,omitempty"`       // Max takeoff weight
 }
 
 // Result represents parsed takeoff performance data.
@@ -36,14 +36,14 @@ type Result struct {
 	EngineType   string       `json:"engine_type,omitempty"`
 	Time         string       `json:"time,omitempty"`
 	Wind         string       `json:"wind,omitempty"`
-	OAT          int          `json:"oat,omitempty"`          // Outside air temp (C)
-	QNH          float64      `json:"qnh,omitempty"`          // Altimeter setting
-	GTOW         float64      `json:"gtow,omitempty"`         // Gross takeoff weight (klbs)
-	CG           float64      `json:"cg,omitempty"`           // Centre of gravity (%)
-	PAX          int          `json:"pax,omitempty"`          // Passenger count
-	Fuel         float64      `json:"fuel,omitempty"`         // Fuel (klbs)
-	Cargo        int          `json:"cargo,omitempty"`        // Cargo weight (lbs)
-	ZFW          float64      `json:"zfw,omitempty"`          // Zero fuel weight (klbs)
+	OAT          int          `json:"oat,omitempty"`   // Outside air temp (C)
+	QNH          float64      `json:"qnh,omitempty"`   // Altimeter setting
+	GTOW         float64      `json:"gtow,omitempty"`  // Gross takeoff weight (klbs)
+	CG           float64      `json:"cg,omitempty"`    // Centre of gravity (%)
+	PAX          int          `json:"pax,omitempty"`   // Passenger count
+	Fuel         float64      `json:"fuel,omitempty"`  // Fuel (klbs)
+	Cargo        int          `json:"cargo,omitempty"` // Cargo weight (lbs)
+	ZFW          float64      `json:"zfw,omitempty"`   // Zero fuel weight (klbs)
 	Runways      []RunwayData `json:"runways,omitempty"`
 	Remarks      string       `json:"remarks,omitempty"`
 }
@@ -70,14 +70,22 @@ var (
 	// GTOW/CG: 409.3/25.1 - on line after header
 	gtowRe = regexp.MustCompile(`([\d.]+)/([\d.]+)\s+\d+\s*\n`)
 
-	// PAX: 226 - at end of line with GTOW
-	paxRe = regexp.MustCompile(`PAX\s*\n\s*([\d.]+)/([\d.]+)\s+(\d+)`)
+	// GTOW/CG and PAX from the tabular format:
+	// GTOW /CG             PAX
+	// 409.3/25.1           226
+	gtowPaxRe = regexp.MustCompile(`GTOW\s*/\s*CG\s+PAX\s*\n\s*([\d.]+)/([\d.]+)\s+(\d+)`)
 
-	// FUEL: 82.9 - on line after FUEL header
-	fuelRe = regexp.MustCompile(`FUEL\s+CARGO\s*\n\s*([\d.]+)\s+(\d+)`)
+	// FUEL and CARGO from the tabular format:
+	// FUEL               CARGO
+	//  82.9              11878
+	fuelCargoRe = regexp.MustCompile(`FUEL\s+CARGO\s*\n\s*([\d.]+)\s+(\d+)`)
 
-	// CARGO: extracted from fuelRe above
-	cargoRe = regexp.MustCompile(`CARGO\s*\n?\s*(\d+)`)
+	// QNH formats, tried in order by Parse.
+	qnhPatterns = []*regexp.Regexp{
+		regexp.MustCompile(`QNH\s*\n[^\n]*\s(\d+\.\d+)`), // QNH on header, value on next line
+		regexp.MustCompile(`ALT\s+(\d+\.\d+)`),           // ALT 30.09
+		regexp.MustCompile(`(\d{2}\.\d{2})\s*$`),         // At end of line
+	}
 
 	// ZFW/CG: 326.4/26.6
 	zfwRe = regexp.MustCompile(`ZFW\s*/\s*CG\s*\n?\s*([\d.]+)`)
@@ -93,9 +101,6 @@ var (
 	// FLEX: 69
 	flexRe = regexp.MustCompile(`FLEX\s+MAX\s*\n?\s*(\d+)`)
 
-	// FLAP EPR MRTW: 2 1.39 411.7/O
-	flapLineRe = regexp.MustCompile(`FLAP\s+EPR\s+MRTW/LIM\s+V1\s*\n?\s*(\d+)\s+([\d.]+)\s+([\d.]+)/([A-Z])`)
-
 	// Simple runway format: T/O SFO 01R
 	simpleRunwayRe = regexp.MustCompile(`T/O\s+([A-Z]{3,4})\s+(\d{2}[LRC]?)`)
 )
@@ -107,9 +112,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "takeoff_data" }
-func (p *Parser) Labels() []string       { return []string{"RA", "H1", "C1"} }
-func (p *Parser) Priority() int          { return 55 }
+func (p *Parser) Name() string     { return "takeoff_data" }
+func (p *Parser) Labels() []string { return []string{"RA", "H1", "C1"} }
+func (p *Parser) Priority() int    { return 55 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "TAKEOFF DATA") || strings.Contains(text, "T/O DATA")
@@ -152,11 +157,6 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	// Parse QNH - multiple formats (look for decimal number like 30.15 or 29.92)
-	qnhPatterns := []*regexp.Regexp{
-		regexp.MustCompile(`QNH\s*\n[^\n]*\s(\d+\.\d+)`),           // QNH on header, value on next line
-		regexp.MustCompile(`ALT\s+(\d+\.\d+)`),                      // ALT 30.09
-		regexp.MustCompile(`(\d{2}\.\d{2})\s*$`),                    // At end of line
-	}
 	for _, re := range qnhPatterns {
 		if m := re.FindStringSubmatch(text); m != nil {
 			result.QNH, _ = strconv.ParseFloat(m[1], 64)
@@ -164,20 +164,14 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		}
 	}
 
-	// Parse GTOW/CG and PAX from the tabular format:
-	// GTOW /CG             PAX
-	// 409.3/25.1           226
-	gtowPaxRe := regexp.MustCompile(`GTOW\s*/\s*CG\s+PAX\s*\n\s*([\d.]+)/([\d.]+)\s+(\d+)`)
+	// Parse GTOW/CG and PAX.
 	if m := gtowPaxRe.FindStringSubmatch(text); m != nil {
 		result.GTOW, _ = strconv.ParseFloat(m[1], 64)
 		result.CG, _ = strconv.ParseFloat(m[2], 64)
 		result.PAX, _ = strconv.Atoi(m[3])
 	}
 
-	// Parse FUEL and CARGO from tabular format:
-	// FUEL               CARGO
-	//  82.9              11878
-	fuelCargoRe := regexp.MustCompile(`FUEL\s+CARGO\s*\n\s*([\d.]+)\s+(\d+)`)
+	// Parse FUEL and CARGO.
 	if m := fuelCargoRe.FindStringSubmatch(text); m != nil {
 		result.Fuel, _ = strconv.ParseFloat(m[1], 64)
 		result.Cargo, _ = strconv.Atoi(m[2])
@@ -211,7 +205,11 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		}
 	}
 
-	// Parse V speeds (apply to last runway or create default).
+	// Parse V speeds (apply to the last runway, if any).
+	// TODO: VR, V2, flex temperature, flaps, EPR, MRTW and the limit code are
+	// declared on RunwayData but never populated. vrRe, v2Re and flexRe are only
+	// used by ParseWithTrace. Populating them needs more sample messages to confirm
+	// which runway column each value belongs to in the tabular format.
 	if m := v1Re.FindStringSubmatch(text); m != nil {
 		v1, _ := strconv.Atoi(m[1])
 		if len(result.Runways) > 0 {

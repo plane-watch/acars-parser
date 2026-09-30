@@ -58,9 +58,15 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "hazard_alert" }
-func (p *Parser) Labels() []string       { return []string{"_", "H1", "SA"} } // Various labels possible
-func (p *Parser) Priority() int          { return 60 }
+func (p *Parser) Name() string { return "hazard_alert" }
+
+// Labels returns the ACARS labels this parser handles.
+// TODO: The "_" label is probably meant to be "_d" (the general response label),
+// but the registry matches labels exactly, so "_" never matches real traffic.
+// Confirm the label HAZARD ALERT messages arrive on before changing it.
+func (p *Parser) Labels() []string { return []string{"_", "H1", "SA"} }
+
+func (p *Parser) Priority() int { return 60 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "HAZARD ALERT")
