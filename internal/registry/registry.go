@@ -15,6 +15,22 @@ type Result interface {
 	MessageID() int64 // The original message ID
 }
 
+// Match is one parser's result for a message, recorded with the name of the
+// parser that produced it. Several parsers can match the same message.
+type Match struct {
+	Parser string // The producing parser's Name().
+	Result Result
+}
+
+// Results returns the results of the matches, in the same order.
+func Results(matches []Match) []Result {
+	results := make([]Result, len(matches))
+	for i, m := range matches {
+		results[i] = m.Result
+	}
+	return results
+}
+
 // Parser is implemented by each message parser.
 type Parser interface {
 	// Name returns the parser's unique identifier.
@@ -105,7 +121,18 @@ func (r *Registry) RegisterCatchAll(p Parser) {
 	r.sorted = false
 }
 
-// Sort sorts all parser slices by priority. Call before dispatching.
+// sortParsers orders parsers by ascending priority, breaking ties by name so
+// that the dispatch order never depends on registration (import) order.
+func sortParsers(parsers []Parser) {
+	sort.Slice(parsers, func(i, j int) bool {
+		if parsers[i].Priority() != parsers[j].Priority() {
+			return parsers[i].Priority() < parsers[j].Priority()
+		}
+		return parsers[i].Name() < parsers[j].Name()
+	})
+}
+
+// Sort sorts all parser slices by priority, then name. Call before dispatching.
 func (r *Registry) Sort() {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -115,32 +142,24 @@ func (r *Registry) Sort() {
 	}
 
 	for label := range r.byLabel {
-		parsers := r.byLabel[label]
-		sort.Slice(parsers, func(i, j int) bool {
-			return parsers[i].Priority() < parsers[j].Priority()
-		})
+		sortParsers(r.byLabel[label])
 	}
-
-	sort.Slice(r.global, func(i, j int) bool {
-		return r.global[i].Priority() < r.global[j].Priority()
-	})
-
-	sort.Slice(r.catchAll, func(i, j int) bool {
-		return r.catchAll[i].Priority() < r.catchAll[j].Priority()
-	})
+	sortParsers(r.global)
+	sortParsers(r.catchAll)
 
 	r.sorted = true
 }
 
-// Dispatch routes a message to appropriate parsers and returns all results.
-// Multiple parsers can match the same message (e.g., PDC + route info).
-// Note: Sort() should be called before Dispatch() for optimal performance.
-// If Sort() has not been called, parsers will be in registration order.
-func (r *Registry) Dispatch(msg *acars.Message) []Result {
+// Dispatch routes a message to the appropriate parsers and returns every match,
+// each with the name of the parser that produced it. Multiple parsers can match
+// the same message (e.g., PDC + route info). Label parsers come first, then
+// global parsers, each in the order established by Sort(). If Sort() has not
+// been called, parsers are in registration order.
+func (r *Registry) Dispatch(msg *acars.Message) []Match {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	var results []Result
+	var results []Match
 
 	// 1. Try label-specific parsers first (most efficient path)
 	if parsers, ok := r.byLabel[msg.Label]; ok {
@@ -150,7 +169,7 @@ func (r *Registry) Dispatch(msg *acars.Message) []Result {
 				continue
 			}
 			if result := p.Parse(msg); result != nil {
-				results = append(results, result)
+				results = append(results, Match{Parser: p.Name(), Result: result})
 			}
 		}
 	}
@@ -161,7 +180,7 @@ func (r *Registry) Dispatch(msg *acars.Message) []Result {
 			continue
 		}
 		if result := p.Parse(msg); result != nil {
-			results = append(results, result)
+			results = append(results, Match{Parser: p.Name(), Result: result})
 		}
 	}
 
@@ -169,7 +188,7 @@ func (r *Registry) Dispatch(msg *acars.Message) []Result {
 	if len(results) == 0 && len(r.catchAll) > 0 {
 		for _, p := range r.catchAll {
 			if result := p.Parse(msg); result != nil {
-				results = append(results, result)
+				results = append(results, Match{Parser: p.Name(), Result: result})
 			}
 		}
 	}

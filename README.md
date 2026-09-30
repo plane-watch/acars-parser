@@ -260,7 +260,7 @@ Re-runs the current parsers over stored messages and compares each new result wi
 
 Behaviour to be aware of:
 
-- Only the first result for each message is compared.
+- Each stored row is compared with the new result of the same type. If that type is no longer produced, the row is compared with the first match, so the change of type is reported.
 - Without `-update`, nothing is written to ClickHouse.
 - `-update` inserts new rows and does not remove the old ones, because `messages` is a plain `MergeTree`. It creates duplicate rows (see [docs/storage.md](docs/storage.md)).
 

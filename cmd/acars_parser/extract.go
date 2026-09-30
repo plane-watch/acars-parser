@@ -122,8 +122,7 @@ func extractAll(reader io.Reader) (*ExtractedData, error) {
 		}
 
 		// Dispatch to all matching parsers.
-		results := reg.Dispatch(msg)
-		for _, result := range results {
+		for _, result := range registry.Results(reg.Dispatch(msg)) {
 			typeName := result.Type()
 			data.Stats.ParsedByType[typeName]++
 			data.Results[typeName] = append(data.Results[typeName], result)

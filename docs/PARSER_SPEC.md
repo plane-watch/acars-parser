@@ -373,7 +373,7 @@ This enables the debug command to show exactly why a parser did or didn't match 
 
 ## Priority Guidelines
 
-`Priority()` orders parsers within a dispatch tier; lower numbers run first. It does not stop other parsers from running: every parser whose `QuickCheck` passes and whose `Parse` returns a result contributes that result. The order matters where a caller uses only the first result, as the `reparse` command does with `results[0]`.
+`Priority()` orders parsers within a dispatch tier; lower numbers run first. It does not stop other parsers from running: every parser whose `QuickCheck` passes and whose `Parse` returns a result contributes that result. `Dispatch` returns each result with the name of the parser that produced it (`registry.Match`), so callers do not need to rely on the order.
 
 Priority does not move a parser between tiers. Label parsers always run before global parsers (those with an empty `Labels()`), whatever their priorities.
 
@@ -381,7 +381,7 @@ Use these values:
 
 - **100** for a parser that is the only parser on its label, or the least specific parser on a shared label. Most label parsers use 100.
 - **A lower number** (the current range is 10 to 70) when several parsers share a label, so that the parser with the most specific quick check and format comes first. For example, on H1: `fpn` (10), `h1pos` (20), `pwi` (30), `mdc` (40), `dispatcher` (45), `weather` (50), `trajectory` (50), `takeoff_data` (55), `hazard_alert` (60), `loadsheet` (60).
-- **Avoid giving two parsers on the same label the same priority.** The registry sorts with `sort.Slice`, which is not stable, so the order of parsers with equal priority is not defined.
+- **Parsers with equal priority on the same label are ordered by name,** so the dispatch order does not depend on package import order.
 
 The only global parser, `pdc`, uses 500. That number orders it only against other global parsers.
 

@@ -496,7 +496,7 @@ func (s *Server) handleExportGo(w http.ResponseWriter, r *http.Request) {
 		code.WriteString("\tfor _, tc := range cases {\n")
 		code.WriteString("\t\tt.Run(tc.name, func(t *testing.T) {\n")
 		code.WriteString("\t\t\tmsg := &acars.Message{Label: tc.label, Text: tc.raw}\n")
-		code.WriteString("\t\t\tresults := reg.Dispatch(msg)\n")
+		code.WriteString("\t\t\tresults := registry.Results(reg.Dispatch(msg))\n")
 		code.WriteString("\t\t\tif len(results) == 0 {\n")
 		code.WriteString("\t\t\t\tt.Errorf(\"expected parser match, got none\")\n")
 		code.WriteString("\t\t\t\treturn\n")

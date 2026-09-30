@@ -192,15 +192,16 @@ func runReparseCmd(args []string) {
 				Tail:  msg.Tail,
 			}
 
-			newResults := reg.Dispatch(acarsMsg)
+			matches := reg.Dispatch(acarsMsg)
+			newResults := registry.Results(matches)
 			var newFields map[string]string
 			var newParserType string
 			var parsedData interface{}
 
-			if len(newResults) > 0 {
-				newFields = resultToFields(newResults[0])
-				newParserType = newResults[0].Type()
-				parsedData = newResults[0]
+			if match, ok := comparableMatch(msg.ParserType, matches); ok {
+				newFields = resultToFields(match.Result)
+				newParserType = match.Result.Type()
+				parsedData = match.Result
 			} else {
 				newFields = make(map[string]string)
 				newParserType = "unparsed"
@@ -636,15 +637,19 @@ func reparseSingleMessageCH(ctx context.Context, db *storage.ClickHouseDB, id ui
 		Tail:  msg.Tail,
 	}
 
-	results := reg.Dispatch(acarsMsg)
+	matches := reg.Dispatch(acarsMsg)
 
 	if asJSON {
-		if len(results) > 0 {
-			data, _ := json.MarshalIndent(results[0], "", "  ")
-			fmt.Println(string(data))
-		} else {
-			fmt.Println("{}")
+		out := make([]map[string]interface{}, 0, len(matches))
+		for _, m := range matches {
+			out = append(out, map[string]interface{}{
+				"parser": m.Parser,
+				"type":   m.Result.Type(),
+				"result": m.Result,
+			})
 		}
+		data, _ := json.MarshalIndent(out, "", "  ")
+		fmt.Println(string(data))
 		return
 	}
 
@@ -653,20 +658,39 @@ func reparseSingleMessageCH(ctx context.Context, db *storage.ClickHouseDB, id ui
 	fmt.Printf("Tail:   %s\n", msg.Tail)
 	fmt.Printf("\n--- Raw Text ---\n%s\n", msg.RawText)
 
-	if len(results) == 0 {
+	if len(matches) == 0 {
 		fmt.Println("\n--- New Parse ---\n(no parser matched)")
 		return
 	}
 
-	result := results[0]
-	fmt.Printf("\n--- New Parse (type: %s) ---\n", result.Type())
-
-	data, err := json.MarshalIndent(result, "", "  ")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error marshalling result: %v\n", err)
-		return
+	for _, m := range matches {
+		fmt.Printf("\n--- New Parse (parser: %s, type: %s) ---\n", m.Parser, m.Result.Type())
+		data, err := json.MarshalIndent(m.Result, "", "  ")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error marshalling result: %v\n", err)
+			continue
+		}
+		fmt.Println(string(data))
 	}
-	fmt.Println(string(data))
+}
+
+// comparableMatch selects the new match to compare with a stored row.
+//
+// The messages table stores one row per parse result, labelled with the result
+// type, and every parser produces a single result type. A stored row is
+// therefore compared with the new result of the same type. If that type is no
+// longer produced (or the row is "unparsed"), it is compared with the first
+// match in dispatch order, so the change of type is reported.
+func comparableMatch(storedType string, matches []registry.Match) (registry.Match, bool) {
+	if len(matches) == 0 {
+		return registry.Match{}, false
+	}
+	for _, m := range matches {
+		if m.Result.Type() == storedType {
+			return m, true
+		}
+	}
+	return matches[0], true
 }
 
 // dumpRegressionsCH writes all regressed messages to a file.

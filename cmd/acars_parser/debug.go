@@ -101,14 +101,14 @@ func runDebugCmd(args []string) {
 	}
 
 	// Try all parsers and collect results.
-	results := reg.Dispatch(msg)
+	matches := reg.Dispatch(msg)
 
-	if len(results) == 0 {
+	if len(matches) == 0 {
 		fmt.Println("No parser matched this message.")
 	} else {
-		fmt.Printf("Matched Parsers: %d\n", len(results))
-		for _, r := range results {
-			fmt.Printf("  - %s\n", r.Type())
+		fmt.Printf("Matched Parsers: %d\n", len(matches))
+		for _, m := range matches {
+			fmt.Printf("  - %s (%s)\n", m.Parser, m.Result.Type())
 		}
 	}
 

@@ -56,9 +56,9 @@ Global parsers run after label parsers because of the order of the tiers in `Dis
 
 `Priority()` orders parsers within a tier: lower numbers run first. Every command calls `Registry.Sort()` before dispatching. Priority does not stop other parsers from running; it only decides the order of the results that `Dispatch` returns.
 
-That order matters where a caller uses only the first result. The `reparse` command (`cmd/acars_parser/reparse.go`) compares the stored parse against `results[0]` and records that result's `Type()` as the new parser type.
+`Dispatch` returns a `registry.Match` per result, recording the producing parser's name. The `reparse` command compares each stored row with the new result of the same type, and falls back to the first match when that type is no longer produced.
 
-`Sort()` uses `sort.Slice`, which is not stable, so the relative order of two parsers with the same priority on the same label is not defined.
+`Sort()` breaks priority ties by parser name, so the order is deterministic and does not depend on registration order.
 
 Most parsers that own a label use priority 100. Lower numbers are used where several parsers share a label. The shared labels are:
 

@@ -537,7 +537,7 @@ func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry,
 	}
 
 	// Dispatch to all matching parsers.
-	results := reg.Dispatch(msg)
+	results := registry.Results(reg.Dispatch(msg))
 
 	// Update state in PostgreSQL with parsed data.
 	if pg != nil {
