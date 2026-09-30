@@ -211,16 +211,16 @@ func (d *ClickHouseDB) InsertBatch(ctx context.Context, messages []CHInsertParam
 
 // CHQueryParams contains filtering options for querying messages.
 type CHQueryParams struct {
-	ID           uint64
-	ParserType   string
-	Label        string
-	Flight       string
-	HasMissing   bool
-	FullText     string // LIKE match on raw_text.
-	Limit        int
-	Offset       int
-	OrderBy      string
-	OrderDesc    bool
+	ID         uint64
+	ParserType string
+	Label      string
+	Flight     string
+	HasMissing bool
+	FullText   string // LIKE match on raw_text.
+	Limit      int
+	Offset     int
+	OrderBy    string
+	OrderDesc  bool
 }
 
 // Query retrieves messages matching the given parameters.

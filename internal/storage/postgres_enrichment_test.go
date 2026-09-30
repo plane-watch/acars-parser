@@ -73,12 +73,12 @@ func TestUpsertFlightEnrichment(t *testing.T) {
 
 	// First upsert - PDC data.
 	err := pg.UpsertFlightEnrichment(ctx, FlightEnrichmentUpdate{
-		ICAOHex:    "7C6CA3",
-		Callsign:   "QF008",
-		FlightDate: flightDate,
+		ICAOHex:         "7C6CA3",
+		Callsign:        "QF008",
+		FlightDate:      flightDate,
 		DepartureRunway: stringPtr("34L"),
 		SID:             stringPtr("RIC6"),
-		Squawk:     stringPtr("4302"),
+		Squawk:          stringPtr("4302"),
 	})
 	if err != nil {
 		t.Fatalf("first upsert failed: %v", err)

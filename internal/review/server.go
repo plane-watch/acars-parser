@@ -56,6 +56,8 @@ func (s *Server) Run() error {
 	mux.Handle("/", http.FileServer(http.FS(staticFS)))
 
 	addr := fmt.Sprintf(":%d", s.port)
+	// TODO: addr has no host, so the server listens on all interfaces with no
+	// authentication while exposing write endpoints. Bind to 127.0.0.1 by default.
 	log.Printf("Review UI starting at http://localhost%s", addr)
 	if s.filter != "" {
 		log.Printf("Filtering to parser type: %s", s.filter)
@@ -66,20 +68,20 @@ func (s *Server) Run() error {
 
 // APIMessage is the JSON representation of a message.
 type APIMessage struct {
-	ID            int64             `json:"id"`
-	Timestamp     string            `json:"timestamp"`
-	Label         string            `json:"label"`
-	ParserType    string            `json:"parser_type"`
-	Flight        string            `json:"flight"`
-	Tail          string            `json:"tail"`
-	Origin        string            `json:"origin"`
-	Destination   string            `json:"destination"`
-	RawText       string            `json:"raw_text"`
+	ID            int64                  `json:"id"`
+	Timestamp     string                 `json:"timestamp"`
+	Label         string                 `json:"label"`
+	ParserType    string                 `json:"parser_type"`
+	Flight        string                 `json:"flight"`
+	Tail          string                 `json:"tail"`
+	Origin        string                 `json:"origin"`
+	Destination   string                 `json:"destination"`
+	RawText       string                 `json:"raw_text"`
 	Parsed        map[string]interface{} `json:"parsed"`
-	MissingFields []string          `json:"missing_fields"`
-	Confidence    float64           `json:"confidence"`
-	IsGolden      bool              `json:"is_golden"`
-	Annotation    string            `json:"annotation"`
+	MissingFields []string               `json:"missing_fields"`
+	Confidence    float64                `json:"confidence"`
+	IsGolden      bool                   `json:"is_golden"`
+	Annotation    string                 `json:"annotation"`
 	Expected      map[string]interface{} `json:"expected,omitempty"`
 }
 
@@ -403,7 +405,7 @@ func (s *Server) handleExportJSON(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Use expected_json if set, otherwise use parsed_json.
-		if a.ExpectedJSON != nil && len(a.ExpectedJSON) > 0 {
+		if len(a.ExpectedJSON) > 0 {
 			export.Expected = a.ExpectedJSON
 		} else if msg.ParsedJSON != "" {
 			_ = json.Unmarshal([]byte(msg.ParsedJSON), &export.Expected)

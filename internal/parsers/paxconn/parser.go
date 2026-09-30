@@ -17,7 +17,7 @@ type Connection struct {
 	Time         string `json:"time,omitempty"`
 	Destination  string `json:"destination,omitempty"`
 	Gate         string `json:"gate,omitempty"`
-	Decision     string `json:"decision"`              // MISSEDCONNECTION, PENDING, WILLWAIT
+	Decision     string `json:"decision"` // MISSEDCONNECTION, PENDING, WILLWAIT
 	Class        string `json:"class,omitempty"`
 	Passengers   int    `json:"passengers"`
 	Bags         int    `json:"bags"`
@@ -25,13 +25,13 @@ type Connection struct {
 
 // Result represents a parsed passenger connection status.
 type Result struct {
-	MsgID             int64        `json:"message_id,omitempty"`
-	CurrentFlight     string       `json:"current_flight,omitempty"`
-	Connections       []Connection `json:"connections,omitempty"`
-	MissedCount       int          `json:"missed_count"`
-	PendingCount      int          `json:"pending_count"`
-	WillWaitCount     int          `json:"will_wait_count"`
-	TotalConnecting   int          `json:"total_connecting"`
+	MsgID           int64        `json:"message_id,omitempty"`
+	CurrentFlight   string       `json:"current_flight,omitempty"`
+	Connections     []Connection `json:"connections,omitempty"`
+	MissedCount     int          `json:"missed_count"`
+	PendingCount    int          `json:"pending_count"`
+	WillWaitCount   int          `json:"will_wait_count"`
+	TotalConnecting int          `json:"total_connecting"`
 }
 
 func (r *Result) Type() string     { return "pax_conn_status" }
@@ -56,9 +56,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "pax_conn_status" }
-func (p *Parser) Labels() []string       { return []string{"3E", "RA"} }
-func (p *Parser) Priority() int          { return 55 }
+func (p *Parser) Name() string     { return "pax_conn_status" }
+func (p *Parser) Labels() []string { return []string{"3E", "RA"} }
+func (p *Parser) Priority() int    { return 55 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "PAX CONN STATUS")

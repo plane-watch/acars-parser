@@ -11,9 +11,9 @@ import (
 
 // Result represents a parsed parking/gate info message.
 type Result struct {
-	MsgID          int64  `json:"message_id,omitempty"`
-	Airport        string `json:"airport,omitempty"`         // IATA airport code
-	ParkingStand   string `json:"parking_stand,omitempty"`   // Predicted parking stand
+	MsgID           int64  `json:"message_id,omitempty"`
+	Airport         string `json:"airport,omitempty"`          // IATA airport code
+	ParkingStand    string `json:"parking_stand,omitempty"`    // Predicted parking stand
 	BaggageCarousel string `json:"baggage_carousel,omitempty"` // Carousel number/code
 }
 
@@ -38,9 +38,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "parking_info" }
-func (p *Parser) Labels() []string       { return []string{"1E", "RA"} }
-func (p *Parser) Priority() int          { return 50 }
+func (p *Parser) Name() string     { return "parking_info" }
+func (p *Parser) Labels() []string { return []string{"1E", "RA"} }
+func (p *Parser) Priority() int    { return 50 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "PKG INFO MSG")

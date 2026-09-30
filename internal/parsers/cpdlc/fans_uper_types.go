@@ -26,8 +26,8 @@ type UPERUplinkMessage struct {
 
 // UPERMessageHeader is the common header for uplink and downlink messages.
 type UPERMessageHeader struct {
-	MsgID     int  `asn1:"size:0..63"`
-	MsgRef    *int `asn1:"optional,size:0..63"`
+	MsgID     int            `asn1:"size:0..63"`
+	MsgRef    *int           `asn1:"optional,size:0..63"`
 	Timestamp *UPERTimestamp `asn1:"optional"`
 }
 
@@ -60,11 +60,11 @@ type UPERDownlinkElement struct {
 	DM5Negative *struct{} `asn1:"choice:5"`
 
 	// dM6-dM10: Altitude-related
-	DM6RequestAltitude      *UPERAltitude `asn1:"choice:6"`
-	DM7RequestBlock         *UPERAltitudeAltitude `asn1:"choice:7"`
-	DM8RequestCruiseClimb   *UPERAltitude `asn1:"choice:8"`
-	DM9RequestClimb         *UPERAltitude `asn1:"choice:9"`
-	DM10RequestDescent      *UPERAltitude `asn1:"choice:10"`
+	DM6RequestAltitude    *UPERAltitude         `asn1:"choice:6"`
+	DM7RequestBlock       *UPERAltitudeAltitude `asn1:"choice:7"`
+	DM8RequestCruiseClimb *UPERAltitude         `asn1:"choice:8"`
+	DM9RequestClimb       *UPERAltitude         `asn1:"choice:9"`
+	DM10RequestDescent    *UPERAltitude         `asn1:"choice:10"`
 
 	// dM11-dM12: Position + Altitude
 	DM11AtPositionRequestClimb   *UPERPositionAltitude `asn1:"choice:11"`
@@ -75,12 +75,12 @@ type UPERDownlinkElement struct {
 	DM14AtTimeRequestDescent *UPERTimeAltitude `asn1:"choice:14"`
 
 	// dM15-dM17: Offset requests
-	DM15RequestOffset         *UPERDistanceOffsetDirection `asn1:"choice:15"`
+	DM15RequestOffset           *UPERDistanceOffsetDirection         `asn1:"choice:15"`
 	DM16AtPositionRequestOffset *UPERPositionDistanceOffsetDirection `asn1:"choice:16"`
-	DM17AtTimeRequestOffset   *UPERTimeDistanceOffsetDirection `asn1:"choice:17"`
+	DM17AtTimeRequestOffset     *UPERTimeDistanceOffsetDirection     `asn1:"choice:17"`
 
 	// dM18-dM19: Speed requests
-	DM18RequestSpeed  *UPERSpeed `asn1:"choice:18"`
+	DM18RequestSpeed      *UPERSpeed      `asn1:"choice:18"`
 	DM19RequestSpeedRange *UPERSpeedSpeed `asn1:"choice:19"`
 
 	// dM20: Request voice contact (NULL)
@@ -90,41 +90,41 @@ type UPERDownlinkElement struct {
 	DM21RequestVoiceFrequency *UPERFrequency `asn1:"choice:21"`
 
 	// dM22-dM24: Position/procedure requests
-	DM22RequestDirectTo *UPERPosition `asn1:"choice:22"`
-	DM23RequestProcedure *UPERProcedureName `asn1:"choice:23"`
-	DM24RequestRoute    *UPERRouteClearance `asn1:"choice:24"`
+	DM22RequestDirectTo  *UPERPosition       `asn1:"choice:22"`
+	DM23RequestProcedure *UPERProcedureName  `asn1:"choice:23"`
+	DM24RequestRoute     *UPERRouteClearance `asn1:"choice:24"`
 
 	// dM25: Request clearance (NULL)
 	DM25RequestClearance *struct{} `asn1:"choice:25"`
 
 	// dM26-dM27: Weather deviation
-	DM26WeatherDeviationTo *UPERPositionRouteClearance `asn1:"choice:26"`
+	DM26WeatherDeviationTo     *UPERPositionRouteClearance  `asn1:"choice:26"`
 	DM27WeatherDeviationOffset *UPERDistanceOffsetDirection `asn1:"choice:27"`
 
 	// dM28-dM40: Status reports
-	DM28Leaving        *UPERAltitude `asn1:"choice:28"`
-	DM29ClimbingTo     *UPERAltitude `asn1:"choice:29"`
-	DM30DescendingTo   *UPERAltitude `asn1:"choice:30"`
-	DM31Passing        *UPERPosition `asn1:"choice:31"`
-	DM32PresentAltitude *UPERAltitude `asn1:"choice:32"`
-	DM33PresentPosition *UPERPosition `asn1:"choice:33"`
-	DM34PresentSpeed   *UPERSpeed `asn1:"choice:34"`
-	DM35PresentHeading *UPERDegrees `asn1:"choice:35"`
-	DM36PresentGroundTrack *UPERDegrees `asn1:"choice:36"`
-	DM37Level          *UPERAltitude `asn1:"choice:37"`
-	DM38AssignedAltitude *UPERAltitude `asn1:"choice:38"`
-	DM39AssignedSpeed  *UPERSpeed `asn1:"choice:39"`
-	DM40AssignedRoute  *UPERRouteClearance `asn1:"choice:40"`
+	DM28Leaving            *UPERAltitude       `asn1:"choice:28"`
+	DM29ClimbingTo         *UPERAltitude       `asn1:"choice:29"`
+	DM30DescendingTo       *UPERAltitude       `asn1:"choice:30"`
+	DM31Passing            *UPERPosition       `asn1:"choice:31"`
+	DM32PresentAltitude    *UPERAltitude       `asn1:"choice:32"`
+	DM33PresentPosition    *UPERPosition       `asn1:"choice:33"`
+	DM34PresentSpeed       *UPERSpeed          `asn1:"choice:34"`
+	DM35PresentHeading     *UPERDegrees        `asn1:"choice:35"`
+	DM36PresentGroundTrack *UPERDegrees        `asn1:"choice:36"`
+	DM37Level              *UPERAltitude       `asn1:"choice:37"`
+	DM38AssignedAltitude   *UPERAltitude       `asn1:"choice:38"`
+	DM39AssignedSpeed      *UPERSpeed          `asn1:"choice:39"`
+	DM40AssignedRoute      *UPERRouteClearance `asn1:"choice:40"`
 
 	// dM41: Back on route (NULL)
 	DM41BackOnRoute *struct{} `asn1:"choice:41"`
 
 	// dM42-dM46: Waypoint reports
-	DM42NextWaypoint     *UPERPosition `asn1:"choice:42"`
-	DM43NextWaypointETA  *UPERTime `asn1:"choice:43"`
-	DM44EnsuingWaypoint  *UPERPosition `asn1:"choice:44"`
-	DM45ReportedWaypoint *UPERPosition `asn1:"choice:45"`
-	DM46ReportedWaypointTime *UPERTime `asn1:"choice:46"`
+	DM42NextWaypoint         *UPERPosition `asn1:"choice:42"`
+	DM43NextWaypointETA      *UPERTime     `asn1:"choice:43"`
+	DM44EnsuingWaypoint      *UPERPosition `asn1:"choice:44"`
+	DM45ReportedWaypoint     *UPERPosition `asn1:"choice:45"`
+	DM46ReportedWaypointTime *UPERTime     `asn1:"choice:46"`
 
 	// dM47: Squawk code
 	DM47Squawking *UPERBeaconCode `asn1:"choice:47"`
@@ -133,42 +133,42 @@ type UPERDownlinkElement struct {
 	DM48PositionReport *UPERPositionReport `asn1:"choice:48"`
 
 	// dM49-dM54: Various requests
-	DM49WhenCanWeExpectSpeed     *UPERSpeed `asn1:"choice:49"`
+	DM49WhenCanWeExpectSpeed      *UPERSpeed      `asn1:"choice:49"`
 	DM50WhenCanWeExpectSpeedRange *UPERSpeedSpeed `asn1:"choice:50"`
-	DM51WhenBackOnRoute          *struct{} `asn1:"choice:51"`
-	DM52WhenLowerAltitude        *struct{} `asn1:"choice:52"`
-	DM53WhenHigherAltitude       *struct{} `asn1:"choice:53"`
-	DM54WhenCruiseClimb          *UPERAltitude `asn1:"choice:54"`
+	DM51WhenBackOnRoute           *struct{}       `asn1:"choice:51"`
+	DM52WhenLowerAltitude         *struct{}       `asn1:"choice:52"`
+	DM53WhenHigherAltitude        *struct{}       `asn1:"choice:53"`
+	DM54WhenCruiseClimb           *UPERAltitude   `asn1:"choice:54"`
 
 	// dM55-dM58: Emergency
-	DM55PanPanPan  *struct{} `asn1:"choice:55"`
-	DM56MaydayMayday *struct{} `asn1:"choice:56"`
-	DM57FuelSouls  *UPERRemainingFuelSouls `asn1:"choice:57"`
-	DM58CancelEmergency *struct{} `asn1:"choice:58"`
+	DM55PanPanPan       *struct{}               `asn1:"choice:55"`
+	DM56MaydayMayday    *struct{}               `asn1:"choice:56"`
+	DM57FuelSouls       *UPERRemainingFuelSouls `asn1:"choice:57"`
+	DM58CancelEmergency *struct{}               `asn1:"choice:58"`
 
 	// dM59-dM80: Various other messages
-	DM59DivertingTo    *UPERPositionRouteClearance `asn1:"choice:59"`
-	DM60Offsetting     *UPERDistanceOffsetDirection `asn1:"choice:60"`
-	DM61DescendingTo2  *UPERAltitude `asn1:"choice:61"`
-	DM62Error          *UPERErrorInformation `asn1:"choice:62"`
-	DM63NotCurrentDataAuthority *struct{} `asn1:"choice:63"`
-	DM64Facility       *string `asn1:"choice:64,ia5string,size:4..4"`
-	DM65DueToWeather   *struct{} `asn1:"choice:65"`
-	DM66DueToPerformance *struct{} `asn1:"choice:66"`
-	DM67FreeTextLow    *string `asn1:"choice:67,ia5string,size:1..256"`
-	DM68FreeTextDistress *string `asn1:"choice:68,ia5string,size:1..256"`
-	DM69RequestVMCDescent *struct{} `asn1:"choice:69"`
-	DM70RequestHeading *UPERDegrees `asn1:"choice:70"`
-	DM71RequestGroundTrack *UPERDegrees `asn1:"choice:71"`
-	DM72Reaching       *UPERAltitude `asn1:"choice:72"`
-	DM73VersionNumber  *int `asn1:"choice:73,size:0..15"`
-	DM74MaintainOwnSep *struct{} `asn1:"choice:74"`
-	DM75AtPilotsDiscretion *struct{} `asn1:"choice:75"`
-	DM76ReachingBlock  *UPERAltitudeAltitude `asn1:"choice:76"`
-	DM77AssignedBlock  *UPERAltitudeAltitude `asn1:"choice:77"`
-	DM78AtTimeDistance *UPERTimeDistanceToFromPosition `asn1:"choice:78"`
-	DM79ATIS           *string `asn1:"choice:79,ia5string,size:1..1"`
-	DM80Deviating      *UPERDistanceOffsetDirection `asn1:"choice:80"`
+	DM59DivertingTo             *UPERPositionRouteClearance     `asn1:"choice:59"`
+	DM60Offsetting              *UPERDistanceOffsetDirection    `asn1:"choice:60"`
+	DM61DescendingTo2           *UPERAltitude                   `asn1:"choice:61"`
+	DM62Error                   *UPERErrorInformation           `asn1:"choice:62"`
+	DM63NotCurrentDataAuthority *struct{}                       `asn1:"choice:63"`
+	DM64Facility                *string                         `asn1:"choice:64,ia5string,size:4..4"`
+	DM65DueToWeather            *struct{}                       `asn1:"choice:65"`
+	DM66DueToPerformance        *struct{}                       `asn1:"choice:66"`
+	DM67FreeTextLow             *string                         `asn1:"choice:67,ia5string,size:1..256"`
+	DM68FreeTextDistress        *string                         `asn1:"choice:68,ia5string,size:1..256"`
+	DM69RequestVMCDescent       *struct{}                       `asn1:"choice:69"`
+	DM70RequestHeading          *UPERDegrees                    `asn1:"choice:70"`
+	DM71RequestGroundTrack      *UPERDegrees                    `asn1:"choice:71"`
+	DM72Reaching                *UPERAltitude                   `asn1:"choice:72"`
+	DM73VersionNumber           *int                            `asn1:"choice:73,size:0..15"`
+	DM74MaintainOwnSep          *struct{}                       `asn1:"choice:74"`
+	DM75AtPilotsDiscretion      *struct{}                       `asn1:"choice:75"`
+	DM76ReachingBlock           *UPERAltitudeAltitude           `asn1:"choice:76"`
+	DM77AssignedBlock           *UPERAltitudeAltitude           `asn1:"choice:77"`
+	DM78AtTimeDistance          *UPERTimeDistanceToFromPosition `asn1:"choice:78"`
+	DM79ATIS                    *string                         `asn1:"choice:79,ia5string,size:1..1"`
+	DM80Deviating               *UPERDistanceOffsetDirection    `asn1:"choice:80"`
 
 	// dM81-dM128: Reserved (NULL)
 	DM81Reserved  *struct{} `asn1:"choice:81"`
@@ -339,18 +339,18 @@ type UPERUplinkElement struct {
 	UM78AltitudePosition *UPERAltitudePosition `asn1:"choice:78"`
 
 	// uM79-uM90: Route clearances.
-	UM79PositionRouteClearance *UPERPositionRouteClearance `asn1:"choice:79"`
-	UM80RouteClearance         *UPERRouteClearance         `asn1:"choice:80"`
-	UM81ProcedureName          *UPERProcedureName          `asn1:"choice:81"`
+	UM79PositionRouteClearance  *UPERPositionRouteClearance  `asn1:"choice:79"`
+	UM80RouteClearance          *UPERRouteClearance          `asn1:"choice:80"`
+	UM81ProcedureName           *UPERProcedureName           `asn1:"choice:81"`
 	UM82DistanceOffsetDirection *UPERDistanceOffsetDirection `asn1:"choice:82"`
-	UM83PositionRouteClearance *UPERPositionRouteClearance `asn1:"choice:83"`
-	UM84PositionProcedureName  *UPERPositionProcedureName  `asn1:"choice:84"`
-	UM85RouteClearance         *UPERRouteClearance         `asn1:"choice:85"`
-	UM86PositionRouteClearance *UPERPositionRouteClearance `asn1:"choice:86"`
-	UM87Position               *UPERPosition               `asn1:"choice:87"`
-	UM88PositionPosition       *UPERPositionPosition       `asn1:"choice:88"`
-	UM89TimePosition           *UPERTimePosition           `asn1:"choice:89"`
-	UM90AltitudePosition       *UPERAltitudePosition       `asn1:"choice:90"`
+	UM83PositionRouteClearance  *UPERPositionRouteClearance  `asn1:"choice:83"`
+	UM84PositionProcedureName   *UPERPositionProcedureName   `asn1:"choice:84"`
+	UM85RouteClearance          *UPERRouteClearance          `asn1:"choice:85"`
+	UM86PositionRouteClearance  *UPERPositionRouteClearance  `asn1:"choice:86"`
+	UM87Position                *UPERPosition                `asn1:"choice:87"`
+	UM88PositionPosition        *UPERPositionPosition        `asn1:"choice:88"`
+	UM89TimePosition            *UPERTimePosition            `asn1:"choice:89"`
+	UM90AltitudePosition        *UPERAltitudePosition        `asn1:"choice:90"`
 
 	// uM91-uM93: Hold instructions.
 	UM91HoldClearance    *UPERHoldClearance    `asn1:"choice:91"`
@@ -368,25 +368,25 @@ type UPERUplinkElement struct {
 	UM99ProcedureName *UPERProcedureName `asn1:"choice:99"`
 
 	// uM100-uM105: Expect speed.
-	UM100TimeSpeed         *UPERTimeSpeed         `asn1:"choice:100"`
-	UM101PositionSpeed     *UPERPositionSpeed     `asn1:"choice:101"`
-	UM102AltitudeSpeed     *UPERAltitudeSpeed     `asn1:"choice:102"`
-	UM103TimeSpeedSpeed    *UPERTimeSpeedSpeed    `asn1:"choice:103"`
+	UM100TimeSpeed          *UPERTimeSpeed          `asn1:"choice:100"`
+	UM101PositionSpeed      *UPERPositionSpeed      `asn1:"choice:101"`
+	UM102AltitudeSpeed      *UPERAltitudeSpeed      `asn1:"choice:102"`
+	UM103TimeSpeedSpeed     *UPERTimeSpeedSpeed     `asn1:"choice:103"`
 	UM104PositionSpeedSpeed *UPERPositionSpeedSpeed `asn1:"choice:104"`
 	UM105AltitudeSpeedSpeed *UPERAltitudeSpeedSpeed `asn1:"choice:105"`
 
 	// uM106-uM116: Speed instructions.
-	UM106Speed        *UPERSpeed    `asn1:"choice:106"`
-	UM107MaintainSpd  *struct{}     `asn1:"choice:107"`
-	UM108Speed        *UPERSpeed    `asn1:"choice:108"`
-	UM109Speed        *UPERSpeed    `asn1:"choice:109"`
+	UM106Speed        *UPERSpeed      `asn1:"choice:106"`
+	UM107MaintainSpd  *struct{}       `asn1:"choice:107"`
+	UM108Speed        *UPERSpeed      `asn1:"choice:108"`
+	UM109Speed        *UPERSpeed      `asn1:"choice:109"`
 	UM110SpeedSpeed   *UPERSpeedSpeed `asn1:"choice:110"`
-	UM111Speed        *UPERSpeed    `asn1:"choice:111"`
-	UM112Speed        *UPERSpeed    `asn1:"choice:112"`
-	UM113Speed        *UPERSpeed    `asn1:"choice:113"`
-	UM114Speed        *UPERSpeed    `asn1:"choice:114"`
-	UM115Speed        *UPERSpeed    `asn1:"choice:115"`
-	UM116ResumeNormal *struct{}     `asn1:"choice:116"`
+	UM111Speed        *UPERSpeed      `asn1:"choice:111"`
+	UM112Speed        *UPERSpeed      `asn1:"choice:112"`
+	UM113Speed        *UPERSpeed      `asn1:"choice:113"`
+	UM114Speed        *UPERSpeed      `asn1:"choice:114"`
+	UM115Speed        *UPERSpeed      `asn1:"choice:115"`
+	UM116ResumeNormal *struct{}       `asn1:"choice:116"`
 
 	// uM117-uM122: Contact/monitor frequency.
 	UM117UnitFreq         *UPERICAOUnitNameFrequency         `asn1:"choice:117"`
@@ -397,11 +397,11 @@ type UPERUplinkElement struct {
 	UM122TimeUnitFreq     *UPERTimeICAOUnitNameFrequency     `asn1:"choice:122"`
 
 	// uM123-uM127: Squawk instructions.
-	UM123BeaconCode   *UPERBeaconCode `asn1:"choice:123"`
-	UM124StopSquawk   *struct{}       `asn1:"choice:124"`
-	UM125SquawkAlt    *struct{}       `asn1:"choice:125"`
-	UM126StopAltSquawk *struct{}      `asn1:"choice:126"`
-	UM127ReportBack   *struct{}       `asn1:"choice:127"`
+	UM123BeaconCode    *UPERBeaconCode `asn1:"choice:123"`
+	UM124StopSquawk    *struct{}       `asn1:"choice:124"`
+	UM125SquawkAlt     *struct{}       `asn1:"choice:125"`
+	UM126StopAltSquawk *struct{}       `asn1:"choice:126"`
+	UM127ReportBack    *struct{}       `asn1:"choice:127"`
 
 	// uM128-uM130: Report instructions.
 	UM128Altitude *UPERAltitude `asn1:"choice:128"`
@@ -409,29 +409,29 @@ type UPERUplinkElement struct {
 	UM130Position *UPERPosition `asn1:"choice:130"`
 
 	// uM131-uM147: Confirm/report requests (NULL).
-	UM131ReportFuelSouls  *struct{} `asn1:"choice:131"`
-	UM132ConfirmPosition  *struct{} `asn1:"choice:132"`
-	UM133ConfirmAltitude  *struct{} `asn1:"choice:133"`
-	UM134ConfirmSpeed     *struct{} `asn1:"choice:134"`
-	UM135ConfirmAssignAlt *struct{} `asn1:"choice:135"`
-	UM136ConfirmAssignSpd *struct{} `asn1:"choice:136"`
-	UM137ConfirmAssignRte *struct{} `asn1:"choice:137"`
-	UM138ConfirmTimeWpt   *struct{} `asn1:"choice:138"`
-	UM139ConfirmRptWpt    *struct{} `asn1:"choice:139"`
-	UM140ConfirmNextWpt   *struct{} `asn1:"choice:140"`
-	UM141ConfirmNextETA   *struct{} `asn1:"choice:141"`
+	UM131ReportFuelSouls   *struct{} `asn1:"choice:131"`
+	UM132ConfirmPosition   *struct{} `asn1:"choice:132"`
+	UM133ConfirmAltitude   *struct{} `asn1:"choice:133"`
+	UM134ConfirmSpeed      *struct{} `asn1:"choice:134"`
+	UM135ConfirmAssignAlt  *struct{} `asn1:"choice:135"`
+	UM136ConfirmAssignSpd  *struct{} `asn1:"choice:136"`
+	UM137ConfirmAssignRte  *struct{} `asn1:"choice:137"`
+	UM138ConfirmTimeWpt    *struct{} `asn1:"choice:138"`
+	UM139ConfirmRptWpt     *struct{} `asn1:"choice:139"`
+	UM140ConfirmNextWpt    *struct{} `asn1:"choice:140"`
+	UM141ConfirmNextETA    *struct{} `asn1:"choice:141"`
 	UM142ConfirmEnsuingWpt *struct{} `asn1:"choice:142"`
-	UM143ConfirmRequest   *struct{} `asn1:"choice:143"`
-	UM144ConfirmSquawk    *struct{} `asn1:"choice:144"`
-	UM145ConfirmHeading   *struct{} `asn1:"choice:145"`
-	UM146ConfirmTrack     *struct{} `asn1:"choice:146"`
-	UM147RequestPosRpt    *struct{} `asn1:"choice:147"`
+	UM143ConfirmRequest    *struct{} `asn1:"choice:143"`
+	UM144ConfirmSquawk     *struct{} `asn1:"choice:144"`
+	UM145ConfirmHeading    *struct{} `asn1:"choice:145"`
+	UM146ConfirmTrack      *struct{} `asn1:"choice:146"`
+	UM147RequestPosRpt     *struct{} `asn1:"choice:147"`
 
 	// uM148-uM152: When can you accept.
-	UM148Altitude               *UPERAltitude               `asn1:"choice:148"`
-	UM149AltitudePosition       *UPERAltitudePosition       `asn1:"choice:149"`
-	UM150AltitudeTime           *UPERAltitudeTime           `asn1:"choice:150"`
-	UM151Speed                  *UPERSpeed                  `asn1:"choice:151"`
+	UM148Altitude                *UPERAltitude                `asn1:"choice:148"`
+	UM149AltitudePosition        *UPERAltitudePosition        `asn1:"choice:149"`
+	UM150AltitudeTime            *UPERAltitudeTime            `asn1:"choice:150"`
+	UM151Speed                   *UPERSpeed                   `asn1:"choice:151"`
 	UM152DistanceOffsetDirection *UPERDistanceOffsetDirection `asn1:"choice:152"`
 
 	// uM153: ALTIMETER [altimeter].
@@ -455,17 +455,17 @@ type UPERUplinkElement struct {
 	UM160Facility *string `asn1:"choice:160,ia5string,size:4..4"`
 
 	// uM161-uM168: Service messages (NULL).
-	UM161EndService       *struct{} `asn1:"choice:161"`
-	UM162ServiceUnavail   *struct{} `asn1:"choice:162"`
-	UM163FacilityTP4      *UPERFacilityTP4 `asn1:"choice:163"`
-	UM164WhenReady        *struct{} `asn1:"choice:164"`
-	UM165Then             *struct{} `asn1:"choice:165"`
-	UM166DueToTraffic     *struct{} `asn1:"choice:166"`
-	UM167DueToAirspace    *struct{} `asn1:"choice:167"`
-	UM168Disregard        *struct{} `asn1:"choice:168"`
+	UM161EndService     *struct{}        `asn1:"choice:161"`
+	UM162ServiceUnavail *struct{}        `asn1:"choice:162"`
+	UM163FacilityTP4    *UPERFacilityTP4 `asn1:"choice:163"`
+	UM164WhenReady      *struct{}        `asn1:"choice:164"`
+	UM165Then           *struct{}        `asn1:"choice:165"`
+	UM166DueToTraffic   *struct{}        `asn1:"choice:166"`
+	UM167DueToAirspace  *struct{}        `asn1:"choice:167"`
+	UM168Disregard      *struct{}        `asn1:"choice:168"`
 
 	// uM169-uM170: Free text.
-	UM169FreeText        *string `asn1:"choice:169,ia5string,size:1..256"`
+	UM169FreeText         *string `asn1:"choice:169,ia5string,size:1..256"`
 	UM170FreeTextDistress *string `asn1:"choice:170,ia5string,size:1..256"`
 
 	// uM171-uM174: Vertical rate.
@@ -478,10 +478,10 @@ type UPERUplinkElement struct {
 	UM175Altitude *UPERAltitude `asn1:"choice:175"`
 
 	// uM176-uM179: Misc (NULL).
-	UM176MaintainOwnSep  *struct{} `asn1:"choice:176"`
+	UM176MaintainOwnSep   *struct{} `asn1:"choice:176"`
 	UM177PilotsDiscretion *struct{} `asn1:"choice:177"`
-	UM178Deleted         *struct{} `asn1:"choice:178"`
-	UM179SquawkIdent     *struct{} `asn1:"choice:179"`
+	UM178Deleted          *struct{} `asn1:"choice:178"`
+	UM179SquawkIdent      *struct{} `asn1:"choice:179"`
 
 	// uM180: REPORT REACHING BLOCK.
 	UM180AltitudeAltitude *UPERAltitudeAltitude `asn1:"choice:180"`
@@ -499,9 +499,9 @@ type UPERUplinkElement struct {
 
 // UPERAltitude is a CHOICE of 8 altitude representations.
 type UPERAltitude struct {
-	AltitudeQNH               *int `asn1:"choice:0,size:0..2500"`   // units=10ft
+	AltitudeQNH               *int `asn1:"choice:0,size:0..2500"` // units=10ft
 	AltitudeQNHMeters         *int `asn1:"choice:1,size:0..16000"`
-	AltitudeQFE               *int `asn1:"choice:2,size:0..2100"`   // units=10ft
+	AltitudeQFE               *int `asn1:"choice:2,size:0..2100"` // units=10ft
 	AltitudeQFEMeters         *int `asn1:"choice:3,size:0..7000"`
 	AltitudeGNSSFeet          *int `asn1:"choice:4,size:0..150000"`
 	AltitudeGNSSMeters        *int `asn1:"choice:5,size:0..50000"`
@@ -546,7 +546,7 @@ type UPERDirection struct {
 
 // UPERFrequency is a CHOICE of 4 frequency types.
 type UPERFrequency struct {
-	FrequencyHF      *int    `asn1:"choice:0,size:2850..28000"`  // kHz
+	FrequencyHF      *int    `asn1:"choice:0,size:2850..28000"`    // kHz
 	FrequencyVHF     *int    `asn1:"choice:1,size:117000..138000"` // kHz
 	FrequencyUHF     *int    `asn1:"choice:2,size:225000..399975"` // kHz
 	FrequencySatChan *string `asn1:"choice:3,ia5string,size:1..12"`
@@ -572,25 +572,25 @@ type UPERDistanceOffsetDirection struct {
 
 // UPERPosition is a CHOICE of 5 position representations.
 type UPERPosition struct {
-	FixName              *string `asn1:"choice:0,ia5string,size:1..5"`
-	Navaid               *string `asn1:"choice:1,ia5string,size:1..4"`
-	Airport              *string `asn1:"choice:2,ia5string,size:4..4"`
-	LatitudeLongitude    *UPERLatitudeLongitude `asn1:"choice:3"`
+	FixName              *string                   `asn1:"choice:0,ia5string,size:1..5"`
+	Navaid               *string                   `asn1:"choice:1,ia5string,size:1..4"`
+	Airport              *string                   `asn1:"choice:2,ia5string,size:4..4"`
+	LatitudeLongitude    *UPERLatitudeLongitude    `asn1:"choice:3"`
 	PlaceBearingDistance *UPERPlaceBearingDistance `asn1:"choice:4"`
 }
 
 // UPERLatitude is latitude with degrees, optional tenths of minutes, and direction.
 type UPERLatitude struct {
-	Degrees        int  `asn1:"size:0..90"`
-	MinutesTenths  *int `asn1:"optional,size:0..599"` // units=0.1min
-	Direction      int  `asn1:"size:0..1"`            // 0=north, 1=south
+	Degrees       int  `asn1:"size:0..90"`
+	MinutesTenths *int `asn1:"optional,size:0..599"` // units=0.1min
+	Direction     int  `asn1:"size:0..1"`            // 0=north, 1=south
 }
 
 // UPERLongitude is longitude with degrees, optional tenths of minutes, and direction.
 type UPERLongitude struct {
-	Degrees        int  `asn1:"size:0..180"`
-	MinutesTenths  *int `asn1:"optional,size:0..599"`
-	Direction      int  `asn1:"size:0..1"` // 0=east, 1=west
+	Degrees       int  `asn1:"size:0..180"`
+	MinutesTenths *int `asn1:"optional,size:0..599"`
+	Direction     int  `asn1:"size:0..1"` // 0=east, 1=west
 }
 
 // UPERLatitudeLongitude is a lat/lon pair.
@@ -601,7 +601,7 @@ type UPERLatitudeLongitude struct {
 
 // UPERPlaceBearingDistance is a fix with optional lat/lon, bearing and distance.
 type UPERPlaceBearingDistance struct {
-	FixName           string `asn1:"ia5string,size:1..5"`
+	FixName           string                 `asn1:"ia5string,size:1..5"`
 	LatitudeLongitude *UPERLatitudeLongitude `asn1:"optional"`
 	Degrees           UPERDegrees
 	Distance          UPERDistance
@@ -658,7 +658,7 @@ type UPERErrorInformation struct {
 
 // UPERRemainingFuelSouls is fuel remaining + persons on board.
 type UPERRemainingFuelSouls struct {
-	RemainingFuel UPERRemainingFuel
+	RemainingFuel  UPERRemainingFuel
 	RemainingSouls int `asn1:"size:0..1023"`
 }
 
@@ -674,7 +674,7 @@ type UPERRemainingFuel struct {
 
 // UPERProcedureName is procedure type + name + optional transition.
 type UPERProcedureName struct {
-	ProcedureType int    `asn1:"size:0..2"` // 0=arrival, 1=approach, 2=departure
+	ProcedureType int `asn1:"size:0..2"` // 0=arrival, 1=approach, 2=departure
 	Procedure     UPERProcedure
 }
 
@@ -686,16 +686,16 @@ type UPERProcedure struct {
 
 // UPERRouteClearance has many optional fields for route information.
 type UPERRouteClearance struct {
-	AirportDeparture    *string `asn1:"optional,ia5string,size:4..4"`
-	AirportDestination  *string `asn1:"optional,ia5string,size:4..4"`
-	RunwayDeparture     *UPERRunway `asn1:"optional"`
-	ProcedureDeparture  *UPERProcedureName `asn1:"optional"`
-	RunwayArrival       *UPERRunway `asn1:"optional"`
-	ProcedureApproach   *UPERProcedureName `asn1:"optional"`
-	ProcedureArrival    *UPERProcedureName `asn1:"optional"`
-	AirwayIntercept     *string `asn1:"optional,ia5string,size:2..7"`
+	AirportDeparture    *string                       `asn1:"optional,ia5string,size:4..4"`
+	AirportDestination  *string                       `asn1:"optional,ia5string,size:4..4"`
+	RunwayDeparture     *UPERRunway                   `asn1:"optional"`
+	ProcedureDeparture  *UPERProcedureName            `asn1:"optional"`
+	RunwayArrival       *UPERRunway                   `asn1:"optional"`
+	ProcedureApproach   *UPERProcedureName            `asn1:"optional"`
+	ProcedureArrival    *UPERProcedureName            `asn1:"optional"`
+	AirwayIntercept     *string                       `asn1:"optional,ia5string,size:2..7"`
 	RouteInformation    []UPERRouteInformationElement `asn1:"optional,size:1..128"`
-	RouteInfoAdditional *string `asn1:"optional,ia5string,size:1..256"`
+	RouteInfoAdditional *string                       `asn1:"optional,ia5string,size:1..256"`
 }
 
 // UPERRunway is runway direction + configuration.
@@ -706,17 +706,17 @@ type UPERRunway struct {
 
 // UPERRouteInformationElement is a CHOICE of route info types.
 type UPERRouteInformationElement struct {
-	PublicationIdentifier *string `asn1:"choice:0,ia5string,size:1..6"`
-	LatitudeLongitude     *UPERLatitudeLongitude `asn1:"choice:1"`
+	PublicationIdentifier    *string                       `asn1:"choice:0,ia5string,size:1..6"`
+	LatitudeLongitude        *UPERLatitudeLongitude        `asn1:"choice:1"`
 	PlaceBearingPlaceBearing *UPERPlaceBearingPlaceBearing `asn1:"choice:2"`
-	PlaceBearingDistance  *UPERPlaceBearingDistance `asn1:"choice:3"`
-	AirwayIdentifier      *string `asn1:"choice:4,ia5string,size:1..5"`
-	TrackDetail           *UPERTrackDetail `asn1:"choice:5"`
-	Airport               *string `asn1:"choice:6,ia5string,size:4..4"`
-	RNPRequirements       *int `asn1:"choice:7,size:1..10"` // simplified
-	Fix                   *string `asn1:"choice:8,ia5string,size:1..5"`
-	Navaid                *string `asn1:"choice:9,ia5string,size:1..4"`
-	HoldAtWaypoint        *UPERHoldAtWaypoint `asn1:"choice:10"`
+	PlaceBearingDistance     *UPERPlaceBearingDistance     `asn1:"choice:3"`
+	AirwayIdentifier         *string                       `asn1:"choice:4,ia5string,size:1..5"`
+	TrackDetail              *UPERTrackDetail              `asn1:"choice:5"`
+	Airport                  *string                       `asn1:"choice:6,ia5string,size:4..4"`
+	RNPRequirements          *int                          `asn1:"choice:7,size:1..10"` // simplified
+	Fix                      *string                       `asn1:"choice:8,ia5string,size:1..5"`
+	Navaid                   *string                       `asn1:"choice:9,ia5string,size:1..4"`
+	HoldAtWaypoint           *UPERHoldAtWaypoint           `asn1:"choice:10"`
 }
 
 // UPERPlaceBearingPlaceBearing is two place-bearing pairs.
@@ -729,7 +729,7 @@ type UPERPlaceBearingPlaceBearing struct {
 
 // UPERTrackDetail is track name + optional lat/lon.
 type UPERTrackDetail struct {
-	TrackName         string `asn1:"ia5string,size:3..6"`
+	TrackName         string                 `asn1:"ia5string,size:3..6"`
 	LatitudeLongitude *UPERLatitudeLongitude `asn1:"optional"`
 }
 
@@ -755,29 +755,29 @@ type UPERPositionRouteClearance struct {
 type UPERPositionReport struct {
 	// Mandatory fields.
 	PositionCurrent       UPERPosition
-	TimeAtPositionCurrent UPERTime     // Hours + Minutes only (no seconds).
+	TimeAtPositionCurrent UPERTime // Hours + Minutes only (no seconds).
 	Altitude              UPERAltitude
 
 	// Optional fields (19 total).
-	FixNext                  *UPERPosition `asn1:"optional"`
-	TimeEtaAtFixNext         *UPERTime `asn1:"optional"`
-	FixNextPlusOne           *UPERPosition `asn1:"optional"`
-	TimeEtaDestination       *UPERTime `asn1:"optional"`
+	FixNext                  *UPERPosition      `asn1:"optional"`
+	TimeEtaAtFixNext         *UPERTime          `asn1:"optional"`
+	FixNextPlusOne           *UPERPosition      `asn1:"optional"`
+	TimeEtaDestination       *UPERTime          `asn1:"optional"`
 	RemainingFuel            *UPERRemainingFuel `asn1:"optional"`
-	Temperature              *UPERTemperature `asn1:"optional"`
-	Winds                    *UPERWinds `asn1:"optional"`
-	Turbulence               *int `asn1:"optional,size:0..3"` // 0=nil, 1=light, 2=mod, 3=severe
-	Icing                    *int `asn1:"optional,size:0..3"`
-	Speed                    *UPERSpeed `asn1:"optional"`
-	SpeedGround              *UPERSpeedGround `asn1:"optional"`
-	VerticalChange           *int `asn1:"optional,size:0..3"` // 0=level, 1=climb, 2=descent, 3=unknown
-	TrackAngle               *UPERDegrees `asn1:"optional"`
-	TrueHeading              *UPERDegrees `asn1:"optional"`
-	Distance                 *UPERDistance `asn1:"optional"`
-	SupplementaryInformation *string `asn1:"optional,ia5string,size:1..256"`
-	ReportedWaypointPosition *UPERPosition `asn1:"optional"`
-	ReportedWaypointTime     *UPERTime `asn1:"optional"`
-	ReportedWaypointAltitude *UPERAltitude `asn1:"optional"`
+	Temperature              *UPERTemperature   `asn1:"optional"`
+	Winds                    *UPERWinds         `asn1:"optional"`
+	Turbulence               *int               `asn1:"optional,size:0..3"` // 0=nil, 1=light, 2=mod, 3=severe
+	Icing                    *int               `asn1:"optional,size:0..3"`
+	Speed                    *UPERSpeed         `asn1:"optional"`
+	SpeedGround              *UPERSpeedGround   `asn1:"optional"`
+	VerticalChange           *int               `asn1:"optional,size:0..3"` // 0=level, 1=climb, 2=descent, 3=unknown
+	TrackAngle               *UPERDegrees       `asn1:"optional"`
+	TrueHeading              *UPERDegrees       `asn1:"optional"`
+	Distance                 *UPERDistance      `asn1:"optional"`
+	SupplementaryInformation *string            `asn1:"optional,ia5string,size:1..256"`
+	ReportedWaypointPosition *UPERPosition      `asn1:"optional"`
+	ReportedWaypointTime     *UPERTime          `asn1:"optional"`
+	ReportedWaypointAltitude *UPERAltitude      `asn1:"optional"`
 }
 
 // UPERTemperature is a CHOICE of temperature types.
@@ -940,13 +940,13 @@ type UPERPositionDegrees struct {
 
 // UPERHoldClearance is the hold clearance structure.
 type UPERHoldClearance struct {
-	Position         UPERPosition
-	Altitude         *UPERAltitude `asn1:"optional"`
-	Speed            *UPERSpeed `asn1:"optional"`
-	ATCDirection     *int `asn1:"optional,size:0..1"` // 0=left, 1=right
-	LegType          *UPERHoldLegType `asn1:"optional"`
-	DistanceTime     *UPERDistanceTime `asn1:"optional"`
-	EFCTime          *UPERTime `asn1:"optional"`
+	Position     UPERPosition
+	Altitude     *UPERAltitude     `asn1:"optional"`
+	Speed        *UPERSpeed        `asn1:"optional"`
+	ATCDirection *int              `asn1:"optional,size:0..1"` // 0=left, 1=right
+	LegType      *UPERHoldLegType  `asn1:"optional"`
+	DistanceTime *UPERDistanceTime `asn1:"optional"`
+	EFCTime      *UPERTime         `asn1:"optional"`
 }
 
 // UPERHoldLegType is a CHOICE of distance or time based leg.
@@ -963,47 +963,47 @@ type UPERDistanceTime struct {
 
 // UPERPredepartureClearance is the PDC (pre-departure clearance) structure.
 type UPERPredepartureClearance struct {
-	AircraftFlightID   string `asn1:"ia5string,size:2..8"`
-	AirportDeparture   string `asn1:"ia5string,size:4..4"`
-	AirportDestination *string `asn1:"optional,ia5string,size:4..4"`
-	ClearedFlightLevel *UPERAltitude `asn1:"optional"`
+	AircraftFlightID   string              `asn1:"ia5string,size:2..8"`
+	AirportDeparture   string              `asn1:"ia5string,size:4..4"`
+	AirportDestination *string             `asn1:"optional,ia5string,size:4..4"`
+	ClearedFlightLevel *UPERAltitude       `asn1:"optional"`
 	RouteClearance     *UPERRouteClearance `asn1:"optional"`
-	DepartureTime      *UPERTime `asn1:"optional"`
-	Squawk             *UPERBeaconCode `asn1:"optional"`
-	Frequency          *UPERFrequency `asn1:"optional"`
+	DepartureTime      *UPERTime           `asn1:"optional"`
+	Squawk             *UPERBeaconCode     `asn1:"optional"`
+	Frequency          *UPERFrequency      `asn1:"optional"`
 }
 
 // UPERICAOUnitNameFrequency is unit name + frequency.
 type UPERICAOUnitNameFrequency struct {
-	ICAOUnitName     UPERICAOUnitName
-	Frequency        UPERFrequency
+	ICAOUnitName UPERICAOUnitName
+	Frequency    UPERFrequency
 }
 
 // UPERICAOUnitName is facility designation + name.
 type UPERICAOUnitName struct {
-	FacilityDesignation string `asn1:"ia5string,size:4..8"`
+	FacilityDesignation string  `asn1:"ia5string,size:4..8"`
 	FacilityName        *string `asn1:"optional,ia5string,size:1..24"`
-	FacilityFunction    int `asn1:"size:0..15"` // enumerated
+	FacilityFunction    int     `asn1:"size:0..15"` // enumerated
 }
 
 // UPERPositionICAOUnitNameFrequency is position + unit + frequency.
 type UPERPositionICAOUnitNameFrequency struct {
-	Position         UPERPosition
-	ICAOUnitName     UPERICAOUnitName
-	Frequency        UPERFrequency
+	Position     UPERPosition
+	ICAOUnitName UPERICAOUnitName
+	Frequency    UPERFrequency
 }
 
 // UPERTimeICAOUnitNameFrequency is time + unit + frequency.
 type UPERTimeICAOUnitNameFrequency struct {
-	Time             UPERTime
-	ICAOUnitName     UPERICAOUnitName
-	Frequency        UPERFrequency
+	Time         UPERTime
+	ICAOUnitName UPERICAOUnitName
+	Frequency    UPERFrequency
 }
 
 // UPERAltimeter is a CHOICE of altimeter settings.
 type UPERAltimeter struct {
-	AltimeterInHg     *int `asn1:"choice:0,size:2200..3200"` // units=0.01 inHg (22.00-32.00)
-	AltimeterHectopascals *int `asn1:"choice:1,size:750..1100"` // hPa
+	AltimeterInHg         *int `asn1:"choice:0,size:2200..3200"` // units=0.01 inHg (22.00-32.00)
+	AltimeterHectopascals *int `asn1:"choice:1,size:750..1100"`  // hPa
 }
 
 // UPERVerticalRate is a CHOICE of vertical rate units.
@@ -1020,7 +1020,7 @@ type UPERToFromPosition struct {
 
 // UPERFacilityTP4 is the facility identification for TP4 handoff.
 type UPERFacilityTP4 struct {
-	FacilityDesignation string `asn1:"ia5string,size:4..8"`
+	FacilityDesignation string                  `asn1:"ia5string,size:4..8"`
 	Address             *UPERFacilityTP4Address `asn1:"optional"`
 }
 

@@ -29,8 +29,8 @@ func TestParseWaypointCoords(t *testing.T) {
 		{
 			name:    "Western hemisphere",
 			input:   "N37312W102468",
-			wantLat: 37.52,              // 37° 31.2' N
-			wantLon: -102.78,            // 102° 46.8' W
+			wantLat: 37.52,   // 37° 31.2' N
+			wantLon: -102.78, // 102° 46.8' W
 		},
 		{
 			name:    "Southern hemisphere",

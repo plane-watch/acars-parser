@@ -153,11 +153,11 @@ func printAltitude(a *UPERAltitude) {
 	}
 	switch {
 	case a.AltitudeQNH != nil:
-		fmt.Printf("%d ft QNH\n", *a.AltitudeQNH * 10)
+		fmt.Printf("%d ft QNH\n", *a.AltitudeQNH*10)
 	case a.AltitudeQNHMeters != nil:
 		fmt.Printf("%d m QNH\n", *a.AltitudeQNHMeters)
 	case a.AltitudeQFE != nil:
-		fmt.Printf("%d ft QFE\n", *a.AltitudeQFE * 10)
+		fmt.Printf("%d ft QFE\n", *a.AltitudeQFE*10)
 	case a.AltitudeQFEMeters != nil:
 		fmt.Printf("%d m QFE\n", *a.AltitudeQFEMeters)
 	case a.AltitudeGNSSFeet != nil:

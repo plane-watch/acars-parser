@@ -53,14 +53,14 @@ ROUTE:DCT OLSEM Y193 BANDA Y43 BERNI DCT
 CLIMB VIA SID TO: 5000
 DEP FREQ: 123.000
 SQUAWK 1234`,
-			wantFormat:  "australian",
-			wantFlight:  "JST400",
-			wantOrigin:  "YSSY",
-			wantDest:    "YBCG",
+			wantFormat:   "australian",
+			wantFlight:   "JST400",
+			wantOrigin:   "YSSY",
+			wantDest:     "YBCG",
 			wantAircraft: "A320",
-			wantRunway:  "16L",
-			wantSID:     "KEVIN7",
-			wantSquawk:  "1234",
+			wantRunway:   "16L",
+			wantSID:      "KEVIN7",
+			wantSquawk:   "1234",
 		},
 		{
 			name: "DC1 Geneva (Swiss) format",
@@ -103,10 +103,10 @@ CLIMB TO 4000 FT`,
 DAL1260 DEPARTING KMSP  TRANSPONDER 2463
 SKED DEP TIME 1857   EQUIP  A319/L
 FILED FLT LEVEL 360`,
-			wantFormat:  "us_delta",
-			wantFlight:  "DAL1260",
-			wantOrigin:  "KMSP",
-			wantSquawk:  "2463",
+			wantFormat:   "us_delta",
+			wantFlight:   "DAL1260",
+			wantOrigin:   "KMSP",
+			wantSquawk:   "2463",
 			wantAircraft: "A319",
 		},
 		{

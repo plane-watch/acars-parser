@@ -2,6 +2,7 @@ package relay
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -14,7 +15,8 @@ func TestLoadConfig_Defaults(t *testing.T) {
 		"DEDUP_TTL", "DEDUP_MAX_SIZE", "METRICS_ADDR", "LOG_LEVEL",
 	}
 	for _, v := range envVars {
-		os.Unsetenv(v)
+		// An empty value is treated as unset; t.Setenv restores the original afterwards.
+		t.Setenv(v, "")
 	}
 
 	cfg := LoadConfig()
@@ -144,22 +146,20 @@ func TestConfig_Validate(t *testing.T) {
 
 func TestResolveCredsFile_FilePath(t *testing.T) {
 	// Create a temporary credentials file.
-	tmpFile, err := os.CreateTemp("", "test-creds-*.creds")
-	if err != nil {
+	credsPath := filepath.Join(t.TempDir(), "test.creds")
+	content := "-----BEGIN NATS USER JWT-----\ntest\n-----END NATS USER JWT-----\n"
+	if err := os.WriteFile(credsPath, []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(tmpFile.Name())
-	tmpFile.WriteString("-----BEGIN NATS USER JWT-----\ntest\n-----END NATS USER JWT-----\n")
-	tmpFile.Close()
 
-	path, cleanup, err := ResolveCredsFile(tmpFile.Name())
+	path, cleanup, err := ResolveCredsFile(credsPath)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	defer cleanup()
 
-	if path != tmpFile.Name() {
-		t.Errorf("expected path %q, got %q", tmpFile.Name(), path)
+	if path != credsPath {
+		t.Errorf("expected path %q, got %q", credsPath, path)
 	}
 }
 

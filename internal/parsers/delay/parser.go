@@ -23,11 +23,11 @@ type Result struct {
 	FlightDate      string      `json:"flight_date,omitempty"`
 	Origin          string      `json:"origin,omitempty"`
 	Destination     string      `json:"destination,omitempty"`
-	STD             string      `json:"std,omitempty"`              // Scheduled Time of Departure
-	ATD             string      `json:"atd,omitempty"`              // Actual Time of Departure
+	STD             string      `json:"std,omitempty"` // Scheduled Time of Departure
+	ATD             string      `json:"atd,omitempty"` // Actual Time of Departure
 	DepDelayMinutes int         `json:"dep_delay_minutes"`
-	STA             string      `json:"sta,omitempty"`              // Scheduled Time of Arrival
-	ATA             string      `json:"ata,omitempty"`              // Actual Time of Arrival
+	STA             string      `json:"sta,omitempty"` // Scheduled Time of Arrival
+	ATA             string      `json:"ata,omitempty"` // Actual Time of Arrival
 	ArrDelayMinutes int         `json:"arr_delay_minutes"`
 	DelayCodes      []DelayCode `json:"delay_codes,omitempty"`
 	MessageCreated  string      `json:"message_created,omitempty"`
@@ -72,9 +72,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "delay_summary" }
-func (p *Parser) Labels() []string       { return []string{"3E", "RA"} }
-func (p *Parser) Priority() int          { return 50 }
+func (p *Parser) Name() string     { return "delay_summary" }
+func (p *Parser) Labels() []string { return []string{"3E", "RA"} }
+func (p *Parser) Priority() int    { return 50 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "DELAY SUMMARY")

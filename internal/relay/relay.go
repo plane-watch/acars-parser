@@ -109,7 +109,14 @@ func (r *Relay) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("connect to downstream NATS: %w", err)
 	}
-	defer downConn.Drain()
+	// TODO: Drain is asynchronous and Run returns without waiting for it to
+	// complete, so publishes still in flight at shutdown may be lost. Waiting on
+	// a ClosedHandler (or calling Flush before Close) would guarantee delivery.
+	defer func() {
+		if err := downConn.Drain(); err != nil {
+			r.logger.Warn("drain downstream NATS", "error", err)
+		}
+	}()
 	r.downstream = downConn
 	r.metrics.DownstreamConnected.Set(1)
 	r.logger.Info("connected to downstream NATS", "url", r.cfg.InternalURL)
@@ -255,10 +262,10 @@ func (r *Relay) startMetricsServer() *http.Server {
 
 		if upOK && downOK {
 			w.WriteHeader(http.StatusOK)
-			fmt.Fprintln(w, "ok")
+			_, _ = fmt.Fprintln(w, "ok")
 		} else {
 			w.WriteHeader(http.StatusServiceUnavailable)
-			fmt.Fprintf(w, "upstream=%v downstream=%v\n", upOK, downOK)
+			_, _ = fmt.Fprintf(w, "upstream=%v downstream=%v\n", upOK, downOK)
 		}
 	})
 

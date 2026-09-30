@@ -160,20 +160,20 @@ func (s *EnrichmentServer) authMiddleware(next http.Handler) http.Handler {
 
 // EnrichmentResponse is the JSON response for enrichment queries.
 type EnrichmentResponse struct {
-	ICAOHex         string            `json:"icao_hex"`
-	Callsign        string            `json:"callsign"`
-	FlightDate      string            `json:"flight_date"`
-	Origin          string            `json:"origin,omitempty"`
-	Destination     string            `json:"destination,omitempty"`
-	Route           []string          `json:"route,omitempty"`
-	ETA             string            `json:"eta,omitempty"`
-	DepartureRunway string            `json:"departure_runway,omitempty"`
-	ArrivalRunway   string            `json:"arrival_runway,omitempty"`
-	SID             string            `json:"sid,omitempty"`
-	Squawk          string            `json:"squawk,omitempty"`
-	PaxCount        int               `json:"pax_count,omitempty"`
-	PaxBreakdown    map[string]int    `json:"pax_breakdown,omitempty"`
-	LastUpdated     string            `json:"last_updated"`
+	ICAOHex         string         `json:"icao_hex"`
+	Callsign        string         `json:"callsign"`
+	FlightDate      string         `json:"flight_date"`
+	Origin          string         `json:"origin,omitempty"`
+	Destination     string         `json:"destination,omitempty"`
+	Route           []string       `json:"route,omitempty"`
+	ETA             string         `json:"eta,omitempty"`
+	DepartureRunway string         `json:"departure_runway,omitempty"`
+	ArrivalRunway   string         `json:"arrival_runway,omitempty"`
+	SID             string         `json:"sid,omitempty"`
+	Squawk          string         `json:"squawk,omitempty"`
+	PaxCount        int            `json:"pax_count,omitempty"`
+	PaxBreakdown    map[string]int `json:"pax_breakdown,omitempty"`
+	LastUpdated     string         `json:"last_updated"`
 }
 
 func enrichmentToResponse(e *storage.FlightEnrichment) EnrichmentResponse {

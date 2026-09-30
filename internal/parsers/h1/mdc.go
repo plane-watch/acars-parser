@@ -12,57 +12,57 @@ import (
 
 // MDCResult represents a parsed MDC (Maintenance Data Computer) report.
 type MDCResult struct {
-	MsgID          int64              `json:"message_id,omitempty"`
-	ReportType     string             `json:"report_type"`
-	WriteOption    string             `json:"write_option,omitempty"`
-	Filename       string             `json:"filename,omitempty"`
-	Time           string             `json:"time,omitempty"`
-	Date           string             `json:"date,omitempty"`
-	ApplicationPN  string             `json:"application_pn,omitempty"`
-	TablesPN       string             `json:"tables_pn,omitempty"`
-	LegNumber      string             `json:"leg_number,omitempty"`
-	EngineTrend    *EngineTrendData   `json:"engine_trend,omitempty"`
-	Faults         []FaultEntry       `json:"faults,omitempty"`
+	MsgID         int64            `json:"message_id,omitempty"`
+	ReportType    string           `json:"report_type"`
+	WriteOption   string           `json:"write_option,omitempty"`
+	Filename      string           `json:"filename,omitempty"`
+	Time          string           `json:"time,omitempty"`
+	Date          string           `json:"date,omitempty"`
+	ApplicationPN string           `json:"application_pn,omitempty"`
+	TablesPN      string           `json:"tables_pn,omitempty"`
+	LegNumber     string           `json:"leg_number,omitempty"`
+	EngineTrend   *EngineTrendData `json:"engine_trend,omitempty"`
+	Faults        []FaultEntry     `json:"faults,omitempty"`
 }
 
 // EngineTrendData contains engine performance parameters.
 type EngineTrendData struct {
-	LeftN1         float64 `json:"left_n1,omitempty"`          // % RPM
-	RightN1        float64 `json:"right_n1,omitempty"`
-	LeftN2         float64 `json:"left_n2,omitempty"`
-	RightN2        float64 `json:"right_n2,omitempty"`
-	LeftITT        int     `json:"left_itt,omitempty"`         // Inter-Turbine Temperature (C)
-	RightITT       int     `json:"right_itt,omitempty"`
-	LeftPS3        int     `json:"left_ps3,omitempty"`         // Compressor discharge pressure (PSI)
-	RightPS3       int     `json:"right_ps3,omitempty"`
-	LeftN1Vibes    float64 `json:"left_n1_vibes,omitempty"`    // Vibration (MIL)
-	RightN1Vibes   float64 `json:"right_n1_vibes,omitempty"`
-	LeftN2Vibes    float64 `json:"left_n2_vibes,omitempty"`
-	RightN2Vibes   float64 `json:"right_n2_vibes,omitempty"`
-	LeftOilTemp    int     `json:"left_oil_temp,omitempty"`    // Oil temperature (C)
-	RightOilTemp   int     `json:"right_oil_temp,omitempty"`
-	LeftOilPress   int     `json:"left_oil_press,omitempty"`   // Oil pressure (PSI)
-	RightOilPress  int     `json:"right_oil_press,omitempty"`
-	LeftPLA        float64 `json:"left_pla,omitempty"`         // Power Lever Angle (DEG)
-	RightPLA       float64 `json:"right_pla,omitempty"`
-	LeftFuelFlow   int     `json:"left_fuel_flow,omitempty"`   // Fuel flow (PPH)
-	RightFuelFlow  int     `json:"right_fuel_flow,omitempty"`
-	LeftVGPos      float64 `json:"left_vg_pos,omitempty"`      // Variable Geometry position (DEG)
-	RightVGPos     float64 `json:"right_vg_pos,omitempty"`
-	FADECControl   string  `json:"fadec_control,omitempty"`    // Which FADEC is in control
-	Airspeed       float64 `json:"airspeed,omitempty"`         // Computed airspeed (KT)
-	Altitude       int     `json:"altitude,omitempty"`         // Altitude (FT)
-	TotalAirTemp   float64 `json:"total_air_temp,omitempty"`   // Total air temperature (C)
+	LeftN1        float64 `json:"left_n1,omitempty"` // % RPM
+	RightN1       float64 `json:"right_n1,omitempty"`
+	LeftN2        float64 `json:"left_n2,omitempty"`
+	RightN2       float64 `json:"right_n2,omitempty"`
+	LeftITT       int     `json:"left_itt,omitempty"` // Inter-Turbine Temperature (C)
+	RightITT      int     `json:"right_itt,omitempty"`
+	LeftPS3       int     `json:"left_ps3,omitempty"` // Compressor discharge pressure (PSI)
+	RightPS3      int     `json:"right_ps3,omitempty"`
+	LeftN1Vibes   float64 `json:"left_n1_vibes,omitempty"` // Vibration (MIL)
+	RightN1Vibes  float64 `json:"right_n1_vibes,omitempty"`
+	LeftN2Vibes   float64 `json:"left_n2_vibes,omitempty"`
+	RightN2Vibes  float64 `json:"right_n2_vibes,omitempty"`
+	LeftOilTemp   int     `json:"left_oil_temp,omitempty"` // Oil temperature (C)
+	RightOilTemp  int     `json:"right_oil_temp,omitempty"`
+	LeftOilPress  int     `json:"left_oil_press,omitempty"` // Oil pressure (PSI)
+	RightOilPress int     `json:"right_oil_press,omitempty"`
+	LeftPLA       float64 `json:"left_pla,omitempty"` // Power Lever Angle (DEG)
+	RightPLA      float64 `json:"right_pla,omitempty"`
+	LeftFuelFlow  int     `json:"left_fuel_flow,omitempty"` // Fuel flow (PPH)
+	RightFuelFlow int     `json:"right_fuel_flow,omitempty"`
+	LeftVGPos     float64 `json:"left_vg_pos,omitempty"` // Variable Geometry position (DEG)
+	RightVGPos    float64 `json:"right_vg_pos,omitempty"`
+	FADECControl  string  `json:"fadec_control,omitempty"`  // Which FADEC is in control
+	Airspeed      float64 `json:"airspeed,omitempty"`       // Computed airspeed (KT)
+	Altitude      int     `json:"altitude,omitempty"`       // Altitude (FT)
+	TotalAirTemp  float64 `json:"total_air_temp,omitempty"` // Total air temperature (C)
 }
 
 // FaultEntry represents a single fault from an MDC fault report.
 type FaultEntry struct {
-	ATA         string `json:"ata"`
-	System      string `json:"system"`
-	LRU         string `json:"lru,omitempty"`
-	Status      string `json:"status,omitempty"`
-	Message     string `json:"message,omitempty"`
-	EquationID  string `json:"equation_id,omitempty"`
+	ATA        string `json:"ata"`
+	System     string `json:"system"`
+	LRU        string `json:"lru,omitempty"`
+	Status     string `json:"status,omitempty"`
+	Message    string `json:"message,omitempty"`
+	EquationID string `json:"equation_id,omitempty"`
 }
 
 func (r *MDCResult) Type() string     { return "mdc" }
@@ -70,14 +70,14 @@ func (r *MDCResult) MessageID() int64 { return r.MsgID }
 
 var (
 	// Header patterns.
-	mdcReportTypeRe   = regexp.MustCompile(`MDC REPORT:\s*([A-Z ]+?)\s*[\r\n]`)
-	mdcWriteOptionRe  = regexp.MustCompile(`WRITE OPTION:\s*([^\r\n]+)`)
-	mdcFilenameRe     = regexp.MustCompile(`FILENAME:\s*([A-Z0-9._]+)`)
-	mdcTimeRe         = regexp.MustCompile(`TIME:\s*(\d{2}:\d{2})`)
-	mdcDateRe         = regexp.MustCompile(`DATE:\s*(\d{2}[A-Za-z]{3}\d{4})`)
-	mdcAppPNRe        = regexp.MustCompile(`MDC APPLICATION PN:\s*([0-9-]+)`)
-	mdcTablesPNRe     = regexp.MustCompile(`MDC TABLES PN:\s*([0-9-]+)`)
-	mdcLegRe          = regexp.MustCompile(`LEG:\s*(\d+)`)
+	mdcReportTypeRe  = regexp.MustCompile(`MDC REPORT:\s*([A-Z ]+?)\s*[\r\n]`)
+	mdcWriteOptionRe = regexp.MustCompile(`WRITE OPTION:\s*([^\r\n]+)`)
+	mdcFilenameRe    = regexp.MustCompile(`FILENAME:\s*([A-Z0-9._]+)`)
+	mdcTimeRe        = regexp.MustCompile(`TIME:\s*(\d{2}:\d{2})`)
+	mdcDateRe        = regexp.MustCompile(`DATE:\s*(\d{2}[A-Za-z]{3}\d{4})`)
+	mdcAppPNRe       = regexp.MustCompile(`MDC APPLICATION PN:\s*([0-9-]+)`)
+	mdcTablesPNRe    = regexp.MustCompile(`MDC TABLES PN:\s*([0-9-]+)`)
+	mdcLegRe         = regexp.MustCompile(`LEG:\s*(\d+)`)
 
 	// Engine trend patterns (L/R prefix for left/right engine).
 	engineParamRe = regexp.MustCompile(`([LR])\s+([A-Z0-9 ]+?)\s+([\d.-]+)\s*([A-Z%]+)`)
@@ -169,7 +169,7 @@ func (p *MDCParser) parseEngineTrend(text string) *EngineTrendData {
 	// Parse left/right engine parameters.
 	matches := engineParamRe.FindAllStringSubmatch(text, -1)
 	for _, m := range matches {
-		side := m[1]       // L or R
+		side := m[1] // L or R
 		param := strings.TrimSpace(m[2])
 		valueStr := m[3]
 		// unit := m[4]    // Available if needed

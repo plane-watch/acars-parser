@@ -29,7 +29,7 @@ func getCompiler() (*patterns.Compiler, error) {
 // WindLayer represents wind data at a specific flight level.
 type WindLayer struct {
 	FlightLevel int  `json:"flight_level"`
-	Temperature int  `json:"temperature"`        // Celsius (could be SAT or ISA deviation)
+	Temperature int  `json:"temperature"` // Celsius (could be SAT or ISA deviation)
 	WindDir     int  `json:"wind_dir,omitempty"`
 	WindSpeed   int  `json:"wind_speed,omitempty"`
 	Gusting     bool `json:"gusting,omitempty"`
@@ -62,7 +62,6 @@ func init() {
 func (p *Parser) Name() string     { return "h2_wind" }
 func (p *Parser) Labels() []string { return []string{"H2"} }
 func (p *Parser) Priority() int    { return 100 }
-
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.HasPrefix(text, "02A") && len(text) > 40

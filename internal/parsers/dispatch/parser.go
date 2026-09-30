@@ -15,12 +15,12 @@ type Result struct {
 	FlightNumber string `json:"flight_number,omitempty"`
 	Tail         string `json:"tail,omitempty"`
 	AckRequired  bool   `json:"ack_required"`
-	Category     string `json:"category,omitempty"`     // MEL, SIGMET, FUEL, AMEND, etc.
-	MELRef       string `json:"mel_ref,omitempty"`      // MEL/CDL/SDL reference
-	MDDRNumber   string `json:"mddr_number,omitempty"`  // Maintenance deferral number
+	Category     string `json:"category,omitempty"`    // MEL, SIGMET, FUEL, AMEND, etc.
+	MELRef       string `json:"mel_ref,omitempty"`     // MEL/CDL/SDL reference
+	MDDRNumber   string `json:"mddr_number,omitempty"` // Maintenance deferral number
 	DispatcherID string `json:"dispatcher_id,omitempty"`
 	Timestamp    string `json:"timestamp,omitempty"`
-	Content      string `json:"content,omitempty"`      // Main message content
+	Content      string `json:"content,omitempty"` // Main message content
 }
 
 func (r *Result) Type() string     { return "dispatcher" }
@@ -51,9 +51,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "dispatcher" }
-func (p *Parser) Labels() []string       { return []string{"RA", "25", "H1"} }
-func (p *Parser) Priority() int          { return 45 } // Lower than more specific parsers
+func (p *Parser) Name() string     { return "dispatcher" }
+func (p *Parser) Labels() []string { return []string{"RA", "25", "H1"} }
+func (p *Parser) Priority() int    { return 45 } // Lower than more specific parsers
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "DISPATCHER MSG")

@@ -181,7 +181,7 @@ func TestExtract_ZeroCoordinates(t *testing.T) {
 
 		data := Extract(msg, results)
 		if data.Flight.Latitude != 0 || data.Flight.Longitude != 0 {
-			// Both should be zero (not set)
+			t.Errorf("expected lat/lon to be unset, got %v,%v", data.Flight.Latitude, data.Flight.Longitude)
 		}
 	})
 
@@ -212,9 +212,9 @@ func TestIsValidAirportCode(t *testing.T) {
 		{"YSSY", true},
 		{"KLAX", true},
 		{"EGLL", true},
-		{"WHEN", false}, // Blocked word
-		{"WITH", false}, // Blocked word
-		{"XYZ", false},  // Too short
+		{"WHEN", false},  // Blocked word
+		{"WITH", false},  // Blocked word
+		{"XYZ", false},   // Too short
 		{"ABCDE", false}, // Too long
 		{"1234", false},  // Numbers
 		{"", false},

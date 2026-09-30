@@ -54,14 +54,14 @@ func TestNormaliseFPN(t *testing.T) {
 
 func TestTokeniseFPN(t *testing.T) {
 	tests := []struct {
-		name            string
-		input           string
-		expectedHeader  string
-		expectedSerial  string
-		expectedFlight  string
-		expectedOrigin  string
-		expectedDest    string
-		expectedRoute   string
+		name             string
+		input            string
+		expectedHeader   string
+		expectedSerial   string
+		expectedFlight   string
+		expectedOrigin   string
+		expectedDest     string
+		expectedRoute    string
 		expectedSections map[string]string
 	}{
 		{
@@ -178,11 +178,11 @@ func TestTokeniseFPN(t *testing.T) {
 			},
 		},
 		{
-			name:           "no section markers",
-			input:          "FPN/SN123/FNQFA401",
-			expectedHeader: "FPN/SN123/FNQFA401",
-			expectedSerial: "123",
-			expectedFlight: "QFA401",
+			name:             "no section markers",
+			input:            "FPN/SN123/FNQFA401",
+			expectedHeader:   "FPN/SN123/FNQFA401",
+			expectedSerial:   "123",
+			expectedFlight:   "QFA401",
 			expectedSections: map[string]string{},
 		},
 	}

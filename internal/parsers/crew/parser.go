@@ -12,7 +12,7 @@ import (
 
 // CrewMember represents a single crew member.
 type CrewMember struct {
-	Position   string `json:"position"`            // CA, FO, FA, FM, etc.
+	Position   string `json:"position"` // CA, FO, FA, FM, etc.
 	Name       string `json:"name"`
 	EmployeeID string `json:"employee_id,omitempty"`
 }
@@ -61,9 +61,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "crew_list" }
-func (p *Parser) Labels() []string       { return []string{"RA"} }
-func (p *Parser) Priority() int          { return 55 }
+func (p *Parser) Name() string     { return "crew_list" }
+func (p *Parser) Labels() []string { return []string{"RA"} }
+func (p *Parser) Priority() int    { return 55 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "CREW LIST")

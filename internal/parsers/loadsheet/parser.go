@@ -14,27 +14,27 @@ import (
 // Result represents parsed loadsheet data.
 type Result struct {
 	MsgID        int64  `json:"message_id"`
-	FormatName   string `json:"format_name,omitempty"`   // Which grok format matched.
-	Status       string `json:"status,omitempty"`        // FINAL or PRELIM.
+	FormatName   string `json:"format_name,omitempty"` // Which grok format matched.
+	Status       string `json:"status,omitempty"`      // FINAL or PRELIM.
 	Timestamp    string `json:"timestamp"`
 	Tail         string `json:"tail,omitempty"`
 	Flight       string `json:"flight,omitempty"`
 	Origin       string `json:"origin,omitempty"`
 	Destination  string `json:"destination,omitempty"`
 	AircraftType string `json:"aircraft_type,omitempty"`
-	ZFW          int    `json:"zfw,omitempty"`           // Zero Fuel Weight (kg).
-	ZFWMax       int    `json:"zfw_max,omitempty"`       // Maximum ZFW (kg).
-	TOW          int    `json:"tow,omitempty"`           // Take Off Weight (kg).
-	TOWMax       int    `json:"tow_max,omitempty"`       // Maximum TOW (kg).
-	LAW          int    `json:"law,omitempty"`           // Landing Weight (kg).
-	LAWMax       int    `json:"law_max,omitempty"`       // Maximum LAW (kg).
-	TOF          int    `json:"tof,omitempty"`           // Take Off Fuel (kg).
-	TIF          int    `json:"tif,omitempty"`           // Trip Fuel (kg).
-	PAX          int    `json:"pax,omitempty"`           // Passenger count.
-	Crew         string `json:"crew,omitempty"`          // Crew configuration (e.g., "2/4").
-	MACZFW       string `json:"mac_zfw,omitempty"`       // MAC at ZFW.
-	MACTOW       string `json:"mac_tow,omitempty"`       // MAC at TOW.
-	Edition      string `json:"edition,omitempty"`       // Loadsheet edition number.
+	ZFW          int    `json:"zfw,omitempty"`     // Zero Fuel Weight (kg).
+	ZFWMax       int    `json:"zfw_max,omitempty"` // Maximum ZFW (kg).
+	TOW          int    `json:"tow,omitempty"`     // Take Off Weight (kg).
+	TOWMax       int    `json:"tow_max,omitempty"` // Maximum TOW (kg).
+	LAW          int    `json:"law,omitempty"`     // Landing Weight (kg).
+	LAWMax       int    `json:"law_max,omitempty"` // Maximum LAW (kg).
+	TOF          int    `json:"tof,omitempty"`     // Take Off Fuel (kg).
+	TIF          int    `json:"tif,omitempty"`     // Trip Fuel (kg).
+	PAX          int    `json:"pax,omitempty"`     // Passenger count.
+	Crew         string `json:"crew,omitempty"`    // Crew configuration (e.g., "2/4").
+	MACZFW       string `json:"mac_zfw,omitempty"` // MAC at ZFW.
+	MACTOW       string `json:"mac_tow,omitempty"` // MAC at TOW.
+	Edition      string `json:"edition,omitempty"` // Loadsheet edition number.
 }
 
 func (r *Result) Type() string     { return "loadsheet" }

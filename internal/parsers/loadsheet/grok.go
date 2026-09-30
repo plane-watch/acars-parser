@@ -8,10 +8,10 @@ import (
 
 // LoadsheetFormat represents a specific loadsheet message format.
 type LoadsheetFormat struct {
-	Name     string
-	Labels   []string       // Which ACARS labels this format appears on.
-	Pattern  *regexp.Regexp // Compiled regex with named capture groups.
-	WeightUnit string       // "kg" or "tonnes" - affects how we interpret numbers.
+	Name       string
+	Labels     []string       // Which ACARS labels this format appears on.
+	Pattern    *regexp.Regexp // Compiled regex with named capture groups.
+	WeightUnit string         // "kg" or "tonnes" - affects how we interpret numbers.
 }
 
 // LoadsheetFormats defines the known loadsheet message formats.

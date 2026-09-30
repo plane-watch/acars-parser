@@ -12,19 +12,19 @@ import (
 
 // Result represents a parsed fuel delivery receipt.
 type Result struct {
-	MsgID           int64   `json:"message_id,omitempty"`
-	FlightNumber    string  `json:"flight_number"`
-	Tail            string  `json:"tail"`
-	Date            string  `json:"date"`
-	Destination     string  `json:"destination,omitempty"`
-	FuelCompany     string  `json:"fuel_company,omitempty"`
-	FuelGrade       string  `json:"fuel_grade,omitempty"`
-	TruckID         string  `json:"truck_id,omitempty"`
-	StartTime       string  `json:"start_time,omitempty"`
-	EndTime         string  `json:"end_time,omitempty"`
-	AmountLitres    int     `json:"amount_litres,omitempty"`
-	DensityKgM3     int     `json:"density_kg_m3,omitempty"`
-	QtyBeforeKg     int     `json:"qty_before_kg,omitempty"`
+	MsgID        int64  `json:"message_id,omitempty"`
+	FlightNumber string `json:"flight_number"`
+	Tail         string `json:"tail"`
+	Date         string `json:"date"`
+	Destination  string `json:"destination,omitempty"`
+	FuelCompany  string `json:"fuel_company,omitempty"`
+	FuelGrade    string `json:"fuel_grade,omitempty"`
+	TruckID      string `json:"truck_id,omitempty"`
+	StartTime    string `json:"start_time,omitempty"`
+	EndTime      string `json:"end_time,omitempty"`
+	AmountLitres int    `json:"amount_litres,omitempty"`
+	DensityKgM3  int    `json:"density_kg_m3,omitempty"`
+	QtyBeforeKg  int    `json:"qty_before_kg,omitempty"`
 }
 
 func (r *Result) Type() string     { return "fuel_delivery" }
@@ -51,9 +51,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "fuel_delivery" }
-func (p *Parser) Labels() []string       { return []string{"3E", "RA"} }
-func (p *Parser) Priority() int          { return 100 }
+func (p *Parser) Name() string     { return "fuel_delivery" }
+func (p *Parser) Labels() []string { return []string{"3E", "RA"} }
+func (p *Parser) Priority() int    { return 100 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "FUEL DELIVERY")

@@ -59,8 +59,8 @@ var Formats = []patterns.Format{
 	// AUTPOS format.
 	// Example: 035234/AUTPOS/LLD N440853 W0915239
 	{
-		Name: "autpos",
+		Name:    "autpos",
 		Pattern: `^(?P<time>\d{6})/AUTPOS/LLD\s+(?P<lat_dir>[NS])(?P<lat>\d{6})\s+(?P<lon_dir>[EW])(?P<lon>\d{7})`,
-		Fields: []string{"time", "lat_dir", "lat", "lon_dir", "lon"},
+		Fields:  []string{"time", "lat_dir", "lat", "lon_dir", "lon"},
 	},
 }

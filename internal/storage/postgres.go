@@ -611,37 +611,37 @@ type GoldenAnnotation struct {
 
 // FlightEnrichment represents enrichment data for a specific flight operation.
 type FlightEnrichment struct {
-	ICAOHex        string         `json:"icao_hex"`
-	Callsign       string         `json:"callsign"`
-	FlightDate     time.Time      `json:"flight_date"`
-	Origin         string         `json:"origin,omitempty"`
-	Destination    string         `json:"destination,omitempty"`
-	Route          []string       `json:"route,omitempty"`
-	ETA            *time.Time     `json:"eta,omitempty"`
-	DepartureRunway string        `json:"departure_runway,omitempty"`
-	ArrivalRunway  string         `json:"arrival_runway,omitempty"`
-	SID            string         `json:"sid,omitempty"`
-	Squawk         string         `json:"squawk,omitempty"`
-	PaxCount       *int           `json:"pax_count,omitempty"`
-	PaxBreakdown   map[string]int `json:"pax_breakdown,omitempty"`
-	UpdatedAt      time.Time      `json:"updated_at"`
+	ICAOHex         string         `json:"icao_hex"`
+	Callsign        string         `json:"callsign"`
+	FlightDate      time.Time      `json:"flight_date"`
+	Origin          string         `json:"origin,omitempty"`
+	Destination     string         `json:"destination,omitempty"`
+	Route           []string       `json:"route,omitempty"`
+	ETA             *time.Time     `json:"eta,omitempty"`
+	DepartureRunway string         `json:"departure_runway,omitempty"`
+	ArrivalRunway   string         `json:"arrival_runway,omitempty"`
+	SID             string         `json:"sid,omitempty"`
+	Squawk          string         `json:"squawk,omitempty"`
+	PaxCount        *int           `json:"pax_count,omitempty"`
+	PaxBreakdown    map[string]int `json:"pax_breakdown,omitempty"`
+	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
 // FlightEnrichmentUpdate contains fields to upsert. Nil pointers are not updated.
 type FlightEnrichmentUpdate struct {
-	ICAOHex        string
-	Callsign       string
-	FlightDate     time.Time
-	Origin         *string
-	Destination    *string
-	Route          []string
-	ETA            *time.Time
+	ICAOHex         string
+	Callsign        string
+	FlightDate      time.Time
+	Origin          *string
+	Destination     *string
+	Route           []string
+	ETA             *time.Time
 	DepartureRunway *string
-	ArrivalRunway  *string
-	SID            *string
-	Squawk         *string
-	PaxCount       *int
-	PaxBreakdown   map[string]int
+	ArrivalRunway   *string
+	SID             *string
+	Squawk          *string
+	PaxCount        *int
+	PaxBreakdown    map[string]int
 }
 
 // extractFlightNumber extracts the numeric suffix from an airline callsign.
@@ -669,10 +669,10 @@ func extractFlightNumber(callsign string) string {
 //
 // To avoid duplicate enrichment records for the same flight, we match on the numeric
 // flight number suffix rather than the exact callsign. This is safe because:
-//   1. We also match on icao_hex (unique aircraft identifier)
-//   2. We also match on flight_date
-//   3. The same physical aircraft cannot fly for two different airlines on the same day
-//      with the same flight number
+//  1. We also match on icao_hex (unique aircraft identifier)
+//  2. We also match on flight_date
+//  3. The same physical aircraft cannot fly for two different airlines on the same day
+//     with the same flight number
 //
 // When a match is found, we prefer the longer (ICAO) callsign format as it's more
 // specific and standardised for ATC communications.
@@ -689,6 +689,10 @@ func (d *PostgresDB) UpsertFlightEnrichment(ctx context.Context, u FlightEnrichm
 
 	// Try to find an existing row with matching icao_hex, flight_date, and flight number suffix.
 	// This allows QF1255 and QFA1255 to match and be merged into the same record.
+	// TODO: The suffix regex is unanchored at the start, so "1$" also matches
+	// QF11, QF21 and QF101. Two different flights on the same aircraft and day can
+	// be merged into one row. Anchoring on the airline prefix
+	// ('^[A-Z0-9]{2,3}' || num || '$') would restrict it to IATA/ICAO variants.
 	var existingID int
 	var existingCallsign string
 	if flightNum != "" {
@@ -837,7 +841,6 @@ func (d *PostgresDB) UpsertFlightEnrichment(ctx context.Context, u FlightEnrichm
 		placeholders = append(placeholders, fmt.Sprintf("$%d", argIdx))
 		args = append(args, breakdownJSON)
 		setClauses = append(setClauses, fmt.Sprintf("pax_breakdown = $%d", argIdx))
-		argIdx++
 		updateClauses = append(updateClauses, fmt.Sprintf("pax_breakdown = $%d", updateIdx))
 		updateArgs = append(updateArgs, breakdownJSON)
 		updateIdx++
@@ -881,6 +884,10 @@ func (d *PostgresDB) GetFlightEnrichment(ctx context.Context, icaoHex, callsign 
 
 	if flightNum != "" {
 		// Use fuzzy matching on flight number suffix to find IATA/ICAO variants.
+		// TODO: Same unanchored-suffix problem as UpsertFlightEnrichment, and with
+		// no ORDER BY an arbitrary row is returned when several match. The caller
+		// also passes the callsign without stripping leading zeros, so QFA008
+		// never matches the stored QFA8.
 		query = `
 			SELECT icao_hex, callsign, flight_date, origin, destination, route,
 			       eta, departure_runway, arrival_runway, sid, squawk, pax_count, pax_breakdown, updated_at

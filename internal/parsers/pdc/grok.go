@@ -37,8 +37,8 @@ var BasePatterns = map[string]string{
 	"SID": `[A-Z]{1,}[0-9][A-Z0-9]*`,
 
 	// Time formats.
-	"TIME4": `\d{4}`,            // HHMM
-	"DATE":  `\d{6}`,            // DDMMYY or similar
+	"TIME4": `\d{4}`,                  // HHMM
+	"DATE":  `\d{6}`,                  // DDMMYY or similar
 	"DDHH":  `\d{2}[A-Z]{3}\s+\d{4}Z`, // 29DEC 1827Z
 
 	// Misc.
@@ -665,22 +665,22 @@ func (c *Compiler) expand(pattern string) string {
 
 // PDCResult contains the extracted fields from a PDC message.
 type PDCResult struct {
-	FormatName      string
-	FlightNumber    string
-	Origin          string // ICAO origin (4-letter code)
-	OriginIATA      string // IATA origin (3-letter code) - not used for enrichment
-	Destination     string // ICAO destination (4-letter code)
-	DestIATA        string // IATA destination (3-letter code) - not used for enrichment
-	Aircraft        string
-	Runway          string
-	SID             string
-	Route           string
-	Squawk          string
-	Altitude        string // Initial climb altitude (e.g., MAINTAIN 5000FT)
-	FlightLevel     string // Cruise flight level (e.g., FL410)
-	Frequency       string
-	ATIS            string
-	DepartureTime   string
+	FormatName    string
+	FlightNumber  string
+	Origin        string // ICAO origin (4-letter code)
+	OriginIATA    string // IATA origin (3-letter code) - not used for enrichment
+	Destination   string // ICAO destination (4-letter code)
+	DestIATA      string // IATA destination (3-letter code) - not used for enrichment
+	Aircraft      string
+	Runway        string
+	SID           string
+	Route         string
+	Squawk        string
+	Altitude      string // Initial climb altitude (e.g., MAINTAIN 5000FT)
+	FlightLevel   string // Cruise flight level (e.g., FL410)
+	Frequency     string
+	ATIS          string
+	DepartureTime string
 }
 
 // Parse attempts to parse a PDC message using all known formats.
@@ -932,13 +932,11 @@ func traceExtractor(name, pattern string, match []string) PDCExtractorTrace {
 
 // Helper extractors for fields not captured by format patterns.
 var (
-	squawkRe   = regexp.MustCompile(`(?:SQUAWK|XPNDR|XPDR|TRANSPONDER)[/:\s]+([0-7]{4})`)
-	freqRe     = regexp.MustCompile(`(?:DEP\s*FREQ|DPFRQ|NEXT\s*FREQ|AIRBORNE\s*FREQ)[:\s]+(\d{3}\.\d{1,3})`)
-	atisRe     = regexp.MustCompile(`ATIS\s+([A-Z])\b`)
-	altitudeRe     = regexp.MustCompile(`(?:CLIMB\s+(?:VIA\s+SID\s+)?TO[:\s]+|ALT\s*)(\d{3,5})`)
-	flightLevelRe  = regexp.MustCompile(`(?:CRUISE\s+(?:FLT\s+)?LEVEL\s+|FL)(\d{2,3})\b`)
-	// Runway patterns - various PDC formats use different keywords.
-	runwayRe = regexp.MustCompile(`(?:EXPECT\s+RUNWAY|DEPARTURE\s+RUNWAY|DEP(?:ARTURE)?\s+RWY|RWY)\s+(\d{1,2}[LRC]?)`)
+	squawkRe      = regexp.MustCompile(`(?:SQUAWK|XPNDR|XPDR|TRANSPONDER)[/:\s]+([0-7]{4})`)
+	freqRe        = regexp.MustCompile(`(?:DEP\s*FREQ|DPFRQ|NEXT\s*FREQ|AIRBORNE\s*FREQ)[:\s]+(\d{3}\.\d{1,3})`)
+	atisRe        = regexp.MustCompile(`ATIS\s+([A-Z])\b`)
+	altitudeRe    = regexp.MustCompile(`(?:CLIMB\s+(?:VIA\s+SID\s+)?TO[:\s]+|ALT\s*)(\d{3,5})`)
+	flightLevelRe = regexp.MustCompile(`(?:CRUISE\s+(?:FLT\s+)?LEVEL\s+|FL)(\d{2,3})\b`)
 	// Departure time patterns:
 	// - "SKED DEP TIME 1857" (Delta format)
 	// - "AT 1716Z" (Canadian/WestJet format)
@@ -949,9 +947,9 @@ var (
 	// 1. Australian: "ROUTE:" prefix
 	// 2. US Delta: "ROUTING" section between asterisk lines
 	// 3. DC1: Often inline or multi-line after "VIA [SID]"
-	routeRe        = regexp.MustCompile(`(?s)ROUTE[:\s]+(.+?)(?:\n\s*(?:CLIMB|DEP|SQUAWK)|$)`)
-	routeUSRe      = regexp.MustCompile(`(?s)ROUTING\s*\n\*+\s*\n(?:-[^\n]*\n)?(.+?)\n\*+`)
-	routeDC1InlRe  = regexp.MustCompile(`VIA\s+[A-Z0-9]+\s+([A-Z]\d{1,4}[A-Z]?\s.+?)(?:\s+(?:ALT|FL)\d|$)`)
+	routeRe         = regexp.MustCompile(`(?s)ROUTE[:\s]+(.+?)(?:\n\s*(?:CLIMB|DEP|SQUAWK)|$)`)
+	routeUSRe       = regexp.MustCompile(`(?s)ROUTING\s*\n\*+\s*\n(?:-[^\n]*\n)?(.+?)\n\*+`)
+	routeDC1InlRe   = regexp.MustCompile(`VIA\s+[A-Z0-9]+\s+([A-Z]\d{1,4}[A-Z]?\s.+?)(?:\s+(?:ALT|FL)\d|$)`)
 	routeDC1MultiRe = regexp.MustCompile(`(?s)VIA\s*\n\s*([A-Z0-9/]+.+?)(?:\n\s*SQUAWK|\n\s*$)`)
 )
 
@@ -1064,35 +1062,35 @@ var waypointRe = regexp.MustCompile(`^[A-Z]{2,5}[0-9]{0,2}$`)
 // These are labels, headings, keywords, or common terms in PDC messages.
 var excludedWaypoints = map[string]bool{
 	// Section labels/headings.
-	"ROUTE":   true,
-	"CLIMB":   true,
-	"SQUAWK":  true,
-	"ATIS":    true,
-	"QNH":     true,
-	"TSAT":    true,
-	"EDCT":    true, // Expect Departure Clearance Time
-	"CTOT":    true, // Calculated Take-Off Time
+	"ROUTE":  true,
+	"CLIMB":  true,
+	"SQUAWK": true,
+	"ATIS":   true,
+	"QNH":    true,
+	"TSAT":   true,
+	"EDCT":   true, // Expect Departure Clearance Time
+	"CTOT":   true, // Calculated Take-Off Time
 	// Keywords.
-	"USE":         true,
-	"SID":         true,
-	"VIA":         true,
-	"OFF":         true,
-	"HDG":         true,
-	"END":         true,
-	"WITH":        true,
-	"NEXT":        true,
-	"FREQ":        true,
-	"DEP":         true,
-	"ARR":         true,
-	"ALT":         true,
-	"CL":          true, // Clearance
-	"RLS":         true, // Release
-	"CTC":         true, // Contact
-	"CD":          true, // Clearance Delivery
-	"GND":         true, // Ground
-	"TWR":         true, // Tower
-	"APP":         true, // Approach
-	"CTR":         true, // Center
+	"USE":  true,
+	"SID":  true,
+	"VIA":  true,
+	"OFF":  true,
+	"HDG":  true,
+	"END":  true,
+	"WITH": true,
+	"NEXT": true,
+	"FREQ": true,
+	"DEP":  true,
+	"ARR":  true,
+	"ALT":  true,
+	"CL":   true, // Clearance
+	"RLS":  true, // Release
+	"CTC":  true, // Contact
+	"CD":   true, // Clearance Delivery
+	"GND":  true, // Ground
+	"TWR":  true, // Tower
+	"APP":  true, // Approach
+	"CTR":  true, // Center
 	// Common instruction words.
 	"DEPARTURE":   true,
 	"DESTINATION": true,

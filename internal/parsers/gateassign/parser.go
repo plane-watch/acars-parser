@@ -16,8 +16,8 @@ type Result struct {
 	Timestamp  string `json:"timestamp"`
 	Tail       string `json:"tail,omitempty"`
 	Gate       string `json:"gate,omitempty"`
-	PPOS       string `json:"ppos,omitempty"`       // Parking position.
-	BagBelt    string `json:"bag_belt,omitempty"`   // Baggage belt.
+	PPOS       string `json:"ppos,omitempty"`     // Parking position.
+	BagBelt    string `json:"bag_belt,omitempty"` // Baggage belt.
 	NextFlight string `json:"next_flight,omitempty"`
 	NextRoute  string `json:"next_route,omitempty"`
 }

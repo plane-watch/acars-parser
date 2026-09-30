@@ -217,7 +217,7 @@ func parseEnvelopeWithPrefix(text string) (station, msgType, tail, textPrefix, h
 
 	// Extract clean tail from the text prefix (chars 4-10, after IMI and dot).
 	// The format is "IMI.REG" where REG may include leading dots for short registrations.
-	regPart := textPrefix[3:] // Skip IMI (3 chars).
+	regPart := textPrefix[3:]                // Skip IMI (3 chars).
 	regPart = strings.TrimLeft(regPart, ".") // Strip leading dots.
 
 	// Try to extract tail - include some of the hex to help pattern matching.

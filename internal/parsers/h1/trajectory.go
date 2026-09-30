@@ -16,11 +16,11 @@ type TrajectoryResult struct {
 	MsgID        int64      `json:"message_id,omitempty"`
 	Registration string     `json:"registration"`
 	AircraftType string     `json:"aircraft_type"`
-	Date         string     `json:"date"`                   // YYMMDD format
+	Date         string     `json:"date"` // YYMMDD format
 	FlightNumber string     `json:"flight_number,omitempty"`
 	Origin       string     `json:"origin,omitempty"`
 	Destination  string     `json:"destination,omitempty"`
-	Distance     int        `json:"distance,omitempty"`     // Nautical miles
+	Distance     int        `json:"distance,omitempty"` // Nautical miles
 	SystemID     string     `json:"system_id,omitempty"`
 	Positions    []Position `json:"positions"`
 }
@@ -167,7 +167,7 @@ func (p *TrajectoryParser) ParseWithTrace(msg *acars.Message) *registry.TraceRes
 		Pattern: trajectoryHeaderRe.String(),
 		Matched: headerMatch != nil,
 		Value: func() string {
-			if headerMatch != nil && len(headerMatch) > 1 {
+			if len(headerMatch) > 1 {
 				return headerMatch[1] + " / " + headerMatch[2]
 			}
 			return ""

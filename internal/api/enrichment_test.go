@@ -14,22 +14,6 @@ import (
 	"acars_parser/internal/storage"
 )
 
-// mockPostgresDB implements the database interface for testing.
-type mockPostgresDB struct {
-	enrichments map[string][]storage.FlightEnrichment
-}
-
-func newMockDB() *mockPostgresDB {
-	return &mockPostgresDB{
-		enrichments: make(map[string][]storage.FlightEnrichment),
-	}
-}
-
-func (m *mockPostgresDB) addEnrichment(e storage.FlightEnrichment) {
-	key := e.ICAOHex + "|" + e.FlightDate.Format("2006-01-02")
-	m.enrichments[key] = append(m.enrichments[key], e)
-}
-
 // EnrichmentStore defines the interface for enrichment storage.
 // This allows us to mock the database in tests.
 type EnrichmentStore interface {

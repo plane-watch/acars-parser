@@ -57,7 +57,6 @@ func (p *Parser) Name() string     { return "eta" }
 func (p *Parser) Labels() []string { return []string{"5Z"} }
 func (p *Parser) Priority() int    { return 100 }
 
-
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "/ET ") ||
 		strings.Contains(text, "/IR ") ||

@@ -18,9 +18,9 @@ var Formats = []patterns.Format{
 	// Example: QFA123,YSSY,YMML
 	// Groups: flight, origin, dest
 	{
-		Name: "alt_format",
+		Name:    "alt_format",
 		Pattern: `^(?P<flight>[A-Z0-9]+),(?P<origin>{ICAO}),(?P<dest>{ICAO})`,
-		Fields: []string{"flight", "origin", "dest"},
+		Fields:  []string{"flight", "origin", "dest"},
 	},
 	// Position extraction pattern.
 	// Example: /POS N33.5/W117.5

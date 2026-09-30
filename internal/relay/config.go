@@ -71,13 +71,18 @@ func ResolveCredsFile(value string) (path string, cleanup func(), err error) {
 	}
 
 	if _, err := tmpFile.WriteString(value); err != nil {
-		tmpFile.Close()
-		os.Remove(tmpFile.Name())
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpFile.Name())
 		return "", noop, fmt.Errorf("write temp creds file: %w", err)
 	}
-	tmpFile.Close()
+	if err := tmpFile.Close(); err != nil {
+		_ = os.Remove(tmpFile.Name())
+		return "", noop, fmt.Errorf("close temp creds file: %w", err)
+	}
 
-	cleanup = func() { os.Remove(tmpFile.Name()) }
+	// The removal error is ignored because the process is exiting and the file
+	// lives in the system temporary directory.
+	cleanup = func() { _ = os.Remove(tmpFile.Name()) }
 	return tmpFile.Name(), cleanup, nil
 }
 

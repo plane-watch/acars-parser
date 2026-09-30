@@ -68,7 +68,6 @@ func (p *Parser) Name() string     { return "agfsr" }
 func (p *Parser) Labels() []string { return []string{"4T"} }
 func (p *Parser) Priority() int    { return 100 }
 
-
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "AGFSR")
 }

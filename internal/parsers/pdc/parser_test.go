@@ -308,8 +308,8 @@ func TestQuickCheck(t *testing.T) {
 		{"PDC 301035", true},
 		{"LSZH PDC 108", true},
 		{"CLEARED TO YMML VIA", false}, // No PDC - might be oceanic clearance
-		{"CLRD TO YSSY", false},         // No PDC - might be oceanic clearance
-		{"CLRNCE 983", false},           // Oceanic clearance number, not PDC
+		{"CLRD TO YSSY", false},        // No PDC - might be oceanic clearance
+		{"CLRNCE 983", false},          // Oceanic clearance number, not PDC
 		{"FPN/FNQFA123", false},
 		{"", false},
 	}

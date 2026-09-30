@@ -20,27 +20,42 @@ func TestParser(t *testing.T) {
 		{
 			name: "KORD Chicago",
 			text: "02XAORDKORD04158N08754WV136975/ARINC",
-			want: struct{ iata, icao string; lat, lon, freq float64 }{"ORD", "KORD", 41.9667, -87.9, 136.975},
+			want: struct {
+				iata, icao     string
+				lat, lon, freq float64
+			}{"ORD", "KORD", 41.9667, -87.9, 136.975},
 		},
 		{
 			name: "YSSY Sydney",
 			text: "02XSSYDYSSY03357S15111EV136975/",
-			want: struct{ iata, icao string; lat, lon, freq float64 }{"SYD", "YSSY", -33.95, 151.1833, 136.975},
+			want: struct {
+				iata, icao     string
+				lat, lon, freq float64
+			}{"SYD", "YSSY", -33.95, 151.1833, 136.975},
 		},
 		{
 			name: "LBSF Sofia",
 			text: "02XASOFLBSF14242N02324EB136975/ARINC",
-			want: struct{ iata, icao string; lat, lon, freq float64 }{"SOF", "LBSF", 42.7, 23.4, 136.975},
+			want: struct {
+				iata, icao     string
+				lat, lon, freq float64
+			}{"SOF", "LBSF", 42.7, 23.4, 136.975},
 		},
 		{
 			name: "PAFA Fairbanks",
 			text: "02XAFAIPAFA16449N14752WV136975/ARINC",
-			want: struct{ iata, icao string; lat, lon, freq float64 }{"FAI", "PAFA", 64.8167, -147.8667, 136.975},
+			want: struct {
+				iata, icao     string
+				lat, lon, freq float64
+			}{"FAI", "PAFA", 64.8167, -147.8667, 136.975},
 		},
 		{
 			name: "KHNL Honolulu",
 			text: "02XAHNLKHNL22119N15755WV136975/ARINC",
-			want: struct{ iata, icao string; lat, lon, freq float64 }{"HNL", "KHNL", 21.3167, -157.9167, 136.975},
+			want: struct {
+				iata, icao     string
+				lat, lon, freq float64
+			}{"HNL", "KHNL", 21.3167, -157.9167, 136.975},
 		},
 	}
 
@@ -102,13 +117,19 @@ func TestAVICOMParser(t *testing.T) {
 			name: "RJTT Haneda",
 			text: "02JDHNDRJTT23533N13946EV136975/AVICOM",
 			// 23533 = 35°33' = 35.55°N, 13946 = 139°46' = 139.77°E
-			want: struct{ iata, icao string; lat, lon, freq float64 }{"HND", "RJTT", 35.55, 139.7667, 136.975},
+			want: struct {
+				iata, icao     string
+				lat, lon, freq float64
+			}{"HND", "RJTT", 35.55, 139.7667, 136.975},
 		},
 		{
 			name: "RJSS Sendai",
 			text: "02JDSDJRJSS23808N14055EV136975/AVICOM",
 			// 23808 = 38°08' = 38.13°N, 14055 = 140°55' = 140.92°E
-			want: struct{ iata, icao string; lat, lon, freq float64 }{"SDJ", "RJSS", 38.1333, 140.9167, 136.975},
+			want: struct {
+				iata, icao     string
+				lat, lon, freq float64
+			}{"SDJ", "RJSS", 38.1333, 140.9167, 136.975},
 		},
 	}
 

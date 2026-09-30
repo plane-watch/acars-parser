@@ -16,10 +16,10 @@ import (
 
 // MeteoData contains meteorological information.
 type MeteoData struct {
-	WindSpeed      float64 `json:"wind_speed_kts"`       // Wind speed in knots.
-	WindDirection  float64 `json:"wind_direction_deg"`   // True wind direction in degrees.
-	WindDirInvalid bool    `json:"wind_dir_invalid"`     // True if wind direction is invalid.
-	Temperature    float64 `json:"temperature_c"`        // Temperature in Celsius.
+	WindSpeed      float64 `json:"wind_speed_kts"`     // Wind speed in knots.
+	WindDirection  float64 `json:"wind_direction_deg"` // True wind direction in degrees.
+	WindDirInvalid bool    `json:"wind_dir_invalid"`   // True if wind direction is invalid.
+	Temperature    float64 `json:"temperature_c"`      // Temperature in Celsius.
 }
 
 // EarthRef contains earth-referenced velocity data (ground track).
@@ -32,10 +32,10 @@ type EarthRef struct {
 
 // AirRef contains air-referenced velocity data (heading/mach).
 type AirRef struct {
-	Heading        float64 `json:"heading_deg"`      // True heading in degrees.
-	HeadingInvalid bool    `json:"heading_invalid"`  // True if heading is invalid.
-	Mach           float64 `json:"mach"`             // Mach number.
-	VertSpeed      int     `json:"vert_speed_fpm"`   // Vertical speed in ft/min.
+	Heading        float64 `json:"heading_deg"`     // True heading in degrees.
+	HeadingInvalid bool    `json:"heading_invalid"` // True if heading is invalid.
+	Mach           float64 `json:"mach"`            // Mach number.
+	VertSpeed      int     `json:"vert_speed_fpm"`  // Vertical speed in ft/min.
 }
 
 // Waypoint contains predicted waypoint data.
@@ -151,7 +151,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	// Extract clean registration from text prefix (chars 4-10, after "ADS.").
-	regPart := textPrefix[3:] // Skip "ADS".
+	regPart := textPrefix[3:]                // Skip "ADS".
 	regPart = strings.TrimLeft(regPart, ".") // Strip leading dots.
 	result.Registration = regPart
 	result.RawHex = hexPayload

@@ -113,16 +113,6 @@ func generateRegexFromMessage(text, template string) (string, []string) {
 	// Split template into tokens.
 	templateTokens := strings.Fields(strings.ReplaceAll(template, "|", " | "))
 
-	// Split message into lines for line-aware processing.
-	lines := strings.Split(text, "\n")
-	var cleanLines []string
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line != "" {
-			cleanLines = append(cleanLines, line)
-		}
-	}
-
 	// Build regex by processing template tokens.
 	var regexParts []string
 	var namedGroups []string

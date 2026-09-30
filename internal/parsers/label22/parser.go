@@ -19,8 +19,8 @@ type Result struct {
 	Latitude    float64 `json:"latitude"`
 	Longitude   float64 `json:"longitude"`
 	ReportTime  string  `json:"report_time,omitempty"`
-	Altitude    int     `json:"altitude,omitempty"`    // Feet
-	Mach        float64 `json:"mach,omitempty"`        // Mach number
+	Altitude    int     `json:"altitude,omitempty"` // Feet
+	Mach        float64 `json:"mach,omitempty"`     // Mach number
 	FlightLevel int     `json:"flight_level,omitempty"`
 	GroundSpeed int     `json:"ground_speed,omitempty"`
 	Track       int     `json:"track,omitempty"`

@@ -12,12 +12,12 @@ import (
 
 // ZoneCount contains passenger counts by zone.
 type ZoneCount struct {
-	Zone    string `json:"zone"`
-	Adults  int    `json:"adults"`
-	Male    int    `json:"male"`
-	Female  int    `json:"female"`
-	Children int   `json:"children"`
-	Infants int    `json:"infants"`
+	Zone     string `json:"zone"`
+	Adults   int    `json:"adults"`
+	Male     int    `json:"male"`
+	Female   int    `json:"female"`
+	Children int    `json:"children"`
+	Infants  int    `json:"infants"`
 }
 
 // Result represents parsed passenger and baggage data.
@@ -30,7 +30,7 @@ type Result struct {
 	Date          string      `json:"date,omitempty"`
 	Origin        string      `json:"origin,omitempty"`
 	Destination   string      `json:"destination,omitempty"`
-	STD           string      `json:"std,omitempty"`           // Scheduled departure
+	STD           string      `json:"std,omitempty"` // Scheduled departure
 	BoardingTime  string      `json:"boarding_time,omitempty"`
 	Gate          string      `json:"gate,omitempty"`
 	TotalPax      int         `json:"total_pax,omitempty"`
@@ -40,7 +40,7 @@ type Result struct {
 	Female        int         `json:"female,omitempty"`
 	Children      int         `json:"children,omitempty"`
 	BagCount      int         `json:"bag_count,omitempty"`
-	BagWeight     int         `json:"bag_weight,omitempty"`    // kg
+	BagWeight     int         `json:"bag_weight,omitempty"` // kg
 	Zones         []ZoneCount `json:"zones,omitempty"`
 	IsFinalised   bool        `json:"is_finalised"`
 }
@@ -75,9 +75,9 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string           { return "pax_bag" }
-func (p *Parser) Labels() []string       { return []string{"RA"} }
-func (p *Parser) Priority() int          { return 55 }
+func (p *Parser) Name() string     { return "pax_bag" }
+func (p *Parser) Labels() []string { return []string{"RA"} }
+func (p *Parser) Priority() int    { return 55 }
 
 func (p *Parser) QuickCheck(text string) bool {
 	return strings.Contains(text, "PAX AND BAG DETAILS")

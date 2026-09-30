@@ -1,0 +1,13 @@
+version: "2"
+
+linters:
+  settings:
+    errcheck:
+      # Close errors on read-side handles (query rows, database pools) carry no
+      # actionable information once the result has been consumed, so they are
+      # deliberately ignored. Close on writable files is still checked.
+      exclude-functions:
+        - (*database/sql.DB).Close
+        - (*database/sql.Rows).Close
+        - (github.com/ClickHouse/clickhouse-go/v2/lib/driver.Rows).Close
+        - (*acars_parser/internal/storage.DB).Close

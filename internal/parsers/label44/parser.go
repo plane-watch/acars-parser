@@ -35,21 +35,21 @@ type RunwayInfo struct {
 
 // Result represents a parsed Label 44 message.
 type Result struct {
-	MsgID       int64         `json:"message_id"`
-	Timestamp   string        `json:"timestamp"`
-	Tail        string        `json:"tail,omitempty"`
-	MessageType string        `json:"message_type"` // "runway", "fb", "pos"
-	Airport     string        `json:"airport,omitempty"`
-	Runways     []RunwayInfo  `json:"runways,omitempty"`
-	Procedures  []string      `json:"procedures,omitempty"`
-	Latitude    float64       `json:"latitude,omitempty"`
-	Longitude   float64       `json:"longitude,omitempty"`
-	FlightLevel int           `json:"flight_level,omitempty"`
-	Origin      string        `json:"origin,omitempty"`
-	Destination string        `json:"destination,omitempty"`
-	Callsign    string        `json:"callsign,omitempty"`
-	ReportTime  string        `json:"report_time,omitempty"`
-	RawData     string        `json:"raw_data,omitempty"`
+	MsgID       int64        `json:"message_id"`
+	Timestamp   string       `json:"timestamp"`
+	Tail        string       `json:"tail,omitempty"`
+	MessageType string       `json:"message_type"` // "runway", "fb", "pos"
+	Airport     string       `json:"airport,omitempty"`
+	Runways     []RunwayInfo `json:"runways,omitempty"`
+	Procedures  []string     `json:"procedures,omitempty"`
+	Latitude    float64      `json:"latitude,omitempty"`
+	Longitude   float64      `json:"longitude,omitempty"`
+	FlightLevel int          `json:"flight_level,omitempty"`
+	Origin      string       `json:"origin,omitempty"`
+	Destination string       `json:"destination,omitempty"`
+	Callsign    string       `json:"callsign,omitempty"`
+	ReportTime  string       `json:"report_time,omitempty"`
+	RawData     string       `json:"raw_data,omitempty"`
 }
 
 func (r *Result) Type() string     { return "label44" }
@@ -65,7 +65,6 @@ func init() {
 func (p *Parser) Name() string     { return "label44" }
 func (p *Parser) Labels() []string { return []string{"44"} }
 func (p *Parser) Priority() int    { return 100 }
-
 
 func (p *Parser) QuickCheck(text string) bool {
 	// Skip encoded/binary messages

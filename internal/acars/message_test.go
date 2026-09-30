@@ -7,9 +7,9 @@ import (
 
 func TestFlexInt64_UnmarshalJSON(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		want    FlexInt64
+		name  string
+		input string
+		want  FlexInt64
 	}{
 		{"integer", `123`, 123},
 		{"string number", `"456"`, 456},

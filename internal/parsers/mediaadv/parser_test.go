@@ -10,13 +10,13 @@ func TestParse(t *testing.T) {
 	parser := &Parser{}
 
 	tests := []struct {
-		name        string
-		text        string
-		wantMatch   bool
-		wantEstab   bool
-		wantLink    string
-		wantTime    string
-		wantAvail   int
+		name      string
+		text      string
+		wantMatch bool
+		wantEstab bool
+		wantLink  string
+		wantTime  string
+		wantAvail int
 	}{
 		{
 			name:      "VHF established",

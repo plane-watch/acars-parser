@@ -69,9 +69,11 @@ func init() {
 	registry.Register(&Parser{})
 }
 
-func (p *Parser) Name() string     { return "weather" }
-func (p *Parser) Labels() []string { return []string{"RA", "C1", "21", "H1", "3W", "27", "31", "34", "3T", "23"} }
-func (p *Parser) Priority() int    { return 50 } // Lower priority, run after more specific parsers.
+func (p *Parser) Name() string { return "weather" }
+func (p *Parser) Labels() []string {
+	return []string{"RA", "C1", "21", "H1", "3W", "27", "31", "34", "3T", "23"}
+}
+func (p *Parser) Priority() int { return 50 } // Lower priority, run after more specific parsers.
 
 // QuickCheck looks for weather keywords.
 func (p *Parser) QuickCheck(text string) bool {

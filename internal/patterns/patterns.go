@@ -15,7 +15,7 @@ var (
 	FlightNumFltPattern = regexp.MustCompile(`(?:FLT|FLIGHT)\s+(\d+)(?:/\d+)?`)
 	// FlightNumCtxPattern matches ICAO callsigns followed by aircraft type, clearance, or airport.
 	// e.g., "ASA329 B738", "UAL123 CLRD", "ASA329 KORD"
-	FlightNumCtxPattern = regexp.MustCompile(`\b([A-Z]{2,3}\d{1,4}[A-Z]?)\s+(?:A\d{3}|B7\d{2}|CLRD|XPNDR|[KCELPYZRVOSWUABDFGHMNT][A-Z]{3})\b`)
+	FlightNumCtxPattern   = regexp.MustCompile(`\b([A-Z]{2,3}\d{1,4}[A-Z]?)\s+(?:A\d{3}|B7\d{2}|CLRD|XPNDR|[KCELPYZRVOSWUABDFGHMNT][A-Z]{3})\b`)
 	FlightNumTrailPattern = regexp.MustCompile(`([A-Z]{2,3}\d{3,4}[A-Z]?)$`)
 
 	// ICAOPattern matches 4-letter ICAO airport codes with valid prefixes.
