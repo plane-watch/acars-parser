@@ -597,6 +597,7 @@ Multi-stop legs come from the `route_legs` table, which only `migrate` populates
 | [docs/PARSER_SPEC.md](docs/PARSER_SPEC.md) | Specification for writing parsers |
 | [docs/enrichment-api.md](docs/enrichment-api.md) | Enrichment API reference |
 | [docs/nats-relay.md](docs/nats-relay.md) | NATS relay reference |
+| [docs/airframes-payload.md](docs/airframes-payload.md) | The upstream Airframes NATS payload: every field, and which ones the code reads |
 | [docs/FLIGHT_MESSAGE_FLOW.md](docs/FLIGHT_MESSAGE_FLOW.md) | The ACARS messages observed across the phases of a flight |
 | [docs/investigation-notes.md](docs/investigation-notes.md) | Working notes on unparsed message formats |
 | [docs/reference/](docs/reference/) | ICAO GOLD, ADS-C and CPDLC reference material |
