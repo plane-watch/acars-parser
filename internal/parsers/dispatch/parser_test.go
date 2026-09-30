@@ -61,7 +61,7 @@ func TestParser_MEL(t *testing.T) {
 	ACFT: 391
 	MEL, CDL, SDL REF: 74-31-1A
 	MDDR #: = 545476
-	MOC NAME: DARREN OMOTO`
+	MOC NAME: REDACTED NAME`
 
 	msg := &acars.Message{ID: 12345, Label: "RA", Text: text}
 	result := parser.Parse(msg)

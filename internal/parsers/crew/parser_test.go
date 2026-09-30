@@ -9,25 +9,26 @@ import (
 func TestParser_Parse(t *testing.T) {
 	parser := &Parser{}
 
+	// Crew names and employee IDs are redacted; the layout is from a real message.
 	text := `QUNDCULUA~1CREW LIST
 UA475/10 CYEG KDEN
 SENT:  21:47:04z
 GATE ETA 0054
 -STD TAXI TIME ADDED-
 COCKPIT:
-1.CA CLARKE   DOMINIC
-  U331704
-2.FO LEONI SA RODRIGO
-  U412932
+1.CA REDACTED  PILOT A
+  U000001
+2.FO REDACTED  PILOT B
+  U000002
 CABIN:
-FA HAY        DUSTIN
-   U432899
-FA ARREDONDO  VERONICA
-   U434074
-FA DOOLITTLE  ELLA
-   U437108
-FM FERRERI    CAROLINE E
-   U410952
+FA REDACTED   CABIN A
+   U000003
+FA REDACTED   CABIN B
+   U000004
+FA REDACTED   CABIN C
+   U000005
+FM REDACTED   CABIN D
+   U000006
 FLIGHT ATTENDANT MIN:4`
 
 	msg := &acars.Message{ID: 12345, Label: "RA", Text: text}
@@ -69,8 +70,11 @@ FLIGHT ATTENDANT MIN:4`
 		if cr.CockpitCrew[0].Position != "CA" {
 			t.Errorf("CockpitCrew[0].Position = %q, want %q", cr.CockpitCrew[0].Position, "CA")
 		}
-		if cr.CockpitCrew[0].EmployeeID != "U331704" {
-			t.Errorf("CockpitCrew[0].EmployeeID = %q, want %q", cr.CockpitCrew[0].EmployeeID, "U331704")
+		if cr.CockpitCrew[0].EmployeeID != "U000001" {
+			t.Errorf("CockpitCrew[0].EmployeeID = %q, want %q", cr.CockpitCrew[0].EmployeeID, "U000001")
+		}
+		if cr.CockpitCrew[0].Name != "REDACTED PILOT A" {
+			t.Errorf("CockpitCrew[0].Name = %q, want %q", cr.CockpitCrew[0].Name, "REDACTED PILOT A")
 		}
 	}
 
