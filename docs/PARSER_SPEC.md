@@ -471,6 +471,7 @@ The `fst` parser uses grok for its main formats and two hand-written regexes for
 - [ ] Registered in `init()` with `registry.Register`
 - [ ] Package blank-imported in `internal/parsers/parsers.go`
 - [ ] Unit tests in `parser_test.go`
+- [ ] Baseline gate reviewed and re-recorded (`go test ./internal/parsers -run TestBaseline`)
 - [ ] Uses base patterns from `internal/patterns`
 - [ ] `QuickCheck` uses string operations only (no regex)
 - [ ] Coordinates parsed with shared utilities

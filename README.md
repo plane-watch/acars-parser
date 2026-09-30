@@ -118,6 +118,7 @@ acars_parser <command> [options]
 | `backfill` | Rebuild the PostgreSQL state from stored messages | ClickHouse, PostgreSQL |
 | `migrate` | Create the schemas and copy the legacy SQLite databases | SQLite, ClickHouse, PostgreSQL |
 | `unparse` | Mark stored messages as unparsed | ClickHouse |
+| `baseline` | Record the parser regression baseline from a sample of stored messages | ClickHouse |
 
 `acars_parser help` prints a usage summary. The flag lists below are authoritative where the two differ.
 
@@ -351,6 +352,26 @@ Creates the ClickHouse and PostgreSQL schemas, then copies the legacy SQLite dat
 | `-skip-state` | `false` | Skip the state migration |
 | `-dry-run` | `false` | Report counts without copying data. The schemas are still created. |
 
+### baseline
+
+Draws a deterministic sample of stored messages and records what the current parsers produce for each one. The result is the regression baseline in `internal/parsers/testdata/baseline/`, which `go test` checks (see [Development](#development)).
+
+```bash
+./bin/acars_parser baseline -cutoff "2026-01-22 06:00:00"
+```
+
+| Flag | Default | Description |
+|---|---|---|
+| `-cutoff` | *(required)* | Only sample messages at or before this UTC time (`YYYY-MM-DD HH:MM:SS`), so that the sample is reproducible |
+| `-per-stratum` | `100` | Maximum messages per (label, parser type) group |
+| `-out` | `internal/parsers/testdata/baseline` | Output directory |
+
+How the sample is drawn:
+
+- Messages are deduplicated by ID.
+- Each (label, stored parser type) group contributes up to `-per-stratum` messages, chosen by `cityHash64(id)` with the ID as a tie-breaker. The same data therefore always produces the same sample.
+- One file is written per label, plus a `manifest.json` that records the cutoff, the sampling and the commit that recorded the expectations.
+
 ### unparse
 
 Marks matching messages as unparsed by inserting copies with `parser_type = 'unparsed'` and an empty `parsed_json`, then runs `OPTIMIZE TABLE messages FINAL`. Use it to queue messages for `reparse -type unparsed`.
@@ -505,7 +526,7 @@ The PWI result looks like this:
 
 2. Implement `registry.Traceable` (`ParseWithTrace`) so that `acars_parser debug` can explain matches.
 3. Add the package import to `internal/parsers/parsers.go`.
-4. Add tests, then run `acars_parser reparse` against stored messages to check for regressions.
+4. Add tests, then run the baseline gate (see [Development](#development)). A new parser changes the baseline for any sampled message it matches. Review those changes, then re-record the baseline.
 
 ## Standalone tools
 
@@ -590,3 +611,15 @@ go test ./...
 ```
 
 The PostgreSQL integration tests in `internal/storage` are skipped when no database is reachable.
+
+### Parser regression baseline
+
+`go test` includes `TestBaseline` in `internal/parsers`. It re-parses every message in the recorded sample (`internal/parsers/testdata/baseline/`) and fails on **any** added, removed or changed result, reporting each difference by parser and field. New results count as changes, so a parser that starts matching messages it should not match is caught too.
+
+When every reported difference is intended, re-record the expectations and commit them with the parser change, so that the diff shows the effect of the change:
+
+```bash
+go test ./internal/parsers -run TestBaseline -update-baseline
+```
+
+Use `acars_parser baseline` to draw a new sample, for example after the stored corpus has grown.

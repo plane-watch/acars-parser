@@ -1,0 +1,100 @@
+{"id":16552,"timestamp":"2025-12-31 18:11:29.728","label":"4H","tail":"N967AT","flight":"DL2884","text":"31184H KMSP KBWI6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":20113,"timestamp":"2025-12-31 18:13:28.714","label":"4H","tail":"N584NW","flight":"NW0719","text":"31184H KDTW KRSW7\r\n/FN 0719\r\n  \r\nWPR RESET","stratum":"4H/unparsed","expected":[]}
+{"id":31659,"timestamp":"2025-12-31 18:19:32.042","label":"4H","tail":"N982AT","flight":"DL1115","text":"31184H KDAL KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":44103,"timestamp":"2025-12-31 18:26:19.834","label":"4H","tail":"N992AT","flight":"DL1546","text":"31184H KBWI KDTW6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":72297,"timestamp":"2025-12-31 18:41:57.696","label":"4H","tail":"N829MH","flight":"DL0131","text":"31184H EDDM KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":72301,"timestamp":"2025-12-31 18:41:57.452","label":"4H","tail":"N829MH","flight":"DL0131","text":"31184H EDDM KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":76260,"timestamp":"2025-12-31 18:44:12.080","label":"4H","tail":"N186DN","flight":"DL0972","text":"31184H KLAX KJFK6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":76264,"timestamp":"2025-12-31 18:44:12.122","label":"4H","tail":"N186DN","flight":"DL0972","text":"31184H KLAX KJFK6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":76591,"timestamp":"2025-12-31 18:44:22.489","label":"4H","tail":"N996AT","flight":"DL2697","text":"31184H KDTW KMSP6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":76593,"timestamp":"2025-12-31 18:44:22.547","label":"4H","tail":"N996AT","flight":"DL2697","text":"31184H KDTW KMSP6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":76594,"timestamp":"2025-12-31 18:44:22.505","label":"4H","tail":"N996AT","flight":"DL2697","text":"31184H KDTW KMSP6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":78112,"timestamp":"2025-12-31 18:45:14.136","label":"4H","tail":"N186DN","flight":"DL0972","text":"31184H KLAX KJFK6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":98813,"timestamp":"2025-12-31 18:56:15.134","label":"4H","tail":"N829MH","flight":"DL0131","text":"31184H EDDM KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":98817,"timestamp":"2025-12-31 18:56:15.188","label":"4H","tail":"N829MH","flight":"DL0131","text":"31184H EDDM KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":111091,"timestamp":"2025-12-31 19:02:25.008","label":"4H","tail":"N177DN","flight":"DL0679","text":"31194H KJFK KSFO6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":517056,"timestamp":"2026-01-03 22:32:56.763","label":"4H","tail":"N3760C","text":"03214H KBOS KSLC6\r\nOO\r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":560412,"timestamp":"2026-01-03 23:32:32.076","label":"4H","tail":"F-HZUM","text":"215229 K1 ","stratum":"4H/unparsed","expected":[]}
+{"id":560521,"timestamp":"2026-01-03 23:32:40.100","label":"4H","tail":"F-HZUM","text":"215229 B6 ","stratum":"4H/unparsed","expected":[]}
+{"id":599825,"timestamp":"2026-01-04 00:15:42.911","label":"4H","tail":"F-HZUM","text":"220820 G8 ","stratum":"4H/unparsed","expected":[]}
+{"id":922450,"timestamp":"2026-01-04 17:48:26.746","label":"4H","tail":"F-HZUE","text":"171905 I4 ","stratum":"4H/unparsed","expected":[]}
+{"id":1086063,"timestamp":"2026-01-04 20:44:43.178","label":"4H","tail":"F-HZUE","text":"175719 G8 ","stratum":"4H/unparsed","expected":[]}
+{"id":1101728,"timestamp":"2026-01-04 20:59:37.436","label":"4H","tail":"F-HZUE","text":"175958 K2 ","stratum":"4H/unparsed","expected":[]}
+{"id":1142342,"timestamp":"2026-01-04 21:50:52.164","label":"4H","tail":"F-HZUE","text":"181025 P2 ","stratum":"4H/unparsed","expected":[]}
+{"id":1342465,"timestamp":"2026-01-05 06:39:17.689","label":"4H","tail":"F-HPNZ","text":"050127 I1 ","stratum":"4H/unparsed","expected":[]}
+{"id":1342725,"timestamp":"2026-01-05 06:39:35.581","label":"4H","tail":"F-HPNZ","text":"050134 I2 ","stratum":"4H/unparsed","expected":[]}
+{"id":1396930,"timestamp":"2026-01-05 07:41:07.010","label":"4H","tail":"F-HPNZ","text":"053157 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":1401413,"timestamp":"2026-01-05 07:47:36.072","label":"4H","tail":"F-HPNZ","text":"053355 G8 ","stratum":"4H/unparsed","expected":[]}
+{"id":1407323,"timestamp":"2026-01-05 07:54:29.984","label":"4H","tail":"F-HPNZ","text":"053700 J7 ","stratum":"4H/unparsed","expected":[]}
+{"id":2509618,"timestamp":"2026-01-06 16:15:28.626","label":"4H","tail":"N940AT","text":"06134H KPHL KMSP6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":2982812,"timestamp":"2026-01-07 07:26:29.567","label":"4H","tail":"F-HPNV","text":"045434 I4 ","stratum":"4H/unparsed","expected":[]}
+{"id":2997819,"timestamp":"2026-01-07 07:48:30.797","label":"4H","tail":"F-HPNV","text":"051505 G8 ","stratum":"4H/unparsed","expected":[]}
+{"id":3003928,"timestamp":"2026-01-07 07:54:45.393","label":"4H","tail":"F-HPNV","text":"052320 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":3011038,"timestamp":"2026-01-07 08:02:30.936","label":"4H","tail":"F-HPNV","text":"053347 J7 ","stratum":"4H/unparsed","expected":[]}
+{"id":3023717,"timestamp":"2026-01-07 08:19:02.621","label":"4H","tail":"F-HPNV","text":"055026 B6 ","stratum":"4H/unparsed","expected":[]}
+{"id":3023735,"timestamp":"2026-01-07 08:19:04.545","label":"4H","tail":"F-HPNV","text":"055026 K10","stratum":"4H/unparsed","expected":[]}
+{"id":3037740,"timestamp":"2026-01-07 08:37:43.404","label":"4H","tail":"F-HPNV","text":"061133 J7 ","stratum":"4H/unparsed","expected":[]}
+{"id":3037762,"timestamp":"2026-01-07 08:37:44.911","label":"4H","tail":"F-HPNV","text":"061133 K9 ","stratum":"4H/unparsed","expected":[]}
+{"id":3037978,"timestamp":"2026-01-07 08:37:59.217","label":"4H","tail":"F-HPNV","text":"061200 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":3040686,"timestamp":"2026-01-07 08:42:54.459","label":"4H","tail":"F-HPNV","text":"061623 P2 ","stratum":"4H/unparsed","expected":[]}
+{"id":3048664,"timestamp":"2026-01-07 08:56:29.978","label":"4H","tail":"F-HPNV","text":"063024 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":3482391,"timestamp":"2026-01-07 21:01:53.282","label":"4H","tail":"F-HZUA","text":"185655 P2 ","stratum":"4H/unparsed","expected":[]}
+{"id":3506292,"timestamp":"2026-01-07 21:26:49.709","label":"4H","tail":"F-HZUA","text":"190832 I2 ","stratum":"4H/unparsed","expected":[]}
+{"id":3525602,"timestamp":"2026-01-07 21:52:33.737","label":"4H","tail":"F-HZUA","text":"191613 I4 ","stratum":"4H/unparsed","expected":[]}
+{"id":4543440,"timestamp":"2026-01-09 07:19:51.097","label":"4H","tail":"F-HOZA","text":"051254 P2 ","stratum":"4H/unparsed","expected":[]}
+{"id":4822483,"timestamp":"2026-01-09 16:00:41.314","label":"4H","tail":"N3741S","text":"09154H KAUS KMIA6\r\n00\r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":4915110,"timestamp":"2026-01-09 18:58:16.654","label":"4H","tail":"F-HPNS","text":"184229 K2 ","stratum":"4H/unparsed","expected":[]}
+{"id":4921071,"timestamp":"2026-01-09 19:06:33.013","label":"4H","tail":"F-HPNS","text":"184545 G8 ","stratum":"4H/unparsed","expected":[]}
+{"id":4921137,"timestamp":"2026-01-09 19:06:38.981","label":"4H","tail":"F-HPNS","text":"184545 K9 ","stratum":"4H/unparsed","expected":[]}
+{"id":5598374,"timestamp":"2026-01-10 22:13:51.047","label":"4H","tail":"F-HPNY","text":"215033 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":5605281,"timestamp":"2026-01-10 22:23:24.603","label":"4H","tail":"F-HPNY","text":"215435 A3 ","stratum":"4H/unparsed","expected":[]}
+{"id":5605384,"timestamp":"2026-01-10 22:23:28.321","label":"4H","tail":"F-HPNY","text":"215435 K10","stratum":"4H/unparsed","expected":[]}
+{"id":5606586,"timestamp":"2026-01-10 22:25:04.989","label":"4H","tail":"F-HPNY","text":"215526 K1 ","stratum":"4H/unparsed","expected":[]}
+{"id":5606663,"timestamp":"2026-01-10 22:25:09.012","label":"4H","tail":"F-HPNY","text":"215526 B6 ","stratum":"4H/unparsed","expected":[]}
+{"id":5978265,"timestamp":"2026-01-11 05:15:43.062","label":"4H","tail":"N927AT","text":"10014H KDAL KATL6\r\n1 \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":6109315,"timestamp":"2026-01-11 08:07:10.978","label":"4H","tail":"F-HPNY","text":"045553 I1 ","stratum":"4H/unparsed","expected":[]}
+{"id":6109419,"timestamp":"2026-01-11 08:07:21.305","label":"4H","tail":"F-HPNY","text":"045601 I2 ","stratum":"4H/unparsed","expected":[]}
+{"id":6122187,"timestamp":"2026-01-11 08:30:26.837","label":"4H","tail":"F-HPNY","text":"051933 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":6124624,"timestamp":"2026-01-11 08:33:14.606","label":"4H","tail":"F-HPNY","text":"052437 J7 ","stratum":"4H/unparsed","expected":[]}
+{"id":6218479,"timestamp":"2026-01-11 11:45:06.571","label":"4H","tail":"N926AT","text":"11114H KMSN KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":6230946,"timestamp":"2026-01-11 11:59:09.113","label":"4H","tail":"N926AT","text":"11114H KMSN KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":6264194,"timestamp":"2026-01-11 12:35:36.543","label":"4H","tail":"N899AT","text":"11124H KDAL KATL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":6635090,"timestamp":"2026-01-12 04:52:31.404","label":"4H","tail":"F-HZUC","text":"044343 A3 ","stratum":"4H/unparsed","expected":[]}
+{"id":6662865,"timestamp":"2026-01-12 05:25:58.854","label":"4H","tail":"F-HZUC","text":"052502 K2 ","stratum":"4H/unparsed","expected":[]}
+{"id":7383033,"timestamp":"2026-01-12 23:09:17.028","label":"4H","tail":"F-HUVL","text":"194402 K10","stratum":"4H/unparsed","expected":[]}
+{"id":7625811,"timestamp":"2026-01-13 08:59:23.648","label":"4H","tail":"F-HZUG","text":"085906 B6 ","stratum":"4H/unparsed","expected":[]}
+{"id":7631709,"timestamp":"2026-01-13 09:09:29.745","label":"4H","tail":"F-HZUG","text":"090927 P2 ","stratum":"4H/unparsed","expected":[]}
+{"id":7644826,"timestamp":"2026-01-13 09:31:22.398","label":"4H","tail":"F-HZUG","text":"093050 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":7648727,"timestamp":"2026-01-13 09:37:37.721","label":"4H","tail":"F-HZUG","text":"093708 J7 ","stratum":"4H/unparsed","expected":[]}
+{"id":7811505,"timestamp":"2026-01-13 14:14:08.588","label":"4H","tail":"N977AT","text":"13144H KPHL KMSP6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":8068506,"timestamp":"2026-01-13 21:25:46.493","label":"4H","tail":"F-HZUR","text":"203423 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":8076289,"timestamp":"2026-01-13 21:36:08.062","label":"4H","tail":"F-HZUR","text":"203845 B6 ","stratum":"4H/unparsed","expected":[]}
+{"id":8076372,"timestamp":"2026-01-13 21:36:15.346","label":"4H","tail":"F-HZUR","text":"203845 K1 ","stratum":"4H/unparsed","expected":[]}
+{"id":8076406,"timestamp":"2026-01-13 21:36:19.420","label":"4H","tail":"F-HZUR","text":"203845 K10","stratum":"4H/unparsed","expected":[]}
+{"id":8084711,"timestamp":"2026-01-13 21:49:03.847","label":"4H","tail":"F-HZUR","text":"204221 P2 ","stratum":"4H/unparsed","expected":[]}
+{"id":8125946,"timestamp":"2026-01-13 23:54:16.455","label":"4H","tail":"N927AT","text":"13234H KCLT KMSP6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":8325211,"timestamp":"2026-01-17 05:44:55.536","label":"4H","tail":"N922AT","text":"16044H KMSP KPHL6\r\n  \r\nRESET WPR\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":8479003,"timestamp":"2026-01-17 09:21:01.717","label":"4H","tail":"F-HZUB","text":"084354 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":8615509,"timestamp":"2026-01-17 12:58:33.934","label":"4H","tail":"N977AT","text":"17124H KRDU KDTW6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":8953322,"timestamp":"2026-01-17 19:11:57.080","label":"4H","tail":"N926DZ","text":"17154H KBOS MYNN6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":9013433,"timestamp":"2026-01-17 20:27:24.505","label":"4H","tail":"N940AT","text":"17154H KDCA KDTW6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":9418125,"timestamp":"2026-01-18 09:41:50.615","label":"4H","tail":"F-HPND","text":"094147 K1 ","stratum":"4H/unparsed","expected":[]}
+{"id":9418307,"timestamp":"2026-01-18 09:42:08.373","label":"4H","tail":"F-HPND","text":"094203 A3 ","stratum":"4H/unparsed","expected":[]}
+{"id":9421121,"timestamp":"2026-01-18 09:46:52.577","label":"4H","tail":"F-HPND","text":"094650 I2 ","stratum":"4H/unparsed","expected":[]}
+{"id":9426117,"timestamp":"2026-01-18 09:55:33.868","label":"4H","tail":"F-HPND","text":"095518 I4 ","stratum":"4H/unparsed","expected":[]}
+{"id":9440244,"timestamp":"2026-01-18 10:18:40.496","label":"4H","tail":"F-HPND","text":"101806 K2 ","stratum":"4H/unparsed","expected":[]}
+{"id":9440295,"timestamp":"2026-01-18 10:18:45.989","label":"4H","tail":"F-HPND","text":"101806 K9 ","stratum":"4H/unparsed","expected":[]}
+{"id":9445158,"timestamp":"2026-01-18 10:26:03.922","label":"4H","tail":"F-HPND","text":"102507 P2 ","stratum":"4H/unparsed","expected":[]}
+{"id":9533142,"timestamp":"2026-01-18 13:07:06.032","label":"4H","tail":"F-HOZA","text":"130214 P1 ","stratum":"4H/unparsed","expected":[]}
+{"id":9537382,"timestamp":"2026-01-18 13:12:29.166","label":"4H","tail":"F-HOZA","text":"130509 B6 ","stratum":"4H/unparsed","expected":[]}
+{"id":9537595,"timestamp":"2026-01-18 13:12:39.771","label":"4H","tail":"F-HOZA","text":"130509 K10","stratum":"4H/unparsed","expected":[]}
+{"id":9538458,"timestamp":"2026-01-18 13:14:00.957","label":"4H","tail":"F-HOZA","text":"130546 I1 ","stratum":"4H/unparsed","expected":[]}
+{"id":9723117,"timestamp":"2026-01-18 17:46:25.517","label":"4H","tail":"N967AT","text":"18164H KMSP KCLT6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":10423061,"timestamp":"2026-01-19 15:27:00.704","label":"4H","tail":"F-HZUR","text":"151924 KD ","stratum":"4H/unparsed","expected":[]}
+{"id":10467236,"timestamp":"2026-01-19 16:21:25.027","label":"4H","tail":"F-HZUR","text":"154216 J7 ","stratum":"4H/unparsed","expected":[]}
+{"id":10560809,"timestamp":"2026-01-19 18:20:36.130","label":"4H","tail":"N608AT","text":"19164H KMSP KCLT6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":10564219,"timestamp":"2026-01-19 18:24:06.996","label":"4H","tail":"N608AT","text":"19164H KMSP KCLT6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":11263720,"timestamp":"2026-01-20 14:06:59.446","label":"4H","tail":"N927AT","text":"20134H KDTW KPHL6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":11282012,"timestamp":"2026-01-20 20:52:25.728","label":"4H","tail":"N649DL","text":"20204H KSNA KDEN6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":11282332,"timestamp":"2026-01-20 20:55:35.199","label":"4H","tail":"N649DL","text":"20204H KSNA KDEN6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}
+{"id":11292190,"timestamp":"2026-01-20 22:46:01.391","label":"4H","tail":"N549US","text":"20224H KLAX PHLI6\r\n  \r\nWPR RESET\r\n\r\n\r\n\r\n\r\n","stratum":"4H/unparsed","expected":[]}

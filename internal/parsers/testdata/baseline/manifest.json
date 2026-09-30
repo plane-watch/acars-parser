@@ -1,0 +1,9 @@
+{
+  "source": "clickhouse acars.messages",
+  "cutoff": "2026-01-22 06:00:00",
+  "per_stratum": 100,
+  "ordering": "cityHash64(id), id",
+  "strata": 399,
+  "cases": 22691,
+  "parser_version": "b04afeb6f16a"
+}

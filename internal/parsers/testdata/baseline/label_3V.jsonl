@@ -1,0 +1,100 @@
+{"id":41834,"timestamp":"2025-12-31 18:25:02.924","label":"3V","tail":"A6-BNK","flight":"EY239","text":"M85AEY0239HCC01,ETD239,VOBL,OMAA,31DEC25\n\tRQST BAY NO.","stratum":"3V/unparsed","expected":[]}
+{"id":59225,"timestamp":"2025-12-31 18:34:44.385","label":"3V","tail":"N660QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":175822,"timestamp":"2026-01-03 05:58:49.921","label":"3V","tail":"N627QX","flight":"QX2314","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":200356,"timestamp":"2026-01-03 06:59:27.906","label":"3V","tail":"N646QX","flight":"QX2173","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":548987,"timestamp":"2026-01-03 23:15:36.627","label":"3V","tail":"N642QX","flight":"QX2062","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":702073,"timestamp":"2026-01-04 05:43:06.747","label":"3V","tail":"N632QX","flight":"QX2134","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":859592,"timestamp":"2026-01-04 15:43:40.001","label":"3V","tail":"N620QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":970249,"timestamp":"2026-01-04 18:41:12.841","label":"3V","tail":"N282NN","flight":"MQ4266","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1286228,"timestamp":"2026-01-05 05:29:11.623","label":"3V","tail":"N281NN","flight":"MQ3426","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1348408,"timestamp":"2026-01-05 06:49:08.363","label":"3V","tail":"N770JM","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1404468,"timestamp":"2026-01-05 07:51:13.010","label":"3V","tail":"N750BD","flight":"MQ4288","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1404564,"timestamp":"2026-01-05 07:51:20.161","label":"3V","tail":"N750BD","flight":"MQ4288","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1404619,"timestamp":"2026-01-05 07:51:25.361","label":"3V","tail":"N750BD","flight":"MQ4288","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1516043,"timestamp":"2026-01-05 12:40:00.184","label":"3V","tail":"A6-BNF","text":"NOC01,ETD7,OMAA,KBOS,05JAN26\r\nHI AVINASH.OFP 50 RCVD\r\nTHX\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1679489,"timestamp":"2026-01-05 15:22:49.226","label":"3V","tail":"N281NN","flight":"MQ3426","text":"T/O COND REQ ACCEPTED   \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":1963262,"timestamp":"2026-01-06 01:55:25.658","label":"3V","tail":"N744DB","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2019076,"timestamp":"2026-01-06 03:11:16.373","label":"3V","tail":"N660QX","flight":"QX2024","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2019208,"timestamp":"2026-01-06 03:11:22.112","label":"3V","tail":"N660QX","flight":"QX2024","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2084975,"timestamp":"2026-01-06 04:02:06.964","label":"3V","tail":"N622QX","flight":"QX2004","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2511867,"timestamp":"2026-01-06 16:19:16.500","label":"3V","tail":"N644QX","flight":"QX2064","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2576561,"timestamp":"2026-01-06 22:01:53.260","label":"3V","tail":"A6-EIS","text":"FLD,HELLO CREW,\n\tPLS PROVIDE A RIDE REPORT IF POSSIBLE.\n\t\n\tTHANKS\n\tROHIT//DISPATCH","stratum":"3V/unparsed","expected":[]}
+{"id":2618245,"timestamp":"2026-01-06 18:58:14.073","label":"3V","tail":"N669QX","flight":"QX2096","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2804143,"timestamp":"2026-01-07 03:43:13.247","label":"3V","tail":"N214NN","flight":"MQ3405","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2829057,"timestamp":"2026-01-07 04:10:01.274","label":"3V","tail":"N654QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2929279,"timestamp":"2026-01-07 06:06:27.479","label":"3V","tail":"N644QX","flight":"QX2064","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":2951828,"timestamp":"2026-01-07 06:29:08.950","label":"3V","tail":"N789SS","text":"GATE REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":3008011,"timestamp":"2026-01-07 07:58:09.756","label":"3V","tail":"A6-BNB","text":"HCC01,ETD99,OMAA,LPPT,06JAN26\r\nGD MORNING\r\nPAX DIANA DOS SANTOS\r\nSEAT 33E VOMITED\r\nREFUSED MEDICATION\r\nSHE RQST MEDICAL\r\nASSISTNC ON ARRIVAL\r\nTHNK U\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":3082202,"timestamp":"2026-01-07 09:46:03.994","label":"3V","tail":"N631QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":3223656,"timestamp":"2026-01-07 12:51:00.678","label":"3V","tail":"N658QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":3438898,"timestamp":"2026-01-07 20:11:18.068","label":"3V","tail":"N629QX","flight":"QX2102","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":3439061,"timestamp":"2026-01-07 20:11:33.003","label":"3V","tail":"N629QX","flight":"QX2102","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4225132,"timestamp":"2026-01-09 01:29:02.827","label":"3V","tail":"N646QX","flight":"QX2173","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4412322,"timestamp":"2026-01-09 04:37:39.871","label":"3V","tail":"N620QX","flight":"QX2289","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4433454,"timestamp":"2026-01-09 05:03:44.516","label":"3V","tail":"N798CC","flight":"MQ3659","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4433772,"timestamp":"2026-01-09 05:04:03.200","label":"3V","tail":"N798CC","flight":"MQ3659","text":"GATE REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4493227,"timestamp":"2026-01-09 06:16:24.109","label":"3V","tail":"A6-BNC","text":"NOC01,ETD099,OMAA,LPPT,08JAN26\r\nALL GOOD THX\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4520072,"timestamp":"2026-01-09 06:47:30.078","label":"3V","tail":"N636QX","flight":"QX2421","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4525945,"timestamp":"2026-01-09 06:55:08.922","label":"3V","tail":"N746CC","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":4879611,"timestamp":"2026-01-09 17:04:53.597","label":"3V","tail":"N646QX","flight":"QX2173","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":5069520,"timestamp":"2026-01-09 16:27:51.461","label":"3V","tail":"N24128","flight":"C54308","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":5615254,"timestamp":"2026-01-10 22:35:51.819","label":"3V","tail":"N287NN","flight":"MQ4148","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":5635821,"timestamp":"2026-01-10 23:01:28.178","label":"3V","tail":"N655QX","flight":"QX2288","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":5858401,"timestamp":"2026-01-11 03:04:28.299","label":"3V","tail":"N779RN","flight":"MQ3821","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":5919690,"timestamp":"2026-01-11 05:45:32.008","label":"3V","tail":"A6-EJA","text":"FLD,GM CREW\n\tREV OFP 06 SEND FOR EY293/KHI-AUH SECTOR DUE ZFW CHG\n\t \n\tPLS ACK\n\tAVINASH/FD ","stratum":"3V/unparsed","expected":[]}
+{"id":5919694,"timestamp":"2026-01-11 05:45:32.161","label":"3V","tail":"A6-EJA","text":"FLD,GM CREW\n\tREV OFP 06 SEND FOR EY293/KHI-AUH SECTOR DUE ZFW CHG\n\t \n\tPLS ACK\n\tAVINASH/FD ","stratum":"3V/unparsed","expected":[]}
+{"id":5919701,"timestamp":"2026-01-11 05:45:32.216","label":"3V","tail":"A6-EJA","text":"FLD,GM CREW\n\tREV OFP 06 SEND FOR EY293/KHI-AUH SECTOR DUE ZFW CHG\n\t \n\tPLS ACK\n\tAVINASH/FD ","stratum":"3V/unparsed","expected":[]}
+{"id":5993837,"timestamp":"2026-01-11 05:41:16.123","label":"3V","tail":"N642QX","flight":"QX2062","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":6116145,"timestamp":"2026-01-11 08:19:48.667","label":"3V","tail":"N778RH","text":"GATE REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":6180736,"timestamp":"2026-01-10 21:57:54.829","label":"3V","tail":"N14177","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":6329986,"timestamp":"2026-01-11 13:40:16.176","label":"3V","tail":"N772MR","flight":"MQ3502","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":6461451,"timestamp":"2026-01-11 17:14:26.483","label":"3V","tail":"N225NN","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":7924017,"timestamp":"2026-01-13 16:26:51.507","label":"3V","tail":"N626QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":8121808,"timestamp":"2026-01-13 23:57:13.956","label":"3V","tail":"A6-AEG","text":"FLD,DEAR CREW\n\tPLS ADVISE IF FUELING IS STILL ON OR COMPLETED\n\tNOC IS REQUESTING FOR HIGH SPEED\n\tREQ FOB 12.5T WITH CI70\n\t\n\tPLS ADVISE IN ORDER TO REVISE OFP ACCORDINGLY\n\t\n\tAVINASH/FD ","stratum":"3V/unparsed","expected":[]}
+{"id":8230821,"timestamp":"2026-01-14 02:08:01.137","label":"3V","tail":"N627QX","flight":"QX2314","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":8231628,"timestamp":"2026-01-14 02:10:39.351","label":"3V","tail":"N627QX","flight":"QX2314","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":8339578,"timestamp":"2026-01-17 06:01:27.056","label":"3V","tail":"N216NN","text":"GATE REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":8348696,"timestamp":"2026-01-17 06:15:21.711","label":"3V","tail":"N657QX","flight":"QX2117","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":8371945,"timestamp":"2026-01-17 06:48:33.533","label":"3V","tail":"A6-ETG","text":"NOC10,ETD0077,OMAA,EGCC,16JAN26\r\n46B\r\nROBERT GOLDEN\r\nBKL3H7\r\nRGRDS","stratum":"3V/unparsed","expected":[]}
+{"id":8688862,"timestamp":"2026-01-17 14:14:30.197","label":"3V","tail":"N624QX","flight":"QX2155","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":8751310,"timestamp":"2026-01-17 15:22:29.642","label":"3V","tail":"N784DP","flight":"MQ3946","text":"GATE REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":8834098,"timestamp":"2026-01-17 18:48:25.359","label":"3V","tail":"A6-EIV","flight":"EY766","text":"FLD,HI ACK.WHAT WAS FOB AT REXOD\n\tRGDS-MANESH","stratum":"3V/unparsed","expected":[]}
+{"id":8834108,"timestamp":"2026-01-17 18:48:26.242","label":"3V","tail":"A6-EIV","flight":"EY766","text":"FLD,HI ACK.WHAT WAS FOB AT REXOD\n\tRGDS-MANESH","stratum":"3V/unparsed","expected":[]}
+{"id":8847248,"timestamp":"2026-01-17 19:09:01.476","label":"3V","tail":"A6-EIV","flight":"EY766","text":"FLD,HI\n\tCNFRM INFLIGHT OFP RCVD WELL\n\tRGDS-MANESH","stratum":"3V/unparsed","expected":[]}
+{"id":8855425,"timestamp":"2026-01-17 19:24:00.413","label":"3V","tail":"A6-EIV","flight":"EY766","text":"FLD,REXOD N563 IKATI Q13 LUMBU V88 KNR V86 CLC DCT VOCL/28\n\tHAVE YOU NOT RCVD THE INFLT OFP YET?\n\tRGDS-MANESH","stratum":"3V/unparsed","expected":[]}
+{"id":8855426,"timestamp":"2026-01-17 19:24:00.462","label":"3V","tail":"A6-EIV","flight":"EY766","text":"FLD,REXOD N563 IKATI Q13 LUMBU V88 KNR V86 CLC DCT VOCL/28\n\tHAVE YOU NOT RCVD THE INFLT OFP YET?\n\tRGDS-MANESH","stratum":"3V/unparsed","expected":[]}
+{"id":8855430,"timestamp":"2026-01-17 19:24:01.280","label":"3V","tail":"A6-EIV","flight":"EY766","text":"FLD,REXOD N563 IKATI Q13 LUMBU V88 KNR V86 CLC DCT VOCL/28\n\tHAVE YOU NOT RCVD THE INFLT OFP YET?\n\tRGDS-MANESH","stratum":"3V/unparsed","expected":[]}
+{"id":9006218,"timestamp":"2026-01-17 20:17:46.344","label":"3V","tail":"N664QX","flight":"QX2270","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9007759,"timestamp":"2026-01-17 20:19:30.774","label":"3V","tail":"N88326","flight":"YV6375","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9008592,"timestamp":"2026-01-17 20:20:17.393","label":"3V","tail":"N88326","flight":"YV6375","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9009299,"timestamp":"2026-01-17 20:21:02.703","label":"3V","tail":"N88326","flight":"YV6375","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9011145,"timestamp":"2026-01-17 20:23:49.590","label":"3V","tail":"N88326","flight":"YV6375","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9077904,"timestamp":"2026-01-18 01:42:46.477","label":"3V","tail":"N626QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9261481,"timestamp":"2026-01-18 05:41:22.044","label":"3V","tail":"N668QX","flight":"QX2112","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9684452,"timestamp":"2026-01-18 16:52:23.676","label":"3V","tail":"N622QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9798248,"timestamp":"2026-01-18 19:20:42.192","label":"3V","tail":"N779RN","flight":"MQ3821","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9899934,"timestamp":"2026-01-19 01:48:40.553","label":"3V","tail":"N225NN","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9903574,"timestamp":"2026-01-19 01:53:54.250","label":"3V","tail":"N200NN","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9909502,"timestamp":"2026-01-19 02:01:07.670","label":"3V","tail":"N225NN","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":9999531,"timestamp":"2026-01-19 03:56:31.878","label":"3V","tail":"N641QX","flight":"QX2437","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10002435,"timestamp":"2026-01-19 04:00:59.902","label":"3V","tail":"N220NN","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10009453,"timestamp":"2026-01-19 04:12:06.782","label":"3V","tail":"N750BD","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10036429,"timestamp":"2026-01-19 04:44:24.122","label":"3V","tail":"N559GJ","text":"PAX REOPENED            \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10046473,"timestamp":"2026-01-19 05:01:32.201","label":"3V","tail":"N762DT","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10052217,"timestamp":"2026-01-19 05:08:36.431","label":"3V","tail":"N273NN","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10078870,"timestamp":"2026-01-19 05:41:00.130","label":"3V","tail":"N780AH","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10486099,"timestamp":"2026-01-19 16:42:18.948","label":"3V","tail":"N761RW","flight":"MQ3804","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10489126,"timestamp":"2026-01-19 16:45:00.759","label":"3V","tail":"N656QX","flight":"QX2044","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10593249,"timestamp":"2026-01-19 18:58:35.638","label":"3V","tail":"N765ST","text":"GATE REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10690590,"timestamp":"2026-01-19 23:26:43.803","label":"3V","tail":"N661QX","flight":"QX2311","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10729434,"timestamp":"2026-01-20 00:14:42.109","label":"3V","tail":"N273NN","text":"RAMP REOPENED           \r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10988745,"timestamp":"2026-01-20 07:41:35.548","label":"3V","tail":"N654QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":10993139,"timestamp":"2026-01-20 07:48:29.979","label":"3V","tail":"N654QX","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":11156441,"timestamp":"2026-01-20 11:57:19.307","label":"3V","tail":"YU-APB","text":"MCC01,ASL37R,EHAM,LYBE,\r\nDOBAR DAN. WHEEL BRAKE T\r\nEMP 1/2 INDIKACIJA RADI\r\nNA ZEMLJI. U VAZDUHU DO\r\nTOP OF CLIMB I U CRUISE-\r\nU NE. PROVERICEMO ZA DES\r\nCENT\r\n\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":11231824,"timestamp":"2026-01-20 14:02:48.499","label":"3V","tail":"A6-EIT","text":"FLD,WIND UPLINK DONE\n\tPLS ACK\n\tFLT DXP MANUSHA","stratum":"3V/unparsed","expected":[]}
+{"id":11515958,"timestamp":"2026-01-21 20:19:49.650","label":"3V","tail":"N648QX","flight":"QX2441","text":"T/O PERF REQ ACCEPTED\r\n","stratum":"3V/unparsed","expected":[]}
+{"id":11537429,"timestamp":"2026-01-21 23:53:36.499","label":"3V","tail":"A6-AED","text":"FLD,SIGMET    SIGMET 1 VALID 212045/220045 OPKC- OPKR KARACHI FIR ISOL EMBD TS FCST N OF N28 W OF E068 MOV E INTSF=","stratum":"3V/unparsed","expected":[]}
+{"id":11537459,"timestamp":"2026-01-21 23:53:41.488","label":"3V","tail":"A6-AED","text":"FLD,SIGMET    SIGMET 01 VALID 212130/220130UTC OPLA- OPLR LAHORE FIR ISOL TS OBS S OF N32 AND W OF E071 MOV E INTSF=","stratum":"3V/unparsed","expected":[]}
+{"id":11537460,"timestamp":"2026-01-21 23:53:41.587","label":"3V","tail":"A6-AED","text":"FLD,SIGMET    SIGMET 01 VALID 212130/220130UTC OPLA- OPLR LAHORE FIR ISOL TS OBS S OF N32 AND W OF E071 MOV E INTSF=","stratum":"3V/unparsed","expected":[]}
+{"id":11697263,"timestamp":"2026-01-22 05:04:07.436","label":"3V","tail":"A6-AEG","text":"FLD,SIGMET    SIGMET 2 VALID 220445/220900 OPKC- OPKR KARACHI FIR ISOL EMBD TS DCST W OF LINE N2330 E06730 - N30 E071 TOP FL380 MOV E NC=","stratum":"3V/unparsed","expected":[]}
+{"id":11697265,"timestamp":"2026-01-22 05:04:07.530","label":"3V","tail":"A6-AEG","text":"FLD,SIGMET    SIGMET 2 VALID 220445/220900 OPKC- OPKR KARACHI FIR ISOL EMBD TS DCST W OF LINE N2330 E06730 - N30 E071 TOP FL380 MOV E NC=","stratum":"3V/unparsed","expected":[]}

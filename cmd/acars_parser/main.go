@@ -46,6 +46,9 @@ func main() {
 		case "migrate":
 			runMigrateCmd(os.Args[2:])
 			return
+		case "baseline":
+			runBaselineCmd(os.Args[2:])
+			return
 		case "unparse":
 			runUnparseCmd(os.Args[2:])
 			return

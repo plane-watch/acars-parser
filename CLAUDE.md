@@ -115,6 +115,7 @@ Tables:
 ## Tooling
 
 - Linting: `golangci-lint run ./...` (configuration in `.golangci.yml`); formatting: `gofmt`.
+- Parser changes must pass the regression baseline (`go test ./internal/parsers -run TestBaseline`). Re-record it with `-update-baseline` only after reviewing every reported difference, and commit the re-recorded fixtures with the change.
 - `github.com/shaneshort/go-asn` is required by version from GitHub. A local, gitignored `go.work` may point it at `/Users/shanes/Documents/development/go-asn`; changes to go-asn must be tagged and pushed before acars_parser can require them. Use `GOWORK=off go build ./...` to check the build without the workspace.
 - All binaries, including `tools/*`, belong to the root Go module. Build into `bin/` (gitignored), e.g. `go build -o bin/acars_parser ./cmd/acars_parser`.
 - `.gitignore` patterns for build output must be anchored (e.g. `/acars_parser`). An unanchored `acars_parser` pattern previously matched `cmd/acars_parser/` and kept the CLI source out of git.

@@ -1,0 +1,100 @@
+{"id":220707,"timestamp":"2026-01-03 07:37:54.556","label":"3A","tail":"3B-NBP","text":"N 48.023,E  9.843,0739,40000,0146,MK0042,03,061631,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":1391567,"timestamp":"2026-01-05 09:04:12.458","label":"3A","tail":"VH-YFZ","text":"MSG FRM DISPATCH\n\tGDAY MATT \u0026 GREG,\n\tTS REMOVED FM SY TAF\n\tFOR YOUR ARRIVAL.\n\t17010KT 9999 SCT010 BKN0\n\t20\n\tCHEERS,\n\tLUKE / DISPATCH","stratum":"3A/unparsed","expected":[]}
+{"id":1424775,"timestamp":"2026-01-05 08:19:36.776","label":"3A","tail":"3B-NCF","text":"N 50.529,E  4.971,0636,40005,0110,MK0042,05,055137,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":1441836,"timestamp":"2026-01-05 08:44:57.507","label":"3A","tail":"3B-NCF","text":"N 51.377,E  2.550,0636,27031,0102,MK0042,05,060645,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":1518007,"timestamp":"2026-01-05 12:41:40.549","label":"3A","tail":"T7-ME2","text":"/ETA 1535/LAT N 47.678/LON E  8.553/ALT 32956/FB 108","stratum":"3A/unparsed","expected":[]}
+{"id":1670395,"timestamp":"2026-01-05 15:15:01.453","label":"3A","tail":"OD-MEE","text":"/ETA 1657/LAT N 51.208/LON E  1.006/ALT 23698/FB 252","stratum":"3A/unparsed","expected":[]}
+{"id":1670397,"timestamp":"2026-01-05 15:15:01.448","label":"3A","tail":"OD-MEE","text":"/ETA 1657/LAT N 51.208/LON E  1.006/ALT 23698/FB 252","stratum":"3A/unparsed","expected":[]}
+{"id":1732859,"timestamp":"2026-01-05 16:30:10.935","label":"3A","tail":"OD-MEE","text":"/ETA 1653/LAT N 50.797/LON E  4.389/ALT 39006/FB 229","stratum":"3A/unparsed","expected":[]}
+{"id":1770408,"timestamp":"2026-01-05 17:17:46.956","label":"3A","tail":"OD-MEE","text":"/ETA 1653/LAT N 50.466/LON E  6.530/ALT 39003/FB 219","stratum":"3A/unparsed","expected":[]}
+{"id":2270978,"timestamp":"2026-01-06 11:07:13.965","label":"3A","tail":"OD-MEE","text":"/ETA 1038/LAT N 50.529/LON E  6.763/ALT 38008/FB 140","stratum":"3A/unparsed","expected":[]}
+{"id":2272868,"timestamp":"2026-01-06 11:09:13.587","label":"3A","tail":"OD-MEE","text":"/ETA 1037/LAT N 50.620/LON E  6.413/ALT 38001/FB 138","stratum":"3A/unparsed","expected":[]}
+{"id":2275021,"timestamp":"2026-01-06 11:10:56.330","label":"3A","tail":"OD-MEE","text":"/ETA 1037/LAT N 50.711/LON E  6.058/ALT 37990/FB 136","stratum":"3A/unparsed","expected":[]}
+{"id":2290025,"timestamp":"2026-01-06 12:28:25.026","label":"3A","tail":"T7-ME6","text":"/ETA 1551/LAT N 49.584/LON E  9.332/ALT 19588/FB 109","stratum":"3A/unparsed","expected":[]}
+{"id":2324124,"timestamp":"2026-01-06 13:34:11.831","label":"3A","tail":"VH-YIS","text":"MSG FRM DISPATCH\n\tHI GUYS\n\tTESTING ACARS\n\tPLS RESPOND\n\tCHEERS, MICHAEL/DISPATCH","stratum":"3A/unparsed","expected":[]}
+{"id":2329554,"timestamp":"2026-01-06 13:44:25.352","label":"3A","tail":"VH-IXK","flight":"VA916","text":"MSG FRM DISPATCH\n\tHI GUYS\n\tTESTING ACARS\n\tPLS RESPOND\n\tCHEERS, MICHAEL/DISPATCH","stratum":"3A/unparsed","expected":[]}
+{"id":2385507,"timestamp":"2026-01-06 14:20:53.157","label":"3A","tail":"C-GKXH","text":"POS IKLAX  /1300/27120/FL127/292035","stratum":"3A/unparsed","expected":[]}
+{"id":2620161,"timestamp":"2026-01-06 18:59:52.738","label":"3A","tail":"T7-ME2","text":"/ETA 1728/LAT N 47.687/LON E  8.487/ALT 32990/FB 114","stratum":"3A/unparsed","expected":[]}
+{"id":3000439,"timestamp":"2026-01-07 07:51:00.632","label":"3A","tail":"D-ALFK","text":"2N50101E009078DF680  ,051903 70DF620  ,,M11,235013198,38405261","stratum":"3A/unparsed","expected":[]}
+{"id":3012187,"timestamp":"2026-01-07 08:03:49.441","label":"3A","tail":"3B-NCF","text":"N 49.718,E  7.200,0632,39997,0121,MK0042,07,053535,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":3024664,"timestamp":"2026-01-07 08:20:27.584","label":"3A","tail":"3B-NCF","text":"N 50.804,E  4.798,0632,40020,0109,MK0042,07,055043,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":3088206,"timestamp":"2026-01-07 09:51:53.301","label":"3A","tail":"D-ALFA","text":"2N42297W086039POS-03 ,074240325PAD-04 ,,M49,3070581318,83015151","stratum":"3A/unparsed","expected":[]}
+{"id":3096140,"timestamp":"2026-01-07 10:00:52.469","label":"3A","tail":"OO-SBA","text":"07JAN26,0751,,SN2730","stratum":"3A/unparsed","expected":[]}
+{"id":3241265,"timestamp":"2026-01-07 14:18:53.835","label":"3A","tail":"D-ALFK","text":"2N49493E010433VEMUT  ,114310296DITIS  ,,M52,3190151805,83722401","stratum":"3A/unparsed","expected":[]}
+{"id":3783758,"timestamp":"2026-01-08 06:21:41.745","label":"3A","tail":"VH-YWA","text":"FUEL RPT VA1118 VH-YWA NOT CMPT","stratum":"3A/unparsed","expected":[]}
+{"id":3887416,"timestamp":"2026-01-08 08:42:42.480","label":"3A","tail":"D-ALFD","text":"2N49317E009496ASLEP  ,084237265TAKUT  ,,M48,3160671324,76417491","stratum":"3A/unparsed","expected":[]}
+{"id":3892574,"timestamp":"2026-01-08 08:50:56.766","label":"3A","tail":"VH-IWY","text":"NEW FLT PLN, VA9234 FPID:\n\t99451802","stratum":"3A/unparsed","expected":[]}
+{"id":3957347,"timestamp":"2026-01-08 10:26:25.785","label":"3A","tail":"D-ALFI","text":"2N49298E009536TAKUT  ,102511276DINKU  ,,M49,3160691342,78120241","stratum":"3A/unparsed","expected":[]}
+{"id":3976356,"timestamp":"2026-01-08 10:58:32.396","label":"3A","tail":"A6-EPC","text":"WXR01UAE65     /08081045OMDBEGSS\r\n/TYP E/STA EGSS/STA ----/STA ----","stratum":"3A/unparsed","expected":[]}
+{"id":4121926,"timestamp":"2026-01-08 22:19:45.531","label":"3A","tail":"C-GKXH","text":"POS \u003eFQM   /2201/12413/FL380/290084","stratum":"3A/unparsed","expected":[]}
+{"id":4575586,"timestamp":"2026-01-09 07:56:59.708","label":"3A","tail":"OO-SNN","text":"09JAN26,0603,,SN2738","stratum":"3A/unparsed","expected":[]}
+{"id":4581808,"timestamp":"2026-01-09 08:05:43.594","label":"3A","tail":"3B-NBP","text":"N 48.172,E  9.348,0722,38010,0125,MK0042,09,061117,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":4594622,"timestamp":"2026-01-09 08:26:02.603","label":"3A","tail":"D-ALFD","text":"2N50138E009258DF425  ,072354 99DF480  ,,M11,236038249,52107341","stratum":"3A/unparsed","expected":[]}
+{"id":4628211,"timestamp":"2026-01-09 09:12:24.571","label":"3A","tail":"D-ALFL","text":"2N46510E009008LADOL  ,071701380EMPAX  ,,M53,262055306,82808071","stratum":"3A/unparsed","expected":[]}
+{"id":4667746,"timestamp":"2026-01-09 10:08:30.639","label":"3A","tail":"A6-EFU","text":"WXR01UAE9920   /08090807TJBQEHBK\r\n/TYP E/STA EHBK/STA ----/STA ----","stratum":"3A/unparsed","expected":[]}
+{"id":4738176,"timestamp":"2026-01-09 13:37:52.069","label":"3A","tail":"VH-YIF","flight":"VA511","text":"FREETEXT FROM FLIGHTWATCH\n\t\n\tLATEST YMML TAF\n\tRGDS RAY - DISP\n\t\n\tTAF AMD YMML 091250Z 0912/1018\n\t17008KT 9999 -SHRA FEW120TCU\n\tFM091500 25008KT 9999 -SHRA FEW120TCU\n\tFM092100 27016G28KT 9999 NSW FEW045\n\tFM100600 21018G30KT CAVOK\n\tFM101000 20012KT 9999 -SHRA SCT025\n\tTEMPO 0912/0915 VRB25G40KT 6000 TSRA FEW140CB\n\tPROB30 TEMPO 0915/0918 VRB25G40KT 6000 TSRA FEW140CB\n\tRMK T 24 21 20 20 Q 1002 1001 1002 1005\n\tTAF3","stratum":"3A/unparsed","expected":[]}
+{"id":4990139,"timestamp":"2026-01-09 21:18:18.025","label":"3A","tail":"VH-YIM","text":"FREETEXT FROM FLIGHTWATCH\n\t\n\tG'DAY GUYS, \n\tJUST SHOT UP THE FUEL INFO FOR RTN SECTOR. \n\tT/O PERFORMANCE FIGURES FOR VA 166 - \n\tOPT:70347KG. RWY23, WET, NIL WIND, T16, 1005', FLAPS25, PACKS OFF. \n\tGIVES ABOUT A 150KG UNDERLOAD WITHOUT FACTORING ANY HEADWIND. \n\tCHEERS, CALUM. ","stratum":"3A/unparsed","expected":[]}
+{"id":5336678,"timestamp":"2026-01-10 05:50:11.192","label":"3A","tail":"D-ALFK","text":"2N49368E010127SPESA  ,055008219CHA    ,,M41,280013279,68406101","stratum":"3A/unparsed","expected":[]}
+{"id":5337059,"timestamp":"2026-01-10 05:50:38.265","label":"3A","tail":"3B-NBQ","text":"N 48.258,E  9.312,0659,39988,0135,MK0042,10,055027,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":5361157,"timestamp":"2026-01-10 06:21:04.051","label":"3A","tail":"3B-NBQ","text":"N 50.737,E  4.709,0659,39996,0110,MK0042,10,062043,N,,","stratum":"3A/unparsed","expected":[]}
+{"id":5375145,"timestamp":"2026-01-10 06:37:44.878","label":"3A","tail":"D-ALFG","text":"2N49487E008582CIN-01 ,063740113HAR-02 ,,M16,2520142076,49017311","stratum":"3A/unparsed","expected":[]}
+{"id":5394909,"timestamp":"2026-01-10 07:03:17.849","label":"3A","tail":"D-ALFD","text":"2N31209W097087WIN-02 ,070112330TTT-03 ,,M46,2241071494,81815351","stratum":"3A/unparsed","expected":[]}
+{"id":5511777,"timestamp":"2026-01-10 11:54:16.855","label":"3A","tail":"T7-ME6","text":"/ETA 0928/LAT N 50.365/LON E  9.098/ALT 34018/FB 63","stratum":"3A/unparsed","expected":[]}
+{"id":6075489,"timestamp":"2026-01-11 07:26:40.368","label":"3A","tail":"C-GKXH","text":"POS \u003eJEVED /0400/8937/FL359/247050","stratum":"3A/unparsed","expected":[]}
+{"id":6110412,"timestamp":"2026-01-11 08:09:17.670","label":"3A","tail":"D-ALFI","text":"2N49400E010060CHA    ,045739189DF635  ,,M33,330030266,63605211","stratum":"3A/unparsed","expected":[]}
+{"id":6513008,"timestamp":"2026-01-11 22:18:51.094","label":"3A","tail":"VH-YQM","text":"NEW FLT PLN, VA211 FPID:\n\t99615202","stratum":"3A/unparsed","expected":[]}
+{"id":6652710,"timestamp":"2026-01-12 05:13:32.091","label":"3A","tail":"A6-EPY","text":"WXR01UAE213    /11120509OMDBKMIA\r\n/TYP M/STA BIKF/STA BGSF/STA CYYR","stratum":"3A/unparsed","expected":[]}
+{"id":6678374,"timestamp":"2026-01-12 05:46:12.499","label":"3A","tail":"D-ALFL","text":"2N50078E008583DF680  ,054610 49DF620  ,,M3,232035414,29705521","stratum":"3A/unparsed","expected":[]}
+{"id":6783344,"timestamp":"2026-01-12 08:04:32.806","label":"3A","tail":"D-ALFB","text":"2N49485E008585CIN-01 ,080427103HAR-02 ,,M5,2860351944,45218521","stratum":"3A/unparsed","expected":[]}
+{"id":6815758,"timestamp":"2026-01-12 08:53:19.306","label":"3A","tail":"T7-ME2","text":"/ETA 0937/LAT N 49.751/LON E 10.875/ALT 31987/FB 54","stratum":"3A/unparsed","expected":[]}
+{"id":6818123,"timestamp":"2026-01-12 08:57:02.101","label":"3A","tail":"T7-ME2","text":"/ETA 0937/LAT N 49.914/LON E 10.217/ALT 31961/FB 53","stratum":"3A/unparsed","expected":[]}
+{"id":6847285,"timestamp":"2026-01-12 09:41:21.663","label":"3A","tail":"OD-MEE","text":"/ETA 1036/LAT N 46.997/LON E  9.077/ALT 37966/FB 167","stratum":"3A/unparsed","expected":[]}
+{"id":6853283,"timestamp":"2026-01-12 09:50:20.479","label":"3A","tail":"OD-MEE","text":"/ETA 1036/LAT N 47.246/LON E  7.486/ALT 37968/FB 159","stratum":"3A/unparsed","expected":[]}
+{"id":6855942,"timestamp":"2026-01-12 09:54:18.413","label":"3A","tail":"T7-ME6","text":"/ETA 1055/LAT N 50.250/LON E  8.060/ALT 31972/FB 63","stratum":"3A/unparsed","expected":[]}
+{"id":7024306,"timestamp":"2026-01-12 13:35:31.667","label":"3A","tail":"D-ALFH","text":"2N49519E009532VEMUT  ,122211202BUDEX  ,,M24,2950451790,69223121","stratum":"3A/unparsed","expected":[]}
+{"id":7227550,"timestamp":"2026-01-12 19:46:19.217","label":"3A","tail":"T7-ME9","text":"/ETA 2131/LAT N 47.704/LON E  8.786/ALT 35004/FB 120","stratum":"3A/unparsed","expected":[]}
+{"id":7626080,"timestamp":"2026-01-13 08:59:50.719","label":"3A","tail":"OD-MRR","text":"/ETA 0916/LAT N 51.133/LON E  8.485/ALT 24527/FB 42","stratum":"3A/unparsed","expected":[]}
+{"id":7756286,"timestamp":"2026-01-13 12:21:13.764","label":"3A","tail":"D-ALFK","text":"2N49593E006449BITBU  ,115045269ASMOX  ,,M41,2710542283,79200191","stratum":"3A/unparsed","expected":[]}
+{"id":8026864,"timestamp":"2026-01-13 20:40:43.532","label":"3A","tail":"VH-YQG","text":"NEW FLT PLN, VA509 FPID:\n\t99704702","stratum":"3A/unparsed","expected":[]}
+{"id":8041038,"timestamp":"2026-01-13 20:47:23.655","label":"3A","tail":"D-ALFB","text":"2N49487E008574AMTIX  ,201906102CINDY  ,,M4,2610312019,45708061","stratum":"3A/unparsed","expected":[]}
+{"id":8129714,"timestamp":"2026-01-14 00:11:20.355","label":"3A","tail":"VH-YVD","text":"NEW FLT PLN, VA9338 FPID:\n\t99746402","stratum":"3A/unparsed","expected":[]}
+{"id":8142600,"timestamp":"2026-01-14 00:16:46.748","label":"3A","tail":"C-GKXH","text":"POS \u003eKH87E /2351/15445/FL389/261089","stratum":"3A/unparsed","expected":[]}
+{"id":8326156,"timestamp":"2026-01-17 05:45:47.326","label":"3A","tail":"C-GKXH","text":"POS \u003eETG   /0431/7193/FL390/252106","stratum":"3A/unparsed","expected":[]}
+{"id":8386795,"timestamp":"2026-01-17 07:06:37.259","label":"3A","tail":"D-ALFC","text":"2N49379E009514SPESA  ,060648221CHA    ,,M31,195034218,67606281","stratum":"3A/unparsed","expected":[]}
+{"id":8390282,"timestamp":"2026-01-17 07:10:41.202","label":"3A","tail":"D-ALFC","text":"2N49544E009072CHA    ,061149130DF635  ,,M12,178016213,57006271","stratum":"3A/unparsed","expected":[]}
+{"id":8441450,"timestamp":"2026-01-17 08:23:54.182","label":"3A","tail":"D-ALFD","text":"2N49559E010581TON-02 ,072803329ERE-03 ,,M59,1890261668,84818231","stratum":"3A/unparsed","expected":[]}
+{"id":8472764,"timestamp":"2026-01-17 09:11:56.394","label":"3A","tail":"D-ALFG","text":"2N49336E009445ASLEP  ,083159273TAKUT  ,,M44,1950331426,79018041","stratum":"3A/unparsed","expected":[]}
+{"id":8485706,"timestamp":"2026-01-17 09:31:23.173","label":"3A","tail":"T7-ME2","text":"/ETA 0922/LAT N 49.727/LON E  9.738/ALT 17672/FB 50","stratum":"3A/unparsed","expected":[]}
+{"id":8521813,"timestamp":"2026-01-17 10:27:41.277","label":"3A","tail":"D-ALFA","text":"2N49531E009138CHA    ,101125125DF635  ,,M9,183013200,51010281","stratum":"3A/unparsed","expected":[]}
+{"id":8523166,"timestamp":"2026-01-17 10:29:53.248","label":"3A","tail":"D-ALFF","text":"2N39519W076174KN6-05 ,101405350KB69C  ,,M52,2451351053,81717011","stratum":"3A/unparsed","expected":[]}
+{"id":8523213,"timestamp":"2026-01-17 10:29:57.214","label":"3A","tail":"D-ALFF","text":"2N39519W076174KN6-05 ,101405350KB69C  ,,M52,2451351053,81717011","stratum":"3A/unparsed","expected":[]}
+{"id":8523362,"timestamp":"2026-01-17 10:30:04.713","label":"3A","tail":"D-ALFF","text":"2N39519W076174KN6-05 ,101405350KB69C  ,,M52,2451351053,81717011","stratum":"3A/unparsed","expected":[]}
+{"id":8523481,"timestamp":"2026-01-17 10:30:13.637","label":"3A","tail":"D-ALFF","text":"2N39519W076174KN6-05 ,101405350KB69C  ,,M52,2451351053,81717011","stratum":"3A/unparsed","expected":[]}
+{"id":9244829,"timestamp":"2026-01-18 05:17:28.976","label":"3A","tail":"C-GKXH","text":"POS JEVON  /0517/7617/FL049/339045","stratum":"3A/unparsed","expected":[]}
+{"id":9292952,"timestamp":"2026-01-18 06:28:06.888","label":"3A","tail":"OO-SNM","text":"18JAN26,0627,,SN2738","stratum":"3A/unparsed","expected":[]}
+{"id":9315730,"timestamp":"2026-01-18 07:02:12.210","label":"3A","tail":"D-ALFG","text":"2N49362E009577SPESA  ,065832199CHA    ,,M25,048011191,60707201","stratum":"3A/unparsed","expected":[]}
+{"id":9315762,"timestamp":"2026-01-18 07:02:15.975","label":"3A","tail":"D-ALFG","text":"2N49362E009577SPESA  ,065832199CHA    ,,M25,048011191,60707201","stratum":"3A/unparsed","expected":[]}
+{"id":9376508,"timestamp":"2026-01-18 08:31:18.648","label":"3A","tail":"OD-MRR","text":"/ETA 0900/LAT N 50.305/LON E 10.197/ALT 31991/FB 43","stratum":"3A/unparsed","expected":[]}
+{"id":9380322,"timestamp":"2026-01-18 08:38:00.716","label":"3A","tail":"D-ALFB","text":"2N49349E009403ASLEP  ,083000206TAKUT  ,,M27,0370151812,70318221","stratum":"3A/unparsed","expected":[]}
+{"id":9428050,"timestamp":"2026-01-18 09:58:39.776","label":"3A","tail":"A6-EPP","text":"WXR01UAE161    /18180958OMDBEIDW\r\n/TYP M/STA EGCC/STA EBBR/STA EGSS","stratum":"3A/unparsed","expected":[]}
+{"id":9839774,"timestamp":"2026-01-18 20:30:54.924","label":"3A","tail":"D-ALFI","text":"2N51239E008069ABI-03 ,165751272ATP-04 ,,M44,0310082270,79304151","stratum":"3A/unparsed","expected":[]}
+{"id":9840176,"timestamp":"2026-01-18 20:31:18.948","label":"3A","tail":"D-ALFI","text":"2N51239E008069ABI-03 ,165751272ATP-04 ,,M44,0310082270,79304151","stratum":"3A/unparsed","expected":[]}
+{"id":9852657,"timestamp":"2026-01-18 20:49:31.154","label":"3A","tail":"D-ALFI","text":"2N52012E007426ATP-04 ,170252300DOR-05 ,,M50,0910052246,83104141","stratum":"3A/unparsed","expected":[]}
+{"id":10149297,"timestamp":"2026-01-19 07:50:13.785","label":"3A","tail":"VH-YVC","text":"NEW FLT PLN, VA981 FPID:\n\t99964902","stratum":"3A/unparsed","expected":[]}
+{"id":10219021,"timestamp":"2026-01-19 09:37:23.290","label":"3A","tail":"D-ALFF","text":"2N50025E009076VEMUT  ,093710119ETVIS  ,,M10,2740021470,58419131","stratum":"3A/unparsed","expected":[]}
+{"id":10225319,"timestamp":"2026-01-19 09:47:56.049","label":"3A","tail":"D-ALFF","text":"2N49552E011029VEMUT  ,094712347ETVIS  ,,M59,1630231413,82819131","stratum":"3A/unparsed","expected":[]}
+{"id":10229482,"timestamp":"2026-01-19 09:54:33.752","label":"3A","tail":"D-ALFC","text":"2N49493E008564ASLEP  ,095354107TAKUT  ,,M7,1490041798,48920001","stratum":"3A/unparsed","expected":[]}
+{"id":10286765,"timestamp":"2026-01-19 11:26:12.994","label":"3A","tail":"T7-ME2","text":"/ETA 1436/LAT N 48.834/LON E  9.905/ALT 35012/FB 103","stratum":"3A/unparsed","expected":[]}
+{"id":10623718,"timestamp":"2026-01-19 21:58:05.366","label":"3A","tail":"D-ALFJ","text":"2N49332E009391ASL-03 ,213356223TAKUT  ,,M33,1740111986,72509251","stratum":"3A/unparsed","expected":[]}
+{"id":10937050,"timestamp":"2026-01-20 06:31:00.351","label":"3A","tail":"D-ALFL","text":"2N40419W002399SEGRE  ,061917380YAKXU  ,,M55,338021491,83108221","stratum":"3A/unparsed","expected":[]}
+{"id":11067297,"timestamp":"2026-01-20 09:44:27.809","label":"3A","tail":"OD-MRS","text":"/ETA 1015/LAT N 50.842/LON E  9.023/ALT 26025/FB 45","stratum":"3A/unparsed","expected":[]}
+{"id":11102674,"timestamp":"2026-01-20 10:40:49.301","label":"3A","tail":"D-ALFB","text":"2N39003W077030RBV-18 ,104047350HTO    ,,M48,2501591053,83017021","stratum":"3A/unparsed","expected":[]}
+{"id":11118650,"timestamp":"2026-01-20 11:05:32.503","label":"3A","tail":"D-ALFB","text":"2N41065W072165LFV-20 ,110449350TUSKY  ,,M46,245143994,82717021","stratum":"3A/unparsed","expected":[]}
+{"id":11148618,"timestamp":"2026-01-20 11:47:02.684","label":"3A","tail":"OD-MRS","text":"/ETA 1511/LAT N 50.918/LON E  7.616/ALT 20228/FB 129","stratum":"3A/unparsed","expected":[]}
+{"id":11169150,"timestamp":"2026-01-20 12:13:47.728","label":"3A","tail":"OD-MRS","text":"/ETA 1510/LAT N 49.374/LON E 10.205/ALT 32976/FB 117","stratum":"3A/unparsed","expected":[]}
+{"id":11171471,"timestamp":"2026-01-20 12:16:56.723","label":"3A","tail":"OD-MRS","text":"/ETA 1510/LAT N 49.189/LON E 10.470/ALT 32985/FB 116","stratum":"3A/unparsed","expected":[]}
+{"id":11394872,"timestamp":"2026-01-21 17:43:12.828","label":"3A","tail":"T7-ME2","text":"/ETA 1954/LAT N 39.103/LON E   .354/ALT 36003/FB 112","stratum":"3A/unparsed","expected":[]}
+{"id":11500903,"timestamp":"2026-01-21 19:58:25.007","label":"3A","tail":"D-ALFE","text":"2N52316E004386GODOS  ,170325300BINBO  ,,M50,2090122092,83003581","stratum":"3A/unparsed","expected":[]}
+{"id":11587488,"timestamp":"2026-01-21 22:06:34.480","label":"3A","tail":"T7-ME2","text":"/ETA 1950/LAT N 35.950/LON E 14.860/ALT 34998/FB 78","stratum":"3A/unparsed","expected":[]}
+{"id":11592006,"timestamp":"2026-01-21 22:10:33.827","label":"3A","tail":"T7-ME2","text":"/ETA 1950/LAT N 35.933/LON E 15.205/ALT 35032/FB 77","stratum":"3A/unparsed","expected":[]}
+{"id":11606861,"timestamp":"2026-01-22 02:08:10.464","label":"3A","tail":"VH-YIE","text":"MSG FRM DISPATCH\n\tTHANKS, ENJOY THE REST O\n\tF YOUR DAY. TONY","stratum":"3A/unparsed","expected":[]}

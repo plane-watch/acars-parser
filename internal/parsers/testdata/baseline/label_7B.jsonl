@@ -1,0 +1,18 @@
+{"id":64406,"timestamp":"2025-12-31 18:37:41.494","label":"7B","tail":"B-LRU","flight":"CX0156","text":"M30ACX0156\n\tANKIS \n\tETA HKG IS 23:24 UTC\n\tESTIMATING ON BLOCKS AROUND 23:40Z AT THIS STAGE\n\tREGARDS CX156","stratum":"7B/unparsed","expected":[]}
+{"id":767932,"timestamp":"2026-01-04 07:01:39.552","label":"7B","tail":"N291GX","text":"PLS CONFIRM PARKING POSPYTON 0024 FL370 F0B16.0","stratum":"7B/unparsed","expected":[]}
+{"id":767946,"timestamp":"2026-01-04 07:01:40.708","label":"7B","tail":"N291GX","text":"PLS CONFIRM PARKING POSPYTON 0024 FL370 F0B16.0","stratum":"7B/unparsed","expected":[]}
+{"id":2261420,"timestamp":"2026-01-06 10:50:28.962","label":"7B","tail":"N1438","text":"POS RPT IPOKE 0936ZFL350 15.1FOB KMIA 1032EFOB 11.2","stratum":"7B/unparsed","expected":[]}
+{"id":4565719,"timestamp":"2026-01-09 07:45:49.201","label":"7B","tail":"B-LJL","text":"OPS\r\nCX081 BLJL DISPATCH\r\nWTH CHILLER INOP \r\nPLS ORDER DRY ICE FOR \r\nNEXT SECTOR\r\nTHX","stratum":"7B/unparsed","expected":[]}
+{"id":4607792,"timestamp":"2026-01-09 08:46:09.913","label":"7B","tail":"B-LXB","text":"FLIGHT TRACK\r\nTOC OPS NORMAL.\r\nETA RUSSIAN FIR ENTRY WPT ABERI 1311Z\r\nETA EXIT WPT SERNA 1757Z","stratum":"7B/unparsed","expected":[]}
+{"id":4663256,"timestamp":"2026-01-09 10:00:53.848","label":"7B","tail":"B-LXR","text":"OPS\r\nAFFIRM, ETA SULOK 1813Z. BRGDS.","stratum":"7B/unparsed","expected":[]}
+{"id":5139396,"timestamp":"2026-01-09 23:02:54.997","label":"7B","tail":"B-KQR","text":"OPS                     \r\nPORTABLE WATER 16/16    \r\nTKS                     \r\n","stratum":"7B/unparsed","expected":[]}
+{"id":6340303,"timestamp":"2026-01-11 13:49:50.669","label":"7B","tail":"SP-ENG","text":"OK CZEKAMY","stratum":"7B/unparsed","expected":[]}
+{"id":7999015,"timestamp":"2026-01-13 18:01:38.875","label":"7B","tail":"N530FL","text":"1508/24/1806UPLT 2223/ONTIME/28.0 FO","stratum":"7B/unparsed","expected":[]}
+{"id":9446397,"timestamp":"2026-01-18 10:28:05.920","label":"7B","tail":"B-LRQ","text":"OPS\r\nPOTABLE WATER 100/100\r\nTKS","stratum":"7B/unparsed","expected":[]}
+{"id":10203125,"timestamp":"2026-01-19 09:09:59.311","label":"7B","tail":"B-LJM","text":"IOC\r\nETA 0925Z\r\nRQST BAY INFO\r\nCHEERS","stratum":"7B/unparsed","expected":[]}
+{"id":10306473,"timestamp":"2026-01-19 11:53:50.997","label":"7B","tail":"B-LRM","text":"OPS. Finally airborne. ETA HKG 2320 plus taxi in time.","stratum":"7B/unparsed","expected":[]}
+{"id":10306547,"timestamp":"2026-01-19 11:53:55.535","label":"7B","tail":"B-LRM","text":"OPS. Finally airborne. ETA HKG 2320 plus taxi in time.","stratum":"7B/unparsed","expected":[]}
+{"id":10711980,"timestamp":"2026-01-19 23:44:35.759","label":"7B","tail":"B-LQG","text":"M01ACX0000TEST","stratum":"7B/unparsed","expected":[]}
+{"id":11069142,"timestamp":"2026-01-20 09:51:37.204","label":"7B","tail":"N1438","text":"THANKS","stratum":"7B/unparsed","expected":[]}
+{"id":11284563,"timestamp":"2026-01-20 21:19:44.597","label":"7B","tail":"N276GX","text":"2100/12/ETA 2157","stratum":"7B/unparsed","expected":[]}
+{"id":11520902,"timestamp":"2026-01-21 20:27:17.204","label":"7B","tail":"N1438","text":"POS. DCT QUIWE 1738ZFL350  FOB 20.3ETA CVG 1838Z","stratum":"7B/unparsed","expected":[]}

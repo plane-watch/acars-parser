@@ -1,0 +1,102 @@
+{"id":155688,"timestamp":"2026-01-03 05:16:08.835","label":"81","tail":"N662QX","text":"FOB 6.0\r\n","stratum":"81/unparsed","expected":[]}
+{"id":160874,"timestamp":"2026-01-03 05:28:04.962","label":"81","tail":"C-GOIX","text":"REQ STAND\r\n","stratum":"81/unparsed","expected":[]}
+{"id":625835,"timestamp":"2026-01-04 00:35:31.170","label":"81","tail":"OM-MEX","text":"POPROSIME AKTUAL WX\r\nTLL RIX VNO HEL\r\nBY THE WAY\r\nWAW MA SCT CLOUDS\r\n","stratum":"81/unparsed","expected":[]}
+{"id":863410,"timestamp":"2026-01-04 15:46:53.085","label":"81","tail":"N702VL","text":"UL1190\r\nFO\r\n","stratum":"81/unparsed","expected":[]}
+{"id":1070845,"timestamp":"2026-01-04 20:28:58.959","label":"81","tail":"G-EZUP","text":"GOOD EVENING. IS THIS A/\r\nC STILL GOING TO PRG THI\r\nS EVENING AFTER OUR ARRI\r\nVAL. MANY THANKS\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":1144833,"timestamp":"2026-01-04 21:54:00.552","label":"81","tail":"N767CK","text":"23,CKS9767,KORD,KJFK,04,1731,0747,1755,0716,1731,754,1755,724,1919,3636,71442,10,1,,,HELD ON SPOT FOR INBND,ACFT ON NE RAMP,,","stratum":"81/unparsed","expected":[]}
+{"id":1654376,"timestamp":"2026-01-05 14:59:52.542","label":"81","tail":"G-EZGH","text":"HI.ETA LGW 1330\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":1654384,"timestamp":"2026-01-05 14:59:53.074","label":"81","tail":"G-EZGH","text":"HI.ETA LGW 1330\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":1683957,"timestamp":"2026-01-05 15:28:25.848","label":"81","tail":"HB-JXK","text":"HI OPS. PROBLEM SOLVED..\r\n. WE WILL MAKE THE SLOT\r\nAT 1335. CHEERS\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":1693486,"timestamp":"2026-01-05 15:38:15.565","label":"81","tail":"C-GEZN","text":"I THINK YOU SEND WX TO\r\nWRONG AIRCRAFT\r\nWE ARE GOING FLL THEN\r\nYUL\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2008705,"timestamp":"2026-01-06 03:00:19.192","label":"81","tail":"9Y-SUR","text":"THANKS\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2110592,"timestamp":"2026-01-06 04:19:11.951","label":"81","tail":"B-1168","text":"/CANXMCZ.EST EXIT EDTO AT 0228Z\r\nFL 380\r\nEFR 19.8T\r\nETA 0441Z\r\nREQ DEST AND ALTN WX\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2212116,"timestamp":"2026-01-06 09:36:32.285","label":"81","tail":"F-HMRO","text":"/MRSOCCR.BONJOUR MRS\r\nCOULD YOU ADVISE MCC\r\nTHAT THE TOOLBOX IS NOT\r\nPROPERLY LOCATED AND\r\nSECURED AS PER EMAIL FRO\r\nM DEPUTY FLEET.MERCI\r\nBRGDS.PATRICK L.\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2256659,"timestamp":"2026-01-06 10:43:43.548","label":"81","tail":"N628QX","text":"OK LETS HOLD OFF\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2407223,"timestamp":"2026-01-06 14:37:46.923","label":"81","tail":"C-GOJQ","text":"ACK WX\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2440392,"timestamp":"2026-01-06 14:59:51.593","label":"81","tail":"N713CK","text":"23,CKS866,PANC,ZHEC,06,1122,3042,1304,3045,1122,3050,1304,3030,2259,1596, 4958,90,119,,,LONG TAXI DUE DEICING ,NEEDING TO BE REDONE,,","stratum":"81/unparsed","expected":[]}
+{"id":2500299,"timestamp":"2026-01-06 16:01:20.457","label":"81","tail":"B-1022","text":"FREE\r\nENTER EDTO","stratum":"81/unparsed","expected":[]}
+{"id":2622864,"timestamp":"2026-01-06 19:03:26.638","label":"81","tail":"PH-BHP","text":"MSF08M06140930KLM759  EHAMMROC\r\nCPDLC\r\nBESTE COLLEGA\r\nWIJ PROBEREN AL ENKELE \r\nKEREN IN TE LOGGEN CPDLC\r\nECHTER ZONDER SUCCES.\r\nHEBBEN JULLIE SUGGESTIE\r\nOM DIT OP TE LOSSEN QMK\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2631568,"timestamp":"2026-01-06 19:17:58.683","label":"81","tail":"N703VL","text":"GOOD MORNING.\r\nALSO WE ARE STAYING AT\r\nFL360 FOR A BETTER RIDE\r\nMOD TURB REPORTS IN THE\r\nUPPER 30S TO LOW 40S.\r\nGATE 111 QQ\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2648305,"timestamp":"2026-01-06 19:36:03.325","label":"81","tail":"TC-LPC","text":"/2/YES/MERHABALAR\r\nUCUS ESNASINDA FAC1\r\nARIZASI GELDI\r\nRESET BASARISIZ\r\nSONRA  OFF YAPILDI\r\nAUTO FLIGHT YAW DAMPER1\r\nVE RUD TRIM1 FAULT\r\nRUD TRV LIM1 GELDI\r\nBILGI","stratum":"81/unparsed","expected":[]}
+{"id":2757550,"timestamp":"2026-01-07 02:58:04.261","label":"81","tail":"N89304","text":"SOUND GOOD....JUST\r\nDOUBLE CHECKING\r\n","stratum":"81/unparsed","expected":[]}
+{"id":2945831,"timestamp":"2026-01-07 06:21:01.818","label":"81","tail":"VH-A5D","text":"\r\nMVA\r\nJST0650/07.VHA5D.CBR\r\nAA0405/0409\r\nSI FB  36","stratum":"81/unparsed","expected":[]}
+{"id":3080275,"timestamp":"2026-01-07 09:44:18.239","label":"81","tail":"C-GEXB","text":"ACK WILCO\r\n","stratum":"81/unparsed","expected":[]}
+{"id":3112033,"timestamp":"2026-01-07 10:16:42.167","label":"81","tail":"C-GEZO","text":"ACK  ATIS RECU 07Z\r\nSI 08Z DISPO ON EST\r\nPRENEUR\r\n","stratum":"81/unparsed","expected":[]}
+{"id":3120235,"timestamp":"2026-01-07 10:27:35.850","label":"81","tail":"EC-KLT","text":"OPS IF NOT LANDING AT EBBR F\r\nIRST WILL TRY EBLG THEN\r\nEDDL\r\n","stratum":"81/unparsed","expected":[]}
+{"id":3154232,"timestamp":"2026-01-07 11:38:46.088","label":"81","tail":"VH-VKG","text":"JST8993 DEPARTED YBBN FOR YMML\r\nETA YMML  11:10\r\nDEPARTURE DELAYED DUE\r\n","stratum":"81/unparsed","expected":[]}
+{"id":3176344,"timestamp":"2026-01-07 12:02:24.478","label":"81","tail":"B-221Y","text":"/PEKUOCF.COPY ETP\r\n","stratum":"81/unparsed","expected":[]}
+{"id":3430784,"timestamp":"2026-01-07 20:00:53.611","label":"81","tail":"N706CK","text":"14,CKS817,PANC,KORD,07,183254,N42008,W088045,+07022,0385,1836,","stratum":"81/unparsed","expected":[]}
+{"id":3574022,"timestamp":"2026-01-07 22:52:42.529","label":"81","tail":"N702VL","text":"UL1355\r\nFO\r\n","stratum":"81/unparsed","expected":[]}
+{"id":3734459,"timestamp":"2026-01-08 05:15:28.307","label":"81","tail":"N649QX","text":"COPY\r\n","stratum":"81/unparsed","expected":[]}
+{"id":3835944,"timestamp":"2026-01-08 07:29:00.378","label":"81","tail":"TC-LJF","text":"/2/YES/KOKPITTE YOGUN ISLIK\r\nGURULTUSU MEVCUT\r\nTAZYIKLEME ILE ILGILI\r\nBIR BULGUMUZ YOK","stratum":"81/unparsed","expected":[]}
+{"id":3910531,"timestamp":"2026-01-08 09:16:24.426","label":"81","tail":"N742CK","text":"15,CKS935,RKSI,PANC,08,091600,0946,0431,","stratum":"81/unparsed","expected":[]}
+{"id":3929676,"timestamp":"2026-01-08 09:45:34.315","label":"81","tail":"VH-X4E","text":"\r\nMVA\r\nQFA1564/08.VHX4E.YSCB\r\nAA0945     ","stratum":"81/unparsed","expected":[]}
+{"id":4022349,"timestamp":"2026-01-08 12:06:00.540","label":"81","tail":"C-GOJQ","text":"ACK ATIS MERCI\r\n","stratum":"81/unparsed","expected":[]}
+{"id":4121878,"timestamp":"2026-01-08 22:19:40.286","label":"81","tail":"TC-JFN","text":"/1/YES/MERHABALAR\r\nVF291 LED YAPIYORUZ\r\nOPERASYON DEVAM MIDIR\r\nIYI CALISMALAR\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":4184696,"timestamp":"2026-01-09 00:47:44.545","label":"81","tail":"N740NK","text":"KEWR,KFLL,THANK YOU\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":4597425,"timestamp":"2026-01-09 08:30:30.599","label":"81","tail":"N715CK","text":"14,CKS698,KLAX,PANC,08,063543,N61063,W150033,+06720,0455,0641,","stratum":"81/unparsed","expected":[]}
+{"id":4633114,"timestamp":"2026-01-09 09:16:20.835","label":"81","tail":"G-EZRX","text":"HI GUYS. WE HAVE RECEIVE\r\nD UPDATE FROM PRG. BRAKI\r\nNG ACTION 0. SN ON TOP O\r\nF ICE. OUR LDG IS NOT\r\nALLOWED IN THESE CONDITI\r\nONS.\r\n","stratum":"81/unparsed","expected":[]}
+{"id":4633143,"timestamp":"2026-01-09 09:16:21.951","label":"81","tail":"G-UZHS","text":"BRILLIANT. THANK YOU\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":4866218,"timestamp":"2026-01-09 16:42:22.091","label":"81","tail":"D-AALD","text":"/LEJOZ3S.ON OUR WAY\r\n","stratum":"81/unparsed","expected":[]}
+{"id":5539956,"timestamp":"2026-01-10 19:44:02.357","label":"81","tail":"9Y-ANT","text":"ACK..THX\r\n","stratum":"81/unparsed","expected":[]}
+{"id":5567479,"timestamp":"2026-01-10 21:36:50.302","label":"81","tail":"B-1356","text":"BAY 3Q\n\t","stratum":"81/unparsed","expected":[]}
+{"id":5636116,"timestamp":"2026-01-10 23:02:00.932","label":"81","tail":"C-GOIO","text":"ACK WX\r\n","stratum":"81/unparsed","expected":[]}
+{"id":5810938,"timestamp":"2026-01-11 02:06:35.387","label":"81","tail":"VP-CIZ","text":"THANK YOU\r\n","stratum":"81/unparsed","expected":[]}
+{"id":5811068,"timestamp":"2026-01-11 02:06:35.242","label":"81","tail":"VP-CIZ","text":"THANK YOU\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6051015,"timestamp":"2026-01-11 07:02:24.938","label":"81","tail":"G-UZEH","text":"EVERYONE ELSE IS FINE AN\r\nD REFUSED TO ANSWER. NO\r\nREASON TO THINK ANYTHING\r\n BESIDES FOOD POISONING\r\nAS NO SYMPTOMS OTHER THA\r\nN VOM AND DIARRHEA. NONE\r\n ARE TRAVELLING TGT.","stratum":"81/unparsed","expected":[]}
+{"id":6104632,"timestamp":"2026-01-11 07:58:28.214","label":"81","tail":"C-GOIR","text":"SO FAR AU FL350...PAS\r\nDE TURB\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6112559,"timestamp":"2026-01-11 08:13:06.162","label":"81","tail":"F-HBLV","text":"BF/7100/140/4700\r\nALTN/1\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6143903,"timestamp":"2026-01-11 08:59:44.532","label":"81","tail":"C-GEZX","text":"REQ ATIS CYHZ 06Z SVP\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6177368,"timestamp":"2026-01-11 09:46:43.238","label":"81","tail":"C-GEZJ","text":"ACK ATIS\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6179625,"timestamp":"2026-01-11 09:50:56.013","label":"81","tail":"N702CK","text":"23,CKS818,ORD,PANC,09,0639,1914,0707,1878,0639,1920,0707,1900,1301,311, 2907,30,38,10,31,DEICING,,,","stratum":"81/unparsed","expected":[]}
+{"id":6784431,"timestamp":"2026-01-12 08:06:10.086","label":"81","tail":"N653QX","text":"WE AT 420 NOW\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6790840,"timestamp":"2026-01-12 08:15:52.589","label":"81","tail":"PH-EXG","text":"HCC31M12081527KLM98C  EDDSEHAM\r\nKL1826\r\nGOEDEMORGEN\r\nBERICHT ONTVANGEN.\r\nNS CC OK.\r\nFD STAPT AF. BEL ZSM IN\r\nAMS.\r\nVR GRT SANDER EN TRISTEN\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6830968,"timestamp":"2026-01-12 09:17:15.169","label":"81","tail":"G-LCYO","text":"FTX/BHDPHXH.01CJ8752/12120917EGLCEGAC\r\nF BA8753 4.7/2.5/140\r\nCREW 2/3 NO SPECIALS","stratum":"81/unparsed","expected":[]}
+{"id":6837700,"timestamp":"2026-01-12 09:27:02.214","label":"81","tail":"OE-IVU","text":"DEAR ALL THE A/C STOP\r\nIN MXP.... TKS\r\nBRGDS MASSIMO\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":6871069,"timestamp":"2026-01-12 10:17:36.108","label":"81","tail":"G-LCAC","text":"FTX/LCYOOXH.01CJ7302/12121017LIMLEGLC\r\nETA 1135","stratum":"81/unparsed","expected":[]}
+{"id":6931546,"timestamp":"2026-01-12 11:45:36.280","label":"81","tail":"N615FR","text":"DISPGOOD MORNING...SMOOTH ATFL350...","stratum":"81/unparsed","expected":[]}
+{"id":7516784,"timestamp":"2026-01-13 01:55:15.147","label":"81","tail":"C-GOIE","text":"ACK ATIS\r\n","stratum":"81/unparsed","expected":[]}
+{"id":7630308,"timestamp":"2026-01-13 09:07:00.312","label":"81","tail":"G-LCYN","text":"FTX/BHDPHXH.01CJ8752/13130906EGLCEGAC\r\nF 8753 4.8/2.5/137\r\nETA 0945","stratum":"81/unparsed","expected":[]}
+{"id":7704716,"timestamp":"2026-01-13 11:10:09.740","label":"81","tail":"TC-JHK","text":"/2/NO/MERHABA\r\n52-09 LOWER CARGO DOORS\r\n- DOOR BALANCE MECHANISM\r\nIS INOP\r\nININCE DEFTERE YAZACAGIM\r\nMALUMAT.\r\nIYI CALISMALAR\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":7850194,"timestamp":"2026-01-13 15:01:41.469","label":"81","tail":"G-LCYU","text":"FTX/BERWGXH.01CJ8493/13131427EGLCEDDB\r\nF 8494 6.5/3.1/200\r\n2/3 CREW","stratum":"81/unparsed","expected":[]}
+{"id":7893562,"timestamp":"2026-01-13 15:50:04.684","label":"81","tail":"N620NK","text":"KEWR,KIND,ADVISE IND MX\r\nFMGCU OFFSIDE FM CONTROL\r\nAP 2 FAIL\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8242354,"timestamp":"2026-01-14 02:46:32.163","label":"81","tail":"N86316","text":"THANK YOU\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8311981,"timestamp":"2026-01-14 04:24:15.397","label":"81","tail":"EC-OFM","text":"PDC 14.0205/L1 14.0205/L2 --.----/L3 --.----/L4 --.----","stratum":"81/pdc","expected":[]}
+{"id":8353677,"timestamp":"2026-01-17 06:21:11.644","label":"81","tail":"TC-LLC","text":"/OCC/YES/MERHABA\r\nNAT ICIN 30W GECIS\r\nETA 09.07Z OLARAK\r\nDEGISTI\r\nLUTFEN KOORDINE\r\nEDER MISINIZ\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8383932,"timestamp":"2026-01-17 07:01:47.910","label":"81","tail":"C-GEZX","text":"REQ UN EXTRA WCR\r\nMERCI\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8393924,"timestamp":"2026-01-17 07:15:28.919","label":"81","tail":"C-FTXQ","text":"ACK ATIS\r\nMERCI  MP\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8481761,"timestamp":"2026-01-17 09:25:07.119","label":"81","tail":"C-GOIF","text":"ACK ETOPS WX\r\nMERCI\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8483188,"timestamp":"2026-01-17 09:27:23.574","label":"81","tail":"F-HXSX","text":"BONJOUR\r\nMERCI BCP POUR\r\nCES INFOS\r\nON EST PRENEUR DES\r\nDERNIERES DE ESNU\r\nMERCI\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8503071,"timestamp":"2026-01-17 09:58:45.195","label":"81","tail":"PH-EXX","text":"ATM31M17093453KLM55Z  EHAMEPWR\r\nWRO\r\nMORGEN. WRO ZICHT IS\r\nNOGSTEEDS SLECHT.\r\nKAN JIJ MIJ DE UITWIJK\r\nPEUT VOOR KTW GEVEN.\r\nEN KAN KTW ONS EVENTUEEL\r\nACCEPTEREN QM.\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8796844,"timestamp":"2026-01-17 16:08:38.393","label":"81","tail":"C-GTSZ","text":"ACK WX MERCI\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":8802743,"timestamp":"2026-01-17 16:16:04.284","label":"81","tail":"B-8982","text":"FREE\r\nFL350EEP1455ZEXP2155ZCP FUEL 30.6ZETA0047Z","stratum":"81/unparsed","expected":[]}
+{"id":8896006,"timestamp":"2026-01-17 18:06:10.254","label":"81","tail":"XA-VUN","text":"ME PODRIAN CONFIRMAR\r\nGATE EN KDFW VOI800\r\nGATE T93 NO EXISTE\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9317322,"timestamp":"2026-01-18 07:04:51.361","label":"81","tail":"VH-YIM","text":"YBBNYSSY0\r\nNOTED\r\nTHANKS\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9347270,"timestamp":"2026-01-18 07:46:52.234","label":"81","tail":"PH-NXL","text":"MSF31M18073417KLM42T  EGPDEHAM\r\nAFT LAV\r\nDAG MAINT. IVM LANGE \r\nVOLGENDE SECTOR ZOU HET\r\nFIJN ZIJN OM OOK DE AFT\r\nLAVATORY WEER TE KUNNEN \r\nGEBRUIKEN. KUNNEN JULLIE\r\nHIER AUB NAAR KIJKEN OP\r\nAMS QMK\r\nBVD NXL\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9386847,"timestamp":"2026-01-18 08:48:51.734","label":"81","tail":"F-HUYZ","text":"MERCI BCP...\r\nA +.\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9452923,"timestamp":"2026-01-18 10:39:13.622","label":"81","tail":"9Y-BAH","text":"AKC. OUR ETA IS NOW 1135\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9458526,"timestamp":"2026-01-18 10:49:27.252","label":"81","tail":"9Y-BAH","text":"ACK\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9565973,"timestamp":"2026-01-18 13:48:48.367","label":"81","tail":"C-FTXQ","text":"AVEZ-VOUS LE TEMPS DE VO\r\nL APPX POUR LE TS651\r\nLES AB AIMERAIENT SAVOIR\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9622930,"timestamp":"2026-01-18 15:36:45.765","label":"81","tail":"C-FFFX","text":"ACK WILCO\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9671538,"timestamp":"2026-01-18 16:37:34.919","label":"81","tail":"G-UZLK","text":"HI.WE HAVE A DISRUPTIVE\r\nPAX AND NEED TO DIVERT\r\nSOMEWHERE.WHERE WOULD\r\nYOU PREFER. I SUGGEST A\r\nBASE.\r\nTHANKS\r\nCHRIS","stratum":"81/unparsed","expected":[]}
+{"id":9872011,"timestamp":"2026-01-18 21:19:38.583","label":"81","tail":"N673FR","text":"DISPSMOOTH AT FL 350ARE THERE ROUGH RIDESON ARRIVALS STILL","stratum":"81/unparsed","expected":[]}
+{"id":9939260,"timestamp":"2026-01-19 02:39:13.519","label":"81","tail":"VH-VKJ","text":"JST23 DEPARTED YBBN FOR RJBB\r\nETA RJBB  10:50\r\nDEPARTURE DELAYED DUE\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9943058,"timestamp":"2026-01-19 02:43:48.909","label":"81","tail":"N684NK","text":"KPHL,KFLL,FLT2211 KPHL/KFLL\r\nDELAY LATE INBOUND AC\r\nRAMP COGESTION\r\nDEICE\r\n0442 ETA KFLL/EFOB 7.8\r\nTHNKS FOR THE HELP\r\n\r\n","stratum":"81/unparsed","expected":[]}
+{"id":9963008,"timestamp":"2026-01-19 03:12:14.568","label":"81","tail":"N701VL","text":"UL695\r\nFO\r\n","stratum":"81/unparsed","expected":[]}
+{"id":10026275,"timestamp":"2026-01-19 04:31:41.376","label":"81","tail":"B-1048","text":"FREE\r\nEXIT EDTO AT 0344Z","stratum":"81/unparsed","expected":[]}
+{"id":10294223,"timestamp":"2026-01-19 11:37:09.695","label":"81","tail":"B-2761","text":"WX AND APT INFO RCVD, CONT ENTRY ETOPS","stratum":"81/unparsed","expected":[]}
+{"id":10315419,"timestamp":"2026-01-19 12:05:31.198","label":"81","tail":"G-LCYS","text":"FTX/GVAKO7X.01CJ2281/19191147EGLCLSGG\r\nADC ZZZ/0000 AWZ/0069","stratum":"81/unparsed","expected":[]}
+{"id":10354317,"timestamp":"2026-01-19 12:52:32.519","label":"81","tail":"N82314","text":"WATER SERVICE COMPLETED.\r\nRIC DEICE SLOW.\r\n","stratum":"81/unparsed","expected":[]}
+{"id":10384029,"timestamp":"2026-01-19 14:10:40.765","label":"81","tail":"B-227L","text":"/CANXMCZ.EXIT EDTO AT 1358Z\r\nFL380\r\nEFR 20.5\r\nETA 1623Z\r\n","stratum":"81/unparsed","expected":[]}
+{"id":10408432,"timestamp":"2026-01-19 14:37:41.509","label":"81","tail":"N633FR","text":"DISPLANDING LAS WITH 5.8 FOB","stratum":"81/unparsed","expected":[]}
+{"id":10417806,"timestamp":"2026-01-19 15:20:44.944","label":"81","tail":"N701VL","text":"ULNS\r\nFO\r\n","stratum":"81/unparsed","expected":[]}
+{"id":10433226,"timestamp":"2026-01-19 15:39:23.235","label":"81","tail":"N631FR","text":"DISPSTAT MD HAS US CONTINUING TO LGA. PLEASE ARRANGEEMS","stratum":"81/unparsed","expected":[]}
+{"id":10791886,"timestamp":"2026-01-20 03:28:39.355","label":"81","tail":"N700CK","text":"23,CKS890,KORD,PANC,20,0254,1398,0318,1378,0254,1400,0318,1380,0910,190, 4544,40,39,10,45,OTHER GND HANDLG,,,","stratum":"81/unparsed","expected":[]}
+{"id":10906874,"timestamp":"2026-01-20 05:52:11.772","label":"81","tail":"EC-NXC","text":"PDC 20.0514/L1 20.0509/L2 20.0514/L3 --.----/L4 --.----","stratum":"81/pdc","expected":[]}
+{"id":11011494,"timestamp":"2026-01-20 08:15:18.853","label":"81","tail":"B-221Y","text":"/PEKUOCF.ROGER\r\n","stratum":"81/unparsed","expected":[]}
+{"id":11043567,"timestamp":"2026-01-20 09:04:44.244","label":"81","tail":"9XR-WY","text":"OK\r\n","stratum":"81/unparsed","expected":[]}
+{"id":11278917,"timestamp":"2026-01-20 14:26:23.872","label":"81","tail":"HI1081","text":"Y BOS TOO\r\n","stratum":"81/unparsed","expected":[]}
+{"id":11282554,"timestamp":"2026-01-20 20:57:02.944","label":"81","tail":"C-GTCY","text":"VEUX TU QU ON AVISE LES\r\nPAX\r\n","stratum":"81/unparsed","expected":[]}
+{"id":11418770,"timestamp":"2026-01-21 18:09:27.533","label":"81","tail":"C-FFLZ","text":"47 YR WOMAN. SEAT 31E/F\r\nW/ HUSBAND.\r\nDECENDING NOW.\r\nMEDLINK HASNT BEEN\r\nCALLED. IU CAN PATCH\r\nTHEM. BUT THEY ARE MUCH\r\nBETTER NOW.\r\n","stratum":"81/unparsed","expected":[]}
+{"id":11560136,"timestamp":"2026-01-21 21:29:08.481","label":"81","tail":"G-LCAD","text":"FTX/LHRWMBA.01CJ8456/21211733EHAMEGLC\r\nASRT 1712","stratum":"81/unparsed","expected":[]}
+{"id":11621940,"timestamp":"2026-01-21 22:46:24.532","label":"81","tail":"G-LCYS","text":"FTX/DUBKIEI.01CJ4468/21211801EGLCEIDW\r\nADC ZZZ/0000 PSZ/0014\r\nAWAITING FINAL FIGURES\r\nFROM CLC BEFORE ABLE\r\nTO LEAVE STAND. A/C\r\nOUT OF TRIM AND PAX\r\nNEEDED RESEATING.","stratum":"81/unparsed","expected":[]}

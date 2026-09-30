@@ -1,0 +1,16 @@
+{"id":1517751,"timestamp":"2026-01-05 12:41:27.882","label":"1F","tail":"OO-SNK","text":"LSZH,05,05JAN26,1212,753,LT,0799,\r\n575,10480,10141,5800,1326,11520,N,SN2732","stratum":"1F/unparsed","expected":[]}
+{"id":2174419,"timestamp":"2026-01-06 08:41:30.463","label":"1F","tail":"OO-SNP","text":"LSZH,06,06JAN26,0808,1368,LT,0800,\r\n507,11240,11023,5880,2413,13520,N,SN2729","stratum":"1F/unparsed","expected":[]}
+{"id":3121992,"timestamp":"2026-01-07 10:30:37.614","label":"1F","tail":"OO-SBA","text":"LSZH,07,07JAN26,0821,,LT,0800,\r\n541,11240,10803,4680,,11080,N,SN2730","stratum":"1F/unparsed","expected":[]}
+{"id":3799445,"timestamp":"2026-01-08 06:41:31.540","label":"1F","tail":"OO-TCQ","text":"LSZH,08,08JAN26,0641,2750,LT,0795,\r\n501,7480,7055,,4820,12080,N,SN2738","stratum":"1F/unparsed","expected":[]}
+{"id":6224701,"timestamp":"2026-01-11 11:52:05.268","label":"1F","tail":"OO-SSW","text":"LEVC,11,11JAN26,1146,6953,LT,0800,\r\n536,5240,5291,8480,12264,17560,N,SN3752","stratum":"1F/unparsed","expected":[]}
+{"id":6743058,"timestamp":"2026-01-12 07:09:57.542","label":"1F","tail":"OO-SNO","text":"LSZH,12,12JAN26,0709,3599,LT,0798,\r\n519,6840,6614,5080,6332,13000,N,SN2738","stratum":"1F/unparsed","expected":[]}
+{"id":7330232,"timestamp":"2026-01-12 22:09:30.114","label":"1F","tail":"OO-SSF","text":"LSZH,12,12JAN26,1918,,LT,0800,\r\n466,5520,5512,4240,,,N,SN2736","stratum":"1F/unparsed","expected":[]}
+{"id":7365158,"timestamp":"2026-01-12 22:48:18.768","label":"1F","tail":"N918XJ","text":"/33 SYS CONF RPT /12 193704\r\nACARS 0.5","stratum":"1F/unparsed","expected":[]}
+{"id":7407539,"timestamp":"2026-01-12 23:40:38.877","label":"1F","tail":"N460AW","text":"MSN","stratum":"1F/unparsed","expected":[]}
+{"id":7460396,"timestamp":"2026-01-13 00:43:45.385","label":"1F","tail":"OO-SNH","text":"LEVC,12,12JAN26,2015,7029,LT,0800,\r\n519,6200,5952,10280,12398,18480,N,SN3752","stratum":"1F/unparsed","expected":[]}
+{"id":9299703,"timestamp":"2026-01-18 06:38:23.468","label":"1F","tail":"OO-SNM","text":"LSZH,18,18JAN26,0637,2379,LT,0800,\r\n502,6720,6614,5200,4196,10840,N,SN2738","stratum":"1F/unparsed","expected":[]}
+{"id":9480005,"timestamp":"2026-01-18 11:23:36.435","label":"1F","tail":"OO-SNM","text":"LSZH,18,18JAN26,1121,,LT,0800,\r\n508,7040,6834,6240,,10440,N,SN2732","stratum":"1F/unparsed","expected":[]}
+{"id":9501021,"timestamp":"2026-01-18 11:52:52.502","label":"1F","tail":"OO-SSA","text":"LEVC,18,18JAN26,1139,4796,LT,0800,\r\n459,8160,7937,10320,8459,16840,N,SN3752","stratum":"1F/unparsed","expected":[]}
+{"id":10298746,"timestamp":"2026-01-19 11:43:15.626","label":"1F","tail":"OO-SNI","text":"LSZH,19,19JAN26,1133,,LT,0800,\r\n513,6800,6614,5440,,10600,N,SN2732","stratum":"1F/unparsed","expected":[]}
+{"id":11020174,"timestamp":"2026-01-20 08:28:42.113","label":"1F","tail":"OO-SSB","text":"LSZH,19,20JAN26,0818,,LT,0800,\r\n488,7560,7275,5000,,9840,N,SN2730","stratum":"1F/unparsed","expected":[]}
+{"id":11134963,"timestamp":"2026-01-20 11:28:25.734","label":"1F","tail":"OO-TCQ","text":"LSZH,20,20JAN26,1123,,LT,0800,\r\n502,6640,6614,6120,,9960,N,SN2732","stratum":"1F/unparsed","expected":[]}
