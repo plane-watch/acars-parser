@@ -41,12 +41,16 @@ If there are any useful tools, resources or information I provide, update this f
 ## Database Architecture
 
 The project uses a two-database architecture:
-- **ClickHouse**: Immutable message storage (messages table)
-- **PostgreSQL**: Mutable state data (aircraft, waypoints, routes, ATIS, flight state, golden annotations)
+- **ClickHouse**: Append-only message storage (`messages`, plus an unused `atis_history` table)
+- **PostgreSQL**: Mutable state data (aircraft, waypoints, routes, ATIS, flight state, flight enrichment, golden annotations)
+
+Full schema and the commands that read and write each table: `docs/storage.md`.
+
+Connection defaults come from environment variables (`CLICKHOUSE_*`, `POSTGRES_*`, see `cmd/acars_parser/config.go`), so the connection flags are usually unnecessary. The location of the running environment is not recorded; confirm the host, container names and PostgreSQL database name with the user before querying.
 
 ### ClickHouse Database
 
-Container name: `acars-clickhouse`
+Container name (as created by the README): `acars-clickhouse`
 
 Connection:
 - Host: `localhost`
@@ -57,15 +61,15 @@ Connection:
 
 Query example:
 ```bash
-docker exec -i acars-clickhouse clickhouse-client --query "SELECT * FROM acars.messages LIMIT 1"
+docker exec -i acars-clickhouse clickhouse-client --password acars --query "SELECT * FROM acars.messages LIMIT 1"
 ```
 
-Reparse example:
+Reparse example (compares only; add `-update` to write, which creates duplicate rows):
 ```bash
-./acars_parser reparse -type unparsed -ch-user default -ch-password acars
+./acars_parser reparse -type unparsed
 ```
 
-Schema for `acars.messages`:
+Schema for `acars.messages` (`ENGINE = MergeTree`, `ORDER BY (parser_type, label, timestamp, id)`):
 | Column | Type |
 |--------|------|
 | id | UInt64 |
@@ -85,6 +89,7 @@ Schema for `acars.messages`:
 Notes:
 - Use `parser_type = 'unparsed'` to find unparsed messages
 - Use `raw_text` for the message content (not `text`)
+- `id` is not unique: `live` writes one row per parser result, and `unparse` / `reparse -update` add rows without removing the originals (plain MergeTree does not deduplicate)
 
 ### PostgreSQL Database
 
@@ -93,15 +98,23 @@ Connection:
 - Port: `5432`
 - User: `acars`
 - Password: `acars`
-- Database: `acars`
+- Database: `acars_state` (the code default; the standalone tools in `tools/` default to `acars`)
 
 Tables:
 - `aircraft` - Aircraft registry (icao_hex, registration, type_code, operator)
 - `waypoints` - Navigation waypoints (name, lat/lon, source_count)
 - `routes` - Flight routes (flight_pattern, origin, dest, observation_count)
-- `route_legs` - Individual route segments
-- `route_aircraft` - Aircraft seen on routes
-- `aircraft_callsigns` - IATA/ICAO callsign mappings
+- `route_legs` - Individual route segments (populated by `migrate` only)
+- `route_aircraft` - Aircraft seen on routes (populated by `migrate` only)
+- `aircraft_callsigns` - IATA/ICAO callsign mappings (populated by `migrate` only)
 - `atis_current` - Current ATIS for airports
 - `flight_state` - Ephemeral flight tracking state
+- `flight_enrichment` - Per-flight data served by the enrichment API
 - `golden_annotations` - Message annotations for parser testing
+
+## Tooling
+
+- Linting: `golangci-lint run ./...` (configuration in `.golangci.yml`); formatting: `gofmt`.
+- `github.com/shaneshort/go-asn` is required by version from GitHub. A local, gitignored `go.work` may point it at `/Users/shanes/Documents/development/go-asn`; changes to go-asn must be tagged and pushed before acars_parser can require them. Use `GOWORK=off go build ./...` to check the build without the workspace.
+- All binaries, including `tools/*`, belong to the root Go module. Build into `bin/` (gitignored), e.g. `go build -o bin/acars_parser ./cmd/acars_parser`.
+- `.gitignore` patterns for build output must be anchored (e.g. `/acars_parser`). An unanchored `acars_parser` pattern previously matched `cmd/acars_parser/` and kept the CLI source out of git.

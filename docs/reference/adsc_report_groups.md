@@ -187,7 +187,7 @@ Where:
   - 01 = 8 seconds
   - 11 = 64 seconds
 
-**Example**: 40-minute interval = (1 + 36) × 64 = 2368 seconds
+**Example**: (1 + 36) × 64 = 2368 seconds (39.5 minutes)
 
 ---
 

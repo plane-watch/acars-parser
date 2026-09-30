@@ -4,12 +4,14 @@ This document defines the requirements and best practices for writing ACARS mess
 
 ## Architecture Overview
 
-Parsers are registered with a central registry that dispatches incoming ACARS messages based on label and content. Each parser:
+Parsers are registered with a central registry (`internal/registry`) that dispatches incoming ACARS messages based on label and content. Each parser:
 
 1. Declares which ACARS labels it handles (or empty for content-based matching)
 2. Performs a fast `QuickCheck` to filter messages before expensive processing
 3. Parses the message and returns a structured result
 4. Provides debug tracing via `ParseWithTrace`
+
+A parser package registers its parsers in `init()` and must be blank-imported in `internal/parsers/parsers.go`; a package that is not imported there is never registered. See [parsers.md](parsers.md) for the dispatch tiers and the list of current parsers.
 
 ## Required Interfaces
 
@@ -157,6 +159,8 @@ Key points:
 package mynewparser
 
 import (
+    "strconv"
+    "strings"
     "sync"
 
     "acars_parser/internal/acars"
@@ -297,6 +301,7 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 package mynewparser
 
 import (
+    "fmt"
     "testing"
 
     "acars_parser/internal/acars"
@@ -368,14 +373,19 @@ This enables the debug command to show exactly why a parser did or didn't match 
 
 ## Priority Guidelines
 
-| Priority Range | Use Case |
-|---------------|----------|
-| 1-20 | High-confidence, specific format parsers |
-| 21-50 | Standard parsers with clear markers |
-| 51-80 | Parsers that may conflict with others |
-| 81-100 | Generic or catch-all parsers |
+`Priority()` orders parsers within a dispatch tier; lower numbers run first. It does not stop other parsers from running: every parser whose `QuickCheck` passes and whose `Parse` returns a result contributes that result. The order matters where a caller uses only the first result, as the `reparse` command does with `results[0]`.
 
-Lower priority = checked first. Use lower priority for parsers with cheap, specific checks.
+Priority does not move a parser between tiers. Label parsers always run before global parsers (those with an empty `Labels()`), whatever their priorities.
+
+Use these values:
+
+- **100** for a parser that is the only parser on its label, or the least specific parser on a shared label. Most label parsers use 100.
+- **A lower number** (the current range is 10 to 70) when several parsers share a label, so that the parser with the most specific quick check and format comes first. For example, on H1: `fpn` (10), `h1pos` (20), `pwi` (30), `mdc` (40), `dispatcher` (45), `weather` (50), `trajectory` (50), `takeoff_data` (55), `hazard_alert` (60), `loadsheet` (60).
+- **Avoid giving two parsers on the same label the same priority.** The registry sorts with `sort.Slice`, which is not stable, so the order of parsers with equal priority is not defined.
+
+The only global parser, `pdc`, uses 500. That number orders it only against other global parsers.
+
+The registry also has a catch-all tier (`registry.RegisterCatchAll`), which runs only when nothing else matched and does not call `QuickCheck`. No parser currently uses it.
 
 ## QuickCheck Best Practices
 
@@ -383,7 +393,7 @@ The `QuickCheck` method is called for every message before `Parse`. It must be:
 
 1. **Fast** - use `strings.Contains` or `strings.HasPrefix`, never regex
 2. **Conservative** - return `true` if the message *might* match
-3. **Correct** - returning `false` means `Parse` will never be called
+3. **Correct** - returning `false` means that the registry will not call `Parse` for that message
 
 ```go
 // Good
@@ -397,41 +407,51 @@ func (p *Parser) QuickCheck(text string) bool {
 }
 ```
 
-## When Token/Regex Parsers Are Acceptable
+## When Other Techniques Are Acceptable
 
-In rare cases, grok patterns may not be suitable:
+In some cases, grok patterns are not suitable:
 
-1. **Binary protocols** - use byte-level parsing
-2. **Highly variable formats** - where no pattern can reliably match
-3. **Performance-critical paths** - where grok overhead is measurable
+1. **Binary protocols** - use byte-level or bit-level decoding
+2. **Free-form messages** - where fields appear in variable order or quantity, and no pattern can reliably match the whole message
+3. **Performance-critical paths** - where the grok overhead is measurable
 
-Even in these cases, `ParseWithTrace` must still be implemented using `registry.Extractor` entries to report what was matched.
+Even in these cases, `ParseWithTrace` must still be implemented, using `registry.Extractor` entries to report what was matched.
 
-### Parsers Using Field Extractors
+### Parsers That Do Not Use `patterns.Compiler`
 
-The following parsers use independent field extractors rather than grok patterns, per the criteria above:
+The following parsers use techniques other than `internal/patterns.Compiler`.
 
-**Binary protocols:**
+**Binary decoding:**
 - `adsc` - ADS-C tag-based binary encoding
-- `cpdlc` - ASN.1 PER binary encoding
-- `envelope` - ARINC hex-encoded TLV with CRC
+- `cpdlc` - FANS-1/A ASN.1 unaligned PER, decoded with `github.com/shaneshort/go-asn/uper` after the ARINC layer (`internal/parsers/arinc`) validates the CRC
+- `envelope` - hand-written regex for the ARINC envelope header, plus binary decoding of the A6 ADS-C payload
 
-**Free-form multi-field messages:**
-- `atis` - Envelope header + body with fields in variable order
-- `weather` - Multiple METAR/TAF/SIGMET reports per message
-- `turbulence` - Advisory with independent fields in varying order
-- `landingdata` - Performance data with independent fields and tabular sections
-- `takeoff` - Performance data with many fields and tabular runway sections
-- `parking` - Sparse extraction from French-format messages
-- `crew` - Multiple independent crew/schedule fields
-- `delay` - Multiple delay code and timing fields
-- `dispatch` - Multiple dispatch/MEL reference fields
-- `fuel` - Multiple fuel-related fields
-- `hazard` - Header + alert fields
-- `paxbag` - Multiple flight line extractions
-- `paxconn` - Multiple connection flight records
+**Own format engines** (a list of named regex formats with their own compiler, separate from `internal/patterns` and its base patterns):
+- `pdc` - `pdc/grok.go`, 28 formats
+- `loadsheet` - `loadsheet/grok.go`, 18 formats, each with its own labels
 
-These parsers must still implement `ParseWithTrace` with appropriate extractor entries for debugging.
+**Tokeniser and custom section parsing:**
+- `fpn` (`h1/tokeniser.go`) - flight plans split into sections
+- `pwi` (`h1/parser.go`) - climb, route and descent wind sections
+
+**Hand-written regex field extractors:**
+- `atis` - envelope header and body with fields in variable order
+- `weather` - multiple METAR, TAF and SIGMET reports per message
+- `turbulence` - advisory with independent fields in varying order
+- `landingdata` - performance data with independent fields and tabular sections
+- `takeoff_data` - performance data with many fields and tabular runway sections
+- `mdc` (`h1/mdc.go`) - maintenance reports with engine trend tables and fault lists
+- `trajectory` (`h1/trajectory.go`) - a header line followed by repeated position records
+- `parking_info` - sparse extraction from French-format messages
+- `crew_list` - independent crew and schedule fields
+- `delay_summary` - delay codes and timing fields
+- `dispatcher` - dispatch and MEL reference fields
+- `fuel_delivery` - fuel-related fields
+- `hazard_alert` - header and alert fields
+- `pax_bag` - flight line and zone count extraction
+- `pax_conn_status` - repeated connecting flight records
+
+The `fst` parser uses grok for its main formats and two hand-written regexes for heading and ground speed.
 
 ## Code Style
 
@@ -449,8 +469,17 @@ These parsers must still implement `ParseWithTrace` with appropriate extractor e
 - [ ] `parser.go` implements `registry.Parser`
 - [ ] `ParseWithTrace` implemented (required)
 - [ ] Registered in `init()` with `registry.Register`
+- [ ] Package blank-imported in `internal/parsers/parsers.go`
 - [ ] Unit tests in `parser_test.go`
 - [ ] Uses base patterns from `internal/patterns`
 - [ ] `QuickCheck` uses string operations only (no regex)
 - [ ] Coordinates parsed with shared utilities
 - [ ] JSON field names documented with struct tags
+## Current Compliance
+
+The checklist applies to new parsers. The existing parsers meet it except as follows:
+
+- **Tests:** 20 packages have no `_test.go` files: `agfsr`, `eta`, `fst`, `gateassign`, `h2wind`, `label10`, `label16`, `label21`, `label22`, `label44`, `label4j`, `label5l`, `label80`, `label83`, `labelb2`, `labelb3`, `labelrf`, `landingdata`, `turbulence` and `weather`. In the `h1` package, the `h1pos` and `pwi` parsers have no tests; `fpn`, `mdc` and `trajectory` do.
+- **Grok and base patterns:** the parsers listed under [Parsers That Do Not Use `patterns.Compiler`](#parsers-that-do-not-use-patternscompiler) have no `grok.go` built on `internal/patterns`. The `pdc` and `loadsheet` packages each have a `grok.go`, but it defines their own format engine rather than using `patterns.Compiler` and its base patterns.
+- **Result fields:** the results of `crew_list`, `delay_summary`, `fuel_delivery`, `parking_info`, `pax_bag`, `pax_conn_status`, `takeoff_data`, `mdc` and `trajectory` have no `timestamp` field.
+- **Tracing:** every registered parser implements `ParseWithTrace`.

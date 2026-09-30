@@ -70,7 +70,7 @@ MACZFW   26.2                ← MAC at ZFW
 MACTOW   27.6                ← MAC at TOW
 LOAD IN CPTS MD/0 1/0        ← Cargo by compartment
  2/1045 3/2900 4/2155 5/87
-PREPARED BY Alexander Gamboa
+PREPARED BY [NAME REDACTED]
 NOTOC: YES                   ← Dangerous goods onboard
 ```
 
@@ -157,14 +157,15 @@ Based on this analysis, we can capture:
 
 | Data Type | Parser | Status |
 |-----------|--------|--------|
-| Flight Plan | `h1` (FPN) | ✓ Captures route, waypoints |
+| Flight Plan | `fpn` | ✓ Captures route, waypoints |
 | Loadsheet | `loadsheet` | ✓ Captures weights, cargo |
+| Takeoff data | `takeoff_data` | Partial: weights and runway; V-speeds other than V1 are not extracted |
 | PDC | `pdc` | ✓ Captures clearance, squawk |
-| PWI | `h1` (PWI) | ✓ Captures winds by waypoint |
+| PWI | `pwi` | ✓ Captures winds by waypoint |
 | ATIS | `atis` | ✓ Captures runway, weather |
 | SIGMET | `weather` | ✓ Captures hazards |
 | Position | Multiple | ✓ Various position formats |
-| CPDLC | `cpdlc` | ✓ Clearances, reports |
+| CPDLC | `cpdlc` | ✓ Clearances, reports (route clearances are not converted) |
 
 ---
 
@@ -207,7 +208,7 @@ Ultra-long-haul operations between Dallas and Sydney, showing oceanic CPDLC hand
 | 01:12 | **ATIS** | KDFW Departure ATIS Z: Wind 320/07kt, RWY 36R/35L, QNH 2992 |
 | 01:55 | ATIS | Updated ATIS A: Wind 330/10kt, QNH 2993 |
 | 02:03 | CPDLC | Connection to USADCXA (US domestic) |
-| 02:22 | **Loadsheet FINAL** | Captain Brown accepts. ZFW 334.5t, TOW 566.3t, Fuel 231.8t |
+| 02:22 | **Loadsheet FINAL** | Captain [NAME REDACTED] accepts. ZFW 334.5t, TOW 566.3t, Fuel 231.8t |
 | ~02:30 | - | *Departure from Dallas* |
 | 06:06 | CPDLC | Handoff to OAKODYA (Oakland Oceanic) |
 | 06:08 | ATIS | PHNL (Honolulu) - checking alternate/overfly |
@@ -232,8 +233,8 @@ MACZFW  34.5
 MACTOW  39.2
 WING TANK    214513 kg
 TRIM TANK     18329 kg
-PREPARED BY NIKOL/DIDUR
-CAPTAIN BROWN
+PREPARED BY [NAME REDACTED]
+CAPTAIN [NAME REDACTED]
 ```
 
 ### QF007: Sydney (YSSY) → Dallas (KDFW)
