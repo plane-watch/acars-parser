@@ -163,6 +163,36 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	return result
 }
 
+// noncomplianceLength returns the length of a noncompliance notification tag's
+// data (contract number, group count and the groups), or -1 if it is truncated.
+// Each group is a tag byte and a flags byte. Unless the group is flagged as
+// unrecognised (0x80) or wholly unavailable (0x40), the low nibble of the flags
+// byte counts the non-compliant parameters, which follow as 4-bit numbers packed
+// two per byte (libacars la_adsc_noncomp_group_parse).
+func noncomplianceLength(data []byte) int {
+	if len(data) < 2 {
+		return -1
+	}
+	groupCnt := int(data[1])
+	offset := 2
+	for i := 0; i < groupCnt; i++ {
+		if len(data) < offset+2 {
+			return -1
+		}
+		flags := data[offset+1]
+		offset += 2
+		if flags&0x80 != 0 || flags&0x40 != 0 {
+			continue
+		}
+		paramCnt := int(flags & 0x0F)
+		offset += (paramCnt + 1) / 2
+		if len(data) < offset {
+			return -1
+		}
+	}
+	return offset
+}
+
 // decodePayloadData decodes the binary ADS-C payload using tag-based parsing.
 // Based on libacars ADS-C decoder: https://github.com/szpajder/libacars
 // Message types from ARINC 745 / EUROCAE ED-100A.
@@ -213,18 +243,23 @@ func parseTag(result *Result, tag byte, data []byte, isFirst bool) int {
 		if len(data) < 2 {
 			return -1
 		}
-		return 2 // Contract number + reason.
+		// Contract number and reason code. Reason codes 1, 2 and 7 are followed
+		// by an extended data byte (libacars la_adsc_nack_parse).
+		reason := data[1]
+		if reason == 1 || reason == 2 || reason == 7 {
+			if len(data) < 3 {
+				return -1
+			}
+			return 3
+		}
+		return 2
 
 	// Noncompliance notification.
 	case 0x05:
 		if isFirst {
 			result.MessageType = "noncompliance"
 		}
-		if len(data) < 2 {
-			return -1
-		}
-		groupCnt := int(data[1])
-		return 2 + groupCnt*2 // Approximate size.
+		return noncomplianceLength(data)
 
 	// Cancel emergency mode.
 	case 0x06:
@@ -445,13 +480,13 @@ func decodeCoordinate(raw uint32) float64 {
 }
 
 // decodeAltitude decodes a 16-bit signed altitude value.
-// Resolution is 2 feet per bit (ARINC 745 / ED-100A basic report format).
+// Resolution is 4 feet per bit (libacars la_adsc_altitude_parse; JAERO alt_scaller).
 func decodeAltitude(raw uint32) int {
 	// Sign extend 16-bit value.
 	if raw&0x8000 != 0 {
 		raw |= 0xFFFF0000
 	}
-	return int(int32(raw)) * 2
+	return int(int32(raw)) * 4
 }
 
 // decodeHeading decodes a 12-bit signed heading/track value.
@@ -624,9 +659,11 @@ func decodeAirRef(data []byte) *AirRef {
 	headingRaw := uint32((bits >> 27) & 0xFFF)
 	heading := decodeHeading(headingRaw)
 
-	// Mach speed: bits 13-25 (13 bits), stored as mach * 1000.
+	// Mach speed: bits 13-25 (13 bits), 0.0005 Mach per bit (libacars
+	// la_adsc_speed_parse halves the raw value and prints it divided by 1000;
+	// JAERO machspeed_scaller is 0.0005).
 	speedRaw := (bits >> 14) & 0x1FFF
-	mach := float64(speedRaw) / 1000.0
+	mach := float64(speedRaw) / 2000.0
 
 	// Vertical speed: bits 26-37 (12 bits).
 	vsRaw := uint32((bits >> 2) & 0xFFF)

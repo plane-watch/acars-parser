@@ -124,13 +124,17 @@ Format: "M082" (Mach 0.82) or "K450" (450 knots)
 ```python
 def calculate_interval(byte_value):
     rate = byte_value & 0x3F  # bits 1-6 (0-63)
-    sf_bits = (byte_value >> 6) & 0x03  # bits 7-8
-    
+    sf_bits = (byte_value >> 6) & 0x03  # bits 7-8 (bit 8 is the most significant)
+
+    # ICAO GOLD 2nd ed., figure 2-50 lists the rows as (bit 7, bit 8):
+    # 0 0 = demand, 1 0 = 1 s, 0 1 = 8 s, 1 1 = 64 s. As a numeric value of
+    # (byte >> 6) & 3 that is 0, 1, 2, 3 respectively (libacars
+    # la_adsc_reporting_interval_parse).
     scaling_factors = {
-        0b00: 0,    # Demand contract
-        0b10: 1,    # 1 second
-        0b01: 8,    # 8 seconds
-        0b11: 64    # 64 seconds
+        0: 0,    # Demand contract
+        1: 1,    # 1 second
+        2: 8,    # 8 seconds
+        3: 64    # 64 seconds
     }
     
     sf = scaling_factors[sf_bits]
@@ -146,7 +150,9 @@ def calculate_interval(byte_value):
 ```
 Latitude:  Decimal degrees (+ = North, - = South)
 Longitude: Decimal degrees (+ = East, - = West)
-Resolution: Varies by group (typically 1/128 degree ~ 0.5nm)
+Encoding:   21-bit two's complement, range ±180 degrees
+Resolution: 90/2^19 degrees per bit (about 0.00017 degrees, roughly 19 m of latitude)
+            (libacars la_adsc_coordinate_parse; JAERO lat_scaller)
 ```
 
 ### Figure of Merit (FOM)

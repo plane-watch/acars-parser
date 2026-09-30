@@ -157,7 +157,17 @@ The parsers are listed in alphabetical order of package.
 - Flight ID (tag 12), predicted route (tag 13), earth reference (tag 14), air reference (tag 15), meteorological data (tag 16) and airframe ID (tag 17)
 - The message type for acknowledgement, negative acknowledgement, non-compliance and cancel-emergency messages
 
-**Limitations:** The intermediate projection (tag 22) and fixed projection (tag 23) groups are skipped by length and not decoded; `adsc/parser.go` marks both with a `TODO`. The non-compliance tag (tag 5) uses an approximate length.
+**Scaling:** ARINC 745 itself is not publicly available. The field scalings follow [ICAO GOLD](https://www.icao.int/sites/default/files/SAM/eDocuments/GOLD%202aEdicionInglesUnicamente.pdf) (2nd edition, 2013), [libacars `adsc.c`](https://github.com/szpajder/libacars/blob/master/libacars/adsc.c) and [JAERO `arincparse.h`](https://github.com/jontio/JAERO/blob/master/JAERO/arincparse.h):
+
+| Field | Scaling |
+|---|---|
+| Latitude and longitude | 21-bit signed, 90/2^19 degrees per bit |
+| Altitude | 16-bit signed, 4 ft per bit |
+| Mach | 0.0005 per bit |
+| Track and heading | 90/2^10 degrees per bit |
+| Report time | 0.125 s per bit |
+
+**Limitations:** The intermediate projection (tag 22, 8 bytes per point) and fixed projection (tag 23, 9 bytes) groups are skipped by length and not decoded; `adsc/parser.go` marks both with a `TODO`.
 
 ---
 

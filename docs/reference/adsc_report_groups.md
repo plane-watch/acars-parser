@@ -134,7 +134,7 @@ Up to 10 points can be included, where each point:
 
 | Field | Description |
 |-------|-------------|
-| Bearing from Present Position | Direction to intermediate point |
+| True Track from Present Position | Direction to the intermediate point (12-bit signed, 90/2^10 degrees per bit) |
 | Distance from Present Position | Distance to intermediate point |
 | Projected Altitude | Predicted altitude at point |
 | Projected Time | Time interval to point (seconds) |
