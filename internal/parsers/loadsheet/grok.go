@@ -17,6 +17,38 @@ type LoadsheetFormat struct {
 // LoadsheetFormats defines the known loadsheet message formats.
 // Order matters - more specific patterns should come first.
 var LoadsheetFormats = []LoadsheetFormat{
+	// Format A0: Etihad's variant of the standard format, with a
+	// three-digit edition before the time and the aircraft type after the
+	// flight date. The type is read from that position only in this layout:
+	// in others, a token there could be something else (a gate such as
+	// "A10" is also an ICAO designator). In the January 2026 corpus, every
+	// token there was a type.
+	// Example:
+	// LOADSHEET FINAL   001 0242
+	// EY401/19 20JAN26 B78X
+	// BKK AUH A6BMA    2/11
+	// ZFW 173124 MAX 192776  L
+	{
+		Name:   "etihad",
+		Labels: []string{"RA", "3S", "C1", "H1"},
+		Pattern: regexp.MustCompile(`(?s)` +
+			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<edition>\d{3})\s+(?P<time>\d{4})\s*\n` +
+			`\s*(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+[ \t]+(?P<aircraft_type>[A-Z][A-Z0-9]{3})[ \t]*\n` +
+			`\s*(?P<origin>[A-Z]{3})\s+(?P<destination>[A-Z]{3})\s+(?P<tail>[A-Z0-9-]+)\s+(?P<crew>\d+/\d+)` +
+			`.*?` +
+			`ZFW\s+(?P<zfw>\d+)\s+MAX\s+(?P<zfw_max>\d+)` +
+			`.*?` +
+			`TOF\s+(?P<tof>\d+)` +
+			`.*?` +
+			`TOW\s+(?P<tow>\d+)\s+MAX\s+(?P<tow_max>\d+)` +
+			`(?:.*?TIF\s+(?P<tif>\d+))?` +
+			`(?:.*?LAW\s+(?P<law>\d+)\s+MAX\s+(?P<law_max>\d+))?` +
+			`(?:.*?PAX/(?P<pax_breakdown>[\d/]+)\s+TTL\s+(?P<pax_total>\d+))?` +
+			`(?:.*?MACZFW\s+(?P<mac_zfw>[\d.]+))?` +
+			`(?:.*?MACTOW\s+(?P<mac_tow>[\d.]+))?`),
+		WeightUnit: "kg",
+	},
+
 	// Format A: Swiss/Lufthansa/Edelweiss/LOT/Saudia standard format with PAX line.
 	// This is the most common format with weights in KG.
 	// Example:
@@ -30,19 +62,13 @@ var LoadsheetFormats = []LoadsheetFormat{
 	// LAW 42554  MAX 49050   L
 	// ...
 	// PAX/6/59 TTL 65
-	//
-	// Etihad's variant has a three-digit number (probably the edition)
-	// before the time, and the aircraft type after the flight date:
-	// LOADSHEET FINAL   001 0242
-	// EY401/19 20JAN26 B78X
-	// BKK AUH A6BMA    2/11
 	{
 		Name:   "standard_kg",
 		Labels: []string{"C1", "RA", "H1", "30", "31", "2A", "22", "35", "45", "13", "42"},
 		Pattern: regexp.MustCompile(`(?s)` +
-			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?:\d{3}\s+)?(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
+			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
 			`.*?` +
-			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+(?:[ \t]+(?P<aircraft_type>[A-Z][A-Z0-9]{2,3}))?[ \t]*\n` +
+			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+\s*\n` +
 			`\s*(?P<origin>[A-Z]{3})\s+(?P<destination>[A-Z]{3})\s+(?P<tail>[A-Z0-9-]+)\s+(?P<crew>\d+/\d+)` +
 			`.*?` +
 			`ZFW\s+(?P<zfw>\d+)\s+MAX\s+(?P<zfw_max>\d+)` +
@@ -73,9 +99,9 @@ var LoadsheetFormats = []LoadsheetFormat{
 		Name:   "standard_kg_minimal",
 		Labels: []string{"C1", "RA", "H1", "30", "31", "2A", "22", "35", "45", "13", "42"},
 		Pattern: regexp.MustCompile(`(?s)` +
-			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?:\d{3}\s+)?(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
+			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
 			`.*?` +
-			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+(?:[ \t]+(?P<aircraft_type>[A-Z][A-Z0-9]{2,3}))?[ \t]*\n` +
+			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+\s*\n` +
 			`\s*(?P<origin>[A-Z]{3})\s+(?P<destination>[A-Z]{3})\s+(?P<tail>[A-Z0-9-]+)\s+(?P<crew>\d+/\d+)` +
 			`.*?` +
 			`ZFW\s+(?P<zfw>\d+)\s+MAX\s+(?P<zfw_max>\d+)` +

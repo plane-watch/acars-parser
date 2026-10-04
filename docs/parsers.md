@@ -681,9 +681,11 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 
 **Package:** `internal/parsers/loadsheet` · **Labels:** 10, 13, 14, 22, 2A, 30, 31, 35, 3S, 42, 45, C1, H1, RA · **Priority:** 60 · **Type:** `loadsheet`
 
-**Technique:** Own format engine. `loadsheet/grok.go` defines 18 `LoadsheetFormat` entries, each with its own labels, and its own regex compiler. `Labels()` returns the union of the labels of all formats.
+**Technique:** Own format engine. `loadsheet/grok.go` defines 19 `LoadsheetFormat` entries, each with its own labels, and its own regex compiler. `Labels()` returns the union of the labels of all formats.
 
-**Description:** Parses weight and balance loadsheets. The formats are `standard_kg`, `standard_kg_minimal`, `qantas_tonnes`, `ba_full_names`, `jetsmart`, `jetsmart_minimal`, `chinese_airlines`, `jat_bw_dow`, `european_edn`, `cathay_act`, `tui_edn`, `eat_cargo_lb`, `ethiopian`, `kalitta_cargo_lb`, `kalitta_old_lb`, `dhl_cargo_kg`, `french_bee_short` and `vic_corsair`.
+**Description:** Parses weight and balance loadsheets. The formats are `etihad`, `standard_kg`, `standard_kg_minimal`, `qantas_tonnes`, `ba_full_names`, `jetsmart`, `jetsmart_minimal`, `chinese_airlines`, `jat_bw_dow`, `european_edn`, `cathay_act`, `tui_edn`, `eat_cargo_lb`, `ethiopian`, `kalitta_cargo_lb`, `kalitta_old_lb`, `dhl_cargo_kg`, `french_bee_short` and `vic_corsair`.
+
+**Aircraft type:** Taken from a format's own type field (Etihad's type after the flight date, `EY401/19 20JAN26 B78X`; DHL's flight line, `A333-BCS3`), or else from an explicit `AIRCRAFT TYPE :` line. A token after the flight date is read as the type only in Etihad's layout (with the edition before the time, `LOADSHEET FINAL   001 0242`): in other layouts it could be something else, such as a gate (`A10` is also an ICAO designator).
 
 **Extracted fields:** format name, status, flight, origin, destination, aircraft type, ZFW and maximum ZFW, TOW and maximum TOW, LAW and maximum LAW, take-off fuel, trip fuel, passengers, crew, MAC at ZFW and TOW, and edition.
 

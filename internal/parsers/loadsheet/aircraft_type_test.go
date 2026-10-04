@@ -74,3 +74,18 @@ func TestParseAircraftTypeLineIsStrict(t *testing.T) {
 		})
 	}
 }
+
+// TestParseTokenAfterDateOnlyInEtihadLayout checks that a token after the
+// flight date is taken as the type only in Etihad's layout (with the
+// edition before the time): elsewhere it may be something else, such as a
+// gate ("A10", which is also an ICAO designator).
+func TestParseTokenAfterDateOnlyInEtihadLayout(t *testing.T) {
+	text := "LOADSHEET FINAL 1736 EDNO1\nLX1376/21     21JAN26 A10\nZRH WRO HB-AZH   2/3\nZFW 39754  MAX 46700\nTOF 4800\nTOW 44554  MAX 54000\nTIF 2000\nLAW 42554  MAX 49050   L\nPAX/6/59 TTL 65\n"
+	if r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "RA", Text: text}).(*Result); ok && r.AircraftType != "" {
+		t.Errorf("AircraftType = %q, want none", r.AircraftType)
+	}
+	r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "3S", Text: strings.Replace(etihadLoadsheet, "B78X", "A320", 1)}).(*Result)
+	if !ok || r.AircraftType != "A320" || r.FormatName != "etihad" {
+		t.Errorf("Etihad on label 3S: got %+v", r)
+	}
+}
