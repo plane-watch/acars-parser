@@ -121,7 +121,8 @@ Only transmitted data is stored. `live` and `backfill` do not take facts from Ai
 - **Type.** The ICAO designator of the transmitted type (`internal/aircrafttype`), only when the transmitted value identifies exactly one. The raw value is kept by the extractor.
 - **Operator.** No longer written, because it came only from Airframes.
 - **Routes.** Only pairs where both endpoints are ICAO codes are written, because the `routes` columns are ICAO codes. The extractor keeps IATA pairs as transmitted, for storage v2.
-- **Route and flight pairing.** Some parser results name the flight they describe (a `flight` field), such as a stored CMC report. When the transmitted flight has a different flight number (ignoring the airline prefix, so `TG482` matches `THA482`), the report was recorded on another flight and its route is not used. A result that names its flight by number only (`flight_number_digits`, as an Airbus ACMS report does) lends its route only to a transmitted flight with that number.
+- **Flight.** The transmitted flight. Without one, the first flight a parser result names (e.g. a loadsheet's flight) is used. A flight named in the message content never replaces the transmitted one.
+- **Route and flight pairing.** A parser result that names its own flight (such as a CMC report, which can be stored on one flight and sent on a later one) lends its route only to the same flight. Flights match when they have the same flight number and suffix, and the same airline when both use the same form of airline code (`UAL482` does not match `THA482`; `B6123` is B6 flight 123). There is no table of IATA and ICAO airline codes, so an IATA and an ICAO form with the same number (`TG482` and `THA482`) are taken to match. A result that names its flight by number only (`flight_number_digits`, as an Airbus ACMS report does) lends its route only to a flight with that number.
 
 Rows migrated from January may hold Airframes-derived values.
 
