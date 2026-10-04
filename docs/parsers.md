@@ -168,7 +168,7 @@ A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0T
 
 **Validation:** Both airports must pass `patterns.IsValidICAO`.
 
-**Coverage (January 2026 corpus):** 49,603 of the 50,606 reports with a CC block parsed, giving a series for 2,623 registrations (none with two series) and 208 (flight, origin, destination) combinations. The rest are other layouts: blanked airports, padded IATA codes, and blocks without a time.
+**Coverage (January 2026 corpus):** 49,603 of the 50,606 reports with a CC block parsed, giving a series for 2,623 registrations (none with two series). The number of routes cannot be measured on that corpus: its stored `flight` column is Airframes' flight record, not the transmitted flight that route pairing requires. The rest are other layouts: blanked airports, padded IATA codes, and blocks without a time.
 
 ---
 
