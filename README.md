@@ -466,7 +466,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `crew_list` | Crew lists | RA |
 | `delay_summary` | IATA delay codes | 3E, RA |
 | `dispatcher` | Dispatcher and MEL messages | RA, 25, H1 |
-| `envelope` | Tail and station from AT1/CR1/ADS headers; A6 ADS-C position | AA, A6 |
+| `envelope` | Tail and station from AT1/CR1/ADS headers | AA, A6 |
 | `eta` | ETA and timing formats | 5Z |
 | `fst` | FST flight status | 15 |
 | `fuel_delivery` | Fuel delivery receipts | 3E, RA |

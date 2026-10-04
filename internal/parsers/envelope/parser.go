@@ -16,15 +16,12 @@ import (
 
 // Result represents extracted envelope data.
 type Result struct {
-	MsgID        int64   `json:"message_id"`
-	Timestamp    string  `json:"timestamp"`
-	Tail         string  `json:"tail,omitempty"`
-	Station      string  `json:"station,omitempty"`
-	MessageType  string  `json:"message_type,omitempty"` // AT1, CR1, ADS
-	PayloadBytes int     `json:"payload_bytes,omitempty"`
-	Latitude     float64 `json:"latitude,omitempty"`  // From ADS-C position reports.
-	Longitude    float64 `json:"longitude,omitempty"` // From ADS-C position reports.
-	Altitude     string  `json:"altitude,omitempty"`  // Flight level from ADS-C.
+	MsgID        int64  `json:"message_id"`
+	Timestamp    string `json:"timestamp"`
+	Tail         string `json:"tail,omitempty"`
+	Station      string `json:"station,omitempty"`
+	MessageType  string `json:"message_type,omitempty"` // AT1, CR1, ADS
+	PayloadBytes int    `json:"payload_bytes,omitempty"`
 }
 
 func (r *Result) Type() string     { return "envelope" }
@@ -146,14 +143,12 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 			return nil // CRC mismatch - reject message.
 		}
 
-		// Strip CRC from payload and decode.
+		// Strip the CRC from the payload. The payload is not decoded: on
+		// label A6 it is an ADS-C contract request from the ground, which
+		// holds no position (the aircraft's reports are on B6, decoded by
+		// the adsc parser).
 		data = data[:len(data)-2]
 		result.PayloadBytes = len(data)
-
-		// Decode ADS-C payload if present.
-		if result.MessageType == "ADS" && len(data) >= 3 {
-			decodeADSCData(result, data)
-		}
 	}
 
 	// Only return if we extracted something useful.
@@ -241,57 +236,6 @@ func extractTail(candidate string) string {
 	return ""
 }
 
-// decodeADSCData extracts position and altitude from ADS-C binary payload.
-// ADS-C uses a TLV (tag-length-value) structure embedded in the envelope.
-func decodeADSCData(result *Result, data []byte) {
-	if len(data) < 1 {
-		return
-	}
-
-	msgType := data[0]
-
-	// Type 0x07: Basic group with altitude in TLV format.
-	if msgType == 0x07 {
-		decodeADSCBasic(result, data)
-	}
-
-	// Type 0x08: Earth reference group with position in TLV format.
-	if msgType == 0x08 {
-		decodeADSCPosition(result, data)
-	}
-}
-
-// decodeADSCBasic decodes type 0x07 basic group containing altitude.
-// TLV tags in this group:
-//   - 0x0B: Altitude (1 byte) - flight level.
-//   - 0x0C: Vertical rate (1 byte) - climb/descend indicator.
-//   - 0x0D: Track (1 byte) - heading scaled to 360°.
-//   - 0x0E, 0x0F, 0x10, 0x15: Other 1-byte fields.
-func decodeADSCBasic(result *Result, data []byte) {
-	i := 2 // Skip type and group bytes.
-	for i < len(data)-1 {
-		tag := data[i]
-
-		switch {
-		case tag == 0x0B && i+1 < len(data):
-			// Altitude tag: next byte is flight level.
-			fl := int(data[i+1])
-			if fl > 0 && fl <= 600 {
-				result.Altitude = fmt.Sprintf("FL%03d", fl)
-			}
-			i += 2
-
-		case (tag == 0x0C || tag == 0x0D || tag == 0x0E ||
-			tag == 0x0F || tag == 0x10 || tag == 0x15) && i+1 < len(data):
-			// Other 1-byte fields. Skip without extracting.
-			i += 2
-
-		default:
-			i++
-		}
-	}
-}
-
 // ParseWithTrace implements registry.Traceable for detailed debugging.
 func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 	trace := &registry.TraceResult{
@@ -353,63 +297,4 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 	trace.Matched = tail != "" || station != ""
 
 	return trace
-}
-
-// decodeADSCPosition decodes type 0x08 earth reference group containing lat/lon.
-// TLV tags in this group:
-//   - 0x0A: Ground speed (2 bytes) - not extracted but must skip correctly.
-//   - 0x0B: Altitude (1 byte) - flight level.
-//   - 0x12: Latitude (2 bytes) - 16-bit signed, scaled to ±90°.
-//   - 0x13: Longitude (2 bytes) - 16-bit signed, scaled to ±180°.
-//   - 0x14: FOM/timestamp (2 bytes) - not extracted but must skip correctly.
-func decodeADSCPosition(result *Result, data []byte) {
-	i := 2 // Skip type and group bytes.
-	for i < len(data)-1 {
-		tag := data[i]
-
-		switch {
-		case tag == 0x0A && i+2 < len(data):
-			// Ground speed tag: 2 bytes. Skip without extracting.
-			i += 3
-
-		case tag == 0x0B && i+1 < len(data):
-			// Altitude tag: 1 byte flight level.
-			fl := int(data[i+1])
-			if fl > 0 && fl <= 600 {
-				result.Altitude = fmt.Sprintf("FL%03d", fl)
-			}
-			i += 2
-
-		case tag == 0x12 && i+2 < len(data):
-			// Latitude tag: 2 bytes are 16-bit signed value.
-			raw := int(data[i+1])<<8 | int(data[i+2])
-			if raw > 32767 {
-				raw -= 65536
-			}
-			lat := float64(raw) * 90.0 / 32768.0
-			if lat >= -90 && lat <= 90 {
-				result.Latitude = lat
-			}
-			i += 3
-
-		case tag == 0x13 && i+2 < len(data):
-			// Longitude tag: 2 bytes are 16-bit signed value.
-			raw := int(data[i+1])<<8 | int(data[i+2])
-			if raw > 32767 {
-				raw -= 65536
-			}
-			lon := float64(raw) * 180.0 / 32768.0
-			if lon >= -180 && lon <= 180 {
-				result.Longitude = lon
-			}
-			i += 3
-
-		case tag == 0x14 && i+2 < len(data):
-			// FOM/timestamp tag: 2 bytes. Skip without extracting.
-			i += 3
-
-		default:
-			i++
-		}
-	}
 }

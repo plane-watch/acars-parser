@@ -1,89 +1,40 @@
 package envelope
 
 import (
+	"encoding/json"
 	"testing"
 
 	"acars_parser/internal/acars"
 )
 
-func TestADSCDecoding(t *testing.T) {
-	// Test cases using real messages with valid CRCs.
-	tests := []struct {
-		name      string
-		text      string
-		wantAlt   string
-		wantLat   float64
-		wantLon   float64
-		wantTail  string
-		tolerance float64
-	}{
-		{
-			name:     "Type 0x07 altitude FL202",
-			text:     "/YEGE2YA.ADS.HL838207020BCA0C010D010F0110012AA9",
-			wantTail: "HL8382",
-			wantAlt:  "FL202",
-		},
-		{
-			name:      "Type 0x08 with lat/lon",
-			text:      "/YEGE2YA.ADS.HL838208010A2812B213217F20E914AC8B",
-			wantTail:  "HL8382",
-			tolerance: 0.1,
-		},
-		{
-			name:      "B-number with double dot",
-			text:      "/UPGCAYA.ADS..B-LQC080413274226DEF57F",
-			wantTail:  "B-LQC",
-			tolerance: 0.1,
-		},
+// TestADSCRequestHasNoPosition checks that an ADS-C message on label A6 is
+// reported without a position or altitude. A6 carries contract requests from
+// the ground to the aircraft (B6 carries the aircraft's reports), so its
+// payload holds no position: "07 02 0B CA 0C 01 ..." is a periodic contract
+// request (contract 2, then the data groups requested), and reading 0xCA as
+// FL202 would invent an altitude. The messages are real, with valid CRCs.
+func TestADSCRequestHasNoPosition(t *testing.T) {
+	tests := []struct{ text, wantTail string }{
+		{"/YEGE2YA.ADS.HL838207020BCA0C010D010F0110012AA9", "HL8382"},
+		{"/YEGE2YA.ADS.HL838208010A2812B213217F20E914AC8B", "HL8382"},
+		{"/UPGCAYA.ADS..B-LQC080413274226DEF57F", "B-LQC"},
 	}
-
-	p := &Parser{}
-
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			msg := &acars.Message{
-				Label: "A6",
-				Text:  tt.text,
+		r, ok := (&Parser{}).Parse(&acars.Message{Label: "A6", Text: tt.text}).(*Result)
+		if !ok {
+			t.Fatalf("%s: Parse returned no result", tt.text)
+		}
+		if r.Tail != tt.wantTail || r.MessageType != "ADS" {
+			t.Errorf("%s: tail %q, type %q; want %q, ADS", tt.text, r.Tail, r.MessageType, tt.wantTail)
+		}
+		b, _ := json.Marshal(r)
+		var m map[string]interface{}
+		_ = json.Unmarshal(b, &m)
+		for _, k := range []string{"latitude", "longitude", "altitude"} {
+			if _, ok := m[k]; ok {
+				t.Errorf("%s: result has %s = %v", tt.text, k, m[k])
 			}
-
-			result := p.Parse(msg)
-			if result == nil {
-				t.Fatalf("Parse returned nil")
-			}
-
-			r, ok := result.(*Result)
-			if !ok {
-				t.Fatalf("Result is not *Result type")
-			}
-
-			if tt.wantTail != "" && r.Tail != tt.wantTail {
-				t.Errorf("Tail = %q, want %q", r.Tail, tt.wantTail)
-			}
-
-			if tt.wantAlt != "" && r.Altitude != tt.wantAlt {
-				t.Errorf("Altitude = %q, want %q", r.Altitude, tt.wantAlt)
-			}
-
-			if tt.wantLon != 0 {
-				diff := r.Longitude - tt.wantLon
-				if diff < 0 {
-					diff = -diff
-				}
-				if diff > tt.tolerance {
-					t.Errorf("Longitude = %f, want %f (±%f)", r.Longitude, tt.wantLon, tt.tolerance)
-				}
-			}
-
-			if tt.wantLat != 0 {
-				diff := r.Latitude - tt.wantLat
-				if diff < 0 {
-					diff = -diff
-				}
-				if diff > tt.tolerance {
-					t.Errorf("Latitude = %f, want %f (±%f)", r.Latitude, tt.wantLat, tt.tolerance)
-				}
-			}
-		})
+		}
 	}
 }
 
