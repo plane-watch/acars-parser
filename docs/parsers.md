@@ -65,10 +65,11 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), ualuplink (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
+| A6 | adscrequest (50), envelope (100) |
 | SA | hazard_alert (60), mediaadv (100) |
 | 10 | loadsheet (60), label10 (100) |
 | 21 | weather (50), label21 (100) |
@@ -93,6 +94,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | Name() | Package | Labels | Priority | Type() | Technique | Tests |
 |--------|---------|--------|----------|--------|-----------|-------|
 | [acmsreport](#acmsreport) | acmsreport | H1 | 60 | `acms_report` | Grok | Yes |
+| [adscrequest](#adscrequest) | adscrequest | A6, H1 | 50 | `adsc_request` | Binary tag decoding + CRC | Yes |
 | [adsc](#adsc) | adsc | B6 | 10 | `adsc` | Binary tag decoding | Yes |
 | [afn](#afn) | afn | A0, H1 | 50 | `afn` | Hand-written regex + CRC | Yes |
 | [agfsr](#agfsr) | agfsr | 4T | 100 | `agfsr` | Grok | No |
@@ -140,7 +142,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [ualuplink](#ualuplink) | ualuplink | RA | 60 | `united_uplink` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 47 parsers in 43 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 48 parsers in 44 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
 
 ---
 
@@ -171,6 +173,24 @@ A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0T
 **Validation:** Both airports must pass `patterns.IsValidICAO`.
 
 **Coverage (January 2026 corpus):** 49,603 of the 50,606 reports with a CC block parsed, giving a series for 2,623 registrations (none with two series). The number of routes cannot be measured on that corpus: its stored `flight` column is Airframes' flight record, not the transmitted flight that route pairing requires. The rest are other layouts: blanked airports, padded IATA codes, and blocks without a time.
+
+---
+
+### adscrequest
+
+**Package:** `internal/parsers/adscrequest` · **Labels:** A6, H1 · **Priority:** 50 · **Type:** `adsc_request`
+
+**Technique:** Binary tag decoding; the envelope and CRC are read with `arinc.Parse`.
+
+**Description:** Parses ADS-C uplinks: the contract requests and cancellations that an air traffic services unit sends to an aircraft (ARINC 745). For example, `/MELCAYA.ADS.OH-LTS08091322BF21667CDF` is an event contract request (contract 9) to report when the aircraft leaves 34,200 to 35,580 ft. Label H1 carries them relayed with their original label (`- #MD/A6 ...`); an H1 message without that label is not read, since it could be an aircraft's report. A message the link layer or block ID marks as a downlink is not read either. The aircraft's reports, on B6, are parsed by `adsc`.
+
+**Extracted fields:** the ground station, the registration, and each request in the message (a message can hold several): its kind (`cancel_all`, `cancel`, `cancel_emergency`, `periodic`, `event` or `emergency_periodic`), the contract number, and the request's terms: the reporting interval in seconds; the lateral deviation (nautical miles), vertical speed (ft/min; negative means report when descending faster) and altitude range (ft) that trigger an event report; whether to report waypoint changes; the data groups wanted (`flight_id`, `predicted_route`, `earth_reference`, `air_reference`, `meteo`, `airframe_id`), each with its modulus (sent with every modulus-th report); and aircraft intent (modulus and projection time in minutes).
+
+**Encoding:** As libacars (`adsc.c`). The reporting interval is the scaling factor (the top two bits: 0, 1, 8 or 64 for the values 0 to 3) times the rate (the low six bits) plus one, in seconds. Altitudes are signed, in 4 ft; the vertical speed is signed, in 64 ft/min; the lateral deviation is in eighths of a nautical mile.
+
+**Checked against libacars:** On 2,014 distinct A6 messages from the January 2026 corpus, every one of the 1,999 that libacars decodes gives the same requests and values, and the 15 that libacars cannot decode (an empty payload or a failed CRC) are not parsed.
+
+**Coverage (January 2026 corpus):** 1,154,184 of 1,155,388 A6 messages and 138,560 relayed on H1: 575,049 periodic and 537,211 event contract requests, 196,712 cancellations of all contracts, 36,863 contract cancellations, 31 emergency periodic requests and 6 emergency cancellations, from 101 ground stations to 6,689 registrations.
 
 ---
 
