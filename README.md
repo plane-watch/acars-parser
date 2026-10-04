@@ -507,7 +507,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 
 See [docs/parsers.md](docs/parsers.md) for each parser's formats, fields, priority and matching technique.
 
-The CPDLC parser decodes uplink and downlink messages, including multi-element messages, using `github.com/shaneshort/go-asn`. Route clearance elements (for example UM79, UM80 and UM83) are decoded but not converted into route data, so they appear with their ID and label only.
+The CPDLC parser decodes uplink and downlink messages, including multi-element messages, using `github.com/shaneshort/go-asn` and types that implement the FANS-1/A ASN.1 module. Every element carries its decoded data, route clearances included. On the January 2026 corpus it agrees with the libacars reference decoder on every distinct AA and BA message (454,569), for element templates and data values.
 
 The PWI result looks like this:
 

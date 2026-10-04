@@ -165,7 +165,7 @@ Based on this analysis, we can capture:
 | ATIS | `atis` | ✓ Captures runway, weather |
 | SIGMET | `weather` | ✓ Captures hazards |
 | Position | Multiple | ✓ Various position formats |
-| CPDLC | `cpdlc` | ✓ Clearances, reports (route clearances are not converted) |
+| CPDLC | `cpdlc` | ✓ Clearances, reports and route clearances |
 
 ---
 

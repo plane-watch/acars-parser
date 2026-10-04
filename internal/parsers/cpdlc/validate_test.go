@@ -2,163 +2,48 @@ package cpdlc
 
 import (
 	"encoding/hex"
-	"fmt"
 	"testing"
 )
 
-// TestValidCPDLCSamples tests samples that are known to be valid according to libacars.
+// TestValidCPDLCSamples decodes payloads (without the ARINC CRC) whose
+// decoding libacars confirms (decode_acars_apps, with the payload wrapped
+// in an AT1 message with a valid CRC).
 func TestValidCPDLCSamples(t *testing.T) {
-	samples := []struct {
-		hexStr      string
-		direction   MessageDirection
-		desc        string
-		wantElemID  int
-		wantMsgID   int
-		wantHasTime bool
-	}{
-		// libacars sample (from cpdlc_get_position.c) - dM48 Position Report
-		// Verified to decode correctly in libacars with:
-		//   Msg ID: 8, Timestamp: 15:56:32, Element: dM48PositionReport
-		{
-			hexStr:      "243F880C3D903BB412903604FE326C2479F4A64F7F62528B1A9CF8382738186AC28B16668E013DF464D8",
-			direction:   DirectionDownlink,
-			desc:        "libacars sample - dM48 Position Report",
-			wantElemID:  48,
-			wantMsgID:   8,
-			wantHasTime: true,
-		},
-		// Uplink: uM160 NEXT DATA AUTHORITY with ICAO facility designation.
-		{
-			hexStr:      "23BF9A682CCD9B341A01",
-			direction:   DirectionUplink,
-			desc:        "Uplink uM160 - NEXT DATA AUTHORITY",
-			wantElemID:  160,
-			wantMsgID:   7,
-			wantHasTime: true,
-		},
-		// Uplink: uM82 + uM127 - CLEARED TO DEVIATE + REPORT BACK ON ROUTE.
-		{
-			hexStr:      "E3BF000F520E21FC03AD",
-			direction:   DirectionUplink,
-			desc:        "Uplink uM82 + uM127 - CLEARED TO DEVIATE",
-			wantElemID:  82,
-			wantMsgID:   7,
-			wantHasTime: true,
-		},
-	}
-
-	for _, s := range samples {
-		t.Run(s.desc, func(t *testing.T) {
-			data, err := hex.DecodeString(s.hexStr)
-			if err != nil {
-				t.Fatalf("Hex decode error: %v", err)
-			}
-
-			// Use the new UPER-based decoder.
-			msg, err := DecodeWithUPER(data, s.direction)
-			if err != nil {
-				t.Fatalf("Decode error: %v", err)
-			}
-
-			// Check header.
-			if msg.Header.MsgID != s.wantMsgID {
-				t.Errorf("MsgID = %d, want %d", msg.Header.MsgID, s.wantMsgID)
-			}
-			if s.wantHasTime && msg.Header.Timestamp == nil {
-				t.Error("Expected timestamp but got nil")
-			}
-
-			// Check element.
-			if len(msg.Elements) == 0 {
-				t.Fatal("No elements decoded")
-			}
-			elem := msg.Elements[0]
-			if elem.ID != s.wantElemID {
-				t.Errorf("Element ID = %d, want %d", elem.ID, s.wantElemID)
-			}
-
-			fmt.Printf("\n=== %s ===\n", s.desc)
-			fmt.Printf("Hex: %s\n", s.hexStr)
-			fmt.Printf("MsgID: %d\n", msg.Header.MsgID)
-			if msg.Header.Timestamp != nil {
-				fmt.Printf("Timestamp: %s\n", msg.Header.Timestamp)
-			}
-			fmt.Printf("Element ID: %d\n", elem.ID)
-			fmt.Printf("Label: %s\n", elem.Label)
-			fmt.Printf("Text: %s\n", elem.Text)
-		})
-	}
-}
-
-// TestUplinkICAOUnitName tests uplink messages with ICAO unit names.
-func TestUplinkICAOUnitName(t *testing.T) {
-	// This message failed with: failed to read IA5 character 7: not enough bits
-	hexStr := "22C0659D52E9C69E01CC408880"
-	data, err := hex.DecodeString(hexStr)
-	if err != nil {
-		t.Fatalf("Hex decode error: %v", err)
-	}
-
-	fmt.Printf("\n=== Debug ICAO Unit Name Message ===\n")
-	fmt.Printf("Hex: %s\n", hexStr)
-	fmt.Printf("Length: %d bytes (%d bits)\n", len(data), len(data)*8)
-
-	// Print binary for analysis.
-	fmt.Printf("Binary: ")
-	for _, b := range data {
-		fmt.Printf("%08b ", b)
-	}
-	fmt.Printf("\n")
-
-	// Try decoding as uplink.
-	fmt.Printf("\n--- Trying as UPLINK ---\n")
-	msg, err := DecodeWithUPER(data, DirectionUplink)
-	if err != nil {
-		t.Logf("Uplink decode error: %v", err)
-	} else {
-		fmt.Printf("MsgID: %d\n", msg.Header.MsgID)
-		if msg.Header.Timestamp != nil {
-			fmt.Printf("Timestamp: %02d:%02d:%02d\n", msg.Header.Timestamp.Hours, msg.Header.Timestamp.Minutes, msg.Header.Timestamp.Seconds)
-		}
-		for i, elem := range msg.Elements {
-			fmt.Printf("Element %d: ID=%d Label=%s\n", i, elem.ID, elem.Label)
-			fmt.Printf("  Text: %s\n", elem.Text)
-		}
-	}
-
-	// Try decoding as downlink.
-	fmt.Printf("\n--- Trying as DOWNLINK ---\n")
-	msg, err = DecodeWithUPER(data, DirectionDownlink)
-	if err != nil {
-		t.Logf("Downlink decode error: %v", err)
-	} else {
-		fmt.Printf("MsgID: %d\n", msg.Header.MsgID)
-		if msg.Header.Timestamp != nil {
-			fmt.Printf("Timestamp: %02d:%02d:%02d\n", msg.Header.Timestamp.Hours, msg.Header.Timestamp.Minutes, msg.Header.Timestamp.Seconds)
-		}
-		for i, elem := range msg.Elements {
-			fmt.Printf("Element %d: ID=%d Label=%s\n", i, elem.ID, elem.Label)
-			fmt.Printf("  Text: %s\n", elem.Text)
-		}
-	}
-}
-
-// TestMalformedCPDLCSamples tests samples that are known to be malformed/truncated.
-// These samples fail to decode in libacars and should produce invalid element IDs.
-// The purpose of this test is to document known-bad samples and verify we don't crash.
-func TestMalformedCPDLCSamples(t *testing.T) {
 	samples := []struct {
 		hexStr    string
 		direction MessageDirection
 		desc      string
+		wantMsgID int
+		wantTexts []string
 	}{
-		// These samples were previously thought to be valid but fail in libacars.
-		// They likely represent truncated or corrupted CPDLC messages.
-		{"1FD08019F3", DirectionDownlink, "truncated - was decoded as dM80 with old workaround"},
-		{"00D0569F3630EADB", DirectionDownlink, "truncated - was decoded as dM80 with old workaround"},
-		{"01BA005617", DirectionDownlink, "truncated - was decoded as dM58 with old workaround"},
-		{"E102044A521D01FC9C34", DirectionDownlink, "truncated - was decoded as dM20 with old workaround"},
-		{"E184074E1ACB902C2072E4F321", DirectionDownlink, "truncated - was decoded as dM28 with old workaround"},
+		{
+			// libacars sample (from cpdlc_get_position.c).
+			hexStr:    "243F880C3D903BB412903604FE326C2479F4A64F7F62528B1A9CF8382738186AC28B16668E013DF464D8",
+			direction: DirectionDownlink,
+			desc:      "dM48 POSITION REPORT",
+			wantMsgID: 8,
+		},
+		{
+			hexStr:    "23BF9A682CCD9B34",
+			direction: DirectionUplink,
+			desc:      "uM160 NEXT DATA AUTHORITY",
+			wantMsgID: 7,
+			wantTexts: []string{"NEXT DATA AUTHORITY YMMM"},
+		},
+		{
+			hexStr:    "E3BF000F520E21FC",
+			direction: DirectionUplink,
+			desc:      "uM82 CLEARED TO DEVIATE and uM127 REPORT BACK ON ROUTE",
+			wantMsgID: 7,
+			wantTexts: []string{"CLEARED TO DEVIATE UP TO 15 nm either side OF ROUTE", ""},
+		},
+		{
+			hexStr:    "22C0659D52E9C69E01CC40",
+			direction: DirectionUplink,
+			desc:      "uM117 CONTACT with an HF frequency",
+			wantMsgID: 5,
+			wantTexts: []string{"CONTACT KSFO CENTER 6532 kHz"},
+		},
 	}
 
 	for _, s := range samples {
@@ -167,22 +52,44 @@ func TestMalformedCPDLCSamples(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Hex decode error: %v", err)
 			}
-
-			// Use the new APER-based decoder.
 			msg, err := DecodeWithUPER(data, s.direction)
-
-			// These may or may not decode without error, but the element ID should be invalid.
-			// We're mainly verifying we don't crash on malformed input.
 			if err != nil {
-				t.Logf("Decode error (expected for malformed data): %v", err)
+				t.Fatalf("Decode error: %v", err)
+			}
+			if msg.Direction != s.direction {
+				t.Errorf("direction %v, want %v", msg.Direction, s.direction)
+			}
+			if msg.Header.MsgID != s.wantMsgID {
+				t.Errorf("MsgID = %d, want %d", msg.Header.MsgID, s.wantMsgID)
+			}
+			if s.wantTexts == nil {
 				return
 			}
-
-			if len(msg.Elements) > 0 {
-				elem := msg.Elements[0]
-				t.Logf("Malformed sample decoded to element ID %d (%s) - likely invalid",
-					elem.ID, elem.Label)
+			if len(msg.Elements) != len(s.wantTexts) {
+				t.Fatalf("%d elements, want %d", len(msg.Elements), len(s.wantTexts))
+			}
+			for i, want := range s.wantTexts {
+				if got := msg.Elements[i].Text; got != want {
+					t.Errorf("element %d text %q, want %q", i, got, want)
+				}
 			}
 		})
+	}
+}
+
+// TestMalformedCPDLCSamples checks that payloads which libacars reports as
+// unparseable in both directions are not decoded. They were once decoded
+// (as dM80, dM58, dM20 and dM28) by a workaround in an earlier decoder.
+func TestMalformedCPDLCSamples(t *testing.T) {
+	for _, hexStr := range []string{"1FD08019F3", "00D0569F3630EADB", "01BA005617", "E102044A521D01FC9C34", "E184074E1ACB902C2072E4F321"} {
+		data, err := hex.DecodeString(hexStr)
+		if err != nil {
+			t.Fatalf("Hex decode error: %v", err)
+		}
+		for _, dir := range []MessageDirection{DirectionUplink, DirectionDownlink, DirectionUnknown} {
+			if msg, err := DecodeWithUPER(data, dir); err == nil {
+				t.Errorf("%s (%v): decoded %+v; want an error", hexStr, dir, msg.Elements)
+			}
+		}
 	}
 }

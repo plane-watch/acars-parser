@@ -1,647 +1,508 @@
 package cpdlc
 
-// FANS-1/A CPDLC ASN.1 types for use with github.com/shaneshort/go-asn/uper.
-// Based on ARINC 622 / FANS-1/A specification.
-//
-// This file uses UPER (Unaligned PER) encoding, which is the correct
-// encoding for FANS-1/A CPDLC messages.
+// This file implements the FANS-1/A CPDLC ASN.1 module
+// (FANSACTwoWayDataLinkCommunications, the module dumpvdl2 publishes as
+// asn1/fans-cpdlc.asn1) as Go types for the github.com/shaneshort/go-asn
+// unaligned PER (UPER) decoder. Each type's comment names the ASN.1 type it
+// implements; field order, OPTIONAL fields, CHOICE alternative order,
+// enumeration sizes, INTEGER ranges and string sizes follow the module. The
+// PER constraints were checked against the asn1c-generated C code in
+// libacars (libacars/asn1/FANS*.c).
+// The module is mapped as follows:
+//   - SEQUENCE is a struct. OPTIONAL components are pointers tagged
+//     `optional`; UPER encodes a presence bit for each at the start of the
+//     SEQUENCE, in field order.
+//   - CHOICE is a struct of pointers tagged `choice:N`; UPER encodes the
+//     alternative's index in the fewest bits that hold the alternative count.
+//   - NULL is *struct{}, which encodes no bits.
+//   - INTEGER (a..b) is an int tagged `size:a..b`, encoded as the offset
+//     from a. Like asn1c (and so libacars), the decoder does not check that
+//     a value lies within the range.
+//   - ENUMERATED is a named int type tagged `size:0..N-1`, encoded as the
+//     enumeration index. The decoder rejects an index that names no
+//     enumeration (see checkEnumerations), as asn1c does.
+//   - IA5String (SIZE (a..b)) is a string tagged `ia5string,size:a..b`,
+//     seven bits per character after a length unless the size is fixed.
+//   - SEQUENCE SIZE (a..b) OF T is a slice tagged `size:a..b` (a pointer to
+//     a slice when OPTIONAL, as go-asn requires of OPTIONAL fields; the
+//     encoder treats a nil slice as present). A SEQUENCE OF
+//     with a fixed size encodes no length, only the elements in turn, so it
+//     is a struct with one field per element (for example, FANSAltitudeAltitude
+//     is two FANSAltitude fields).
+//   - NumericString (SIZE (12)) is a slice of twelve UPERNumericChar.
+//   - A type that only renames another (FANSFixNext ::= FANSPosition) is
+//     the Go type of the type it renames.
+// The context tags ([0], [1], ...) in the module are not encoded in PER.
+// Struct fields carry a `data` tag, which is not used by the UPER decoder.
+// It names the key under which convertValue (decoder_uper.go) stores the
+// field's value when it converts a SEQUENCE of several message element
+// parameters into a map. A field tagged `data:"-"` is a fixed-size SEQUENCE
+// OF embedded in its parent, whose own fields carry the keys.
 
 // =============================================================================
-// Top-Level Message Structures
+// Messages and headers
 // =============================================================================
 
-// UPERDownlinkMessage is the top-level downlink message structure.
-type UPERDownlinkMessage struct {
-	Header   UPERMessageHeader
-	Element  UPERDownlinkElement
-	Elements []UPERDownlinkElement `asn1:"optional,size:1..4"`
-}
-
-// UPERUplinkMessage is the top-level uplink message structure.
+// UPERUplinkMessage implements FANSATCUplinkMessage.
 type UPERUplinkMessage struct {
 	Header   UPERMessageHeader
 	Element  UPERUplinkElement
-	Elements []UPERUplinkElement `asn1:"optional,size:1..4"`
+	Elements *[]UPERUplinkElement `asn1:"optional,size:1..4"` // FANSATCUplinkMsgElementIdSequence.
 }
 
-// UPERMessageHeader is the common header for uplink and downlink messages.
+// UPERDownlinkMessage implements FANSATCDownlinkMessage.
+type UPERDownlinkMessage struct {
+	Header   UPERMessageHeader
+	Element  UPERDownlinkElement
+	Elements *[]UPERDownlinkElement `asn1:"optional,size:1..4"` // FANSATCDownlinkMsgElementIdSequence.
+}
+
+// UPERMessageHeader implements FANSATCMessageHeader.
 type UPERMessageHeader struct {
-	MsgID     int            `asn1:"size:0..63"`
-	MsgRef    *int           `asn1:"optional,size:0..63"`
+	MsgID     int            `asn1:"size:0..63"`          // FANSMsgIdentificationNumber.
+	MsgRef    *int           `asn1:"optional,size:0..63"` // FANSMsgReferenceNumber.
 	Timestamp *UPERTimestamp `asn1:"optional"`
 }
 
-// UPERTimestamp is hours:minutes:seconds.
+// UPERTimestamp implements FANSTimestamp.
 type UPERTimestamp struct {
-	Hours   int `asn1:"size:0..23"`
-	Minutes int `asn1:"size:0..59"`
-	Seconds int `asn1:"size:0..59"`
-}
-
-// UPERTime is hours:minutes (no seconds).
-type UPERTime struct {
-	Hours   int `asn1:"size:0..23"`
-	Minutes int `asn1:"size:0..59"`
+	Hours   int `asn1:"size:0..23"` // FANSTimehours.
+	Minutes int `asn1:"size:0..59"` // FANSTimeminutes.
+	Seconds int `asn1:"size:0..59"` // FANSTimeSeconds.
 }
 
 // =============================================================================
-// Downlink Element (CHOICE of 129 elements: dM0-dM128)
+// Uplink message elements
 // =============================================================================
 
-// UPERDownlinkElement is a CHOICE of 129 downlink message types.
-// Only commonly used elements are fully typed; others are left as raw data.
-type UPERDownlinkElement struct {
-	// dM0-dM5: Simple acknowledgements (NULL)
-	DM0Wilco    *struct{} `asn1:"choice:0"`
-	DM1Unable   *struct{} `asn1:"choice:1"`
-	DM2Standby  *struct{} `asn1:"choice:2"`
-	DM3Roger    *struct{} `asn1:"choice:3"`
-	DM4Affirm   *struct{} `asn1:"choice:4"`
-	DM5Negative *struct{} `asn1:"choice:5"`
-
-	// dM6-dM10: Altitude-related
-	DM6RequestAltitude    *UPERAltitude         `asn1:"choice:6"`
-	DM7RequestBlock       *UPERAltitudeAltitude `asn1:"choice:7"`
-	DM8RequestCruiseClimb *UPERAltitude         `asn1:"choice:8"`
-	DM9RequestClimb       *UPERAltitude         `asn1:"choice:9"`
-	DM10RequestDescent    *UPERAltitude         `asn1:"choice:10"`
-
-	// dM11-dM12: Position + Altitude
-	DM11AtPositionRequestClimb   *UPERPositionAltitude `asn1:"choice:11"`
-	DM12AtPositionRequestDescent *UPERPositionAltitude `asn1:"choice:12"`
-
-	// dM13-dM14: Time + Altitude
-	DM13AtTimeRequestClimb   *UPERTimeAltitude `asn1:"choice:13"`
-	DM14AtTimeRequestDescent *UPERTimeAltitude `asn1:"choice:14"`
-
-	// dM15-dM17: Offset requests
-	DM15RequestOffset           *UPERDistanceOffsetDirection         `asn1:"choice:15"`
-	DM16AtPositionRequestOffset *UPERPositionDistanceOffsetDirection `asn1:"choice:16"`
-	DM17AtTimeRequestOffset     *UPERTimeDistanceOffsetDirection     `asn1:"choice:17"`
-
-	// dM18-dM19: Speed requests
-	DM18RequestSpeed      *UPERSpeed      `asn1:"choice:18"`
-	DM19RequestSpeedRange *UPERSpeedSpeed `asn1:"choice:19"`
-
-	// dM20: Request voice contact (NULL)
-	DM20RequestVoiceContact *struct{} `asn1:"choice:20"`
-
-	// dM21: Request voice contact with frequency
-	DM21RequestVoiceFrequency *UPERFrequency `asn1:"choice:21"`
-
-	// dM22-dM24: Position/procedure requests
-	DM22RequestDirectTo  *UPERPosition       `asn1:"choice:22"`
-	DM23RequestProcedure *UPERProcedureName  `asn1:"choice:23"`
-	DM24RequestRoute     *UPERRouteClearance `asn1:"choice:24"`
-
-	// dM25: Request clearance (NULL)
-	DM25RequestClearance *struct{} `asn1:"choice:25"`
-
-	// dM26-dM27: Weather deviation
-	DM26WeatherDeviationTo     *UPERPositionRouteClearance  `asn1:"choice:26"`
-	DM27WeatherDeviationOffset *UPERDistanceOffsetDirection `asn1:"choice:27"`
-
-	// dM28-dM40: Status reports
-	DM28Leaving            *UPERAltitude       `asn1:"choice:28"`
-	DM29ClimbingTo         *UPERAltitude       `asn1:"choice:29"`
-	DM30DescendingTo       *UPERAltitude       `asn1:"choice:30"`
-	DM31Passing            *UPERPosition       `asn1:"choice:31"`
-	DM32PresentAltitude    *UPERAltitude       `asn1:"choice:32"`
-	DM33PresentPosition    *UPERPosition       `asn1:"choice:33"`
-	DM34PresentSpeed       *UPERSpeed          `asn1:"choice:34"`
-	DM35PresentHeading     *UPERDegrees        `asn1:"choice:35"`
-	DM36PresentGroundTrack *UPERDegrees        `asn1:"choice:36"`
-	DM37Level              *UPERAltitude       `asn1:"choice:37"`
-	DM38AssignedAltitude   *UPERAltitude       `asn1:"choice:38"`
-	DM39AssignedSpeed      *UPERSpeed          `asn1:"choice:39"`
-	DM40AssignedRoute      *UPERRouteClearance `asn1:"choice:40"`
-
-	// dM41: Back on route (NULL)
-	DM41BackOnRoute *struct{} `asn1:"choice:41"`
-
-	// dM42-dM46: Waypoint reports
-	DM42NextWaypoint         *UPERPosition `asn1:"choice:42"`
-	DM43NextWaypointETA      *UPERTime     `asn1:"choice:43"`
-	DM44EnsuingWaypoint      *UPERPosition `asn1:"choice:44"`
-	DM45ReportedWaypoint     *UPERPosition `asn1:"choice:45"`
-	DM46ReportedWaypointTime *UPERTime     `asn1:"choice:46"`
-
-	// dM47: Squawk code
-	DM47Squawking *UPERBeaconCode `asn1:"choice:47"`
-
-	// dM48: Position report - THE KEY ONE!
-	DM48PositionReport *UPERPositionReport `asn1:"choice:48"`
-
-	// dM49-dM54: Various requests
-	DM49WhenCanWeExpectSpeed      *UPERSpeed      `asn1:"choice:49"`
-	DM50WhenCanWeExpectSpeedRange *UPERSpeedSpeed `asn1:"choice:50"`
-	DM51WhenBackOnRoute           *struct{}       `asn1:"choice:51"`
-	DM52WhenLowerAltitude         *struct{}       `asn1:"choice:52"`
-	DM53WhenHigherAltitude        *struct{}       `asn1:"choice:53"`
-	DM54WhenCruiseClimb           *UPERAltitude   `asn1:"choice:54"`
-
-	// dM55-dM58: Emergency
-	DM55PanPanPan       *struct{}               `asn1:"choice:55"`
-	DM56MaydayMayday    *struct{}               `asn1:"choice:56"`
-	DM57FuelSouls       *UPERRemainingFuelSouls `asn1:"choice:57"`
-	DM58CancelEmergency *struct{}               `asn1:"choice:58"`
-
-	// dM59-dM80: Various other messages
-	DM59DivertingTo             *UPERPositionRouteClearance     `asn1:"choice:59"`
-	DM60Offsetting              *UPERDistanceOffsetDirection    `asn1:"choice:60"`
-	DM61DescendingTo2           *UPERAltitude                   `asn1:"choice:61"`
-	DM62Error                   *UPERErrorInformation           `asn1:"choice:62"`
-	DM63NotCurrentDataAuthority *struct{}                       `asn1:"choice:63"`
-	DM64Facility                *string                         `asn1:"choice:64,ia5string,size:4..4"`
-	DM65DueToWeather            *struct{}                       `asn1:"choice:65"`
-	DM66DueToPerformance        *struct{}                       `asn1:"choice:66"`
-	DM67FreeTextLow             *string                         `asn1:"choice:67,ia5string,size:1..256"`
-	DM68FreeTextDistress        *string                         `asn1:"choice:68,ia5string,size:1..256"`
-	DM69RequestVMCDescent       *struct{}                       `asn1:"choice:69"`
-	DM70RequestHeading          *UPERDegrees                    `asn1:"choice:70"`
-	DM71RequestGroundTrack      *UPERDegrees                    `asn1:"choice:71"`
-	DM72Reaching                *UPERAltitude                   `asn1:"choice:72"`
-	DM73VersionNumber           *int                            `asn1:"choice:73,size:0..15"`
-	DM74MaintainOwnSep          *struct{}                       `asn1:"choice:74"`
-	DM75AtPilotsDiscretion      *struct{}                       `asn1:"choice:75"`
-	DM76ReachingBlock           *UPERAltitudeAltitude           `asn1:"choice:76"`
-	DM77AssignedBlock           *UPERAltitudeAltitude           `asn1:"choice:77"`
-	DM78AtTimeDistance          *UPERTimeDistanceToFromPosition `asn1:"choice:78"`
-	DM79ATIS                    *string                         `asn1:"choice:79,ia5string,size:1..1"`
-	DM80Deviating               *UPERDistanceOffsetDirection    `asn1:"choice:80"`
-
-	// dM81-dM128: Reserved (NULL)
-	DM81Reserved  *struct{} `asn1:"choice:81"`
-	DM82Reserved  *struct{} `asn1:"choice:82"`
-	DM83Reserved  *struct{} `asn1:"choice:83"`
-	DM84Reserved  *struct{} `asn1:"choice:84"`
-	DM85Reserved  *struct{} `asn1:"choice:85"`
-	DM86Reserved  *struct{} `asn1:"choice:86"`
-	DM87Reserved  *struct{} `asn1:"choice:87"`
-	DM88Reserved  *struct{} `asn1:"choice:88"`
-	DM89Reserved  *struct{} `asn1:"choice:89"`
-	DM90Reserved  *struct{} `asn1:"choice:90"`
-	DM91Reserved  *struct{} `asn1:"choice:91"`
-	DM92Reserved  *struct{} `asn1:"choice:92"`
-	DM93Reserved  *struct{} `asn1:"choice:93"`
-	DM94Reserved  *struct{} `asn1:"choice:94"`
-	DM95Reserved  *struct{} `asn1:"choice:95"`
-	DM96Reserved  *struct{} `asn1:"choice:96"`
-	DM97Reserved  *struct{} `asn1:"choice:97"`
-	DM98Reserved  *struct{} `asn1:"choice:98"`
-	DM99Reserved  *struct{} `asn1:"choice:99"`
-	DM100Reserved *struct{} `asn1:"choice:100"`
-	DM101Reserved *struct{} `asn1:"choice:101"`
-	DM102Reserved *struct{} `asn1:"choice:102"`
-	DM103Reserved *struct{} `asn1:"choice:103"`
-	DM104Reserved *struct{} `asn1:"choice:104"`
-	DM105Reserved *struct{} `asn1:"choice:105"`
-	DM106Reserved *struct{} `asn1:"choice:106"`
-	DM107Reserved *struct{} `asn1:"choice:107"`
-	DM108Reserved *struct{} `asn1:"choice:108"`
-	DM109Reserved *struct{} `asn1:"choice:109"`
-	DM110Reserved *struct{} `asn1:"choice:110"`
-	DM111Reserved *struct{} `asn1:"choice:111"`
-	DM112Reserved *struct{} `asn1:"choice:112"`
-	DM113Reserved *struct{} `asn1:"choice:113"`
-	DM114Reserved *struct{} `asn1:"choice:114"`
-	DM115Reserved *struct{} `asn1:"choice:115"`
-	DM116Reserved *struct{} `asn1:"choice:116"`
-	DM117Reserved *struct{} `asn1:"choice:117"`
-	DM118Reserved *struct{} `asn1:"choice:118"`
-	DM119Reserved *struct{} `asn1:"choice:119"`
-	DM120Reserved *struct{} `asn1:"choice:120"`
-	DM121Reserved *struct{} `asn1:"choice:121"`
-	DM122Reserved *struct{} `asn1:"choice:122"`
-	DM123Reserved *struct{} `asn1:"choice:123"`
-	DM124Reserved *struct{} `asn1:"choice:124"`
-	DM125Reserved *struct{} `asn1:"choice:125"`
-	DM126Reserved *struct{} `asn1:"choice:126"`
-	DM127Reserved *struct{} `asn1:"choice:127"`
-	DM128Reserved *struct{} `asn1:"choice:128"`
-}
-
-// UPERUplinkElement is a CHOICE of 183 uplink message types (uM0-uM182).
+// UPERUplinkElement implements FANSATCUplinkMsgElementId, the CHOICE of the
+// 183 uplink message elements uM0 to uM182 (an eight-bit index). Each
+// field's comment gives the element's template from the module.
 type UPERUplinkElement struct {
-	// uM0-uM5: Simple responses (NULL).
-	UM0Unable          *struct{} `asn1:"choice:0"`
-	UM1Standby         *struct{} `asn1:"choice:1"`
-	UM2RequestDeferred *struct{} `asn1:"choice:2"`
-	UM3Roger           *struct{} `asn1:"choice:3"`
-	UM4Affirm          *struct{} `asn1:"choice:4"`
-	UM5Negative        *struct{} `asn1:"choice:5"`
-
-	// uM6: EXPECT [altitude].
-	UM6Altitude *UPERAltitude `asn1:"choice:6"`
-
-	// uM7-uM12: Time/position expect messages.
-	UM7Time      *UPERTime     `asn1:"choice:7"`
-	UM8Position  *UPERPosition `asn1:"choice:8"`
-	UM9Time      *UPERTime     `asn1:"choice:9"`
-	UM10Position *UPERPosition `asn1:"choice:10"`
-	UM11Time     *UPERTime     `asn1:"choice:11"`
-	UM12Position *UPERPosition `asn1:"choice:12"`
-
-	// uM13-uM18: Time/position + altitude.
-	UM13TimeAltitude     *UPERTimeAltitude     `asn1:"choice:13"`
-	UM14PositionAltitude *UPERPositionAltitude `asn1:"choice:14"`
-	UM15TimeAltitude     *UPERTimeAltitude     `asn1:"choice:15"`
-	UM16PositionAltitude *UPERPositionAltitude `asn1:"choice:16"`
-	UM17TimeAltitude     *UPERTimeAltitude     `asn1:"choice:17"`
-	UM18PositionAltitude *UPERPositionAltitude `asn1:"choice:18"`
-
-	// uM19-uM25: Altitude commands.
-	UM19Altitude         *UPERAltitude         `asn1:"choice:19"`
-	UM20Altitude         *UPERAltitude         `asn1:"choice:20"`
-	UM21TimeAltitude     *UPERTimeAltitude     `asn1:"choice:21"`
-	UM22PositionAltitude *UPERPositionAltitude `asn1:"choice:22"`
-	UM23Altitude         *UPERAltitude         `asn1:"choice:23"`
-	UM24TimeAltitude     *UPERTimeAltitude     `asn1:"choice:24"`
-	UM25PositionAltitude *UPERPositionAltitude `asn1:"choice:25"`
-
-	// uM26-uM29: Altitude + time/position.
-	UM26AltitudeTime     *UPERAltitudeTime     `asn1:"choice:26"`
-	UM27AltitudePosition *UPERAltitudePosition `asn1:"choice:27"`
-	UM28AltitudeTime     *UPERAltitudeTime     `asn1:"choice:28"`
-	UM29AltitudePosition *UPERAltitudePosition `asn1:"choice:29"`
-
-	// uM30-uM32: Block altitudes.
-	UM30AltitudeAltitude *UPERAltitudeAltitude `asn1:"choice:30"`
-	UM31AltitudeAltitude *UPERAltitudeAltitude `asn1:"choice:31"`
-	UM32AltitudeAltitude *UPERAltitudeAltitude `asn1:"choice:32"`
-
-	// uM33-uM41: More altitude commands.
-	UM33Altitude *UPERAltitude `asn1:"choice:33"`
-	UM34Altitude *UPERAltitude `asn1:"choice:34"`
-	UM35Altitude *UPERAltitude `asn1:"choice:35"`
-	UM36Altitude *UPERAltitude `asn1:"choice:36"`
-	UM37Altitude *UPERAltitude `asn1:"choice:37"`
-	UM38Altitude *UPERAltitude `asn1:"choice:38"`
-	UM39Altitude *UPERAltitude `asn1:"choice:39"`
-	UM40Altitude *UPERAltitude `asn1:"choice:40"`
-	UM41Altitude *UPERAltitude `asn1:"choice:41"`
-
-	// uM42-uM50: Cross position at altitude.
-	UM42PositionAltitude         *UPERPositionAltitude         `asn1:"choice:42"`
-	UM43PositionAltitude         *UPERPositionAltitude         `asn1:"choice:43"`
-	UM44PositionAltitude         *UPERPositionAltitude         `asn1:"choice:44"`
-	UM45PositionAltitude         *UPERPositionAltitude         `asn1:"choice:45"`
-	UM46PositionAltitude         *UPERPositionAltitude         `asn1:"choice:46"`
-	UM47PositionAltitude         *UPERPositionAltitude         `asn1:"choice:47"`
-	UM48PositionAltitude         *UPERPositionAltitude         `asn1:"choice:48"`
-	UM49PositionAltitude         *UPERPositionAltitude         `asn1:"choice:49"`
-	UM50PositionAltitudeAltitude *UPERPositionAltitudeAltitude `asn1:"choice:50"`
-
-	// uM51-uM54: Cross position at time.
-	UM51PositionTime     *UPERPositionTime     `asn1:"choice:51"`
-	UM52PositionTime     *UPERPositionTime     `asn1:"choice:52"`
-	UM53PositionTime     *UPERPositionTime     `asn1:"choice:53"`
-	UM54PositionTimeTime *UPERPositionTimeTime `asn1:"choice:54"`
-
-	// uM55-uM57: Cross position at speed.
-	UM55PositionSpeed *UPERPositionSpeed `asn1:"choice:55"`
-	UM56PositionSpeed *UPERPositionSpeed `asn1:"choice:56"`
-	UM57PositionSpeed *UPERPositionSpeed `asn1:"choice:57"`
-
-	// uM58-uM63: Complex crossing instructions.
-	UM58PositionTimeAltitude      *UPERPositionTimeAltitude      `asn1:"choice:58"`
-	UM59PositionTimeAltitude      *UPERPositionTimeAltitude      `asn1:"choice:59"`
-	UM60PositionTimeAltitude      *UPERPositionTimeAltitude      `asn1:"choice:60"`
-	UM61PositionAltitudeSpeed     *UPERPositionAltitudeSpeed     `asn1:"choice:61"`
-	UM62TimePositionAltitude      *UPERTimePositionAltitude      `asn1:"choice:62"`
-	UM63TimePositionAltitudeSpeed *UPERTimePositionAltitudeSpeed `asn1:"choice:63"`
-
-	// uM64-uM66: Offset instructions.
-	UM64DistanceOffsetDirection         *UPERDistanceOffsetDirection         `asn1:"choice:64"`
-	UM65PositionDistanceOffsetDirection *UPERPositionDistanceOffsetDirection `asn1:"choice:65"`
-	UM66TimeDistanceOffsetDirection     *UPERTimeDistanceOffsetDirection     `asn1:"choice:66"`
-
-	// uM67: PROCEED BACK ON ROUTE.
-	UM67ProceedBackOnRoute *struct{} `asn1:"choice:67"`
-
-	// uM68-uM71: Rejoin route.
-	UM68Position *UPERPosition `asn1:"choice:68"`
-	UM69Time     *UPERTime     `asn1:"choice:69"`
-	UM70Position *UPERPosition `asn1:"choice:70"`
-	UM71Time     *UPERTime     `asn1:"choice:71"`
-
-	// uM72: RESUME OWN NAVIGATION.
-	UM72ResumeOwnNav *struct{} `asn1:"choice:72"`
-
-	// uM73: Pre-departure clearance (complex).
-	UM73PDC *UPERPredepartureClearance `asn1:"choice:73"`
-
-	// uM74-uM78: Direct to position.
-	UM74Position         *UPERPosition         `asn1:"choice:74"`
-	UM75Position         *UPERPosition         `asn1:"choice:75"`
-	UM76TimePosition     *UPERTimePosition     `asn1:"choice:76"`
-	UM77PositionPosition *UPERPositionPosition `asn1:"choice:77"`
-	UM78AltitudePosition *UPERAltitudePosition `asn1:"choice:78"`
-
-	// uM79-uM90: Route clearances.
-	UM79PositionRouteClearance  *UPERPositionRouteClearance  `asn1:"choice:79"`
-	UM80RouteClearance          *UPERRouteClearance          `asn1:"choice:80"`
-	UM81ProcedureName           *UPERProcedureName           `asn1:"choice:81"`
-	UM82DistanceOffsetDirection *UPERDistanceOffsetDirection `asn1:"choice:82"`
-	UM83PositionRouteClearance  *UPERPositionRouteClearance  `asn1:"choice:83"`
-	UM84PositionProcedureName   *UPERPositionProcedureName   `asn1:"choice:84"`
-	UM85RouteClearance          *UPERRouteClearance          `asn1:"choice:85"`
-	UM86PositionRouteClearance  *UPERPositionRouteClearance  `asn1:"choice:86"`
-	UM87Position                *UPERPosition                `asn1:"choice:87"`
-	UM88PositionPosition        *UPERPositionPosition        `asn1:"choice:88"`
-	UM89TimePosition            *UPERTimePosition            `asn1:"choice:89"`
-	UM90AltitudePosition        *UPERAltitudePosition        `asn1:"choice:90"`
-
-	// uM91-uM93: Hold instructions.
-	UM91HoldClearance    *UPERHoldClearance    `asn1:"choice:91"`
-	UM92PositionAltitude *UPERPositionAltitude `asn1:"choice:92"`
-	UM93Time             *UPERTime             `asn1:"choice:93"`
-
-	// uM94-uM98: Heading/track instructions.
-	UM94DirectionDegrees *UPERDirectionDegrees `asn1:"choice:94"`
-	UM95DirectionDegrees *UPERDirectionDegrees `asn1:"choice:95"`
-	UM96FlyPresentHdg    *struct{}             `asn1:"choice:96"`
-	UM97PositionDegrees  *UPERPositionDegrees  `asn1:"choice:97"`
-	UM98DirectionDegrees *UPERDirectionDegrees `asn1:"choice:98"`
-
-	// uM99: EXPECT [procedurename].
-	UM99ProcedureName *UPERProcedureName `asn1:"choice:99"`
-
-	// uM100-uM105: Expect speed.
-	UM100TimeSpeed          *UPERTimeSpeed          `asn1:"choice:100"`
-	UM101PositionSpeed      *UPERPositionSpeed      `asn1:"choice:101"`
-	UM102AltitudeSpeed      *UPERAltitudeSpeed      `asn1:"choice:102"`
-	UM103TimeSpeedSpeed     *UPERTimeSpeedSpeed     `asn1:"choice:103"`
-	UM104PositionSpeedSpeed *UPERPositionSpeedSpeed `asn1:"choice:104"`
-	UM105AltitudeSpeedSpeed *UPERAltitudeSpeedSpeed `asn1:"choice:105"`
-
-	// uM106-uM116: Speed instructions.
-	UM106Speed        *UPERSpeed      `asn1:"choice:106"`
-	UM107MaintainSpd  *struct{}       `asn1:"choice:107"`
-	UM108Speed        *UPERSpeed      `asn1:"choice:108"`
-	UM109Speed        *UPERSpeed      `asn1:"choice:109"`
-	UM110SpeedSpeed   *UPERSpeedSpeed `asn1:"choice:110"`
-	UM111Speed        *UPERSpeed      `asn1:"choice:111"`
-	UM112Speed        *UPERSpeed      `asn1:"choice:112"`
-	UM113Speed        *UPERSpeed      `asn1:"choice:113"`
-	UM114Speed        *UPERSpeed      `asn1:"choice:114"`
-	UM115Speed        *UPERSpeed      `asn1:"choice:115"`
-	UM116ResumeNormal *struct{}       `asn1:"choice:116"`
-
-	// uM117-uM122: Contact/monitor frequency.
-	UM117UnitFreq         *UPERICAOUnitNameFrequency         `asn1:"choice:117"`
-	UM118PositionUnitFreq *UPERPositionICAOUnitNameFrequency `asn1:"choice:118"`
-	UM119TimeUnitFreq     *UPERTimeICAOUnitNameFrequency     `asn1:"choice:119"`
-	UM120UnitFreq         *UPERICAOUnitNameFrequency         `asn1:"choice:120"`
-	UM121PositionUnitFreq *UPERPositionICAOUnitNameFrequency `asn1:"choice:121"`
-	UM122TimeUnitFreq     *UPERTimeICAOUnitNameFrequency     `asn1:"choice:122"`
-
-	// uM123-uM127: Squawk instructions.
-	UM123BeaconCode    *UPERBeaconCode `asn1:"choice:123"`
-	UM124StopSquawk    *struct{}       `asn1:"choice:124"`
-	UM125SquawkAlt     *struct{}       `asn1:"choice:125"`
-	UM126StopAltSquawk *struct{}       `asn1:"choice:126"`
-	UM127ReportBack    *struct{}       `asn1:"choice:127"`
-
-	// uM128-uM130: Report instructions.
-	UM128Altitude *UPERAltitude `asn1:"choice:128"`
-	UM129Altitude *UPERAltitude `asn1:"choice:129"`
-	UM130Position *UPERPosition `asn1:"choice:130"`
-
-	// uM131-uM147: Confirm/report requests (NULL).
-	UM131ReportFuelSouls   *struct{} `asn1:"choice:131"`
-	UM132ConfirmPosition   *struct{} `asn1:"choice:132"`
-	UM133ConfirmAltitude   *struct{} `asn1:"choice:133"`
-	UM134ConfirmSpeed      *struct{} `asn1:"choice:134"`
-	UM135ConfirmAssignAlt  *struct{} `asn1:"choice:135"`
-	UM136ConfirmAssignSpd  *struct{} `asn1:"choice:136"`
-	UM137ConfirmAssignRte  *struct{} `asn1:"choice:137"`
-	UM138ConfirmTimeWpt    *struct{} `asn1:"choice:138"`
-	UM139ConfirmRptWpt     *struct{} `asn1:"choice:139"`
-	UM140ConfirmNextWpt    *struct{} `asn1:"choice:140"`
-	UM141ConfirmNextETA    *struct{} `asn1:"choice:141"`
-	UM142ConfirmEnsuingWpt *struct{} `asn1:"choice:142"`
-	UM143ConfirmRequest    *struct{} `asn1:"choice:143"`
-	UM144ConfirmSquawk     *struct{} `asn1:"choice:144"`
-	UM145ConfirmHeading    *struct{} `asn1:"choice:145"`
-	UM146ConfirmTrack      *struct{} `asn1:"choice:146"`
-	UM147RequestPosRpt     *struct{} `asn1:"choice:147"`
-
-	// uM148-uM152: When can you accept.
-	UM148Altitude                *UPERAltitude                `asn1:"choice:148"`
-	UM149AltitudePosition        *UPERAltitudePosition        `asn1:"choice:149"`
-	UM150AltitudeTime            *UPERAltitudeTime            `asn1:"choice:150"`
-	UM151Speed                   *UPERSpeed                   `asn1:"choice:151"`
-	UM152DistanceOffsetDirection *UPERDistanceOffsetDirection `asn1:"choice:152"`
-
-	// uM153: ALTIMETER [altimeter].
-	UM153Altimeter *UPERAltimeter `asn1:"choice:153"`
-
-	// uM154-uM156: Radar.
-	UM154RadarTerminated *struct{}     `asn1:"choice:154"`
-	UM155Position        *UPERPosition `asn1:"choice:155"`
-	UM156RadarLost       *struct{}     `asn1:"choice:156"`
-
-	// uM157: CHECK STUCK MICROPHONE.
-	UM157Frequency *UPERFrequency `asn1:"choice:157"`
-
-	// uM158: ATIS.
-	UM158ATISCode *string `asn1:"choice:158,ia5string,size:1..1"`
-
-	// uM159: ERROR.
-	UM159ErrorInfo *UPERErrorInformation `asn1:"choice:159"`
-
-	// uM160: NEXT DATA AUTHORITY.
-	UM160Facility *string `asn1:"choice:160,ia5string,size:4..4"`
-
-	// uM161-uM168: Service messages (NULL).
-	UM161EndService     *struct{}        `asn1:"choice:161"`
-	UM162ServiceUnavail *struct{}        `asn1:"choice:162"`
-	UM163FacilityTP4    *UPERFacilityTP4 `asn1:"choice:163"`
-	UM164WhenReady      *struct{}        `asn1:"choice:164"`
-	UM165Then           *struct{}        `asn1:"choice:165"`
-	UM166DueToTraffic   *struct{}        `asn1:"choice:166"`
-	UM167DueToAirspace  *struct{}        `asn1:"choice:167"`
-	UM168Disregard      *struct{}        `asn1:"choice:168"`
-
-	// uM169-uM170: Free text.
-	UM169FreeText         *string `asn1:"choice:169,ia5string,size:1..256"`
-	UM170FreeTextDistress *string `asn1:"choice:170,ia5string,size:1..256"`
-
-	// uM171-uM174: Vertical rate.
-	UM171VerticalRate *UPERVerticalRate `asn1:"choice:171"`
-	UM172VerticalRate *UPERVerticalRate `asn1:"choice:172"`
-	UM173VerticalRate *UPERVerticalRate `asn1:"choice:173"`
-	UM174VerticalRate *UPERVerticalRate `asn1:"choice:174"`
-
-	// uM175: REPORT REACHING [altitude].
-	UM175Altitude *UPERAltitude `asn1:"choice:175"`
-
-	// uM176-uM179: Misc (NULL).
-	UM176MaintainOwnSep   *struct{} `asn1:"choice:176"`
-	UM177PilotsDiscretion *struct{} `asn1:"choice:177"`
-	UM178Deleted          *struct{} `asn1:"choice:178"`
-	UM179SquawkIdent      *struct{} `asn1:"choice:179"`
-
-	// uM180: REPORT REACHING BLOCK.
-	UM180AltitudeAltitude *UPERAltitudeAltitude `asn1:"choice:180"`
-
-	// uM181: REPORT DISTANCE.
-	UM181ToFromPosition *UPERToFromPosition `asn1:"choice:181"`
-
-	// uM182: CONFIRM ATIS CODE.
-	UM182ConfirmATIS *struct{} `asn1:"choice:182"`
+	UM0NULL                              *struct{}                            `asn1:"choice:0"`                         // UNABLE
+	UM1NULL                              *struct{}                            `asn1:"choice:1"`                         // STANDBY
+	UM2NULL                              *struct{}                            `asn1:"choice:2"`                         // REQUEST DEFERRED
+	UM3NULL                              *struct{}                            `asn1:"choice:3"`                         // ROGER
+	UM4NULL                              *struct{}                            `asn1:"choice:4"`                         // AFFIRM
+	UM5NULL                              *struct{}                            `asn1:"choice:5"`                         // NEGATIVE
+	UM6Altitude                          *UPERAltitude                        `asn1:"choice:6"`                         // EXPECT [altitude]
+	UM7Time                              *UPERTime                            `asn1:"choice:7"`                         // EXPECT CLIMB AT [time]
+	UM8Position                          *UPERPosition                        `asn1:"choice:8"`                         // EXPECT CLIMB AT [position]
+	UM9Time                              *UPERTime                            `asn1:"choice:9"`                         // EXPECT DESCENT AT [time]
+	UM10Position                         *UPERPosition                        `asn1:"choice:10"`                        // EXPECT DESCENT AT [position]
+	UM11Time                             *UPERTime                            `asn1:"choice:11"`                        // EXPECT CRUISE CLIMB AT [time]
+	UM12Position                         *UPERPosition                        `asn1:"choice:12"`                        // EXPECT CRUISE CLIMB AT [position]
+	UM13TimeAltitude                     *UPERTimeAltitude                    `asn1:"choice:13"`                        // AT [time] EXPECT CLIMB TO [altitude]
+	UM14PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:14"`                        // AT [position] EXPECT CLIMB TO [altitude]
+	UM15TimeAltitude                     *UPERTimeAltitude                    `asn1:"choice:15"`                        // AT [time] EXPECT DESCENT TO [altitude]
+	UM16PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:16"`                        // AT [position] EXPECT DESCENT TO [altitude]
+	UM17TimeAltitude                     *UPERTimeAltitude                    `asn1:"choice:17"`                        // AT [time] EXPECT CRUISE CLIMB TO [altitude]
+	UM18PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:18"`                        // AT [position] EXPECT CRUISE CLIMB TO [altitude]
+	UM19Altitude                         *UPERAltitude                        `asn1:"choice:19"`                        // MAINTAIN [altitude]
+	UM20Altitude                         *UPERAltitude                        `asn1:"choice:20"`                        // CLIMB TO AND MAINTAIN [altitude]
+	UM21TimeAltitude                     *UPERTimeAltitude                    `asn1:"choice:21"`                        // AT [time] CLIMB TO AND MAINTAIN [altitude]
+	UM22PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:22"`                        // AT [position] CLIMB TO AND MAINTAIN [altitude]
+	UM23Altitude                         *UPERAltitude                        `asn1:"choice:23"`                        // DESCEND TO AND MAINTAIN [altitude]
+	UM24TimeAltitude                     *UPERTimeAltitude                    `asn1:"choice:24"`                        // AT [time] DESCEND TO AND MAINTAIN [altitude]
+	UM25PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:25"`                        // AT [position] DESCEND TO AND MAINTAIN [altitude]
+	UM26AltitudeTime                     *UPERAltitudeTime                    `asn1:"choice:26"`                        // CLIMB TO REACH [altitude] BY [time]
+	UM27AltitudePosition                 *UPERAltitudePosition                `asn1:"choice:27"`                        // CLIMB TO REACH [altitude] BY [position]
+	UM28AltitudeTime                     *UPERAltitudeTime                    `asn1:"choice:28"`                        // DESCEND TO REACH [altitude] BY [time]
+	UM29AltitudePosition                 *UPERAltitudePosition                `asn1:"choice:29"`                        // DESCEND TO REACH [altitude] BY [position]
+	UM30AltitudeAltitude                 *UPERAltitudeAltitude                `asn1:"choice:30"`                        // MAINTAIN BLOCK [altitude] TO [altitude]
+	UM31AltitudeAltitude                 *UPERAltitudeAltitude                `asn1:"choice:31"`                        // CLIMB TO AND MAINTAIN BLOCK [altitude] TO [altitude]
+	UM32AltitudeAltitude                 *UPERAltitudeAltitude                `asn1:"choice:32"`                        // DESCEND TO AND MAINTAIN BLOCK [altitude] TO [altitude]
+	UM33Altitude                         *UPERAltitude                        `asn1:"choice:33"`                        // CRUISE [altitude]
+	UM34Altitude                         *UPERAltitude                        `asn1:"choice:34"`                        // CRUISE CLIMB TO [altitude]
+	UM35Altitude                         *UPERAltitude                        `asn1:"choice:35"`                        // CRUISE CLIMB ABOVE [altitude]
+	UM36Altitude                         *UPERAltitude                        `asn1:"choice:36"`                        // EXPEDITE CLIMB TO [altitude]
+	UM37Altitude                         *UPERAltitude                        `asn1:"choice:37"`                        // EXPEDITE DESCENT TO [altitude]
+	UM38Altitude                         *UPERAltitude                        `asn1:"choice:38"`                        // IMMEDIATELY CLIMB TO [altitude]
+	UM39Altitude                         *UPERAltitude                        `asn1:"choice:39"`                        // IMMEDIATELY DESCEND TO [altitude]
+	UM40Altitude                         *UPERAltitude                        `asn1:"choice:40"`                        // IMMEDIATELY STOP CLIMB AT [altitude]
+	UM41Altitude                         *UPERAltitude                        `asn1:"choice:41"`                        // IMMEDIATELY STOP DESCENT AT [altitude]
+	UM42PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:42"`                        // EXPECT TO CROSS [position] AT [altitude]
+	UM43PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:43"`                        // EXPECT TO CROSS [position] AT OR ABOVE [altitude]
+	UM44PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:44"`                        // EXPECT TO CROSS [position] AT OR BELOW [altitude]
+	UM45PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:45"`                        // EXPECT TO CROSS [position] AT AND MAINTAIN [altitude]
+	UM46PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:46"`                        // CROSS [position] AT [altitude]
+	UM47PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:47"`                        // CROSS [position] AT OR ABOVE [altitude]
+	UM48PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:48"`                        // CROSS [position] AT OR BELOW [altitude]
+	UM49PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:49"`                        // CROSS [position] AT AND MAINTAIN [altitude]
+	UM50PositionAltitudeAltitude         *UPERPositionAltitudeAltitude        `asn1:"choice:50"`                        // CROSS [position] BETWEEN [altitude] AND [altitude]
+	UM51PositionTime                     *UPERPositionTime                    `asn1:"choice:51"`                        // CROSS [position] AT [time]
+	UM52PositionTime                     *UPERPositionTime                    `asn1:"choice:52"`                        // CROSS [position] AT OR BEFORE [time]
+	UM53PositionTime                     *UPERPositionTime                    `asn1:"choice:53"`                        // CROSS [position] AT OR AFTER [time]
+	UM54PositionTimeTime                 *UPERPositionTimeTime                `asn1:"choice:54"`                        // CROSS [position] BETWEEN [time] AND [time]
+	UM55PositionSpeed                    *UPERPositionSpeed                   `asn1:"choice:55"`                        // CROSS [position] AT [speed]
+	UM56PositionSpeed                    *UPERPositionSpeed                   `asn1:"choice:56"`                        // CROSS [position] AT OR LESS THAN [speed]
+	UM57PositionSpeed                    *UPERPositionSpeed                   `asn1:"choice:57"`                        // CROSS [position] AT OR GREATER THAN [speed]
+	UM58PositionTimeAltitude             *UPERPositionTimeAltitude            `asn1:"choice:58"`                        // CROSS [position] AT [time] AT [altitude]
+	UM59PositionTimeAltitude             *UPERPositionTimeAltitude            `asn1:"choice:59"`                        // CROSS [position] AT OR BEFORE [time] AT [altitude]
+	UM60PositionTimeAltitude             *UPERPositionTimeAltitude            `asn1:"choice:60"`                        // CROSS [position] AT OR AFTER [time] AT [altitude]
+	UM61PositionAltitudeSpeed            *UPERPositionAltitudeSpeed           `asn1:"choice:61"`                        // CROSS [position] AT AND MAINTAIN [altitude] AT [speed]
+	UM62TimePositionAltitude             *UPERTimePositionAltitude            `asn1:"choice:62"`                        // AT [time] CROSS [position] AT AND MAINTAIN [altitude]
+	UM63TimePositionAltitudeSpeed        *UPERTimePositionAltitudeSpeed       `asn1:"choice:63"`                        // AT [time] CROSS [position] AT AND MAINTAIN [altitude] AT [speed]
+	UM64DistanceOffsetDirection          *UPERDistanceOffsetDirection         `asn1:"choice:64"`                        // OFFSET [distanceoffset] [direction] OF ROUTE
+	UM65PositionDistanceOffsetDirection  *UPERPositionDistanceOffsetDirection `asn1:"choice:65"`                        // AT [position] OFFSET [distanceoffset] [direction] OF ROUTE
+	UM66TimeDistanceOffsetDirection      *UPERTimeDistanceOffsetDirection     `asn1:"choice:66"`                        // AT [time] OFFSET [distanceoffset] [direction] OF ROUTE
+	UM67NULL                             *struct{}                            `asn1:"choice:67"`                        // PROCEED BACK ON ROUTE
+	UM68Position                         *UPERPosition                        `asn1:"choice:68"`                        // REJOIN ROUTE BY [position]
+	UM69Time                             *UPERTime                            `asn1:"choice:69"`                        // REJOIN ROUTE BY [time]
+	UM70Position                         *UPERPosition                        `asn1:"choice:70"`                        // EXPECT BACK ON ROUTE BY [position]
+	UM71Time                             *UPERTime                            `asn1:"choice:71"`                        // EXPECT BACK ON ROUTE BY [time]
+	UM72NULL                             *struct{}                            `asn1:"choice:72"`                        // RESUME OWN NAVIGATION
+	UM73PredepartureClearance            *UPERPredepartureClearance           `asn1:"choice:73"`                        // [predepartureclearance]
+	UM74Position                         *UPERPosition                        `asn1:"choice:74"`                        // PROCEED DIRECT TO [position]
+	UM75Position                         *UPERPosition                        `asn1:"choice:75"`                        // WHEN ABLE PROCEED DIRECT TO [position]
+	UM76TimePosition                     *UPERTimePosition                    `asn1:"choice:76"`                        // AT [time] PROCEED DIRECT TO [position]
+	UM77PositionPosition                 *UPERPositionPosition                `asn1:"choice:77"`                        // AT [position] PROCEED DIRECT TO [position]
+	UM78AltitudePosition                 *UPERAltitudePosition                `asn1:"choice:78"`                        // AT [altitude] PROCEED DIRECT TO [position]
+	UM79PositionRouteClearance           *UPERPositionRouteClearance          `asn1:"choice:79"`                        // CLEARED TO [position] VIA [routeclearance]
+	UM80RouteClearance                   *UPERRouteClearance                  `asn1:"choice:80"`                        // CLEARED [routeclearance]
+	UM81ProcedureName                    *UPERProcedureName                   `asn1:"choice:81"`                        // CLEARED [procedurename]
+	UM82DistanceOffsetDirection          *UPERDistanceOffsetDirection         `asn1:"choice:82"`                        // CLEARED TO DEVIATE UP TO [distanceoffset] [direction] OF ROUTE
+	UM83PositionRouteClearance           *UPERPositionRouteClearance          `asn1:"choice:83"`                        // AT [position] CLEARED [routeclearance]
+	UM84PositionProcedureName            *UPERPositionProcedureName           `asn1:"choice:84"`                        // AT [position] CLEARED [procedurename]
+	UM85RouteClearance                   *UPERRouteClearance                  `asn1:"choice:85"`                        // EXPECT [routeclearance]
+	UM86PositionRouteClearance           *UPERPositionRouteClearance          `asn1:"choice:86"`                        // AT [position] EXPECT [routeclearance]
+	UM87Position                         *UPERPosition                        `asn1:"choice:87"`                        // EXPECT DIRECT TO [position]
+	UM88PositionPosition                 *UPERPositionPosition                `asn1:"choice:88"`                        // AT [position] EXPECT DIRECT TO [position]
+	UM89TimePosition                     *UPERTimePosition                    `asn1:"choice:89"`                        // AT [time] EXPECT DIRECT TO [position]
+	UM90AltitudePosition                 *UPERAltitudePosition                `asn1:"choice:90"`                        // AT [altitude] EXPECT DIRECT TO [position]
+	UM91HoldClearance                    *UPERHoldClearance                   `asn1:"choice:91"`                        // HOLD AT [position] MAINTAIN [altitude] INBOUND TRACK [degrees] [direction] TURNS [legtype]
+	UM92PositionAltitude                 *UPERPositionAltitude                `asn1:"choice:92"`                        // HOLD AT [position] AS PUBLISHED MAINTAIN [altitude]
+	UM93Time                             *UPERTime                            `asn1:"choice:93"`                        // EXPECT FURTHER CLEARANCE AT [time]
+	UM94DirectionDegrees                 *UPERDirectionDegrees                `asn1:"choice:94"`                        // TURN [direction] HEADING [degrees]
+	UM95DirectionDegrees                 *UPERDirectionDegrees                `asn1:"choice:95"`                        // TURN [direction] GROUND TRACK [degrees]
+	UM96NULL                             *struct{}                            `asn1:"choice:96"`                        // FLY PRESENT HEADING
+	UM97PositionDegrees                  *UPERPositionDegrees                 `asn1:"choice:97"`                        // AT [position] FLY HEADING [degrees]
+	UM98DirectionDegrees                 *UPERDirectionDegrees                `asn1:"choice:98"`                        // IMMEDIATELY TURN [direction] HEADING [degrees]
+	UM99ProcedureName                    *UPERProcedureName                   `asn1:"choice:99"`                        // EXPECT [procedurename]
+	UM100TimeSpeed                       *UPERTimeSpeed                       `asn1:"choice:100"`                       // AT [time] EXPECT [speed]
+	UM101PositionSpeed                   *UPERPositionSpeed                   `asn1:"choice:101"`                       // AT [position] EXPECT [speed]
+	UM102AltitudeSpeed                   *UPERAltitudeSpeed                   `asn1:"choice:102"`                       // AT [altitude] EXPECT [speed]
+	UM103TimeSpeedSpeed                  *UPERTimeSpeedSpeed                  `asn1:"choice:103"`                       // AT [time] EXPECT [speed] TO [speed]
+	UM104PositionSpeedSpeed              *UPERPositionSpeedSpeed              `asn1:"choice:104"`                       // AT [position] EXPECT [speed] TO [speed]
+	UM105AltitudeSpeedSpeed              *UPERAltitudeSpeedSpeed              `asn1:"choice:105"`                       // AT [altitude] EXPECT [speed] TO [speed]
+	UM106Speed                           *UPERSpeed                           `asn1:"choice:106"`                       // MAINTAIN [speed]
+	UM107NULL                            *struct{}                            `asn1:"choice:107"`                       // MAINTAIN PRESENT SPEED
+	UM108Speed                           *UPERSpeed                           `asn1:"choice:108"`                       // MAINTAIN [speed] OR GREATER
+	UM109Speed                           *UPERSpeed                           `asn1:"choice:109"`                       // MAINTAIN [speed] OR LESS
+	UM110SpeedSpeed                      *UPERSpeedSpeed                      `asn1:"choice:110"`                       // MAINTAIN [speed] TO [speed]
+	UM111Speed                           *UPERSpeed                           `asn1:"choice:111"`                       // INCREASE SPEED TO [speed]
+	UM112Speed                           *UPERSpeed                           `asn1:"choice:112"`                       // INCREASE SPEED TO [speed] OR GREATER
+	UM113Speed                           *UPERSpeed                           `asn1:"choice:113"`                       // REDUCE SPEED TO [speed]
+	UM114Speed                           *UPERSpeed                           `asn1:"choice:114"`                       // REDUCE SPEED TO [speed] OR LESS
+	UM115Speed                           *UPERSpeed                           `asn1:"choice:115"`                       // DO NOT EXCEED [speed]
+	UM116NULL                            *struct{}                            `asn1:"choice:116"`                       // RESUME NORMAL SPEED
+	UM117ICAOUnitNameFrequency           *UPERICAOUnitNameFrequency           `asn1:"choice:117"`                       // CONTACT [icaounitname] [frequency]
+	UM118PositionICAOUnitNameFrequency   *UPERPositionICAOUnitNameFrequency   `asn1:"choice:118"`                       // AT [position] CONTACT [icaounitname] [frequency]
+	UM119TimeICAOUnitNameFrequency       *UPERTimeICAOUnitNameFrequency       `asn1:"choice:119"`                       // AT [time] CONTACT [icaounitname] [frequency]
+	UM120ICAOUnitNameFrequency           *UPERICAOUnitNameFrequency           `asn1:"choice:120"`                       // MONITOR [icaounitname] [frequency]
+	UM121PositionICAOUnitNameFrequency   *UPERPositionICAOUnitNameFrequency   `asn1:"choice:121"`                       // AT [position] MONITOR [icaounitname] [frequency]
+	UM122TimeICAOUnitNameFrequency       *UPERTimeICAOUnitNameFrequency       `asn1:"choice:122"`                       // AT [time] MONITOR [icaounitname] [frequency]
+	UM123BeaconCode                      *UPERBeaconCode                      `asn1:"choice:123"`                       // SQUAWK [beaconcode]
+	UM124NULL                            *struct{}                            `asn1:"choice:124"`                       // STOP SQUAWK
+	UM125NULL                            *struct{}                            `asn1:"choice:125"`                       // SQUAWK ALTITUDE
+	UM126NULL                            *struct{}                            `asn1:"choice:126"`                       // STOP ALTITUDE SQUAWK
+	UM127NULL                            *struct{}                            `asn1:"choice:127"`                       // REPORT BACK ON ROUTE
+	UM128Altitude                        *UPERAltitude                        `asn1:"choice:128"`                       // REPORT LEAVING [altitude]
+	UM129Altitude                        *UPERAltitude                        `asn1:"choice:129"`                       // REPORT LEVEL [altitude]
+	UM130Position                        *UPERPosition                        `asn1:"choice:130"`                       // REPORT PASSING [position]
+	UM131NULL                            *struct{}                            `asn1:"choice:131"`                       // REPORT REMAINING FUEL AND SOULS ON BOARD
+	UM132NULL                            *struct{}                            `asn1:"choice:132"`                       // CONFIRM POSITION
+	UM133NULL                            *struct{}                            `asn1:"choice:133"`                       // CONFIRM ALTITUDE
+	UM134NULL                            *struct{}                            `asn1:"choice:134"`                       // CONFIRM SPEED
+	UM135NULL                            *struct{}                            `asn1:"choice:135"`                       // CONFIRM ASSIGNED ALTITUDE
+	UM136NULL                            *struct{}                            `asn1:"choice:136"`                       // CONFIRM ASSIGNED SPEED
+	UM137NULL                            *struct{}                            `asn1:"choice:137"`                       // CONFIRM ASSIGNED ROUTE
+	UM138NULL                            *struct{}                            `asn1:"choice:138"`                       // CONFIRM TIME OVER REPORTED WAYPOINT
+	UM139NULL                            *struct{}                            `asn1:"choice:139"`                       // CONFIRM REPORTED WAYPOINT
+	UM140NULL                            *struct{}                            `asn1:"choice:140"`                       // CONFIRM NEXT WAYPOINT
+	UM141NULL                            *struct{}                            `asn1:"choice:141"`                       // CONFIRM NEXT WAYPOINT ETA
+	UM142NULL                            *struct{}                            `asn1:"choice:142"`                       // CONFIRM ENSUING WAYPOINT
+	UM143NULL                            *struct{}                            `asn1:"choice:143"`                       // CONFIRM REQUEST
+	UM144NULL                            *struct{}                            `asn1:"choice:144"`                       // CONFIRM SQUAWK
+	UM145NULL                            *struct{}                            `asn1:"choice:145"`                       // CONFIRM HEADING
+	UM146NULL                            *struct{}                            `asn1:"choice:146"`                       // CONFIRM GROUND TRACK
+	UM147NULL                            *struct{}                            `asn1:"choice:147"`                       // REQUEST POSITION REPORT
+	UM148Altitude                        *UPERAltitude                        `asn1:"choice:148"`                       // WHEN CAN YOU ACCEPT [altitude]
+	UM149AltitudePosition                *UPERAltitudePosition                `asn1:"choice:149"`                       // CAN YOU ACCEPT [altitude] AT [position]
+	UM150AltitudeTime                    *UPERAltitudeTime                    `asn1:"choice:150"`                       // CAN YOU ACCEPT [altitude] AT [time]
+	UM151Speed                           *UPERSpeed                           `asn1:"choice:151"`                       // WHEN CAN YOU ACCEPT [speed]
+	UM152DistanceOffsetDirection         *UPERDistanceOffsetDirection         `asn1:"choice:152"`                       // WHEN CAN YOU ACCEPT [distanceoffset] [direction] OFFSET
+	UM153Altimeter                       *UPERAltimeter                       `asn1:"choice:153"`                       // ALTIMETER [altimeter]
+	UM154NULL                            *struct{}                            `asn1:"choice:154"`                       // RADAR SERVICES TERMINATED
+	UM155Position                        *UPERPosition                        `asn1:"choice:155"`                       // RADAR CONTACT [position]
+	UM156NULL                            *struct{}                            `asn1:"choice:156"`                       // RADAR CONTACT LOST
+	UM157Frequency                       *UPERFrequency                       `asn1:"choice:157"`                       // CHECK STUCK MICROPHONE [frequency]
+	UM158ATISCode                        *UPERATISCode                        `asn1:"choice:158,ia5string,size:1"`      // ATIS [atiscode]
+	UM159ErrorInformation                *UPERErrorInformation                `asn1:"choice:159,size:0..16"`            // ERROR [errorinformation]
+	UM160ICAOFacilityDesignation         *UPERICAOFacilityDesignation         `asn1:"choice:160,ia5string,size:4"`      // NEXT DATA AUTHORITY [icaofacilitydesignation]
+	UM161NULL                            *struct{}                            `asn1:"choice:161"`                       // END SERVICE
+	UM162NULL                            *struct{}                            `asn1:"choice:162"`                       // SERVICE UNAVAILABLE
+	UM163ICAOFacilityDesignationTp4Table *UPERICAOFacilityDesignationTp4Table `asn1:"choice:163"`                       // [icaofacilitydesignation] [tp4table]
+	UM164NULL                            *struct{}                            `asn1:"choice:164"`                       // WHEN READY
+	UM165NULL                            *struct{}                            `asn1:"choice:165"`                       // THEN
+	UM166NULL                            *struct{}                            `asn1:"choice:166"`                       // DUE TO TRAFFIC
+	UM167NULL                            *struct{}                            `asn1:"choice:167"`                       // DUE TO AIRSPACE RESTRICTION
+	UM168NULL                            *struct{}                            `asn1:"choice:168"`                       // DISREGARD
+	UM169FreeText                        *UPERFreeText                        `asn1:"choice:169,ia5string,size:1..256"` // [freetext]
+	UM170FreeText                        *UPERFreeText                        `asn1:"choice:170,ia5string,size:1..256"` // [freetext] (distress urgency)
+	UM171VerticalRate                    *UPERVerticalRate                    `asn1:"choice:171"`                       // CLIMB AT [verticalrate] MINIMUM
+	UM172VerticalRate                    *UPERVerticalRate                    `asn1:"choice:172"`                       // CLIMB AT [verticalrate] MAXIMUM
+	UM173VerticalRate                    *UPERVerticalRate                    `asn1:"choice:173"`                       // DESCEND AT [verticalrate] MINIMUM
+	UM174VerticalRate                    *UPERVerticalRate                    `asn1:"choice:174"`                       // DESCEND AT [verticalrate] MAXIMUM
+	UM175Altitude                        *UPERAltitude                        `asn1:"choice:175"`                       // REPORT REACHING [altitude]
+	UM176NULL                            *struct{}                            `asn1:"choice:176"`                       // MAINTAIN OWN SEPARATION AND VMC
+	UM177NULL                            *struct{}                            `asn1:"choice:177"`                       // AT PILOTS DISCRETION
+	UM178NULL                            *struct{}                            `asn1:"choice:178"`                       // [trackdetailmsg-deleted]
+	UM179NULL                            *struct{}                            `asn1:"choice:179"`                       // SQUAWK IDENT
+	UM180AltitudeAltitude                *UPERAltitudeAltitude                `asn1:"choice:180"`                       // REPORT REACHING BLOCK [altitude] TO [altitude]
+	UM181ToFromPosition                  *UPERToFromPosition                  `asn1:"choice:181"`                       // REPORT DISTANCE [tofrom] [position]
+	UM182NULL                            *struct{}                            `asn1:"choice:182"`                       // CONFIRM ATIS CODE
 }
 
 // =============================================================================
-// Supporting Types
+// Downlink message elements
 // =============================================================================
 
-// UPERAltitude is a CHOICE of 8 altitude representations.
+// UPERDownlinkElement implements FANSATCDownlinkMsgElementId, the CHOICE of
+// the 129 downlink message elements dM0 to dM128 (an eight-bit index).
+// dM81 to dM128 are NULL elements the module reserves so that the index is
+// eight bits wide; they have no template. Each other field's comment gives
+// the element's template from the module.
+type UPERDownlinkElement struct {
+	DM0NULL                             *struct{}                            `asn1:"choice:0"`                        // WILCO
+	DM1NULL                             *struct{}                            `asn1:"choice:1"`                        // UNABLE
+	DM2NULL                             *struct{}                            `asn1:"choice:2"`                        // STANDBY
+	DM3NULL                             *struct{}                            `asn1:"choice:3"`                        // ROGER
+	DM4NULL                             *struct{}                            `asn1:"choice:4"`                        // AFFIRM
+	DM5NULL                             *struct{}                            `asn1:"choice:5"`                        // NEGATIVE
+	DM6Altitude                         *UPERAltitude                        `asn1:"choice:6"`                        // REQUEST [altitude]
+	DM7AltitudeAltitude                 *UPERAltitudeAltitude                `asn1:"choice:7"`                        // REQUEST BLOCK [altitude] TO [altitude]
+	DM8Altitude                         *UPERAltitude                        `asn1:"choice:8"`                        // REQUEST CRUISE CLIMB TO [altitude]
+	DM9Altitude                         *UPERAltitude                        `asn1:"choice:9"`                        // REQUEST CLIMB TO [altitude]
+	DM10Altitude                        *UPERAltitude                        `asn1:"choice:10"`                       // REQUEST DESCENT TO [altitude]
+	DM11PositionAltitude                *UPERPositionAltitude                `asn1:"choice:11"`                       // AT [position] REQUEST CLIMB TO [altitude]
+	DM12PositionAltitude                *UPERPositionAltitude                `asn1:"choice:12"`                       // AT [position] REQUEST DESCENT TO [altitude]
+	DM13TimeAltitude                    *UPERTimeAltitude                    `asn1:"choice:13"`                       // AT [time] REQUEST CLIMB TO [altitude]
+	DM14TimeAltitude                    *UPERTimeAltitude                    `asn1:"choice:14"`                       // AT [time] REQUEST DESCENT TO [altitude]
+	DM15DistanceOffsetDirection         *UPERDistanceOffsetDirection         `asn1:"choice:15"`                       // REQUEST OFFSET [distanceoffset] [direction] OF ROUTE
+	DM16PositionDistanceOffsetDirection *UPERPositionDistanceOffsetDirection `asn1:"choice:16"`                       // AT [position] REQUEST OFFSET [distanceoffset] [direction] OF ROUTE
+	DM17TimeDistanceOffsetDirection     *UPERTimeDistanceOffsetDirection     `asn1:"choice:17"`                       // AT [time] REQUEST OFFSET [distanceoffset] [direction] OF ROUTE
+	DM18Speed                           *UPERSpeed                           `asn1:"choice:18"`                       // REQUEST [speed]
+	DM19SpeedSpeed                      *UPERSpeedSpeed                      `asn1:"choice:19"`                       // REQUEST [speed] TO [speed]
+	DM20NULL                            *struct{}                            `asn1:"choice:20"`                       // REQUEST VOICE CONTACT
+	DM21Frequency                       *UPERFrequency                       `asn1:"choice:21"`                       // REQUEST VOICE CONTACT [frequency]
+	DM22Position                        *UPERPosition                        `asn1:"choice:22"`                       // REQUEST DIRECT TO [position]
+	DM23ProcedureName                   *UPERProcedureName                   `asn1:"choice:23"`                       // REQUEST [procedurename]
+	DM24RouteClearance                  *UPERRouteClearance                  `asn1:"choice:24"`                       // REQUEST [routeclearance]
+	DM25NULL                            *struct{}                            `asn1:"choice:25"`                       // REQUEST CLEARANCE
+	DM26PositionRouteClearance          *UPERPositionRouteClearance          `asn1:"choice:26"`                       // REQUEST WEATHER DEVIATION TO [position] VIA [routeclearance]
+	DM27DistanceOffsetDirection         *UPERDistanceOffsetDirection         `asn1:"choice:27"`                       // REQUEST WEATHER DEVIATION UP TO [distanceoffset] [direction] OF ROUTE
+	DM28Altitude                        *UPERAltitude                        `asn1:"choice:28"`                       // LEAVING [altitude]
+	DM29Altitude                        *UPERAltitude                        `asn1:"choice:29"`                       // CLIMBING TO [altitude]
+	DM30Altitude                        *UPERAltitude                        `asn1:"choice:30"`                       // DESCENDING TO [altitude]
+	DM31Position                        *UPERPosition                        `asn1:"choice:31"`                       // PASSING [position]
+	DM32Altitude                        *UPERAltitude                        `asn1:"choice:32"`                       // PRESENT ALTITUDE [altitude]
+	DM33Position                        *UPERPosition                        `asn1:"choice:33"`                       // PRESENT POSITION [position]
+	DM34Speed                           *UPERSpeed                           `asn1:"choice:34"`                       // PRESENT SPEED [speed]
+	DM35Degrees                         *UPERDegrees                         `asn1:"choice:35"`                       // PRESENT HEADING [degrees]
+	DM36Degrees                         *UPERDegrees                         `asn1:"choice:36"`                       // PRESENT GROUND TRACK [degrees]
+	DM37Altitude                        *UPERAltitude                        `asn1:"choice:37"`                       // LEVEL [altitude]
+	DM38Altitude                        *UPERAltitude                        `asn1:"choice:38"`                       // ASSIGNED ALTITUDE [altitude]
+	DM39Speed                           *UPERSpeed                           `asn1:"choice:39"`                       // ASSIGNED SPEED [speed]
+	DM40RouteClearance                  *UPERRouteClearance                  `asn1:"choice:40"`                       // ASSIGNED ROUTE [routeclearance]
+	DM41NULL                            *struct{}                            `asn1:"choice:41"`                       // BACK ON ROUTE
+	DM42Position                        *UPERPosition                        `asn1:"choice:42"`                       // NEXT WAYPOINT [position]
+	DM43Time                            *UPERTime                            `asn1:"choice:43"`                       // NEXT WAYPOINT ETA [time]
+	DM44Position                        *UPERPosition                        `asn1:"choice:44"`                       // ENSUING WAYPOINT [position]
+	DM45Position                        *UPERPosition                        `asn1:"choice:45"`                       // REPORTED WAYPOINT [position]
+	DM46Time                            *UPERTime                            `asn1:"choice:46"`                       // REPORTED WAYPOINT [time]
+	DM47BeaconCode                      *UPERBeaconCode                      `asn1:"choice:47"`                       // SQUAWKING [beaconcode]
+	DM48PositionReport                  *UPERPositionReport                  `asn1:"choice:48"`                       // POSITION REPORT [positionreport]
+	DM49Speed                           *UPERSpeed                           `asn1:"choice:49"`                       // WHEN CAN WE EXPECT [speed]
+	DM50SpeedSpeed                      *UPERSpeedSpeed                      `asn1:"choice:50"`                       // WHEN CAN WE EXPECT [speed] TO [speed]
+	DM51NULL                            *struct{}                            `asn1:"choice:51"`                       // WHEN CAN WE EXPECT BACK ON ROUTE
+	DM52NULL                            *struct{}                            `asn1:"choice:52"`                       // WHEN CAN WE EXPECT LOWER ALTITUDE
+	DM53NULL                            *struct{}                            `asn1:"choice:53"`                       // WHEN CAN WE EXPECT HIGHER ALTITUDE
+	DM54Altitude                        *UPERAltitude                        `asn1:"choice:54"`                       // WHEN CAN WE EXPECT CRUISE CLIMB TO [altitude]
+	DM55NULL                            *struct{}                            `asn1:"choice:55"`                       // PAN PAN PAN
+	DM56NULL                            *struct{}                            `asn1:"choice:56"`                       // MAYDAY MAYDAY MAYDAY
+	DM57RemainingFuelRemainingSouls     *UPERRemainingFuelRemainingSouls     `asn1:"choice:57"`                       // [remainingfuel] OF FUEL REMAINING AND [remainingsouls] SOULS ON BOARD
+	DM58NULL                            *struct{}                            `asn1:"choice:58"`                       // CANCEL EMERGENCY
+	DM59PositionRouteClearance          *UPERPositionRouteClearance          `asn1:"choice:59"`                       // DIVERTING TO [position] VIA [routeclearance]
+	DM60DistanceOffsetDirection         *UPERDistanceOffsetDirection         `asn1:"choice:60"`                       // OFFSETTING [distanceoffset] [direction] OF ROUTE
+	DM61Altitude                        *UPERAltitude                        `asn1:"choice:61"`                       // DESCENDING TO [altitude]
+	DM62ErrorInformation                *UPERErrorInformation                `asn1:"choice:62,size:0..16"`            // ERROR [errorinformation]
+	DM63NULL                            *struct{}                            `asn1:"choice:63"`                       // NOT CURRENT DATA AUTHORITY
+	DM64ICAOFacilityDesignation         *UPERICAOFacilityDesignation         `asn1:"choice:64,ia5string,size:4"`      // [icaofacilitydesignation]
+	DM65NULL                            *struct{}                            `asn1:"choice:65"`                       // DUE TO WEATHER
+	DM66NULL                            *struct{}                            `asn1:"choice:66"`                       // DUE TO AIRCRAFT PERFORMANCE
+	DM67FreeText                        *UPERFreeText                        `asn1:"choice:67,ia5string,size:1..256"` // [freetext]
+	DM68FreeText                        *UPERFreeText                        `asn1:"choice:68,ia5string,size:1..256"` // [freetext] (distress urgency)
+	DM69NULL                            *struct{}                            `asn1:"choice:69"`                       // REQUEST VMC DESCENT
+	DM70Degrees                         *UPERDegrees                         `asn1:"choice:70"`                       // REQUEST HEADING [degrees]
+	DM71Degrees                         *UPERDegrees                         `asn1:"choice:71"`                       // REQUEST GROUND TRACK [degrees]
+	DM72Altitude                        *UPERAltitude                        `asn1:"choice:72"`                       // REACHING [altitude]
+	DM73VersionNumber                   *UPERVersionNumber                   `asn1:"choice:73,size:0..15"`            // [versionnumber]
+	DM74NULL                            *struct{}                            `asn1:"choice:74"`                       // MAINTAIN OWN SEPARATION AND VMC
+	DM75NULL                            *struct{}                            `asn1:"choice:75"`                       // AT PILOTS DISCRETION
+	DM76AltitudeAltitude                *UPERAltitudeAltitude                `asn1:"choice:76"`                       // REACHING BLOCK [altitude] TO [altitude]
+	DM77AltitudeAltitude                *UPERAltitudeAltitude                `asn1:"choice:77"`                       // ASSIGNED BLOCK [altitude] TO [altitude]
+	DM78TimeDistanceToFromPosition      *UPERTimeDistanceToFromPosition      `asn1:"choice:78"`                       // AT [time] [distance] [tofrom] [position]
+	DM79ATISCode                        *UPERATISCode                        `asn1:"choice:79,ia5string,size:1"`      // ATIS [atiscode]
+	DM80DistanceOffsetDirection         *UPERDistanceOffsetDirection         `asn1:"choice:80"`                       // DEVIATING [distanceoffset] [direction] OF ROUTE
+	DM81NULL                            *struct{}                            `asn1:"choice:81"`
+	DM82NULL                            *struct{}                            `asn1:"choice:82"`
+	DM83NULL                            *struct{}                            `asn1:"choice:83"`
+	DM84NULL                            *struct{}                            `asn1:"choice:84"`
+	DM85NULL                            *struct{}                            `asn1:"choice:85"`
+	DM86NULL                            *struct{}                            `asn1:"choice:86"`
+	DM87NULL                            *struct{}                            `asn1:"choice:87"`
+	DM88NULL                            *struct{}                            `asn1:"choice:88"`
+	DM89NULL                            *struct{}                            `asn1:"choice:89"`
+	DM90NULL                            *struct{}                            `asn1:"choice:90"`
+	DM91NULL                            *struct{}                            `asn1:"choice:91"`
+	DM92NULL                            *struct{}                            `asn1:"choice:92"`
+	DM93NULL                            *struct{}                            `asn1:"choice:93"`
+	DM94NULL                            *struct{}                            `asn1:"choice:94"`
+	DM95NULL                            *struct{}                            `asn1:"choice:95"`
+	DM96NULL                            *struct{}                            `asn1:"choice:96"`
+	DM97NULL                            *struct{}                            `asn1:"choice:97"`
+	DM98NULL                            *struct{}                            `asn1:"choice:98"`
+	DM99NULL                            *struct{}                            `asn1:"choice:99"`
+	DM100NULL                           *struct{}                            `asn1:"choice:100"`
+	DM101NULL                           *struct{}                            `asn1:"choice:101"`
+	DM102NULL                           *struct{}                            `asn1:"choice:102"`
+	DM103NULL                           *struct{}                            `asn1:"choice:103"`
+	DM104NULL                           *struct{}                            `asn1:"choice:104"`
+	DM105NULL                           *struct{}                            `asn1:"choice:105"`
+	DM106NULL                           *struct{}                            `asn1:"choice:106"`
+	DM107NULL                           *struct{}                            `asn1:"choice:107"`
+	DM108NULL                           *struct{}                            `asn1:"choice:108"`
+	DM109NULL                           *struct{}                            `asn1:"choice:109"`
+	DM110NULL                           *struct{}                            `asn1:"choice:110"`
+	DM111NULL                           *struct{}                            `asn1:"choice:111"`
+	DM112NULL                           *struct{}                            `asn1:"choice:112"`
+	DM113NULL                           *struct{}                            `asn1:"choice:113"`
+	DM114NULL                           *struct{}                            `asn1:"choice:114"`
+	DM115NULL                           *struct{}                            `asn1:"choice:115"`
+	DM116NULL                           *struct{}                            `asn1:"choice:116"`
+	DM117NULL                           *struct{}                            `asn1:"choice:117"`
+	DM118NULL                           *struct{}                            `asn1:"choice:118"`
+	DM119NULL                           *struct{}                            `asn1:"choice:119"`
+	DM120NULL                           *struct{}                            `asn1:"choice:120"`
+	DM121NULL                           *struct{}                            `asn1:"choice:121"`
+	DM122NULL                           *struct{}                            `asn1:"choice:122"`
+	DM123NULL                           *struct{}                            `asn1:"choice:123"`
+	DM124NULL                           *struct{}                            `asn1:"choice:124"`
+	DM125NULL                           *struct{}                            `asn1:"choice:125"`
+	DM126NULL                           *struct{}                            `asn1:"choice:126"`
+	DM127NULL                           *struct{}                            `asn1:"choice:127"`
+	DM128NULL                           *struct{}                            `asn1:"choice:128"`
+}
+
+// =============================================================================
+// Simple types
+// =============================================================================
+
+// UPERFreeText implements FANSFreeText, IA5String (SIZE (1..256)); a field
+// of this type is tagged `ia5string,size:1..256`.
+type UPERFreeText string
+
+// UPERATISCode implements FANSATISCode, IA5String (SIZE (1)).
+type UPERATISCode string
+
+// UPERICAOFacilityDesignation implements FANSICAOfacilityDesignation,
+// IA5String (SIZE (4)), a four-letter ICAO location indicator.
+type UPERICAOFacilityDesignation string
+
+// UPERVersionNumber implements FANSVersionNumber, INTEGER (0..15).
+type UPERVersionNumber int
+
+// UPERRemainingSouls implements FANSRemainingSouls, INTEGER (1..1024).
+type UPERRemainingSouls int
+
+// UPERTime implements FANSTime: hours and minutes, without seconds.
+type UPERTime struct {
+	Hours   int `asn1:"size:0..23"` // FANSTimehours.
+	Minutes int `asn1:"size:0..59"` // FANSTimeminutes.
+}
+
+// UPERTimeTime implements FANSTimeTime, SEQUENCE SIZE (2) OF FANSTime.
+type UPERTimeTime struct {
+	Time1 UPERTime `data:"time1"`
+	Time2 UPERTime `data:"time2"`
+}
+
+// UPERAltitude implements FANSAltitude.
 type UPERAltitude struct {
-	AltitudeQNH               *int `asn1:"choice:0,size:0..2500"` // units=10ft
-	AltitudeQNHMeters         *int `asn1:"choice:1,size:0..16000"`
-	AltitudeQFE               *int `asn1:"choice:2,size:0..2100"` // units=10ft
-	AltitudeQFEMeters         *int `asn1:"choice:3,size:0..7000"`
-	AltitudeGNSSFeet          *int `asn1:"choice:4,size:0..150000"`
-	AltitudeGNSSMeters        *int `asn1:"choice:5,size:0..50000"`
-	AltitudeFlightLevel       *int `asn1:"choice:6,size:30..600"`
-	AltitudeFlightLevelMetric *int `asn1:"choice:7,size:100..2000"`
+	AltitudeQNH               *int `asn1:"choice:0,size:0..2500"`   // FANSAltitudeQNH, units of 10 ft.
+	AltitudeQNHMeters         *int `asn1:"choice:1,size:0..16000"`  // FANSAltitudeQNHMeters, metres.
+	AltitudeQFE               *int `asn1:"choice:2,size:0..2100"`   // FANSAltitudeQFE, units of 10 ft.
+	AltitudeQFEMeters         *int `asn1:"choice:3,size:0..7000"`   // FANSAltitudeQFEMeters, metres.
+	AltitudeGNSSFeet          *int `asn1:"choice:4,size:0..150000"` // FANSAltitudeGNSSFeet, feet.
+	AltitudeGNSSMeters        *int `asn1:"choice:5,size:0..50000"`  // FANSAltitudeGNSSMeters, metres.
+	AltitudeFlightLevel       *int `asn1:"choice:6,size:30..600"`   // FANSAltitudeFlightLevel, units of 100 ft.
+	AltitudeFlightLevelMetric *int `asn1:"choice:7,size:100..2000"` // FANSAltitudeFlightLevelMetric, units of 10 m.
 }
 
-// UPERAltitudeAltitude is two altitudes.
+// UPERAltitudeAltitude implements FANSAltitudeAltitude, SEQUENCE SIZE (2)
+// OF FANSAltitude.
 type UPERAltitudeAltitude struct {
-	Altitude1 UPERAltitude
-	Altitude2 UPERAltitude
+	Altitude1 UPERAltitude `data:"altitude1"`
+	Altitude2 UPERAltitude `data:"altitude2"`
 }
 
-// UPERSpeed is a CHOICE of 8 speed representations.
+// UPERSpeed implements FANSSpeed.
 type UPERSpeed struct {
-	SpeedIndicated       *int `asn1:"choice:0,size:7..38"`   // units=10kt
-	SpeedIndicatedMetric *int `asn1:"choice:1,size:10..137"` // units=10km/h
-	SpeedTrue            *int `asn1:"choice:2,size:7..70"`   // units=10kt
-	SpeedTrueMetric      *int `asn1:"choice:3,size:10..137"`
-	SpeedGround          *int `asn1:"choice:4,size:7..70"`
-	SpeedGroundMetric    *int `asn1:"choice:5,size:10..265"`
-	SpeedMach            *int `asn1:"choice:6,size:61..92"`  // M.61-M.92
-	SpeedMachLarge       *int `asn1:"choice:7,size:93..604"` // M.093-M6.04
+	SpeedIndicated       *int `asn1:"choice:0,size:7..38"`   // FANSSpeedIndicated, units of 10 kt.
+	SpeedIndicatedMetric *int `asn1:"choice:1,size:10..137"` // FANSSpeedIndicatedMetric, units of 10 km/h.
+	SpeedTrue            *int `asn1:"choice:2,size:7..70"`   // FANSSpeedTrue, units of 10 kt.
+	SpeedTrueMetric      *int `asn1:"choice:3,size:10..137"` // FANSSpeedTrueMetric, units of 10 km/h.
+	SpeedGround          *int `asn1:"choice:4,size:7..70"`   // FANSSpeedGround, units of 10 kt.
+	SpeedGroundMetric    *int `asn1:"choice:5,size:10..265"` // FANSSpeedGroundMetric, units of 10 km/h.
+	SpeedMach            *int `asn1:"choice:6,size:61..92"`  // FANSSpeedMach, units of 0.01 Mach.
+	SpeedMachLarge       *int `asn1:"choice:7,size:93..604"` // FANSSpeedMachLarge, units of 0.01 Mach.
 }
 
-// UPERSpeedSpeed is two speeds.
+// UPERSpeedSpeed implements FANSSpeedSpeed, SEQUENCE SIZE (2) OF FANSSpeed.
 type UPERSpeedSpeed struct {
-	Speed1 UPERSpeed
-	Speed2 UPERSpeed
+	Speed1 UPERSpeed `data:"speed1"`
+	Speed2 UPERSpeed `data:"speed2"`
 }
 
-// UPERDegrees is a CHOICE of magnetic or true degrees.
+// UPERDegrees implements FANSDegrees.
 type UPERDegrees struct {
-	DegreesMagnetic *int `asn1:"choice:0,size:1..360"`
-	DegreesTrue     *int `asn1:"choice:1,size:1..360"`
+	DegreesMagnetic *int `asn1:"choice:0,size:1..360"` // FANSDegreesMagnetic.
+	DegreesTrue     *int `asn1:"choice:1,size:1..360"` // FANSDegreesTrue.
 }
 
-// UPERDirection is an enumerated direction (0-10).
-type UPERDirection struct {
-	Value int `asn1:"size:0..10"`
-}
-
-// UPERFrequency is a CHOICE of 4 frequency types.
+// UPERFrequency implements FANSFrequency.
 type UPERFrequency struct {
-	FrequencyHF      *int    `asn1:"choice:0,size:2850..28000"`    // kHz
-	FrequencyVHF     *int    `asn1:"choice:1,size:117000..138000"` // kHz
-	FrequencyUHF     *int    `asn1:"choice:2,size:225000..399975"` // kHz
-	FrequencySatChan *string `asn1:"choice:3,ia5string,size:1..12"`
+	FrequencyHF         *int               `asn1:"choice:0,size:2850..28000"`    // FANSFrequencyhf, kHz.
+	FrequencyVHF        *int               `asn1:"choice:1,size:117000..138000"` // FANSFrequencyvhf, kHz.
+	FrequencyUHF        *int               `asn1:"choice:2,size:225000..399975"` // FANSFrequencyuhf, kHz.
+	FrequencySatChannel *[]UPERNumericChar `asn1:"choice:3,size:12"`             // FANSFrequencysatchannel.
 }
 
-// UPERDistance is a CHOICE of nm or km.
-type UPERDistance struct {
-	DistanceNm *int `asn1:"choice:0,size:0..9999"` // units=0.1nm
-	DistanceKm *int `asn1:"choice:1,size:1..1024"`
+// UPERNumericChar is one character of a NumericString, which this module
+// uses only for FANSFrequencysatchannel (NumericString (SIZE (12)), a
+// twelve-digit telephone number). go-asn has no NumericString, so each
+// character is decoded as its four-bit PER index into the NumericString
+// alphabet " 0123456789" (X.691 30.5.4: the index is used because the
+// largest character code does not fit in four bits): 0 is a space and 1 to
+// 10 are the digits 0 to 9. Indexes 11 to 15 are not characters; see
+// checkEnumerations.
+type UPERNumericChar struct {
+	Index numericIndex `asn1:"size:0..10"`
 }
 
-// UPERDistanceOffset is a CHOICE of offset distance.
-type UPERDistanceOffset struct {
-	DistanceOffsetNm *int `asn1:"choice:0,size:1..128"`
-	DistanceOffsetKm *int `asn1:"choice:1,size:1..256"`
-}
-
-// UPERDistanceOffsetDirection is offset + direction.
-type UPERDistanceOffsetDirection struct {
-	DistanceOffset UPERDistanceOffset
-	Direction      UPERDirection
-}
-
-// UPERPosition is a CHOICE of 5 position representations.
-type UPERPosition struct {
-	FixName              *string                   `asn1:"choice:0,ia5string,size:1..5"`
-	Navaid               *string                   `asn1:"choice:1,ia5string,size:1..4"`
-	Airport              *string                   `asn1:"choice:2,ia5string,size:4..4"`
-	LatitudeLongitude    *UPERLatitudeLongitude    `asn1:"choice:3"`
-	PlaceBearingDistance *UPERPlaceBearingDistance `asn1:"choice:4"`
-}
-
-// UPERLatitude is latitude with degrees, optional tenths of minutes, and direction.
-type UPERLatitude struct {
-	Degrees       int  `asn1:"size:0..90"`
-	MinutesTenths *int `asn1:"optional,size:0..599"` // units=0.1min
-	Direction     int  `asn1:"size:0..1"`            // 0=north, 1=south
-}
-
-// UPERLongitude is longitude with degrees, optional tenths of minutes, and direction.
-type UPERLongitude struct {
-	Degrees       int  `asn1:"size:0..180"`
-	MinutesTenths *int `asn1:"optional,size:0..599"`
-	Direction     int  `asn1:"size:0..1"` // 0=east, 1=west
-}
-
-// UPERLatitudeLongitude is a lat/lon pair.
-type UPERLatitudeLongitude struct {
-	Latitude  UPERLatitude
-	Longitude UPERLongitude
-}
-
-// UPERPlaceBearingDistance is a fix with optional lat/lon, bearing and distance.
-type UPERPlaceBearingDistance struct {
-	FixName           string                 `asn1:"ia5string,size:1..5"`
-	LatitudeLongitude *UPERLatitudeLongitude `asn1:"optional"`
-	Degrees           UPERDegrees
-	Distance          UPERDistance
-}
-
-// UPERPositionAltitude is position + altitude.
-type UPERPositionAltitude struct {
-	Position UPERPosition
-	Altitude UPERAltitude
-}
-
-// UPERTimeAltitude is time + altitude.
-type UPERTimeAltitude struct {
-	Time     UPERTime
-	Altitude UPERAltitude
-}
-
-// UPERPositionDistanceOffsetDirection is position + offset + direction.
-type UPERPositionDistanceOffsetDirection struct {
-	Position       UPERPosition
-	DistanceOffset UPERDistanceOffset
-	Direction      UPERDirection
-}
-
-// UPERTimeDistanceOffsetDirection is time + offset + direction.
-type UPERTimeDistanceOffsetDirection struct {
-	Time           UPERTime
-	DistanceOffset UPERDistanceOffset
-	Direction      UPERDirection
-}
-
-// UPERTimeDistanceToFromPosition is time + distance + to/from + position.
-type UPERTimeDistanceToFromPosition struct {
-	Time     UPERTime
-	Distance UPERDistance
-	ToFrom   int `asn1:"size:0..1"` // 0=to, 1=from
-	Position UPERPosition
-}
-
-// UPERBeaconCode is a 4-digit octal squawk code.
+// UPERBeaconCode implements FANSBeaconCode, SEQUENCE SIZE (4) OF
+// FANSBeaconCodeOctalDigit (INTEGER (0..7)).
 type UPERBeaconCode struct {
 	Digit1 int `asn1:"size:0..7"`
 	Digit2 int `asn1:"size:0..7"`
@@ -649,388 +510,739 @@ type UPERBeaconCode struct {
 	Digit4 int `asn1:"size:0..7"`
 }
 
-// UPERErrorInformation is error code + optional supplementary.
-type UPERErrorInformation struct {
-	ErrorCode int `asn1:"size:0..6"`
-	// 0=unrecognizedMsgRef, 1=logonDataNotAccepted, 2=insufficientResources,
-	// 3=serviceUnavailable, 4=duplicateMsgRef, 5=noOperationalPDC, 6=unexpectedRequestRef
+// UPERAltimeter implements FANSAltimeter.
+type UPERAltimeter struct {
+	AltimeterEnglish *int `asn1:"choice:0,size:2200..3200"`  // FANSAltimeterEnglish, units of 0.01 inHg.
+	AltimeterMetric  *int `asn1:"choice:1,size:7500..12500"` // FANSAltimeterMetric, units of 0.1 hPa.
 }
 
-// UPERRemainingFuelSouls is fuel remaining + persons on board.
-type UPERRemainingFuelSouls struct {
-	RemainingFuel  UPERRemainingFuel
-	RemainingSouls int `asn1:"size:0..1023"`
+// UPERVerticalRate implements FANSVerticalRate.
+type UPERVerticalRate struct {
+	VerticalRateEnglish *int `asn1:"choice:0,size:0..60"`  // FANSVerticalRateEnglish, units of 100 ft/min.
+	VerticalRateMetric  *int `asn1:"choice:1,size:0..200"` // FANSVerticalRateMetric, units of 10 m/min.
 }
 
-// UPERRemainingFuel is hours + minutes of fuel remaining.
+// UPERDistance implements FANSDistance.
+type UPERDistance struct {
+	DistanceNm *int `asn1:"choice:0,size:0..9999"` // FANSDistanceNm, units of 0.1 NM.
+	DistanceKm *int `asn1:"choice:1,size:1..1024"` // FANSDistanceKm, km.
+}
+
+// UPERDistanceOffset implements FANSDistanceOffset.
+type UPERDistanceOffset struct {
+	DistanceOffsetNm *int `asn1:"choice:0,size:1..128"` // FANSDistanceOffsetNm, NM.
+	DistanceOffsetKm *int `asn1:"choice:1,size:1..256"` // FANSDistanceOffsetKm, km.
+}
+
+// UPERDistanceOffsetDirection implements FANSDistanceOffsetDirection.
+type UPERDistanceOffsetDirection struct {
+	DistanceOffset UPERDistanceOffset
+	Direction      UPERDirection `asn1:"size:0..10"`
+}
+
+// UPERRemainingFuel implements FANSRemainingFuel: hours (FANSTimehours) and
+// minutes (FANSTimeminutes) of fuel.
 type UPERRemainingFuel struct {
-	Hours   int `asn1:"size:0..99"`
+	Hours   int `asn1:"size:0..23"`
 	Minutes int `asn1:"size:0..59"`
 }
 
 // =============================================================================
-// Route/Procedure Types
+// Positions
 // =============================================================================
 
-// UPERProcedureName is procedure type + name + optional transition.
+// UPERPosition implements FANSPosition (and the types that rename it:
+// FANSPositionCurrent, FANSFixNext, FANSFixNextPlusOne and
+// FANSReportedWaypointPosition).
+type UPERPosition struct {
+	FixName              *string                   `asn1:"choice:0,ia5string,size:1..5"` // FANSFixName.
+	Navaid               *string                   `asn1:"choice:1,ia5string,size:1..4"` // FANSNavaid.
+	Airport              *string                   `asn1:"choice:2,ia5string,size:4"`    // FANSAirport.
+	LatitudeLongitude    *UPERLatitudeLongitude    `asn1:"choice:3"`
+	PlaceBearingDistance *UPERPlaceBearingDistance `asn1:"choice:4"`
+}
+
+// UPERLatitude implements FANSLatitude.
+type UPERLatitude struct {
+	Degrees       int                   `asn1:"size:0..90"`           // FANSLatitudeDegrees.
+	MinutesTenths *int                  `asn1:"optional,size:0..599"` // FANSMinutesLatLon, units of 0.1 minute.
+	Direction     UPERLatitudeDirection `asn1:"size:0..1"`
+}
+
+// UPERLongitude implements FANSLongitude.
+type UPERLongitude struct {
+	Degrees       int                    `asn1:"size:0..180"`          // FANSLongitudeDegrees.
+	MinutesTenths *int                   `asn1:"optional,size:0..599"` // FANSMinutesLatLon, units of 0.1 minute.
+	Direction     UPERLongitudeDirection `asn1:"size:0..1"`
+}
+
+// UPERLatitudeLongitude implements FANSLatitudeLongitude.
+type UPERLatitudeLongitude struct {
+	Latitude  UPERLatitude
+	Longitude UPERLongitude
+}
+
+// UPERPlaceBearingDistance implements FANSPlaceBearingDistance.
+type UPERPlaceBearingDistance struct {
+	FixName           string                 `asn1:"ia5string,size:1..5"` // FANSFixName.
+	LatitudeLongitude *UPERLatitudeLongitude `asn1:"optional"`
+	Degrees           UPERDegrees
+	Distance          UPERDistance
+}
+
+// UPERPositionPosition implements FANSPositionPosition, SEQUENCE SIZE (2)
+// OF FANSPosition.
+type UPERPositionPosition struct {
+	Position1 UPERPosition `data:"position1"`
+	Position2 UPERPosition `data:"position2"`
+}
+
+// =============================================================================
+// Sequences of message element parameters
+// =============================================================================
+
+// UPERAltitudePosition implements FANSAltitudePosition.
+type UPERAltitudePosition struct {
+	Altitude UPERAltitude `data:"altitude"`
+	Position UPERPosition `data:"position"`
+}
+
+// UPERAltitudeSpeed implements FANSAltitudeSpeed.
+type UPERAltitudeSpeed struct {
+	Altitude UPERAltitude `data:"altitude"`
+	Speed    UPERSpeed    `data:"speed"`
+}
+
+// UPERAltitudeSpeedSpeed implements FANSAltitudeSpeedSpeed.
+type UPERAltitudeSpeedSpeed struct {
+	Altitude       UPERAltitude `data:"altitude"`
+	UPERSpeedSpeed `data:"-"`   // speed-seqOf.
+}
+
+// UPERAltitudeTime implements FANSAltitudeTime.
+type UPERAltitudeTime struct {
+	Altitude UPERAltitude `data:"altitude"`
+	Time     UPERTime     `data:"time"`
+}
+
+// UPERDirectionDegrees implements FANSDirectionDegrees.
+type UPERDirectionDegrees struct {
+	Direction UPERDirection `asn1:"size:0..10" data:"direction"`
+	Degrees   UPERDegrees   `data:"degrees"`
+}
+
+// UPERICAOUnitNameFrequency implements FANSICAOUnitNameFrequency.
+type UPERICAOUnitNameFrequency struct {
+	ICAOUnitName UPERICAOUnitName `data:"unit"`
+	Frequency    UPERFrequency    `data:"frequency"`
+}
+
+// UPERICAOFacilityDesignationTp4Table implements
+// FANSICAOFacilityDesignationTp4Table.
+type UPERICAOFacilityDesignationTp4Table struct {
+	ICAOFacilityDesignation UPERICAOFacilityDesignation `asn1:"ia5string,size:4" data:"facility_designation"`
+	Tp4Table                UPERTp4Table                `asn1:"size:0..1" data:"tp4_table"`
+}
+
+// UPERPositionAltitude implements FANSPositionAltitude.
+type UPERPositionAltitude struct {
+	Position UPERPosition `data:"position"`
+	Altitude UPERAltitude `data:"altitude"`
+}
+
+// UPERPositionAltitudeAltitude implements FANSPositionAltitudeAltitude.
+type UPERPositionAltitudeAltitude struct {
+	Position             UPERPosition `data:"position"`
+	UPERAltitudeAltitude `data:"-"`   // altitude-seqOf.
+}
+
+// UPERPositionAltitudeSpeed implements FANSPositionAltitudeSpeed.
+type UPERPositionAltitudeSpeed struct {
+	Position UPERPosition `data:"position"`
+	Altitude UPERAltitude `data:"altitude"`
+	Speed    UPERSpeed    `data:"speed"`
+}
+
+// UPERPositionDegrees implements FANSPositionDegrees.
+type UPERPositionDegrees struct {
+	Position UPERPosition `data:"position"`
+	Degrees  UPERDegrees  `data:"degrees"`
+}
+
+// UPERPositionDistanceOffsetDirection implements
+// FANSPositionDistanceOffsetDirection. The offset and direction are one
+// field (UPERDistanceOffsetDirection) here, which encodes the same bits as
+// the module's two consecutive components and converts to one
+// DistanceOffset.
+type UPERPositionDistanceOffsetDirection struct {
+	Position                UPERPosition                `data:"position"`
+	DistanceOffsetDirection UPERDistanceOffsetDirection `data:"distance_offset"`
+}
+
+// UPERPositionICAOUnitNameFrequency implements
+// FANSPositionICAOUnitNameFrequency.
+type UPERPositionICAOUnitNameFrequency struct {
+	Position     UPERPosition     `data:"position"`
+	ICAOUnitName UPERICAOUnitName `data:"unit"`
+	Frequency    UPERFrequency    `data:"frequency"`
+}
+
+// UPERPositionProcedureName implements FANSPositionProcedureName.
+type UPERPositionProcedureName struct {
+	Position      UPERPosition      `data:"position"`
+	ProcedureName UPERProcedureName `data:"procedure"`
+}
+
+// UPERPositionRouteClearance implements FANSPositionRouteClearance.
+type UPERPositionRouteClearance struct {
+	Position       UPERPosition       `data:"position"`
+	RouteClearance UPERRouteClearance `data:"route_clearance"`
+}
+
+// UPERPositionSpeed implements FANSPositionSpeed.
+type UPERPositionSpeed struct {
+	Position UPERPosition `data:"position"`
+	Speed    UPERSpeed    `data:"speed"`
+}
+
+// UPERPositionSpeedSpeed implements FANSPositionSpeedSpeed.
+type UPERPositionSpeedSpeed struct {
+	Position       UPERPosition `data:"position"`
+	UPERSpeedSpeed `data:"-"`   // speed-seqOf.
+}
+
+// UPERPositionTime implements FANSPositionTime.
+type UPERPositionTime struct {
+	Position UPERPosition `data:"position"`
+	Time     UPERTime     `data:"time"`
+}
+
+// UPERPositionTimeAltitude implements FANSPositionTimeAltitude.
+type UPERPositionTimeAltitude struct {
+	Position UPERPosition `data:"position"`
+	Time     UPERTime     `data:"time"`
+	Altitude UPERAltitude `data:"altitude"`
+}
+
+// UPERPositionTimeTime implements FANSPositionTimeTime.
+type UPERPositionTimeTime struct {
+	Position     UPERPosition `data:"position"`
+	UPERTimeTime `data:"-"`   // time-seqOf.
+}
+
+// UPERRemainingFuelRemainingSouls implements
+// FANSRemainingFuelRemainingSouls.
+type UPERRemainingFuelRemainingSouls struct {
+	RemainingFuel  UPERRemainingFuel  `data:"remaining_fuel"`
+	RemainingSouls UPERRemainingSouls `asn1:"size:1..1024" data:"persons_on_board"`
+}
+
+// UPERTimeAltitude implements FANSTimeAltitude.
+type UPERTimeAltitude struct {
+	Time     UPERTime     `data:"time"`
+	Altitude UPERAltitude `data:"altitude"`
+}
+
+// UPERTimeDistanceOffsetDirection implements
+// FANSTimeDistanceOffsetDirection. As in
+// UPERPositionDistanceOffsetDirection, the offset and direction are one
+// field.
+type UPERTimeDistanceOffsetDirection struct {
+	Time                    UPERTime                    `data:"time"`
+	DistanceOffsetDirection UPERDistanceOffsetDirection `data:"distance_offset"`
+}
+
+// UPERTimeDistanceToFromPosition implements FANSTimeDistanceToFromPosition.
+type UPERTimeDistanceToFromPosition struct {
+	Time     UPERTime     `data:"time"`
+	Distance UPERDistance `data:"distance"`
+	ToFrom   UPERToFrom   `asn1:"size:0..1" data:"to_from"`
+	Position UPERPosition `data:"position"`
+}
+
+// UPERTimeICAOUnitNameFrequency implements FANSTimeICAOunitnameFrequency.
+type UPERTimeICAOUnitNameFrequency struct {
+	Time         UPERTime         `data:"time"`
+	ICAOUnitName UPERICAOUnitName `data:"unit"`
+	Frequency    UPERFrequency    `data:"frequency"`
+}
+
+// UPERTimePosition implements FANSTimePosition.
+type UPERTimePosition struct {
+	Time     UPERTime     `data:"time"`
+	Position UPERPosition `data:"position"`
+}
+
+// UPERTimePositionAltitude implements FANSTimePositionAltitude.
+type UPERTimePositionAltitude struct {
+	Time     UPERTime     `data:"time"`
+	Position UPERPosition `data:"position"`
+	Altitude UPERAltitude `data:"altitude"`
+}
+
+// UPERTimePositionAltitudeSpeed implements FANSTimePositionAltitudeSpeed.
+type UPERTimePositionAltitudeSpeed struct {
+	Time     UPERTime     `data:"time"`
+	Position UPERPosition `data:"position"`
+	Altitude UPERAltitude `data:"altitude"`
+	Speed    UPERSpeed    `data:"speed"`
+}
+
+// UPERTimeSpeed implements FANSTimeSpeed.
+type UPERTimeSpeed struct {
+	Time  UPERTime  `data:"time"`
+	Speed UPERSpeed `data:"speed"`
+}
+
+// UPERTimeSpeedSpeed implements FANSTimeSpeedSpeed.
+type UPERTimeSpeedSpeed struct {
+	Time           UPERTime   `data:"time"`
+	UPERSpeedSpeed `data:"-"` // speed-seqOf.
+}
+
+// UPERToFromPosition implements FANSToFromPosition.
+type UPERToFromPosition struct {
+	ToFrom   UPERToFrom   `asn1:"size:0..1" data:"to_from"`
+	Position UPERPosition `data:"position"`
+}
+
+// =============================================================================
+// Facilities
+// =============================================================================
+
+// UPERICAOUnitName implements FANSICAOUnitName.
+type UPERICAOUnitName struct {
+	ICAOFacilityIdentification UPERICAOFacilityIdentification
+	ICAOFacilityFunction       UPERICAOFacilityFunction `asn1:"size:0..7"`
+}
+
+// UPERICAOFacilityIdentification implements FANSICAOFacilityIdentification:
+// a facility is identified either by its four-letter ICAO location
+// indicator or by its name.
+type UPERICAOFacilityIdentification struct {
+	ICAOFacilityDesignation *string `asn1:"choice:0,ia5string,size:4"`     // FANSICAOfacilityDesignation.
+	ICAOFacilityName        *string `asn1:"choice:1,ia5string,size:3..18"` // FANSICAOFacilityName.
+}
+
+// =============================================================================
+// Holding (uM91)
+// =============================================================================
+
+// UPERHoldClearance implements FANSHoldClearance.
+type UPERHoldClearance struct {
+	Position  UPERPosition
+	Altitude  UPERAltitude
+	Degrees   UPERDegrees
+	Direction UPERDirection `asn1:"size:0..10"`
+	LegType   *UPERLegType  `asn1:"optional"`
+}
+
+// UPERLegType implements FANSLegType.
+type UPERLegType struct {
+	LegDistance *UPERLegDistance `asn1:"choice:0"`
+	LegTime     *int             `asn1:"choice:1,size:1..99"` // FANSLegTime, units of 0.1 minute.
+}
+
+// UPERLegDistance implements FANSLegDistance.
+type UPERLegDistance struct {
+	LegDistanceEnglish *int `asn1:"choice:0,size:1..999"` // FANSLegDistanceEnglish, units of 0.1 NM.
+	LegDistanceMetric  *int `asn1:"choice:1,size:1..128"` // FANSLegDistanceMetric, km.
+}
+
+// =============================================================================
+// Procedures and route clearances
+// =============================================================================
+
+// UPERProcedureName implements FANSProcedureName (and the types that rename
+// it: FANSProcedureDeparture, FANSProcedureApproach and
+// FANSProcedureArrival).
 type UPERProcedureName struct {
-	ProcedureType int `asn1:"size:0..2"` // 0=arrival, 1=approach, 2=departure
-	Procedure     UPERProcedure
+	ProcedureType       UPERProcedureType `asn1:"size:0..2"`
+	Procedure           string            `asn1:"ia5string,size:1..6"`          // FANSProcedure.
+	ProcedureTransition *string           `asn1:"optional,ia5string,size:1..5"` // FANSProcedureTransition.
 }
 
-// UPERProcedure is procedure identifier + optional transition.
-type UPERProcedure struct {
-	Name       string  `asn1:"ia5string,size:1..6"`
-	Transition *string `asn1:"optional,ia5string,size:1..5"`
-}
-
-// UPERRouteClearance has many optional fields for route information.
+// UPERRouteClearance implements FANSRouteClearance.
 type UPERRouteClearance struct {
-	AirportDeparture    *string                       `asn1:"optional,ia5string,size:4..4"`
-	AirportDestination  *string                       `asn1:"optional,ia5string,size:4..4"`
-	RunwayDeparture     *UPERRunway                   `asn1:"optional"`
-	ProcedureDeparture  *UPERProcedureName            `asn1:"optional"`
-	RunwayArrival       *UPERRunway                   `asn1:"optional"`
-	ProcedureApproach   *UPERProcedureName            `asn1:"optional"`
-	ProcedureArrival    *UPERProcedureName            `asn1:"optional"`
-	AirwayIntercept     *string                       `asn1:"optional,ia5string,size:2..7"`
-	RouteInformation    []UPERRouteInformationElement `asn1:"optional,size:1..128"`
-	RouteInfoAdditional *string                       `asn1:"optional,ia5string,size:1..256"`
+	AirportDeparture           *string                         `asn1:"optional,ia5string,size:4"`    // FANSAirportDeparture.
+	AirportDestination         *string                         `asn1:"optional,ia5string,size:4"`    // FANSAirportDestination.
+	RunwayDeparture            *UPERRunway                     `asn1:"optional"`                     // FANSRunwayDeparture.
+	ProcedureDeparture         *UPERProcedureName              `asn1:"optional"`                     // FANSProcedureDeparture.
+	RunwayArrival              *UPERRunway                     `asn1:"optional"`                     // FANSRunwayArrival.
+	ProcedureApproach          *UPERProcedureName              `asn1:"optional"`                     // FANSProcedureApproach.
+	ProcedureArrival           *UPERProcedureName              `asn1:"optional"`                     // FANSProcedureArrival.
+	AirwayIntercept            *string                         `asn1:"optional,ia5string,size:1..5"` // FANSAirwayIntercept.
+	RouteInformation           *[]UPERRouteInformation         `asn1:"optional,size:1..128"`         // FANSRouteInformationSequence.
+	RouteInformationAdditional *UPERRouteInformationAdditional `asn1:"optional"`
 }
 
-// UPERRunway is runway direction + configuration.
+// UPERRunway implements FANSRunway.
 type UPERRunway struct {
-	Direction     int `asn1:"size:1..36"`
-	Configuration int `asn1:"size:0..3"` // 0=left, 1=right, 2=centre, 3=none
+	Direction     int                     `asn1:"size:1..36"` // FANSRunwayDirection.
+	Configuration UPERRunwayConfiguration `asn1:"size:0..3"`
 }
 
-// UPERRouteInformationElement is a CHOICE of route info types.
-type UPERRouteInformationElement struct {
-	PublicationIdentifier    *string                       `asn1:"choice:0,ia5string,size:1..6"`
+// UPERRouteInformation implements FANSRouteInformation.
+type UPERRouteInformation struct {
+	PublishedIdentifier      *UPERPublishedIdentifier      `asn1:"choice:0"`
 	LatitudeLongitude        *UPERLatitudeLongitude        `asn1:"choice:1"`
 	PlaceBearingPlaceBearing *UPERPlaceBearingPlaceBearing `asn1:"choice:2"`
 	PlaceBearingDistance     *UPERPlaceBearingDistance     `asn1:"choice:3"`
-	AirwayIdentifier         *string                       `asn1:"choice:4,ia5string,size:1..5"`
+	AirwayIdentifier         *string                       `asn1:"choice:4,ia5string,size:1..5"` // FANSAirwayIdentifier.
 	TrackDetail              *UPERTrackDetail              `asn1:"choice:5"`
-	Airport                  *string                       `asn1:"choice:6,ia5string,size:4..4"`
-	RNPRequirements          *int                          `asn1:"choice:7,size:1..10"` // simplified
-	Fix                      *string                       `asn1:"choice:8,ia5string,size:1..5"`
-	Navaid                   *string                       `asn1:"choice:9,ia5string,size:1..4"`
-	HoldAtWaypoint           *UPERHoldAtWaypoint           `asn1:"choice:10"`
 }
 
-// UPERPlaceBearingPlaceBearing is two place-bearing pairs.
-type UPERPlaceBearingPlaceBearing struct {
-	FixName1 string `asn1:"ia5string,size:1..5"`
-	Degrees1 UPERDegrees
-	FixName2 string `asn1:"ia5string,size:1..5"`
-	Degrees2 UPERDegrees
-}
-
-// UPERTrackDetail is track name + optional lat/lon.
-type UPERTrackDetail struct {
-	TrackName         string                 `asn1:"ia5string,size:3..6"`
+// UPERPublishedIdentifier implements FANSPublishedIdentifier.
+type UPERPublishedIdentifier struct {
+	FixName           string                 `asn1:"ia5string,size:1..5"` // FANSFixName.
 	LatitudeLongitude *UPERLatitudeLongitude `asn1:"optional"`
 }
 
-// UPERHoldAtWaypoint is hold position + optional details.
-type UPERHoldAtWaypoint struct {
-	Position UPERPosition
-	// Simplified - full version has more optional fields
+// UPERPlaceBearing implements FANSPlaceBearing.
+type UPERPlaceBearing struct {
+	FixName           string                 `asn1:"ia5string,size:1..5"` // FANSFixName.
+	LatitudeLongitude *UPERLatitudeLongitude `asn1:"optional"`
+	Degrees           UPERDegrees
 }
 
-// UPERPositionRouteClearance is position + route clearance.
-type UPERPositionRouteClearance struct {
-	Position       UPERPosition
-	RouteClearance UPERRouteClearance
+// UPERPlaceBearingPlaceBearing implements FANSPlaceBearingPlaceBearing,
+// SEQUENCE SIZE (2) OF FANSPlaceBearing.
+type UPERPlaceBearingPlaceBearing struct {
+	PlaceBearing1 UPERPlaceBearing
+	PlaceBearing2 UPERPlaceBearing
 }
 
-// =============================================================================
-// Position Report (dM48)
-// =============================================================================
-
-// UPERPositionReport is the full position report structure.
-// Has 3 mandatory fields (Position, Time, Altitude) and 19 optional fields.
-// Field order must match the FANSPositionReport ASN.1 definition.
-type UPERPositionReport struct {
-	// Mandatory fields.
-	PositionCurrent       UPERPosition
-	TimeAtPositionCurrent UPERTime // Hours + Minutes only (no seconds).
-	Altitude              UPERAltitude
-
-	// Optional fields (19 total).
-	FixNext                  *UPERPosition      `asn1:"optional"`
-	TimeEtaAtFixNext         *UPERTime          `asn1:"optional"`
-	FixNextPlusOne           *UPERPosition      `asn1:"optional"`
-	TimeEtaDestination       *UPERTime          `asn1:"optional"`
-	RemainingFuel            *UPERRemainingFuel `asn1:"optional"`
-	Temperature              *UPERTemperature   `asn1:"optional"`
-	Winds                    *UPERWinds         `asn1:"optional"`
-	Turbulence               *int               `asn1:"optional,size:0..3"` // 0=nil, 1=light, 2=mod, 3=severe
-	Icing                    *int               `asn1:"optional,size:0..3"`
-	Speed                    *UPERSpeed         `asn1:"optional"`
-	SpeedGround              *UPERSpeedGround   `asn1:"optional"`
-	VerticalChange           *int               `asn1:"optional,size:0..3"` // 0=level, 1=climb, 2=descent, 3=unknown
-	TrackAngle               *UPERDegrees       `asn1:"optional"`
-	TrueHeading              *UPERDegrees       `asn1:"optional"`
-	Distance                 *UPERDistance      `asn1:"optional"`
-	SupplementaryInformation *string            `asn1:"optional,ia5string,size:1..256"`
-	ReportedWaypointPosition *UPERPosition      `asn1:"optional"`
-	ReportedWaypointTime     *UPERTime          `asn1:"optional"`
-	ReportedWaypointAltitude *UPERAltitude      `asn1:"optional"`
+// UPERTrackDetail implements FANSTrackDetail.
+type UPERTrackDetail struct {
+	TrackName         string                  `asn1:"ia5string,size:3..6"` // FANSTrackName.
+	LatitudeLongitude []UPERLatitudeLongitude `asn1:"size:1..128"`         // FANSLatitudeLongitudeSequence.
 }
 
-// UPERTemperature is a CHOICE of temperature types.
-type UPERTemperature struct {
-	TemperatureC      *int `asn1:"choice:0,size:-100..100"`
-	TemperatureFahren *int `asn1:"choice:1,size:-148..212"`
+// UPERRouteInformationAdditional implements FANSRouteInformationAdditional.
+type UPERRouteInformationAdditional struct {
+	ATWAlongTrackWaypoints        *[]UPERATWAlongTrackWaypoint  `asn1:"optional,size:1..8"` // FANSATWAlongTrackWaypointSequence.
+	ReportingPoints               *UPERReportingPoints          `asn1:"optional"`
+	InterceptCourseFromSequence   *[]UPERInterceptCourseFrom    `asn1:"optional,size:1..4"`  // FANSInterceptCourseFromSequence.
+	HoldAtWaypointSequence        *[]UPERHoldAtWaypoint         `asn1:"optional,size:1..8"`  // FANSHoldatwaypointSequence.
+	WaypointSpeedAltitudeSequence *[]UPERWaypointSpeedAltitude  `asn1:"optional,size:1..32"` // FANSWaypointSpeedAltitudesequence.
+	RTARequiredTimeArrivals       *[]UPERRTARequiredTimeArrival `asn1:"optional,size:1..32"` // FANSRTARequiredTimeArrivalSequence.
 }
 
-// UPERWinds is a SEQUENCE of wind direction and speed.
-type UPERWinds struct {
-	Direction UPERWindDirection
-	Speed     UPERWindSpeed
+// UPERATWAlongTrackWaypoint implements FANSATWAlongTrackWaypoint.
+type UPERATWAlongTrackWaypoint struct {
+	Position     UPERPosition
+	ATWDistance  UPERATWDistance
+	Speed        *UPERSpeed         `asn1:"optional"`
+	ATWAltitudes *[]UPERATWAltitude `asn1:"optional,size:1..2"` // FANSATWAltitudeSequence.
 }
 
-// UPERWindDirection is a CHOICE of wind direction types.
-type UPERWindDirection struct {
-	DegreesMagnetic *int `asn1:"choice:0,size:1..360"`
-	DegreesTrue     *int `asn1:"choice:1,size:1..360"`
+// UPERATWDistance implements FANSATWDistance.
+type UPERATWDistance struct {
+	ATWDistanceTolerance UPERATWDistanceTolerance `asn1:"size:0..1"`
+	Distance             UPERDistance
 }
 
-// UPERSpeedGround is a CHOICE of ground speed types.
-type UPERSpeedGround struct {
-	SpeedGroundKt  *int `asn1:"choice:0,size:0..2000"`
-	SpeedGroundKmh *int `asn1:"choice:1,size:0..3700"`
+// UPERATWAltitude implements FANSATWAltitude.
+type UPERATWAltitude struct {
+	ATWAltitudeTolerance UPERATWAltitudeTolerance `asn1:"size:0..2"`
+	Altitude             UPERAltitude
 }
 
-// UPERWindSpeed is a CHOICE of wind speed in kt or km/h.
-type UPERWindSpeed struct {
-	SpeedKt  *int `asn1:"choice:0,size:0..255"`
-	SpeedKmh *int `asn1:"choice:1,size:0..511"`
+// UPERReportingPoints implements FANSReportingPoints.
+type UPERReportingPoints struct {
+	LatLonReportingPoints UPERLatLonReportingPoints
+	DegreeIncrement       *int `asn1:"optional,size:1..20"` // FANSDegreeIncrement, degrees.
 }
 
-// =============================================================================
-// Additional Uplink Supporting Types
-// =============================================================================
-
-// UPERAltitudeTime is altitude + time.
-type UPERAltitudeTime struct {
-	Altitude UPERAltitude
-	Time     UPERTime
+// UPERLatLonReportingPoints implements FANSLatLonReportingPoints.
+type UPERLatLonReportingPoints struct {
+	LatitudeReportingPoints  *UPERLatitudeReportingPoints  `asn1:"choice:0"`
+	LongitudeReportingPoints *UPERLongitudeReportingPoints `asn1:"choice:1"`
 }
 
-// UPERAltitudePosition is altitude + position.
-type UPERAltitudePosition struct {
-	Altitude UPERAltitude
-	Position UPERPosition
+// UPERLatitudeReportingPoints implements FANSLatitudeReportingPoints.
+type UPERLatitudeReportingPoints struct {
+	Direction UPERLatitudeDirection `asn1:"size:0..1"`
+	Degrees   int                   `asn1:"size:0..90"` // FANSLatitudeDegrees.
 }
 
-// UPERPositionAltitudeAltitude is position + two altitudes.
-type UPERPositionAltitudeAltitude struct {
-	Position  UPERPosition
-	Altitude1 UPERAltitude
-	Altitude2 UPERAltitude
+// UPERLongitudeReportingPoints implements FANSLongitudeReportingPoints.
+type UPERLongitudeReportingPoints struct {
+	Direction UPERLongitudeDirection `asn1:"size:0..1"`
+	Degrees   int                    `asn1:"size:0..180"` // FANSLongitudeDegrees.
 }
 
-// UPERPositionTime is position + time.
-type UPERPositionTime struct {
-	Position UPERPosition
-	Time     UPERTime
-}
-
-// UPERPositionTimeTime is position + two times.
-type UPERPositionTimeTime struct {
-	Position UPERPosition
-	Time1    UPERTime
-	Time2    UPERTime
-}
-
-// UPERPositionSpeed is position + speed.
-type UPERPositionSpeed struct {
-	Position UPERPosition
-	Speed    UPERSpeed
-}
-
-// UPERPositionTimeAltitude is position + time + altitude.
-type UPERPositionTimeAltitude struct {
-	Position UPERPosition
-	Time     UPERTime
-	Altitude UPERAltitude
-}
-
-// UPERPositionAltitudeSpeed is position + altitude + speed.
-type UPERPositionAltitudeSpeed struct {
-	Position UPERPosition
-	Altitude UPERAltitude
-	Speed    UPERSpeed
-}
-
-// UPERTimePositionAltitude is time + position + altitude.
-type UPERTimePositionAltitude struct {
-	Time     UPERTime
-	Position UPERPosition
-	Altitude UPERAltitude
-}
-
-// UPERTimePositionAltitudeSpeed is time + position + altitude + speed.
-type UPERTimePositionAltitudeSpeed struct {
-	Time     UPERTime
-	Position UPERPosition
-	Altitude UPERAltitude
-	Speed    UPERSpeed
-}
-
-// UPERTimePosition is time + position.
-type UPERTimePosition struct {
-	Time     UPERTime
-	Position UPERPosition
-}
-
-// UPERPositionPosition is two positions.
-type UPERPositionPosition struct {
-	Position1 UPERPosition
-	Position2 UPERPosition
-}
-
-// UPERAltitudeSpeed is altitude + speed.
-type UPERAltitudeSpeed struct {
-	Altitude UPERAltitude
-	Speed    UPERSpeed
-}
-
-// UPERAltitudeSpeedSpeed is altitude + two speeds.
-type UPERAltitudeSpeedSpeed struct {
-	Altitude UPERAltitude
-	Speed1   UPERSpeed
-	Speed2   UPERSpeed
-}
-
-// UPERTimeSpeed is time + speed.
-type UPERTimeSpeed struct {
-	Time  UPERTime
-	Speed UPERSpeed
-}
-
-// UPERTimeSpeedSpeed is time + two speeds.
-type UPERTimeSpeedSpeed struct {
-	Time   UPERTime
-	Speed1 UPERSpeed
-	Speed2 UPERSpeed
-}
-
-// UPERPositionSpeedSpeed is position + two speeds.
-type UPERPositionSpeedSpeed struct {
-	Position UPERPosition
-	Speed1   UPERSpeed
-	Speed2   UPERSpeed
-}
-
-// UPERDirectionDegrees is direction + degrees (for turn instructions).
-type UPERDirectionDegrees struct {
-	Direction int `asn1:"size:0..1"` // 0=left, 1=right
+// UPERInterceptCourseFrom implements FANSInterceptCourseFrom.
+type UPERInterceptCourseFrom struct {
+	Selection UPERInterceptCourseFromSelection
 	Degrees   UPERDegrees
 }
 
-// UPERPositionDegrees is position + degrees.
-type UPERPositionDegrees struct {
-	Position UPERPosition
-	Degrees  UPERDegrees
+// UPERInterceptCourseFromSelection implements
+// FANSInterceptCourseFromSelection.
+type UPERInterceptCourseFromSelection struct {
+	PublishedIdentifier      *UPERPublishedIdentifier      `asn1:"choice:0"`
+	LatitudeLongitude        *UPERLatitudeLongitude        `asn1:"choice:1"`
+	PlaceBearingPlaceBearing *UPERPlaceBearingPlaceBearing `asn1:"choice:2"`
+	PlaceBearingDistance     *UPERPlaceBearingDistance     `asn1:"choice:3"`
 }
 
-// UPERHoldClearance is the hold clearance structure.
-type UPERHoldClearance struct {
+// UPERHoldAtWaypoint implements FANSHoldatwaypoint.
+type UPERHoldAtWaypoint struct {
+	Position    UPERPosition
+	SpeedLow    *UPERSpeed       `asn1:"optional"` // FANSHoldatwaypointSpeedLow.
+	ATWAltitude *UPERATWAltitude `asn1:"optional"`
+	SpeedHigh   *UPERSpeed       `asn1:"optional"` // FANSHoldatwaypointSpeedHigh.
+	Direction   *UPERDirection   `asn1:"optional,size:0..10"`
+	Degrees     *UPERDegrees     `asn1:"optional"`
+	EFCTime     *UPERTime        `asn1:"optional"` // FANSEFCtime.
+	LegType     *UPERLegType     `asn1:"optional"`
+}
+
+// UPERWaypointSpeedAltitude implements FANSWaypointSpeedAltitude.
+type UPERWaypointSpeedAltitude struct {
 	Position     UPERPosition
-	Altitude     *UPERAltitude     `asn1:"optional"`
-	Speed        *UPERSpeed        `asn1:"optional"`
-	ATCDirection *int              `asn1:"optional,size:0..1"` // 0=left, 1=right
-	LegType      *UPERHoldLegType  `asn1:"optional"`
-	DistanceTime *UPERDistanceTime `asn1:"optional"`
-	EFCTime      *UPERTime         `asn1:"optional"`
+	Speed        *UPERSpeed         `asn1:"optional"`
+	ATWAltitudes *[]UPERATWAltitude `asn1:"optional,size:1..2"` // FANSATWAltitudeSequence.
 }
 
-// UPERHoldLegType is a CHOICE of distance or time based leg.
-type UPERHoldLegType struct {
-	LegDistance *int `asn1:"choice:0,size:1..128"` // nm
-	LegTime     *int `asn1:"choice:1,size:1..60"`  // minutes
+// UPERRTARequiredTimeArrival implements FANSRTARequiredTimeArrival.
+type UPERRTARequiredTimeArrival struct {
+	Position     UPERPosition
+	RTATime      UPERRTATime
+	RTATolerance *int `asn1:"optional,size:1..150"` // FANSRTATolerance, units of 0.1 minute.
 }
 
-// UPERDistanceTime is distance + time.
-type UPERDistanceTime struct {
-	Distance UPERDistance
-	Time     UPERTime
+// UPERRTATime implements FANSRTATime.
+type UPERRTATime struct {
+	Time          UPERTime
+	TimeTolerance UPERTimeTolerance `asn1:"size:0..2"`
 }
 
-// UPERPredepartureClearance is the PDC (pre-departure clearance) structure.
+// =============================================================================
+// Pre-departure clearance (uM73)
+// =============================================================================
+
+// UPERPredepartureClearance implements FANSPredepartureClearance.
 type UPERPredepartureClearance struct {
-	AircraftFlightID   string              `asn1:"ia5string,size:2..8"`
-	AirportDeparture   string              `asn1:"ia5string,size:4..4"`
-	AirportDestination *string             `asn1:"optional,ia5string,size:4..4"`
-	ClearedFlightLevel *UPERAltitude       `asn1:"optional"`
-	RouteClearance     *UPERRouteClearance `asn1:"optional"`
-	DepartureTime      *UPERTime           `asn1:"optional"`
-	Squawk             *UPERBeaconCode     `asn1:"optional"`
-	Frequency          *UPERFrequency      `asn1:"optional"`
+	AircraftFlightIdentification string                     `asn1:"ia5string,size:2..7"`          // FANSAircraftFlightIdentification.
+	AircraftType                 *string                    `asn1:"optional,ia5string,size:2..5"` // FANSAircraftType.
+	AircraftEquipmentCode        *UPERAircraftEquipmentCode `asn1:"optional"`
+	TimeDepartureEdct            UPERTime                   // FANSTimeDepartureEdct.
+	RouteClearance               UPERRouteClearance
+	AltitudeRestriction          *UPERAltitude `asn1:"optional"`            // FANSAltitudeRestriction.
+	FrequencyDeparture           int           `asn1:"size:117000..138000"` // FANSFrequencyDeparture (FANSFrequencyvhf), kHz.
+	BeaconCode                   UPERBeaconCode
+	PDCRevision                  int `asn1:"size:1..16"` // FANSPDCrevision.
 }
 
-// UPERICAOUnitNameFrequency is unit name + frequency.
-type UPERICAOUnitNameFrequency struct {
-	ICAOUnitName UPERICAOUnitName
-	Frequency    UPERFrequency
+// UPERAircraftEquipmentCode implements FANSAircraftEquipmentCode.
+type UPERAircraftEquipmentCode struct {
+	COMNAVApproachEquipmentAvailable bool                             // FANSCOMNAVApproachEquipmentAvailable (BOOLEAN).
+	COMNAVEquipmentStatus            *[]UPERCOMNAVEquipmentStatusItem `asn1:"optional,size:1..16"` // FANSCOMNAVEquipmentStatusSequence.
+	SSREquipmentAvailable            UPERSSREquipmentAvailable        `asn1:"size:0..6"`
 }
 
-// UPERICAOUnitName is facility designation + name.
-type UPERICAOUnitName struct {
-	FacilityDesignation string  `asn1:"ia5string,size:4..8"`
-	FacilityName        *string `asn1:"optional,ia5string,size:1..24"`
-	FacilityFunction    int     `asn1:"size:0..15"` // enumerated
+// UPERCOMNAVEquipmentStatusItem is one element of
+// FANSCOMNAVEquipmentStatusSequence. go-asn takes the constraints of a
+// SEQUENCE OF element from its struct tags, so the enumeration is wrapped
+// in a struct; the wrapper encodes no bits of its own.
+type UPERCOMNAVEquipmentStatusItem struct {
+	Status UPERCOMNAVEquipmentStatus `asn1:"size:0..15"`
 }
 
-// UPERPositionICAOUnitNameFrequency is position + unit + frequency.
-type UPERPositionICAOUnitNameFrequency struct {
-	Position     UPERPosition
-	ICAOUnitName UPERICAOUnitName
-	Frequency    UPERFrequency
+// =============================================================================
+// Position report (dM48)
+// =============================================================================
+
+// UPERPositionReport implements FANSPositionReport: three mandatory
+// components and nineteen optional ones, in the module's order.
+type UPERPositionReport struct {
+	PositionCurrent          UPERPosition // FANSPositionCurrent.
+	TimeAtPositionCurrent    UPERTime     // FANSTimeAtPositionCurrent.
+	Altitude                 UPERAltitude
+	FixNext                  *UPERPosition       `asn1:"optional"` // FANSFixNext.
+	TimeEtaAtFixNext         *UPERTime           `asn1:"optional"` // FANSTimeEtaAtFixNext.
+	FixNextPlusOne           *UPERPosition       `asn1:"optional"` // FANSFixNextPlusOne.
+	TimeEtaDestination       *UPERTime           `asn1:"optional"` // FANSTimeEtaDestination.
+	RemainingFuel            *UPERRemainingFuel  `asn1:"optional"`
+	Temperature              *UPERTemperature    `asn1:"optional"`
+	Winds                    *UPERWinds          `asn1:"optional"`
+	Turbulence               *UPERTurbulence     `asn1:"optional,size:0..2"`
+	Icing                    *UPERIcing          `asn1:"optional,size:0..3"`
+	Speed                    *UPERSpeed          `asn1:"optional"`
+	SpeedGround              *int                `asn1:"optional,size:7..70"` // FANSSpeedGround, units of 10 kt.
+	VerticalChange           *UPERVerticalChange `asn1:"optional"`
+	TrackAngle               *UPERDegrees        `asn1:"optional"` // FANSTrackAngle.
+	TrueHeading              *UPERDegrees        `asn1:"optional"` // FANSTrueheading.
+	Distance                 *UPERDistance       `asn1:"optional"`
+	SupplementaryInformation *string             `asn1:"optional,ia5string,size:1..256"` // FANSSupplementaryInformation.
+	ReportedWaypointPosition *UPERPosition       `asn1:"optional"`                       // FANSReportedWaypointPosition.
+	ReportedWaypointTime     *UPERTime           `asn1:"optional"`                       // FANSReportedWaypointTime.
+	ReportedWaypointAltitude *UPERAltitude       `asn1:"optional"`                       // FANSReportedWaypointAltitude.
 }
 
-// UPERTimeICAOUnitNameFrequency is time + unit + frequency.
-type UPERTimeICAOUnitNameFrequency struct {
-	Time         UPERTime
-	ICAOUnitName UPERICAOUnitName
-	Frequency    UPERFrequency
+// UPERTemperature implements FANSTemperature.
+type UPERTemperature struct {
+	TemperatureC *int `asn1:"choice:0,size:-80..47"`   // FANSTemperatureC, degrees Celsius.
+	TemperatureF *int `asn1:"choice:1,size:-105..150"` // FANSTemperatureF, degrees Fahrenheit.
 }
 
-// UPERAltimeter is a CHOICE of altimeter settings.
-type UPERAltimeter struct {
-	AltimeterInHg         *int `asn1:"choice:0,size:2200..3200"` // units=0.01 inHg (22.00-32.00)
-	AltimeterHectopascals *int `asn1:"choice:1,size:750..1100"`  // hPa
+// UPERWinds implements FANSWinds.
+type UPERWinds struct {
+	WindDirection int `asn1:"size:1..360"` // FANSWindDirection, degrees.
+	WindSpeed     UPERWindSpeed
 }
 
-// UPERVerticalRate is a CHOICE of vertical rate units.
-type UPERVerticalRate struct {
-	VerticalRateFt *int `asn1:"choice:0,size:100..20000"` // ft/min, units=100
-	VerticalRateM  *int `asn1:"choice:1,size:30..6000"`   // m/min, units=10
+// UPERWindSpeed implements FANSWindSpeed.
+type UPERWindSpeed struct {
+	WindSpeedEnglish *int `asn1:"choice:0,size:0..255"` // FANSWindSpeedEnglish, kt.
+	WindSpeedMetric  *int `asn1:"choice:1,size:0..511"` // FANSWindSpeedMetric, km/h.
 }
 
-// UPERToFromPosition is to/from indicator + position.
-type UPERToFromPosition struct {
-	ToFrom   int `asn1:"size:0..1"` // 0=to, 1=from
-	Position UPERPosition
+// UPERVerticalChange implements FANSVerticalChange.
+type UPERVerticalChange struct {
+	VerticalDirection UPERVerticalDirection `asn1:"size:0..1"`
+	VerticalRate      UPERVerticalRate
 }
 
-// UPERFacilityTP4 is the facility identification for TP4 handoff.
-type UPERFacilityTP4 struct {
-	FacilityDesignation string                  `asn1:"ia5string,size:4..8"`
-	Address             *UPERFacilityTP4Address `asn1:"optional"`
+// =============================================================================
+// Enumerations
+// =============================================================================
+
+// enumerated is implemented by the Go types of the module's ENUMERATED
+// types. names returns the enumeration identifiers in index order, which
+// is the order of their values in the module.
+type enumerated interface {
+	names() []string
 }
 
-// UPERFacilityTP4Address is a TP4 address structure.
-type UPERFacilityTP4Address struct {
-	NSAP *string `asn1:"optional,ia5string,size:1..40"`
+// UPERDirection implements FANSDirection.
+type UPERDirection int
+
+func (UPERDirection) names() []string {
+	return []string{"left", "right", "eitherSide", "north", "south", "east", "west",
+		"northEast", "northWest", "southEast", "southWest"}
 }
 
-// UPERPositionProcedureName is position + procedure name.
-type UPERPositionProcedureName struct {
-	Position      UPERPosition
-	ProcedureName UPERProcedureName
+// UPERErrorInformation implements FANSErrorInformation. The module defines
+// eleven errors (0 to 10) and reservedErrorMsg (16), "to ensure 5 bit
+// FANSErrorInformation field". An X.691 encoder would encode the twelve
+// enumerations' index in four bits; asn1c (and so libacars and dumpvdl2)
+// takes the range of the values, 0..16, and reads five bits, which is the
+// width the module's comment intends. libacars' module names indexes 11
+// to 16 reservedErrorMsg1 to reservedErrorMsg6 and accepts them, so they
+// are accepted here too, all as reservedErrorMsg.
+type UPERErrorInformation int
+
+func (UPERErrorInformation) names() []string {
+	return []string{"applicationError", "duplicateMsgIdentificationNumber",
+		"unrecognizedMsgReferenceNumber", "endServiceWithPendingMsgs",
+		"endServiceWithNoValidResponse", "insufficientMsgStorageCapacity",
+		"noAvailableMsgIdentificationNumber", "commandedTermination",
+		"insufficientData", "unexpectedData", "invalidData",
+		"reservedErrorMsg", "reservedErrorMsg", "reservedErrorMsg",
+		"reservedErrorMsg", "reservedErrorMsg", "reservedErrorMsg"}
+}
+
+// UPERICAOFacilityFunction implements FANSICAOFacilityFunction.
+type UPERICAOFacilityFunction int
+
+func (UPERICAOFacilityFunction) names() []string {
+	return []string{"center", "approach", "tower", "final", "groundControl",
+		"clearanceDelivery", "departure", "control"}
+}
+
+// UPERProcedureType implements FANSProcedureType.
+type UPERProcedureType int
+
+func (UPERProcedureType) names() []string { return []string{"arrival", "approach", "departure"} }
+
+// UPERRunwayConfiguration implements FANSRunwayConfiguration.
+type UPERRunwayConfiguration int
+
+func (UPERRunwayConfiguration) names() []string { return []string{"left", "right", "center", "none"} }
+
+// UPERToFrom implements FANSToFrom.
+type UPERToFrom int
+
+func (UPERToFrom) names() []string { return []string{"to", "from"} }
+
+// UPERTp4Table implements FANSTp4table.
+type UPERTp4Table int
+
+func (UPERTp4Table) names() []string { return []string{"labelA", "labelB"} }
+
+// UPERTurbulence implements FANSTurbulence.
+type UPERTurbulence int
+
+func (UPERTurbulence) names() []string { return []string{"light", "moderate", "severe"} }
+
+// UPERIcing implements FANSIcing.
+type UPERIcing int
+
+func (UPERIcing) names() []string { return []string{"trace", "light", "moderate", "severe"} }
+
+// UPERVerticalDirection implements FANSVerticalDirection.
+type UPERVerticalDirection int
+
+func (UPERVerticalDirection) names() []string { return []string{"up", "down"} }
+
+// UPERLatitudeDirection implements FANSLatitudeDirection.
+type UPERLatitudeDirection int
+
+func (UPERLatitudeDirection) names() []string { return []string{"north", "south"} }
+
+// UPERLongitudeDirection implements FANSLongitudeDirection.
+type UPERLongitudeDirection int
+
+func (UPERLongitudeDirection) names() []string { return []string{"east", "west"} }
+
+// UPERATWAltitudeTolerance implements FANSATWAltitudeTolerance.
+type UPERATWAltitudeTolerance int
+
+func (UPERATWAltitudeTolerance) names() []string { return []string{"at", "atorabove", "atorbelow"} }
+
+// UPERATWDistanceTolerance implements FANSATWDistanceTolerance.
+type UPERATWDistanceTolerance int
+
+func (UPERATWDistanceTolerance) names() []string { return []string{"plus", "minus"} }
+
+// UPERTimeTolerance implements FANSTimeTolerance.
+type UPERTimeTolerance int
+
+func (UPERTimeTolerance) names() []string { return []string{"at", "atorafter", "atorbefore"} }
+
+// UPERCOMNAVEquipmentStatus implements FANSCOMNAVEquipmentStatus.
+type UPERCOMNAVEquipmentStatus int
+
+func (UPERCOMNAVEquipmentStatus) names() []string {
+	return []string{"aloranA", "cloranC", "ddme", "edecca", "fadf", "ggnss", "hhfRTF",
+		"iinertialNavigation", "lils", "momega", "ovor", "pdoppler",
+		"rrnavRouteEquipment", "ttacan", "uuhfRTF", "vvhfRTF"}
+}
+
+// UPERSSREquipmentAvailable implements FANSSSREquipmentAvailable.
+type UPERSSREquipmentAvailable int
+
+func (UPERSSREquipmentAvailable) names() []string {
+	return []string{"nnil", "atransponderModeA", "ctransponderModeAandC",
+		"xtransponderModeS", "ptransponderModeSPA", "itransponderModeSID",
+		"stransponderModeSPAID"}
+}
+
+// numericIndex is the PER index of a NumericString character (see
+// UPERNumericChar). It is checked like an enumeration: the eleven indexes
+// name the characters of the alphabet.
+type numericIndex int
+
+// numericAlphabet is the NumericString alphabet in PER index order.
+const numericAlphabet = " 0123456789"
+
+func (numericIndex) names() []string {
+	names := make([]string, len(numericAlphabet))
+	for i := range numericAlphabet {
+		names[i] = numericAlphabet[i : i+1]
+	}
+	return names
 }
