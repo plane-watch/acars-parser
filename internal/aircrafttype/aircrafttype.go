@@ -28,6 +28,13 @@ var (
 	// boeingMaxRe matches the compact MAX form "B7378MAX".
 	boeingMaxRe = regexp.MustCompile(`^B?737-?([789])\s*MAX`)
 
+	// boeingMaxModelRe matches Boeing's model name for a 737 MAX: a
+	// single-digit variant, optionally followed by its LEAP-1B engine, e.g.
+	// "737-8", "737-8 LEAP-1B28". The 737 NG models are "737-700" to
+	// "737-900", so a single-digit variant is always a MAX. Any other engine
+	// suffix is not accepted, since only the LEAP-1B is fitted to the MAX.
+	boeingMaxModelRe = regexp.MustCompile(`^B?737-([789])(?:\s+LEAP-1B\S*)?$`)
+
 	// embraerE2Re matches an Embraer E2 model name, e.g. "E195-E2".
 	embraerE2Re = regexp.MustCompile(`^E(175|190|195)-E2$`)
 
@@ -104,6 +111,9 @@ func Normalise(raw string) (string, bool) {
 		return embraerE2[m[1]], true
 	}
 	if m := boeingMaxRe.FindStringSubmatch(s); m != nil {
+		return boeingMax[m[1]], true
+	}
+	if m := boeingMaxModelRe.FindStringSubmatch(s); m != nil {
 		return boeingMax[m[1]], true
 	}
 	if m := boeingRe.FindStringSubmatch(s); m != nil {

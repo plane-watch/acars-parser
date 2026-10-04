@@ -27,6 +27,13 @@ func TestNormalise(t *testing.T) {
 		{"737-800 CFM56-7B26", "B738", true},
 		{"737-700 CFM56-7B24", "B737", true},
 		{"B7378MAX", "B38M", true},
+		// Boeing names the 737 MAX models with a single-digit variant; the
+		// LEAP-1B engine is fitted only to the MAX.
+		{"737-8 LEAP-1B28", "B38M", true},
+		{"737-9 LEAP-1B28", "B39M", true},
+		{"737-8", "B38M", true},
+		// A MAX variant with a 737 NG engine is contradictory.
+		{"737-8 CFM56-7B26", "", false},
 		{"767-300 PW4060", "B763", true},
 		{"777-200 PW4090-3", "B772", true},
 		{"777-200 GE90-94B", "B772", true},
