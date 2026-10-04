@@ -5,6 +5,8 @@ import (
 	"errors"
 	"sort"
 	"testing"
+
+	"github.com/shaneshort/go-asn/uper"
 )
 
 // TestDirectionDetection verifies that the decoder correctly determines message direction
@@ -49,8 +51,10 @@ func TestDirectionDetection(t *testing.T) {
 		},
 		{
 			// dM0 WILCO - only valid as downlink.
-			name:          "dM0 WILCO with correct input",
-			hexStr:        "6310A9940038D2", // From NATS sample
+			name: "dM0 WILCO with correct input",
+			// From a NATS sample, without its CRC (38D2), which the
+			// sample included; libacars decodes the payload as WILCO.
+			hexStr:        "6310A99400",
 			inputDir:      DirectionDownlink,
 			wantDirection: DirectionDownlink,
 			wantElemID:    0,
@@ -107,8 +111,8 @@ func TestDirectionValidation(t *testing.T) {
 		{"uM160 NEXT DATA AUTHORITY", DirectionUplink, 160, true},
 		{"uM182 CONFIRM ATIS", DirectionUplink, 182, true},
 
-		// Invalid uplink elements (reserved or unknown)
-		{"uM178 reserved", DirectionUplink, 178, false},
+		// Invalid uplink elements (deleted or unknown)
+		{"uM178 deleted", DirectionUplink, 178, false},
 		{"uM200 unknown", DirectionUplink, 200, false},
 
 		// Valid downlink elements
@@ -117,7 +121,8 @@ func TestDirectionValidation(t *testing.T) {
 		{"dM80 DEVIATING", DirectionDownlink, 80, true},
 
 		// Invalid downlink elements (reserved or unknown)
-		// Note: dM87-88, dM90-97, dM101-106, dM108+ are reserved in downlink
+		// Note: dM81 to dM128 are reserved in FANS-1/A.
+		{"dM81 reserved", DirectionDownlink, 81, false},
 		{"dM87 reserved", DirectionDownlink, 87, false},
 		{"dM127 reserved", DirectionDownlink, 127, false},
 		{"dM200 unknown", DirectionDownlink, 200, false},
@@ -163,7 +168,7 @@ func TestDecodeWithUnknownDirection(t *testing.T) {
 
 	// Element 0 is dM0 WILCO as a downlink and uM0 UNABLE as an uplink:
 	// the two meanings are opposite, so neither is reported.
-	data, _ = hex.DecodeString("6310A9940038D2")
+	data, _ = hex.DecodeString("6310A99400")
 	if msg, err := DecodeWithUPER(data, DirectionUnknown); !errors.Is(err, ErrAmbiguousDirection) {
 		t.Errorf("element 0: direction %v, error %v; want ErrAmbiguousDirection", msgDirection(msg), err)
 	}
@@ -175,15 +180,30 @@ func TestDecodeWithUnknownDirection(t *testing.T) {
 
 // TestDecodeRejectsInvalidElements checks that a message neither message set
 // decodes to valid elements is an error, rather than a result with reserved
-// elements. The payload is a real label H1 message from the January 2026
-// corpus (N8830Q): the uplink decode fails and the downlink decode gives
-// the reserved dM117.
+// elements. Payload 002900 does not decode as an uplink and decodes as a
+// downlink only to the reserved dM82 (libacars agrees on both).
 func TestDecodeRejectsInvalidElements(t *testing.T) {
-	data, _ := hex.DecodeString("22B432DD6F1A7D2A882BCFA5524062218018D4")
-	data = data[:len(data)-2] // Strip the CRC.
+	data, _ := hex.DecodeString("002900")
 	for _, dir := range []MessageDirection{DirectionUplink, DirectionDownlink, DirectionUnknown} {
 		if msg, err := DecodeWithUPER(data, dir); !errors.Is(err, ErrNoValidElements) {
 			t.Errorf("direction %v: got %+v, %v; want ErrNoValidElements", dir, msg, err)
+		}
+	}
+}
+
+// TestDecodeH1Uplink checks a real label H1 message from the January 2026
+// corpus (N8830Q), which an earlier decoder, with the wrong ICAO unit name
+// type, could not decode as an uplink. libacars decodes it as uM117 CONTACT
+// FORT WORTH CENTER 134.475 MHz, with the facility given by name, and
+// reports it as unparseable as a downlink.
+func TestDecodeH1Uplink(t *testing.T) {
+	data, _ := hex.DecodeString("22B432DD6F1A7D2A882BCFA5524062218018D4")
+	data = data[:len(data)-2] // Strip the CRC.
+	for _, dir := range []MessageDirection{DirectionUplink, DirectionDownlink, DirectionUnknown} {
+		msg, err := DecodeWithUPER(data, dir)
+		if err != nil || msg.Direction != DirectionUplink || len(msg.Elements) != 1 ||
+			msg.Elements[0].Text != "CONTACT FORT WORTH CENTER 134.475 MHz" {
+			t.Errorf("direction %v: got %+v, %v; want uplink CONTACT FORT WORTH CENTER 134.475 MHz", dir, msg, err)
 		}
 	}
 }
@@ -196,24 +216,24 @@ func msgDirection(msg *Message) MessageDirection {
 }
 
 // TestDecodeRejectsPlaceholderElements checks that an element whose UPER
-// type is a placeholder without the data its label requires is not taken as
-// a valid decode. dM82 WE CANNOT ACCEPT [altitude] is typed as an empty
-// struct, so payload 002900 decoded "validly" as a downlink although the
-// altitude was never read.
+// type is NULL although its label has a placeholder is not taken as a valid
+// decode. With the types matching the ASN.1 module, the only such element
+// is uM178 [trackdetailmsg-deleted], an element the module has deleted.
 func TestDecodeRejectsPlaceholderElements(t *testing.T) {
-	data, _ := hex.DecodeString("002900")
+	if got := sortedKeys(placeholderUplink); len(got) != 1 || got[0] != 178 {
+		t.Errorf("placeholder uplink elements %v, want [178]", got)
+	}
+	if got := sortedKeys(placeholderDownlink); len(got) != 0 {
+		t.Errorf("placeholder downlink elements %v, want none", got)
+	}
+	data, err := uper.Marshal(UPERUplinkMessage{Header: UPERMessageHeader{MsgID: 1}, Element: UPERUplinkElement{UM178NULL: &struct{}{}}})
+	if err != nil {
+		t.Fatal(err)
+	}
 	for _, dir := range []MessageDirection{DirectionUplink, DirectionDownlink, DirectionUnknown} {
 		if msg, err := DecodeWithUPER(data, dir); err == nil {
-			t.Errorf("direction %v: decoded %+v; want an error", dir, msg.Elements)
+			t.Errorf("direction %v: decoded uM178 as %+v; want an error", dir, msg.Elements)
 		}
-	}
-	t.Logf("placeholder uplink elements: %v", sortedKeys(placeholderUplink))
-	t.Logf("placeholder downlink elements: %v", sortedKeys(placeholderDownlink))
-	if !placeholderDownlink[82] {
-		t.Error("dM82 is not recognised as a placeholder")
-	}
-	if placeholderDownlink[0] {
-		t.Error("dM0 WILCO, which carries no data, is treated as a placeholder")
 	}
 }
 
