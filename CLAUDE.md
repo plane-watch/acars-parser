@@ -114,6 +114,15 @@ Tables:
 
 ## Tooling
 
+## Reference decoders and specifications
+
+These local projects (outside the repository) are references for checking decoders:
+- `~/Documents/development/libacars/build/examples/decode_acars_apps` is the libacars reference decoder (CPDLC, ADS-C, MIAM and others). It reads lines such as `u AA /RECOEYA.AT1.EC-NDR...` (`u` uplink, `d` downlink) from stdin, or `decode_acars_apps u AA '<text>'`, and prints a text tree. Use it to verify binary decoders against real messages; the libacars source (`libacars/miam-core.c`, `libacars/asn1/`) documents formats and PER constraints.
+- `~/Documents/development/dumpvdl2/asn1/fans-cpdlc.asn1` is the FANS-1/A CPDLC ASN.1 module; `internal/parsers/cpdlc/fans_uper_types.go` must match it.
+- `~/Documents/development/acars-decoder-typescript` (Airframes' decoder plugins) and `~/Documents/development/acars-message-documentation` describe many ACARS message formats.
+- The user's acarshub at http://planewatch.local/search holds locally received messages.
+- `live -no-store -output FILE` captures parsed live traffic without touching the databases; live messages carry the link-layer direction, which the January corpus lacks.
+
 - Before the first build, run `go generate ./internal/aircrafttype`. It fetches ICAO Doc 8643 into a gitignored CSV that the code embeds (the repository is public, so ICAO's data is not committed).
 - Linting: `golangci-lint run ./...` (configuration in `.golangci.yml`); formatting: `gofmt`.
 - Parser changes must pass the regression baseline (`go test ./internal/parsers -run TestBaseline`). Re-record it with `-update-baseline` only after reviewing every reported difference, and commit the re-recorded fixtures with the change.
