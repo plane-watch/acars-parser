@@ -32,3 +32,6 @@ go.work.sum
 # Local working notes and design plans (current-state docs live in docs/).
 TODO.md
 docs/plans/
+
+# Local deployment settings (may hold passwords).
+/deployments/.env

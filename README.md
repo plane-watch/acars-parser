@@ -63,6 +63,8 @@ docker run -d --name acars-postgres -p 5432:5432 \
 
 `migrate` is the only command that creates the ClickHouse tables, so the last step is required on a fresh installation.
 
+To run the whole stack (both databases and the `live` ingester) with Docker Compose, see [docs/deployment.md](docs/deployment.md).
+
 ### Configuration
 
 Every `acars_parser` subcommand takes its default connection settings from these environment variables. The command-line flags override them.
@@ -615,6 +617,7 @@ Multi-stop legs come from the `route_legs` table, which only `migrate` populates
 | Document | Contents |
 |---|---|
 | [docs/storage.md](docs/storage.md) | ClickHouse and PostgreSQL schemas, and which commands use each table |
+| [docs/deployment.md](docs/deployment.md) | Running the stack with Docker Compose, and moving its data to another host |
 | [docs/parsers.md](docs/parsers.md) | Parser reference |
 | [docs/PARSER_SPEC.md](docs/PARSER_SPEC.md) | Specification for writing parsers |
 | [docs/enrichment-api.md](docs/enrichment-api.md) | Enrichment API reference |

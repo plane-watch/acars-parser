@@ -1,0 +1,91 @@
+# The acars_parser stack: ClickHouse (message archive), PostgreSQL (state)
+# and the live ingester. See docs/deployment.md.
+#
+# Usage, from the repository root:
+#   docker compose -f deployments/docker-compose.yml up -d clickhouse postgres
+#   docker compose -f deployments/docker-compose.yml run --rm schema
+#   docker compose -f deployments/docker-compose.yml up -d live
+name: acars
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.8
+    container_name: acars-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: acars
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-acars}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:8123:8123"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: acars-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: acars
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-acars}
+      POSTGRES_DB: acars_state
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acars -d acars_state"]
+      interval: 10s
+      retries: 5
+
+  # One-off: creates the ClickHouse and PostgreSQL tables without copying any
+  # SQLite data.
+  schema:
+    build:
+      context: ..
+      dockerfile: cmd/acars_parser/Dockerfile
+    image: acars_parser:local
+    profiles: ["tools"]
+    environment: &db-env
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-acars}
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-acars}
+    command: ["migrate", "-skip-messages", "-skip-state"]
+    depends_on:
+      clickhouse:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+  live:
+    build:
+      context: ..
+      dockerfile: cmd/acars_parser/Dockerfile
+    image: acars_parser:local
+    container_name: acars-live
+    restart: unless-stopped
+    environment: *db-env
+    # The NATS credentials file stays outside the repository and the image.
+    command: ["live", "-creds", "/run/secrets/airframes_nats.creds", "-exclude", ""]
+    volumes:
+      - ${NATS_CREDS:?set NATS_CREDS to the path of the NATS credentials file}:/run/secrets/airframes_nats.creds:ro
+    depends_on:
+      clickhouse:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+volumes:
+  clickhouse-data:
+  postgres-data:
