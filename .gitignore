@@ -18,6 +18,10 @@
 *.log
 /tools/routeexport/routes.csv
 
+# ICAO Doc 8643 designators: ICAO's data is fetched by go generate, not
+# republished in this repository.
+/internal/aircrafttype/doc8643.csv
+
 # Local Go workspace (points go-asn at a local checkout for development).
 go.work
 go.work.sum

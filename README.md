@@ -11,6 +11,14 @@ The repository contains:
 
 ## Building
 
+The aircraft type normaliser embeds ICAO's list of type designators (ICAO Doc 8643), which is fetched from ICAO rather than kept in this repository. Fetch it once before the first build, and again to refresh it (this needs network access to ICAO):
+
+```bash
+go generate ./internal/aircrafttype
+```
+
+Then:
+
 ```bash
 go build -o bin/acars_parser ./cmd/acars_parser
 go build -o bin/enrichment-api ./cmd/enrichment-api
@@ -621,6 +629,16 @@ go test ./...
 ```
 
 The PostgreSQL integration tests in `internal/storage` use their own database, `POSTGRES_TEST_DATABASE` (default `acars_test`), never the one holding real data. They use the usual `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER` and `POSTGRES_PASSWORD` variables, and are skipped when no database is reachable.
+
+### Aircraft type designators
+
+Transmitted aircraft types are normalised to ICAO type designators (`internal/aircrafttype`). Only designators in ICAO Doc 8643 are accepted, embedded from `internal/aircrafttype/doc8643.csv`. That file is fetched from ICAO's public service, records its source and fetch date, and is gitignored, so ICAO's data is not republished here. Until it has been fetched, packages that use the normaliser do not build. To fetch or refresh it:
+
+```bash
+go generate ./internal/aircrafttype
+```
+
+A transmitted type that does not map to a listed designator keeps its raw value and gets no designator.
 
 ### Parser regression baseline
 

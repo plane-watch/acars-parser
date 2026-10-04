@@ -101,3 +101,27 @@ func TestMappingTargetsAreListedDesignators(t *testing.T) {
 		}
 	}
 }
+
+// TestDesignatorsComeFromDoc8643 checks that the designator list is the
+// embedded ICAO Doc 8643 data rather than a hand-written list.
+func TestDesignatorsComeFromDoc8643(t *testing.T) {
+	if len(designators) < 2000 {
+		t.Fatalf("designators holds %d entries, want the full ICAO list (over 2,000)", len(designators))
+	}
+	tests := map[string]bool{
+		"B461": true, "B463": true, "E75L": true, "GA6C": true, "B3XM": true, "P8": true,
+		// Not ICAO designators (each was once in a hand-written list).
+		"B731": false, "BA46": false, "E175": false, "GL6T": false,
+	}
+	for d, want := range tests {
+		if designators[d] != want {
+			t.Errorf("designators[%q] = %v, want %v", d, designators[d], want)
+		}
+	}
+}
+
+func TestLoadDesignatorsRejectsAnIncompleteFile(t *testing.T) {
+	if _, err := loadDesignators("# comment\ndesignator,manufacturer,model,description,wtc\nB738,BOEING,737-800,L2J,M\n"); err == nil {
+		t.Error("loadDesignators accepted a file with one designator")
+	}
+}

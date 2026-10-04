@@ -114,6 +114,7 @@ Tables:
 
 ## Tooling
 
+- Before the first build, run `go generate ./internal/aircrafttype`. It fetches ICAO Doc 8643 into a gitignored CSV that the code embeds (the repository is public, so ICAO's data is not committed).
 - Linting: `golangci-lint run ./...` (configuration in `.golangci.yml`); formatting: `gofmt`.
 - Parser changes must pass the regression baseline (`go test ./internal/parsers -run TestBaseline`). Re-record it with `-update-baseline` only after reviewing every reported difference, and commit the re-recorded fixtures with the change.
 - `github.com/shaneshort/go-asn` is required by version from GitHub. A local, gitignored `go.work` may point it at `/Users/shanes/Documents/development/go-asn`; changes to go-asn must be tagged and pushed before acars_parser can require them. Use `GOWORK=off go build ./...` to check the build without the workspace.
