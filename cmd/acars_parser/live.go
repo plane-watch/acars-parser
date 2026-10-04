@@ -479,26 +479,10 @@ func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars
 		}
 	}
 
-	// Upsert route if we have origin and destination.
-	// The routes table holds ICAO pairs; IATA pairs are kept by the extractor
-	// for storage v2, which records the code type.
-	if data.Flight != nil && data.Flight.AirportCodes == extractor.AirportCodesICAO {
-		flightPattern := data.Flight.FlightNumber
-		if flightPattern == "" {
-			flightPattern = data.Flight.Registration
-		}
-		if flightPattern != "" {
-			_, err := pg.UpsertRoute(ctx, storage.Route{
-				FlightPattern:    flightPattern,
-				OriginICAO:       data.Flight.Origin,
-				DestICAO:         data.Flight.Destination,
-				ObservationCount: 1,
-				FirstSeen:        now,
-				LastSeen:         now,
-			})
-			if err == nil {
-				stats.routesUpserted++
-			}
+	// Upsert the flight's route (see flightRoute).
+	if route, ok := flightRoute(data.Flight, now); ok {
+		if _, err := pg.UpsertRoute(ctx, route); err == nil {
+			stats.routesUpserted++
 		}
 	}
 

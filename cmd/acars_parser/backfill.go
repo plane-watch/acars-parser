@@ -316,28 +316,10 @@ func writeExtractedData(ctx context.Context, pg *storage.PostgresDB, data extrac
 		}
 	}
 
-	// Write route if we have origin and destination.
-	// The routes table holds ICAO pairs; IATA pairs are kept by the extractor
-	// for storage v2, which records the code type.
-	if data.Flight != nil && data.Flight.AirportCodes == extractor.AirportCodesICAO {
-		flightPattern := data.Flight.FlightNumber
-		if flightPattern == "" {
-			// Use registration as a fallback pattern if no flight number.
-			flightPattern = data.Flight.Registration
-		}
-		if flightPattern != "" {
-			_, err := pg.UpsertRoute(ctx, storage.Route{
-				FlightPattern:    flightPattern,
-				OriginICAO:       data.Flight.Origin,
-				DestICAO:         data.Flight.Destination,
-				IsMultiStop:      false,
-				ObservationCount: 1,
-				FirstSeen:        seenTime,
-				LastSeen:         seenTime,
-			})
-			if err != nil {
-				return fmt.Errorf("upsert route: %w", err)
-			}
+	// Write the flight's route (see flightRoute).
+	if route, ok := flightRoute(data.Flight, seenTime); ok {
+		if _, err := pg.UpsertRoute(ctx, route); err != nil {
+			return fmt.Errorf("upsert route: %w", err)
 		}
 	}
 

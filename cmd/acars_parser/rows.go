@@ -1,7 +1,10 @@
 package main
 
 import (
+	"time"
+
 	"acars_parser/internal/acars"
+	"acars_parser/internal/extractor"
 	"acars_parser/internal/registry"
 	"acars_parser/internal/storage"
 )
@@ -56,4 +59,24 @@ func messageRows(msg *acars.Message, results []registry.Result) []storage.CHInse
 		rows = append(rows, resultRow(msg, result))
 	}
 	return rows
+}
+
+// flightRoute returns the route row for a flight update, and false if there
+// is none. The routes table maps a flight number to its ICAO origin and
+// destination, so a route needs both ICAO endpoints (IATA pairs are kept by
+// the extractor for storage v2) and a flight number: a route seen without
+// one is an aircraft's movement, not a flight's route, and is not recorded
+// (it used to be recorded under the registration).
+func flightRoute(f *extractor.FlightUpdate, seen time.Time) (storage.Route, bool) {
+	if f == nil || f.AirportCodes != extractor.AirportCodesICAO || f.FlightNumber == "" {
+		return storage.Route{}, false
+	}
+	return storage.Route{
+		FlightPattern:    f.FlightNumber,
+		OriginICAO:       f.Origin,
+		DestICAO:         f.Destination,
+		ObservationCount: 1,
+		FirstSeen:        seen,
+		LastSeen:         seen,
+	}, true
 }
