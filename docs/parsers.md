@@ -65,7 +65,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), ualuplink (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
@@ -96,6 +96,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [adsc](#adsc) | adsc | B6 | 10 | `adsc` | Binary tag decoding | Yes |
 | [afn](#afn) | afn | A0, H1 | 50 | `afn` | Hand-written regex + CRC | Yes |
 | [agfsr](#agfsr) | agfsr | 4T | 100 | `agfsr` | Grok | No |
+| [asflightdata](#asflightdata) | asflightdata | H1 | 60 | `alaska_flight_data` | Hand-written regex | Yes |
 | [atis](#atis) | atis | A9 | 100 | `atis` | Hand-written regex | Yes |
 | [cmcreport](#cmcreport) | cmcreport | H1 | 60 | `cmc_report` | Grok | Yes |
 | [cpdlc](#cpdlc) | cpdlc | AA, BA, H1 | 50 | `cpdlc` | ARINC layer + ASN.1 UPER decoding | Yes |
@@ -139,7 +140,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [ualuplink](#ualuplink) | ualuplink | RA | 60 | `united_uplink` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 46 parsers in 42 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 47 parsers in 43 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
 
 ---
 
@@ -232,6 +233,28 @@ The message is the ground station, the IMI `AFN`, a header (FMH), segments and a
 **Description:** Parses AGFSR flight status reports. The quick check looks for `AGFSR`.
 
 **Extracted fields:** flight number, day of month, route, origin, destination, report time, latitude, longitude, flight level, phase, fuel remaining, fuel used, Mach, wind direction and speed, heading, ground speed, ETA and scheduled time.
+
+---
+
+### asflightdata
+
+**Package:** `internal/parsers/asflightdata` · **Labels:** H1 · **Priority:** 60 · **Type:** `alaska_flight_data`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses Alaska Airlines flight data reports: the route and a series of samples. For example:
+
+```
+D3M207KSANKATLN33216W11201120073500M052215102G0009
+N33232W1115623500M052214100G0009
+-0016
+```
+
+The first line is `D3M`, three digits, the origin and destination, and the first sample, which alone carries a time (HHMM). A sample is the latitude (degrees and minutes to a tenth), the longitude, the altitude in tens of feet, the outside air temperature (`M` minus or `P` plus, °C), the wind direction and speed (knots), and a letter and four digits.
+
+**Field meanings:** These were established from the January 2026 corpus, not from a specification: the temperature falls by 1.9 °C per 1,000 ft (the standard atmosphere gives 2.0), and the wind speed rises with altitude (median 17 kt below 10,000 ft, 72 kt above 30,000 ft) and is mostly westerly. The three digits after `D3M` are not the flight number (none of 368 matched the flight); like the letter, the four digits after it and the last line, they are not captured. The report names no registration or flight.
+
+**Coverage (January 2026 corpus):** 12,588 of 25,949 `D?M` messages (62,934 samples). The rest are other variants.
 
 ---
 

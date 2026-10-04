@@ -8,6 +8,7 @@ import (
 	_ "acars_parser/internal/parsers/adsc"
 	_ "acars_parser/internal/parsers/afn"
 	_ "acars_parser/internal/parsers/agfsr"
+	_ "acars_parser/internal/parsers/asflightdata"
 	_ "acars_parser/internal/parsers/atis"
 	_ "acars_parser/internal/parsers/cmcreport"
 	_ "acars_parser/internal/parsers/cpdlc"

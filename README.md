@@ -461,6 +461,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `adsc` | ADS-C reports (binary tag decoding) | B6 |
 | `afn` | AFN logons: callsign, registration, 24-bit aircraft address, ATS facility | A0, H1 |
 | `agfsr` | AGFSR flight status | 4T |
+| `alaska_flight_data` | Alaska Airlines flight data reports: route, and samples of position, temperature and wind | H1 |
 | `atis` | D-ATIS | A9 |
 | `cmc_report` | Boeing CMC report headers (RTE, PLF, CFG): registration, airline code, callsign and route | H1 |
 | `cpdlc` | FANS-1/A CPDLC (ASN.1 PER), including connection management | AA, BA, H1 |
