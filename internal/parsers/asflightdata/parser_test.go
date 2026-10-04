@@ -49,9 +49,27 @@ func TestParseRejectsOtherText(t *testing.T) {
 		"D3M207KSANXXXXN33216W11201120073500M052215102G0009\r\n",
 		"D3M207KSANKATL garbage",
 		"POSN31211W097249,ACT,052904",
+		// Other variants, whose layouts are not established.
+		"D1M207KSANKATLN33216W11201120073500M052215102G0009\r\n",
+		"D2M207KSANKATLN33216W11201120073500M052215102G0009\r\n",
+		// A latitude beyond 90 degrees.
+		"D3M207KSANKATLS99216W11201120073500M052215102G0009\r\n",
+		// Minutes of 60 or more, and an impossible time.
+		"D3M207KSANKATLN33999W11201199603500M052215102G0009\r\n",
+		"D3M207KSANKATLN33216W11201125073500M052215102G0009\r\n",
 	} {
 		if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Text: text}); r != nil {
 			t.Errorf("Parse(%q) = %+v, want nil", text, r)
 		}
+	}
+}
+
+// TestParseSkipsInvalidSamples checks that a later sample with impossible
+// minutes is skipped while the report is kept.
+func TestParseSkipsInvalidSamples(t *testing.T) {
+	text := "D3M207KSANKATLN33216W11201120073500M052215102G0009\r\nN33999W1115623500M052214100G0009\r\nN33249W1115113501M052214100G0009\r\n"
+	r, ok := (&Parser{}).Parse(&acars.Message{Label: "H1", Text: text}).(*Result)
+	if !ok || len(r.Samples) != 2 {
+		t.Errorf("got %+v, want 2 samples", r)
 	}
 }

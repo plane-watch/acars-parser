@@ -59,7 +59,7 @@ const sampleFields = `([NS])(\d{2})(\d{3})([EW])(\d{3})(\d{3})`
 var (
 	// headerRe matches the first line: the route, the time and the first
 	// sample's remaining fields.
-	headerRe = regexp.MustCompile(`^D\dM\d{3}([A-Z]{4})([A-Z]{4})` + sampleFields + `(\d{4})(\d{4})([MP])(\d{3})(\d{3})(\d{3})[A-Z]\d{4}$`)
+	headerRe = regexp.MustCompile(`^D3M\d{3}([A-Z]{4})([A-Z]{4})` + sampleFields + `(\d{4})(\d{4})([MP])(\d{3})(\d{3})(\d{3})[A-Z]\d{4}$`)
 
 	// sampleRe matches the following samples, which have no time.
 	sampleRe = regexp.MustCompile(`^` + sampleFields + `(\d{4})([MP])(\d{3})(\d{3})(\d{3})[A-Z]\d{4}$`)
@@ -77,7 +77,7 @@ func (p *Parser) Labels() []string { return []string{"H1"} }
 func (p *Parser) Priority() int    { return 60 }
 
 func (p *Parser) QuickCheck(text string) bool {
-	return len(text) > 3 && text[0] == 'D' && text[2] == 'M'
+	return strings.HasPrefix(text, "D3M")
 }
 
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
@@ -96,9 +96,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Destination: h[2],
 		Time:        h[9],
 	}
-	if s, ok := sample(h[3:9], h[10], h[11], h[12], h[13], h[14]); ok {
-		result.Samples = append(result.Samples, s)
+	// The first sample carries the report's only time; a report whose
+	// first sample or time is invalid is not parsed.
+	s, ok := sample(h[3:9], h[10], h[11], h[12], h[13], h[14])
+	if !ok || !validTime(h[9]) {
+		return nil
 	}
+	result.Samples = append(result.Samples, s)
 	for _, line := range lines[1:] {
 		if m := sampleRe.FindStringSubmatch(line); m != nil {
 			if s, ok := sample(m[1:7], m[7], m[8], m[9], m[10], m[11]); ok {
@@ -113,6 +117,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 // tenths of minutes for latitude, then for longitude) and its other fields,
 // and returns false if the position or wind is out of range.
 func sample(pos []string, alt, sign, temp, dir, speed string) (Sample, bool) {
+	// Minutes are given in tenths, so 600 or more is not a valid value.
+	if latMin, _ := strconv.Atoi(pos[2]); latMin >= 600 {
+		return Sample{}, false
+	}
+	if lonMin, _ := strconv.Atoi(pos[5]); lonMin >= 600 {
+		return Sample{}, false
+	}
 	s := Sample{
 		Latitude:  degrees(pos[1], pos[2], pos[0] == "S"),
 		Longitude: degrees(pos[4], pos[5], pos[3] == "W"),
@@ -125,10 +136,17 @@ func sample(pos []string, alt, sign, temp, dir, speed string) (Sample, bool) {
 	}
 	s.WindDirection, _ = strconv.Atoi(dir)
 	s.WindSpeedKt, _ = strconv.Atoi(speed)
-	if s.Latitude > 90 || s.Longitude < -180 || s.Longitude > 180 || s.WindDirection > 360 {
+	if s.Latitude < -90 || s.Latitude > 90 || s.Longitude < -180 || s.Longitude > 180 || s.WindDirection > 360 {
 		return Sample{}, false
 	}
 	return s, true
+}
+
+// validTime reports whether an HHMM time is valid.
+func validTime(hhmm string) bool {
+	h, _ := strconv.Atoi(hhmm[:2])
+	m, _ := strconv.Atoi(hhmm[2:])
+	return h < 24 && m < 60
 }
 
 // degrees converts degrees and minutes in tenths ("216" is 21.6 minutes) to

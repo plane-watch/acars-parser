@@ -254,7 +254,9 @@ The first line is `D3M`, three digits, the origin and destination, and the first
 
 **Field meanings:** These were established from the January 2026 corpus, not from a specification: the temperature falls by 1.9 °C per 1,000 ft (the standard atmosphere gives 2.0), and the wind speed rises with altitude (median 17 kt below 10,000 ft, 72 kt above 30,000 ft) and is mostly westerly. The three digits after `D3M` are not the flight number (none of 368 matched the flight); like the letter, the four digits after it and the last line, they are not captured. The report names no registration or flight.
 
-**Coverage (January 2026 corpus):** 12,588 of 25,949 `D?M` messages (62,934 samples). The rest are other variants.
+**Validation:** Only `D3M` reports are parsed (`D1M`, `D2M` and `D5M` layouts are not established). Minutes must be below 60 and coordinates within range; a report whose first sample or time is invalid is not parsed, and a later invalid sample is skipped.
+
+**Coverage (January 2026 corpus):** 12,609 of 24,038 `D3M` messages (63,039 samples). The rest use another layout, with padded IATA codes (`DFW AUS `) and all samples on one line, which is not parsed.
 
 ---
 
