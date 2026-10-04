@@ -38,7 +38,7 @@ type Traceable interface {
 
 Each parser package registers its parsers in an `init()` function by calling `registry.Register`. The `internal/parsers/parsers.go` file blank-imports every parser package so that those `init()` functions run. A parser package that is not imported there is never registered.
 
-The `internal/parsers/arinc` package is not a parser. It is a library that validates the ARINC 622 envelope and CRC, and the `cpdlc` parser uses it.
+The `internal/parsers/arinc` package is not a parser. It is a library that validates the ARINC 622 envelope and CRC, and the `cpdlc` parser uses it. In the envelope (`/<station>.<IMI><registration field><hex>`), the registration field is seven characters, padded on the left with dots (`.N514DN`, `..N17RX`; a seven-character registration such as `B-18772` has none), so it is read by its length: the hex payload cannot be told from the registration's last characters (`EC-NMZ` and `B-16731` end in hex digits). The CRC covers the IMI, the registration field as transmitted and the payload.
 
 ### Dispatch Order
 
@@ -369,7 +369,7 @@ The payload is decoded with both message sets. A decode is valid when every elem
 
 **Description:** Extracts the aircraft registration and ground station from ARINC envelope headers (`/<station>.AT1.`, `.CR1.` and `.ADS` messages). It does not decode the ADS-C payload: on label A6 it is a contract request from the ground station, which holds no position (aircraft reports are on B6, decoded by the `adsc` parser). On label AA, it runs after the `cpdlc` parser, and both can return a result for the same message.
 
-**Extracted fields:** tail, station, message type (AT1, CR1 or ADS) and payload size.
+**Extracted fields:** tail (the seven-character registration field without its padding dots), station, message type (AT1, CR1 or ADS) and payload size.
 
 ---
 

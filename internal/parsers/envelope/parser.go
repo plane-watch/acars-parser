@@ -6,7 +6,6 @@ package envelope
 import (
 	"encoding/hex"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"acars_parser/internal/acars"
@@ -37,68 +36,6 @@ func init() {
 func (p *Parser) Name() string     { return "envelope" }
 func (p *Parser) Labels() []string { return []string{"AA", "A6"} }
 func (p *Parser) Priority() int    { return 100 } // Run early.
-
-// tailPatterns for different registration formats.
-// Order matters - more specific patterns first.
-var tailPatterns = []*regexp.Regexp{
-	// European format with hyphen: F-GSQC, D-AIMH, G-XLEI, CS-TUI, PH-AOE, etc.
-	// 1-2 letter prefix, hyphen, 3-4 letters (no digits after hyphen).
-	regexp.MustCompile(`^([A-Z]{1,2}-[A-Z]{3,4})`),
-
-	// Australian: VH-ZNM (VH prefix is common).
-	regexp.MustCompile(`^(VH-[A-Z]{3})`),
-
-	// Chinese/HK B-numbers: B-LQC (letters), B-1341 (digits), B-227M (mixed).
-	regexp.MustCompile(`^(B-[A-Z0-9]{3,4})`),
-
-	// Turkish: TC-LLH.
-	regexp.MustCompile(`^(TC-[A-Z]{3})`),
-
-	// US N-numbers: N784AV, N4649K, N879FD.
-	regexp.MustCompile(`^(N[0-9]{1,5}[A-Z]{0,2})`),
-
-	// Japanese: JA792A, JA884A.
-	regexp.MustCompile(`^(JA[0-9]{3,4}[A-Z]?)`),
-
-	// Korean: HL8382, HL8250.
-	regexp.MustCompile(`^(HL[0-9]{4})`),
-
-	// Singapore: 9V-OJA.
-	regexp.MustCompile(`^(9V-[A-Z]{3})`),
-
-	// Malaysia: 9M-MRO.
-	regexp.MustCompile(`^(9M-[A-Z]{3})`),
-
-	// Qatar: A7-ANR.
-	regexp.MustCompile(`^(A7-[A-Z]{3})`),
-
-	// UAE: A6-BLP.
-	regexp.MustCompile(`^(A6-[A-Z]{3})`),
-
-	// Oman: A4O-SK.
-	regexp.MustCompile(`^(A4O-[A-Z]{2,3})`),
-
-	// Thailand: HS-THU.
-	regexp.MustCompile(`^(HS-[A-Z]{3})`),
-
-	// Vietnamese: VN-A897.
-	regexp.MustCompile(`^(VN-[A-Z][0-9]{3})`),
-
-	// Spanish: EC-MNS, EC-NGT.
-	regexp.MustCompile(`^(EC-[A-Z]{3})`),
-
-	// Swiss: HB-IHF.
-	regexp.MustCompile(`^(HB-[A-Z]{3})`),
-
-	// Finnish: OH-LTS.
-	regexp.MustCompile(`^(OH-[A-Z]{3})`),
-
-	// Norwegian: LN-FNE.
-	regexp.MustCompile(`^(LN-[A-Z]{3})`),
-
-	// Swedish: SE-RSG.
-	regexp.MustCompile(`^(SE-[A-Z]{3})`),
-}
 
 func (p *Parser) QuickCheck(text string) bool {
 	// Must start with envelope header.
@@ -207,33 +144,13 @@ func parseEnvelopeWithPrefix(text string) (station, msgType, tail, textPrefix, h
 		}
 	}
 
-	// Extract clean tail from the text prefix (chars 4-10, after IMI and dot).
-	// The format is "IMI.REG" where REG may include leading dots for short registrations.
-	regPart := textPrefix[3:]                // Skip IMI (3 chars).
-	regPart = strings.TrimLeft(regPart, ".") // Strip leading dots.
-
-	// Try to extract tail - include some of the hex to help pattern matching.
-	if len(remaining) >= 6 {
-		tail = extractTail(regPart + remaining[:6])
-	}
-	if tail == "" {
-		tail = extractTail(regPart)
-	}
+	// The tail is the registration field (the seven characters after the
+	// IMI) without its padding dots. It is read by its length: the payload
+	// cannot be told from the registration's last characters ("B-16731"
+	// ends in hex digits).
+	tail = strings.TrimLeft(textPrefix[3:], ".")
 
 	return
-}
-
-// extractTail cleans and validates a tail number candidate.
-func extractTail(candidate string) string {
-	candidate = strings.ToUpper(candidate)
-
-	for _, re := range tailPatterns {
-		if m := re.FindStringSubmatch(candidate); len(m) > 1 {
-			return m[1]
-		}
-	}
-
-	return ""
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.
@@ -274,7 +191,7 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 
 	trace.Extractors = append(trace.Extractors, registry.Extractor{
 		Name:    "tail",
-		Pattern: "aircraft registration patterns",
+		Pattern: "the seven-character registration field after the IMI",
 		Matched: tail != "",
 		Value:   tail,
 	})

@@ -35,6 +35,36 @@ func TestParse(t *testing.T) {
 			wantPayloadLen: 8, // 10 bytes - 2 bytes CRC = 8 bytes.
 		},
 		{
+			// The registration field is seven characters, padded on the
+			// left with dots: a seven-character registration has no dot
+			// after the IMI. Real message from the January 2026 corpus.
+			name:           "Seven-character registration",
+			text:           "/YEGE2YA.AT1B-1877224C8C0DE2B1624D9F3AA4F9C17A760F1D0",
+			wantGS:         "YEGE2YA",
+			wantIMI:        "AT1",
+			wantReg:        "B-18772",
+			wantPayloadLen: 15,
+		},
+		{
+			// Two padding dots before a five-character registration.
+			name:           "Five-character registration",
+			text:           "/YQME2YA.AT1..N17RX22CE87E840CCD8",
+			wantGS:         "YQME2YA",
+			wantIMI:        "AT1",
+			wantReg:        "N17RX",
+			wantPayloadLen: 5,
+		},
+		{
+			// A registration whose last character is a hex digit: the
+			// field's length, not the hex, ends it.
+			name:           "Registration ending in a hex digit",
+			text:           "/LPAFAYA.AT1.EC-NMZ2109002823D6A70C5BCC",
+			wantGS:         "LPAFAYA",
+			wantIMI:        "AT1",
+			wantReg:        "EC-NMZ",
+			wantPayloadLen: 8,
+		},
+		{
 			// Truly truncated message - missing CRC bytes entirely.
 			name:    "Too short - missing CRC",
 			text:    "/TESTAYA.AT1.N12345AB",
@@ -86,101 +116,6 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func TestSplitRegistrationAndHex(t *testing.T) {
-	tests := []struct {
-		input   string
-		wantReg string
-		wantHex string
-	}{
-		{"HL8251243F880C3D903BB4", "HL8251", "243F880C3D903BB4"},
-		{"N784AV22C823E840FBCE", "N784AV", "22C823E840FBCE"},
-		{"F-GSQC214823E24092E7", "F-GSQC", "214823E24092E7"},
-		{"A4O-SI005080204A", "A4O-SI", "005080204A"},
-		// Edge case: short registration.
-		{"N1ABCD", "N1", "ABCD"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			gotReg, gotHex := splitRegistrationAndHex(tt.input)
-			if gotReg != tt.wantReg {
-				t.Errorf("registration = %q, want %q", gotReg, tt.wantReg)
-			}
-			if gotHex != tt.wantHex {
-				t.Errorf("hex = %q, want %q", gotHex, tt.wantHex)
-			}
-		})
-	}
-}
-
-func TestValidateCRC(t *testing.T) {
-	tests := []struct {
-		name   string
-		imi    string
-		reg    string
-		hexStr string
-		want   bool
-	}{
-		{
-			// Full hex including CRC (A7F0) from libacars example.
-			name:   "Valid libacars sample",
-			imi:    "AT1",
-			reg:    "HL8251",
-			hexStr: "243F880C3D903BB412903604FE326C2479F4A64F7F62528B1A9CF8382738186AC28B16668E013DF464D8A7F0",
-			want:   true,
-		},
-		{
-			// Real message from database - has valid CRC but malformed CPDLC.
-			name:   "Valid CRC malformed CPDLC",
-			imi:    "AT1",
-			reg:    "N514DN",
-			hexStr: "220012E8294A952882D8",
-			want:   true,
-		},
-		{
-			// Corrupted CRC - flip a bit in the CRC bytes.
-			name:   "Invalid - corrupted CRC",
-			imi:    "AT1",
-			reg:    "HL8251",
-			hexStr: "243F880C3D903BB412903604FE326C2479F4A64F7F62528B1A9CF8382738186AC28B16668E013DF464D8A7F1", // Changed last byte.
-			want:   false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			hexData := make([]byte, len(tt.hexStr)/2)
-			for i := 0; i < len(tt.hexStr); i += 2 {
-				var b byte
-				_, _ = parseHexByte(tt.hexStr[i:i+2], &b)
-				hexData[i/2] = b
-			}
-
-			got := validateCRC(tt.imi, tt.reg, hexData)
-			if got != tt.want {
-				t.Errorf("validateCRC() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func parseHexByte(s string, b *byte) (int, error) {
-	var v byte
-	for _, c := range s {
-		v <<= 4
-		switch {
-		case c >= '0' && c <= '9':
-			v |= byte(c - '0')
-		case c >= 'A' && c <= 'F':
-			v |= byte(c - 'A' + 10)
-		case c >= 'a' && c <= 'f':
-			v |= byte(c - 'a' + 10)
-		}
-	}
-	*b = v
-	return 2, nil
-}
-
 func TestIsCPDLC(t *testing.T) {
 	if !IsCPDLC("AT1") {
 		t.Error("AT1 should be CPDLC")
@@ -206,6 +141,10 @@ func TestUnwrap(t *testing.T) {
 		{"USADCXA.AT1.N200WN679F2093004DAA", "/USADCXA.AT1.N200WN679F2093004DAA", ""},
 		// Already in the form Parse reads.
 		{"/SOUCAYA.AT1.HL8251ABCD", "/SOUCAYA.AT1.HL8251ABCD", ""},
+		// A seven-character registration follows the IMI with no dot.
+		{"- #MD/AA YEGE2YA.AT1B-1877224C8C0DE2", "/YEGE2YA.AT1B-1877224C8C0DE2", "AA"},
+		{"YEGE2YA.AT1B-1877224C8C0DE2", "/YEGE2YA.AT1B-1877224C8C0DE2", ""},
+		{"/YEGE2YA.AT1B-1877224C8C0DE2", "/YEGE2YA.AT1B-1877224C8C0DE2", ""},
 		// Character-oriented applications, such as AFN, follow the IMI with
 		// "/" rather than ".".
 		{"- #MD/A0 OAKODYA.AFN/FMHTZP16,.JA822J", "/OAKODYA.AFN/FMHTZP16,.JA822J", "A0"},

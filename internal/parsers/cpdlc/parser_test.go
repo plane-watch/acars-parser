@@ -204,7 +204,7 @@ func TestParseRelayedH1(t *testing.T) {
 			// set gives a valid element, so the decoder corrects the
 			// direction, and the result reports the corrected one.
 			name: "relayed with the original label", text: "- #MD/AA YQME2YA.AT1..N17RX22CE87E840CCD8",
-			wantStation: "YQME2YA", wantReg: ".N17RX", wantDir: "uplink", wantText: "END SERVICE",
+			wantStation: "YQME2YA", wantReg: "N17RX", wantDir: "uplink", wantText: "END SERVICE",
 		},
 		{
 			// Without the leading "/", from live traffic (October 2026). The

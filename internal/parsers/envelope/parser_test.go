@@ -119,3 +119,24 @@ func TestEnvelopeParser(t *testing.T) {
 		})
 	}
 }
+
+// TestTailIsTheRegistrationField checks that the tail is the seven-character
+// registration field without its padding dots, not a guess that runs into
+// the hex payload. The messages are real, from the January 2026 corpus.
+func TestTailIsTheRegistrationField(t *testing.T) {
+	tests := []struct{ label, text, want string }{
+		{"A6", "/SGNGWXA.ADSB-1673107010BCD0D010E0130D6", "B-16731"},
+		{"AA", "/FUKJJYA.CR1.N2332U2042E268E94A95283C92", "N2332U"},
+		{"AA", "/LPAFAYA.AT1.EC-NMZ2109002823D6A70C5BCC", "EC-NMZ"},
+		{"AA", "/YQME2YA.AT1..N17RX22CE87E840CCD8", "N17RX"},
+	}
+	for _, tt := range tests {
+		r, ok := (&Parser{}).Parse(&acars.Message{Label: tt.label, Text: tt.text}).(*Result)
+		if !ok {
+			t.Fatalf("%s: Parse returned no result", tt.text)
+		}
+		if r.Tail != tt.want {
+			t.Errorf("%s: Tail = %q, want %q", tt.text, r.Tail, tt.want)
+		}
+	}
+}

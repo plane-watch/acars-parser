@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"acars_parser/internal/crc"
 )
 
 // IMI (Imbedded Message Identifier) types for ARINC binary messages.
@@ -38,26 +40,30 @@ type Result struct {
 	RawHex        string // Original hex including CRC (for diagnostics).
 }
 
-// messagePattern matches ARINC binary message format.
-// Format: /<ground_station>.<IMI>.<registration><hex_payload>
-// Ground station is 4-7 uppercase alphanumeric chars.
-// IMI is 2-3 chars (AT1, CR1, CC1, DR1, ADS, DIS).
-// Registration + hex follows.
-var messagePattern = regexp.MustCompile(`^/([A-Z0-9]{4,7})\.([A-Z]{2,3}[0-9])\.(.+)$`)
+// messagePattern matches an ARINC 622 binary message in envelope form:
+// "/", the ground station (4 to 7 characters), ".", the IMI (AT1, CR1, CC1
+// or DR1), the registration field and the hex payload. The registration
+// field is seven characters, padded on the left with dots (".N514DN",
+// "..N17RX"; "B-18772" has none), so it is read by its length: the payload
+// cannot be told from the registration's last characters ("EC-NMZ" ends in
+// hex digits).
+var messagePattern = regexp.MustCompile(`^/([A-Z0-9]{4,7})\.([A-Z]{2}[0-9])([A-Z0-9.-]{7})([0-9A-F]*)$`)
 
 // relayedPattern matches an ARINC 622 message relayed in label H1 with its
 // original label, e.g. "- #MD/AA PIKCPYA.AT1.N657UA...": a "- #" sublabel,
 // "/", the original label (AA for CPDLC, A6 for ADS-C, A0 for AFN) and a
-// space. The IMI is followed by "." in binary applications (AT1, ADS) and
-// by "/" in character-oriented ones (AFN).
-var relayedPattern = regexp.MustCompile(`^- #[A-Z0-9]{2}/([A-Z0-9]{2}) ([A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][./].+)$`)
+// space. In binary applications (AT1, ADS) the IMI is followed by the
+// seven-character registration field, which starts with "." unless the
+// registration has seven characters; in character-oriented ones (AFN), by
+// "/".
+var relayedPattern = regexp.MustCompile(`^- #[A-Z0-9]{2}/([A-Z0-9]{2}) ([A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][A-Z0-9./-].+)$`)
 
 // barePattern matches an ARINC 622 message without its leading "/", as
 // label H1 also carries it, e.g. "USADCXA.AT1.N200WN...".
-var barePattern = regexp.MustCompile(`^[A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][./]`)
+var barePattern = regexp.MustCompile(`^[A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][A-Z0-9./-]`)
 
 // envelopePattern matches an ARINC 622 message in envelope form.
-var envelopePattern = regexp.MustCompile(`^/[A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][./]`)
+var envelopePattern = regexp.MustCompile(`^/[A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][A-Z0-9./-]`)
 
 // Unwrap returns an ARINC 622 message in envelope form
 // ("/<ground_station>.<IMI>.<registration><hex>" for binary applications,
@@ -88,42 +94,27 @@ func Parse(text string) (*Result, error) {
 	if matches == nil {
 		return nil, fmt.Errorf("%w: does not match ARINC format", ErrUnknownFormat)
 	}
+	groundStation, imi, regField, hexStr := matches[1], matches[2], matches[3], matches[4]
 
-	groundStation := matches[1]
-	imi := matches[2]
-	regAndHex := matches[3]
-
-	// Split registration from hex payload.
-	// Registration is variable length (up to 7 chars), hex starts at first valid hex sequence.
-	registration, hexStr := splitRegistrationAndHex(regAndHex)
-	if hexStr == "" {
-		return nil, fmt.Errorf("%w: no hex payload found", ErrParseFailed)
-	}
-
-	// Decode hex to binary.
 	hexData, err := hex.DecodeString(hexStr)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrInvalidHex, err)
 	}
-
-	// Need at least 2 bytes for CRC.
 	if len(hexData) < 2 {
 		return nil, fmt.Errorf("%w: need at least 2 bytes for CRC", ErrTooShort)
 	}
 
-	// Validate CRC.
-	if !validateCRC(imi, registration, hexData) {
+	// The CRC covers the IMI and the registration field as transmitted
+	// (ten characters), then the payload.
+	if !crc.VerifyArincBinaryRaw(imi+regField, hexData) {
 		return nil, ErrCRCFailed
 	}
-
-	// Strip CRC (last 2 bytes) from payload.
-	payload := hexData[:len(hexData)-2]
 
 	return &Result{
 		GroundStation: groundStation,
 		IMI:           imi,
-		Registration:  registration,
-		Payload:       payload,
+		Registration:  strings.TrimLeft(regField, "."),
+		Payload:       hexData[:len(hexData)-2],
 		RawHex:        hexStr,
 	}, nil
 }
@@ -134,67 +125,6 @@ func Parse(text string) (*Result, error) {
 //
 // Example: "HL8251243F880C..." -> registration "HL8251", hex "243F880C..."
 //
-// If the registration is shorter than 6 chars (rare), the hex starts earlier.
-// We detect this by checking if the 6-char split produces valid hex.
-func splitRegistrationAndHex(s string) (registration, hexStr string) {
-	s = strings.ToUpper(s)
-
-	// Standard case: 6-char registration field.
-	if len(s) > 6 {
-		reg := s[:6]
-		hex := s[6:]
-		if len(hex)%2 == 0 && isValidHex(hex) {
-			return reg, hex
-		}
-	}
-
-	// Fallback: try different registration lengths (5, 7, etc.).
-	// This handles edge cases where registration is not exactly 6 chars.
-	for regLen := 5; regLen <= 8 && regLen < len(s); regLen++ {
-		if regLen == 6 {
-			continue // Already tried.
-		}
-		reg := s[:regLen]
-		hex := s[regLen:]
-		if len(hex)%2 == 0 && isValidHex(hex) && hasLetter(reg) {
-			return reg, hex
-		}
-	}
-
-	// Last resort: find any valid hex suffix.
-	for i := 1; i < len(s); i++ {
-		candidate := s[i:]
-		if len(candidate)%2 == 0 && isValidHex(candidate) && hasLetter(s[:i]) {
-			return s[:i], candidate
-		}
-	}
-
-	return s, ""
-}
-
-// isValidHex checks if a string is valid hexadecimal with even length.
-func isValidHex(s string) bool {
-	if len(s) == 0 || len(s)%2 != 0 {
-		return false
-	}
-	for _, c := range s {
-		if (c < '0' || c > '9') && (c < 'A' || c > 'F') && (c < 'a' || c > 'f') {
-			return false
-		}
-	}
-	return true
-}
-
-// hasLetter checks if string contains at least one letter.
-func hasLetter(s string) bool {
-	for _, c := range s {
-		if (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') {
-			return true
-		}
-	}
-	return false
-}
-
 // IsCPDLC returns true if the IMI indicates a CPDLC message type.
 func IsCPDLC(imi string) bool {
 	switch imi {
