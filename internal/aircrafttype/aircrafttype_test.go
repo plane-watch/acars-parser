@@ -24,6 +24,17 @@ func TestNormalise(t *testing.T) {
 		// Boeing model names, with or without the B prefix and engine suffix.
 		{"B737-800", "B738", true},
 		{"B737-700", "B737", true},
+		// Extended-range suffixes: the 777-300ER and 777-200LR have their
+		// own designators; other ER variants keep the base designator.
+		{"777-300ER", "B77W", true},
+		{"777-200LR", "B77L", true},
+		{"777-200ER", "B772", true},
+		{"767-300ER", "B763", true},
+		{"787-9ER", "", false},
+		{"B737-300", "B733", true},
+		{"737-400", "B734", true},
+		{"B737-500", "B735", true},
+		{"B737-8MAX", "B38M", true},
 		{"737-800 CFM56-7B26", "B738", true},
 		{"737-700 CFM56-7B24", "B737", true},
 		{"B7378MAX", "B38M", true},

@@ -83,6 +83,13 @@ func (p *Parser) QuickCheck(text string) bool {
 // same line (so an empty field does not take the next line's text).
 var aircraftTypeLineRe = regexp.MustCompile(`(?m)^[ \t]*AIRCRAFT[ \t]+TYPE[ \t]*:[ \t]*([A-Z0-9][A-Z0-9-]*)[ \t]*\r?$`)
 
+// serviceWeightTypeRe matches the type line of Qatar's loadsheets: the
+// model on a line of its own, after the "DOW" line and before the "SERVICE
+// WEIGHT ADJUSTMENT" line, e.g. "DOW 175738 / 777-300ER / SERVICE WEIGHT
+// ADJUSTMENT WEIGHT/INDEX". Both neighbours are required, so that another
+// lone line is not taken as the type.
+var serviceWeightTypeRe = regexp.MustCompile(`(?m)^[ \t]*DOW[ \t]+\d+[ \t]*\r?\n[ \t]*([A-Z0-9][A-Z0-9-]{2,11})[ \t]*\r?\n[ \t]*SERVICE WEIGHT ADJUSTMENT`)
+
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if msg.Text == "" {
 		return nil
@@ -128,10 +135,12 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// The transmitting aircraft's type, as transmitted: from the format's own
 	// field (e.g. the DHL flight line "A333-BCS3"), or else from an explicit
 	// "AIRCRAFT TYPE : B737-800" line, which some loadsheets carry whatever
-	// their format.
+	// their format, or else from Qatar's type line (serviceWeightTypeRe).
 	if v, ok := fields["aircraft_type"]; ok {
 		result.AircraftType = v
 	} else if m := aircraftTypeLineRe.FindStringSubmatch(msg.Text); m != nil {
+		result.AircraftType = m[1]
+	} else if m := serviceWeightTypeRe.FindStringSubmatch(msg.Text); m != nil {
 		result.AircraftType = m[1]
 	}
 

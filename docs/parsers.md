@@ -65,7 +65,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), ualuplink (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60), swareport (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
@@ -114,6 +114,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [h1pos](#h1pos) | h1 | H1 | 20 | `h1_position` | Grok | No |
 | [pwi](#pwi) | h1 | H1 | 30 | `pwi` | Custom section parsing | No |
 | [mdc](#mdc) | h1 | H1 | 40 | `mdc` | Hand-written regex | Yes |
+| [swareport](#swareport) | swareport | H1 | 60 | `swa_report` | Hand-written regex | Yes |
 | [trajectory](#trajectory) | h1 | H1 | 50 | `trajectory` | Hand-written regex | Yes |
 | [h2_wind](#h2_wind) | h2wind | H2 | 100 | `h2_wind` | Grok | No |
 | [hazard_alert](#hazard_alert) | hazard | _, H1, SA | 60 | `hazard_alert` | Hand-written regex | Yes |
@@ -142,7 +143,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [ualuplink](#ualuplink) | ualuplink | RA | 60 | `united_uplink` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 48 parsers in 44 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 49 parsers in 45 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
 
 ---
 
@@ -495,6 +496,27 @@ An element's `data` holds its parameters: nothing for an element without paramet
 
 ---
 
+### swareport
+
+**Package:** `internal/parsers/swareport` · **Labels:** H1 · **Priority:** 60 · **Type:** `swa_report`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the header of Southwest Airlines' ACMS reports (engine, performance and system reports, under some fifty report codes). For example:
+
+```
+72740,8668,B737-800,260107,WN0183,KLGA,KHOU,1101,SW2501
+19.10.46,CR,0871,17170,301.8,.621,-21.7,...
+```
+
+The header is the report code, Southwest's fleet number, the aircraft type, the date (YYMMDD), the flight, origin and destination, an unidentified number and the system ID. The flight data reports that start with `++` have the same header and are parsed by `trajectory`. The report body is not parsed.
+
+**Extracted fields:** report code, aircraft type as transmitted (`B737-700`, `B737-800`, `B737-8MAX`, `B737-300`; the extractor normalises it), date, flight, origin, destination and system ID. The fleet number is not reported: it is not always the registration's digits (N500WR reports 8636), so the transmitted tail identifies the aircraft. Both airports must pass `patterns.IsValidICAO`.
+
+**Coverage (January 2026 corpus):** 47,656 reports from 817 tails; no tail reported two types.
+
+---
+
 ### trajectory
 
 **Package:** `internal/parsers/h1` (`trajectory.go`) · **Labels:** H1 · **Priority:** 50 · **Type:** `trajectory`
@@ -711,7 +733,7 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 
 **Description:** Parses weight and balance loadsheets. The formats are `etihad`, `standard_kg`, `standard_kg_minimal`, `qantas_tonnes`, `ba_full_names`, `jetsmart`, `jetsmart_minimal`, `chinese_airlines`, `jat_bw_dow`, `european_edn`, `cathay_act`, `tui_edn`, `eat_cargo_lb`, `ethiopian`, `kalitta_cargo_lb`, `kalitta_old_lb`, `dhl_cargo_kg`, `french_bee_short` and `vic_corsair`.
 
-**Aircraft type:** Taken from a format's own type field (Etihad's type after the flight date, `EY401/19 20JAN26 B78X`; DHL's flight line, `A333-BCS3`), or else from an explicit `AIRCRAFT TYPE :` line. A token after the flight date is read as the type only in Etihad's layout (with the edition before the time, `LOADSHEET FINAL   001 0242`): in other layouts it could be something else, such as a gate (`A10` is also an ICAO designator).
+**Aircraft type:** Taken from a format's own type field (Etihad's type after the flight date, `EY401/19 20JAN26 B78X`; DHL's flight line, `A333-BCS3`), or else from an explicit `AIRCRAFT TYPE :` line, or else from Qatar's type line: the model on a line of its own between the `DOW` line and the `SERVICE WEIGHT ADJUSTMENT` line (`777-300ER`, `787-9`, `A350-900`). A token after the flight date is read as the type only in Etihad's layout (with the edition before the time, `LOADSHEET FINAL   001 0242`): in other layouts it could be something else, such as a gate (`A10` is also an ICAO designator).
 
 **Extracted fields:** format name, status, flight, origin, destination, aircraft type, ZFW and maximum ZFW, TOW and maximum TOW, LAW and maximum LAW, take-off fuel, trip fuel, passengers, crew, MAC at ZFW and TOW, and edition.
 

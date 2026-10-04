@@ -99,3 +99,19 @@ func TestParseEtihadDoesNotReachIntoLaterText(t *testing.T) {
 		t.Errorf("took LAW %d and PAX %d from text after the loadsheet", r.LAW, r.PAX)
 	}
 }
+
+// TestParseQatarTypeLine checks Qatar's loadsheets, which give the type on
+// its own line between the DOW and the service weight adjustment (a real
+// message from A7-BEM, cut down).
+func TestParseQatarTypeLine(t *testing.T) {
+	text := "QUDOHEOQR~1DIS01010101\n\t\n\tLOADSHEET PRELIM 1625\n\tQR400/04 04JAN26\n\tDOH AMM A7-BEM 2/14\n\t*************************\n\tZFW 200597  MAX 237682  L\n\t*************************\n\tTOF  29085\n\t*************************\n\tTOW 229682  MAX 351534\n\t*************************\n\tTIF  18106\n\tLAW 211576  MAX 251290\n\tUNDLD  37085\n\tPAX/18/194 TTL 215\n\tPAX 212 PLUS 3\n\tLITOW       487.4\n\tSI DOI 477.4\n\tDOW 175738\n\t777-300ER\n\tSERVICE WEIGHT ADJUSTMENT WEIGHT/INDEX\n\tADD\n"
+	r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "RA", Text: text}).(*Result)
+	if !ok || r.AircraftType != "777-300ER" || r.Tail != "A7-BEM" {
+		t.Errorf("got %+v", r)
+	}
+	// A line between other fields is not taken as the type.
+	other := strings.Replace(text, "\tSERVICE WEIGHT ADJUSTMENT", "\tSOMETHING ELSE", 1)
+	if r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "RA", Text: other}).(*Result); ok && r.AircraftType != "" {
+		t.Errorf("type %q taken from an unanchored line", r.AircraftType)
+	}
+}

@@ -485,6 +485,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `h1_position` | H1 position reports (POS) | H1 |
 | `pwi` | Predicted wind information | H1 |
 | `mdc` | Maintenance and fault reports | H1 |
+| `swa_report` | Southwest ACMS report headers: aircraft type, flight, date and route | H1 |
 | `trajectory` | Southwest flight data reports (`++86501`, `++76502`) and United ABS reports: route, Southwest's aircraft type and flight, and samples of position, temperature and wind | H1 |
 | `h2_wind` | Wind layers | H2 |
 | `hazard_alert` | ARINC Direct HAZARD ALERT | H1, SA |

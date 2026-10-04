@@ -20,10 +20,10 @@ var (
 	// distinguishes it from a model number ("B737-800").
 	configuredRe = regexp.MustCompile(`^([A-Z][A-Z0-9]{3})-[A-Z][A-Z0-9]*$`)
 
-	// boeingRe matches a Boeing model name: optional "B", the series, then
-	// the variant, e.g. "B737-800", "737-800 CFM56-7B26", "787-9 GENX-1B76A",
-	// "B7378MAX".
-	boeingRe = regexp.MustCompile(`^B?(7[0-9]7)-?(\d{1,2}0{0,2})(?:\s*(MAX))?(?:\s|$)`)
+	// boeingRe matches a Boeing model name: optional "B", the series, the
+	// variant and an optional extended-range suffix, e.g. "B737-800",
+	// "737-800 CFM56-7B26", "787-9 GENX-1B76A", "777-300ER".
+	boeingRe = regexp.MustCompile(`^B?(7[0-9]7)-?(\d{1,2}0{0,2})(ER|LR)?(?:\s*(MAX))?(?:\s|$)`)
 
 	// boeingMaxRe matches the compact MAX form "B7378MAX".
 	boeingMaxRe = regexp.MustCompile(`^B?737-?([789])\s*MAX`)
@@ -46,6 +46,7 @@ var (
 // variants with a single designator are listed: for example "777" alone, or
 // a 777-200 freighter, is not.
 var boeingVariants = map[string]string{
+	"737-300": "B733", "737-400": "B734", "737-500": "B735",
 	"737-600": "B736", "737-700": "B737", "737-800": "B738", "737-900": "B739",
 	"747-400": "B744", "747-8": "B748",
 	"757-200": "B752", "757-300": "B753",
@@ -53,6 +54,14 @@ var boeingVariants = map[string]string{
 	"777-200": "B772", "777-300": "B773",
 	"787-8": "B788", "787-9": "B789", "787-10": "B78X",
 }
+
+// boeingExtendedRange maps the extended-range models with their own
+// designators.
+var boeingExtendedRange = map[string]string{"777-300ER": "B77W", "777-200LR": "B77L"}
+
+// boeingERVariants are the models built as ER variants whose designator is
+// the base model's (e.g. the 767-300ER is a B763).
+var boeingERVariants = map[string]bool{"767-200": true, "767-300": true, "767-400": true, "777-200": true, "737-900": true}
 
 // boeingMax maps a 737 MAX variant digit to its designator.
 var boeingMax = map[string]string{"7": "B37M", "8": "B38M", "9": "B39M"}
@@ -117,7 +126,19 @@ func Normalise(raw string) (string, bool) {
 		return boeingMax[m[1]], true
 	}
 	if m := boeingRe.FindStringSubmatch(s); m != nil {
-		if d, ok := boeingVariants[m[1]+"-"+m[2]]; ok {
+		model := m[1] + "-" + m[2]
+		if suffix := m[3]; suffix != "" {
+			// The 777-300ER and 777-200LR have their own designators;
+			// another ER variant keeps its base designator, and any other
+			// combination is not normalised.
+			if d, ok := boeingExtendedRange[model+suffix]; ok {
+				return d, true
+			}
+			if suffix == "LR" || !boeingERVariants[model] {
+				return "", false
+			}
+		}
+		if d, ok := boeingVariants[model]; ok {
 			return d, true
 		}
 		return "", false
