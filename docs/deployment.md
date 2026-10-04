@@ -11,7 +11,7 @@
 | `dbviewer` | `acars-dbviewer` | A read-only web interface to the PostgreSQL state database ([pgweb](https://github.com/sosedoff/pgweb)), on port 8081. See [State database viewer](#state-database-viewer). |
 | `dbviewer-role` | (one-off) | Runs `deployments/postgres/dbviewer-role.sql`: creates or updates the read-only `acars_viewer` role that `dbviewer` connects as. In the `tools` profile. |
 
-The database ports are published on 127.0.0.1 only, so the CLI on the host can reach them with the default settings, and nothing else can. The `dbviewer` port is published on all interfaces by default (see `DBVIEWER_BIND`).
+The database ports are published on 127.0.0.1 only, so the CLI on the host can reach them with the default settings, and nothing else can. The `dbviewer` port is also published on 127.0.0.1 unless `DBVIEWER_BIND` says otherwise.
 
 ## Image
 
@@ -25,7 +25,7 @@ The database ports are published on 127.0.0.1 only, so the CLI on the host can r
 | `CLICKHOUSE_PASSWORD` | `acars` | The ClickHouse password, for the server and the clients. |
 | `POSTGRES_PASSWORD` | `acars` | The PostgreSQL password, for the server and the clients. |
 | `DBVIEWER_PASSWORD` | `acars_viewer` | The password of the read-only `acars_viewer` role, set by `dbviewer-role` and used by `dbviewer`. |
-| `DBVIEWER_BIND` | `0.0.0.0` | The host address that `dbviewer`'s port 8081 is published on. `127.0.0.1` keeps it to the host itself. |
+| `DBVIEWER_BIND` | `127.0.0.1` | The host address that `dbviewer`'s port 8081 is published on. `0.0.0.0` opens it to the network (the collector sets this in `deployments/.env`). |
 
 Compose reads these from the environment or from a `deployments/.env` file, which is excluded from git and from the image build context.
 
@@ -46,14 +46,18 @@ docker compose -f deployments/docker-compose.yml up -d dbviewer
 
 `dbviewer` runs pgweb, a single-binary PostgreSQL browser, which serves the tables, their rows and structure, and an SQL query box at `http://<host>:8081` (for the collector, http://acars-collector.local:8081). pgweb is used because it is a maintained tool that runs as one container and has a read-only mode, so the project does not need a web application of its own.
 
-It cannot change data, for two independent reasons:
+It cannot change data because of the role it connects as. `acars_viewer` holds only `CONNECT` on `acars_state`, `USAGE` on the `public` schema and `SELECT` on its tables (default privileges extend that to tables the `acars` role creates later), owns nothing and is a member of no other role. The role script also revokes from `PUBLIC`, which every role belongs to, the two privileges that need no table grant: creating temporary tables and creating large objects (`lo_create`, `lo_creat`, `lo_from_bytea`), since a large object persists. `acars_parser` uses neither, and its `acars` role is a superuser and unaffected.
 
-- pgweb runs with `--readonly`, which rejects queries containing write keywords (`UPDATE`, `CREATE` and so on) before they reach the database, and with `--lock-session`, which stops the interface from connecting to another server or database or as another user.
-- It connects as `acars_viewer`, a role that holds only `CONNECT` on `acars_state`, `USAGE` on the `public` schema and `SELECT` on its tables, and whose transactions start read-only. Default privileges grant it `SELECT` on tables that the `acars` role creates later, so new tables are readable without another step.
+Two further layers do not stop writes on their own:
+
+- pgweb's `--readonly` rejects queries containing some write keywords (`UPDATE`, `CREATE` and so on), but not all writes: `BEGIN READ WRITE; SELECT lo_from_bytea(...)` passed it before the revoke above. `--lock-session` stops the interface from connecting to another server or database or as another user.
+- The role's transactions start read-only, but the role can switch that off (`BEGIN READ WRITE`).
+
+pgweb keeps one database connection. A query that opens a transaction (`BEGIN ...`) and then fails leaves that connection in an aborted transaction, and every later query fails with "current transaction is aborted" (pgweb cannot recover it, even with `ROLLBACK`). Restart the viewer to reset it: `docker compose -f deployments/docker-compose.yml restart dbviewer`.
 
 The enrichment API's examples also use port 8081; on the same host, run the API on another port.
 
-It has no authentication: anyone who can reach port 8081 can read every table. It is meant for the local network only; do not publish the port to the internet. To keep it to the host itself, set `DBVIEWER_BIND=127.0.0.1` (in the environment or `deployments/.env`), recreate it with `up -d dbviewer`, and reach it through an SSH tunnel:
+It has no authentication: anyone who can reach port 8081 can read every table. By default it is published on the host's loopback address only; reach it through an SSH tunnel, or set `DBVIEWER_BIND=0.0.0.0` (in the environment or `deployments/.env`) and recreate it with `up -d dbviewer` to open it to the local network. Do not publish the port to the internet. The tunnel:
 
 ```bash
 ssh -N -L 8081:127.0.0.1:8081 acars-collector.local   # then open http://localhost:8081

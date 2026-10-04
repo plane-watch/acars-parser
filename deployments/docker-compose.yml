@@ -82,13 +82,9 @@ services:
       PGDATABASE: acars_state
       PGPASSWORD: ${POSTGRES_PASSWORD:-acars}
       VIEWER_PASSWORD: ${DBVIEWER_PASSWORD:-acars_viewer}
-    # $$ stops Compose from interpolating; the shell in the container expands
-    # VIEWER_PASSWORD, so the password does not appear in the command line
-    # that Compose records.
-    command:
-      - sh
-      - -c
-      - psql -X -v viewer_role=acars_viewer -v "viewer_password=$$VIEWER_PASSWORD" -f /dbviewer-role.sql
+    # The script reads VIEWER_PASSWORD from the environment (\getenv), so the
+    # password is not in any command line.
+    command: ["psql", "-X", "-v", "viewer_role=acars_viewer", "-f", "/dbviewer-role.sql"]
     volumes:
       - ./postgres/dbviewer-role.sql:/dbviewer-role.sql:ro
     depends_on:
@@ -118,7 +114,9 @@ services:
       - --lock-session
       - --skip-open
     ports:
-      - "${DBVIEWER_BIND:-0.0.0.0}:8081:8081"
+      # Published on the host's loopback address unless DBVIEWER_BIND says
+      # otherwise (e.g. 0.0.0.0 for the local network).
+      - "${DBVIEWER_BIND:-127.0.0.1}:8081:8081"
     depends_on:
       postgres:
         condition: service_healthy
