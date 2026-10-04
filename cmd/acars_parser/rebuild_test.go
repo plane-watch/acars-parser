@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"os"
+	"regexp"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -24,8 +24,8 @@ func openTestClickHouse(t *testing.T) *storage.ClickHouseDB {
 		return d
 	}
 	database := env("CLICKHOUSE_TEST_DATABASE", "acars_test")
-	if !strings.HasSuffix(database, "_test") || database == "_test" {
-		t.Fatalf("refusing to use database %q: its name must end in _test", database)
+	if !testDatabaseRe.MatchString(database) {
+		t.Fatalf("refusing to use database %q: it must be a plain name ending in _test", database)
 	}
 	port, _ := strconv.Atoi(env("CLICKHOUSE_PORT", "9000"))
 	cfg := storage.ClickHouseConfig{Host: env("CLICKHOUSE_HOST", "localhost"), Port: port,
@@ -48,6 +48,10 @@ func openTestClickHouse(t *testing.T) *storage.ClickHouseDB {
 	return db
 }
 
+// testDatabaseRe matches the names a test database may have: a plain
+// identifier (it is interpolated into SQL) ending in "_test".
+var testDatabaseRe = regexp.MustCompile(`^[a-z][a-z0-9_]*_test$`)
+
 func TestRebuildArchive(t *testing.T) {
 	db := openTestClickHouse(t)
 	ctx := context.Background()
@@ -65,7 +69,7 @@ func TestRebuildArchive(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	jan := time.Date(2026, 1, 5, 12, 0, 0, 0, time.UTC)
+	jan := time.Date(2026, 1, 5, 12, 0, 0, 123000000, time.UTC)
 	oct := time.Date(2026, 10, 4, 12, 0, 0, 0, time.UTC)
 	cpdlc := "/YEGE2YA.AT1B-1877224C8C0DE2B1624D9F3AA4F9C17A760F1D0"
 	seed := []storage.CHInsertParams{
@@ -75,6 +79,8 @@ func TestRebuildArchive(t *testing.T) {
 		{ID: 1, Timestamp: jan, Label: "AA", ParserType: "unparsed", Flight: "CI0123", Tail: "B-18772", RawText: cpdlc, ParsedData: map[string]string{}},
 		// A live-era message, whose flight was transmitted.
 		{ID: 2, Timestamp: oct, Label: "H1", ParserType: "unparsed", Flight: "QF1", Tail: "VH-OQA", RawText: "NOTHING TO SEE", ParsedData: map[string]string{}},
+		// A message without text keeps an unparsed row.
+		{ID: 3, Timestamp: oct, Label: "_d", ParserType: "unparsed", Tail: "VH-OQA", ParsedData: map[string]string{}},
 	}
 	if err := db.InsertBatch(ctx, seed); err != nil {
 		t.Fatal(err)
@@ -84,8 +90,8 @@ func TestRebuildArchive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if stats.Messages != 2 || stats.Rows != 3 {
-		t.Errorf("stats %+v, want 2 messages and 3 rows", stats)
+	if stats.Messages != 3 || stats.Rows != 4 {
+		t.Errorf("stats %+v, want 3 messages and 4 rows", stats)
 	}
 
 	type row struct {
@@ -109,7 +115,7 @@ func TestRebuildArchive(t *testing.T) {
 		return out
 	}
 	got := read(storage.MessagesTable)
-	want := []row{{1, "cpdlc", ""}, {1, "envelope", ""}, {2, "unparsed", "QF1"}}
+	want := []row{{1, "cpdlc", ""}, {1, "envelope", ""}, {2, "unparsed", "QF1"}, {3, "unparsed", ""}}
 	if len(got) != len(want) {
 		t.Fatalf("rebuilt rows %v, want %v", got, want)
 	}
@@ -118,12 +124,70 @@ func TestRebuildArchive(t *testing.T) {
 			t.Errorf("rebuilt row %d = %v, want %v", i, got[i], want[i])
 		}
 	}
-	if old := read(previousTable); len(old) != 3 {
-		t.Errorf("%s has %d rows, want the 3 original rows", previousTable, len(old))
+	if old := read(previousTable); len(old) != 4 {
+		t.Errorf("%s has %d rows, want the 4 original rows", previousTable, len(old))
+	}
+
+	// The timestamp keeps its milliseconds.
+	var got1 time.Time
+	if err := db.Conn().QueryRow(ctx, "SELECT any(timestamp) FROM "+storage.MessagesTable+" WHERE id = 1").Scan(&got1); err != nil || !got1.Equal(jan) {
+		t.Errorf("timestamp %v, %v; want %v", got1, err, jan)
 	}
 
 	// A second rebuild refuses to overwrite the kept previous archive.
 	if _, err := rebuildArchive(ctx, db, registry.Default(), time.Time{}, 2); err == nil {
 		t.Error("a second rebuild ran while messages_previous exists")
+	}
+}
+
+// TestRebuildRefusesUnsafeStarts checks that a rebuild does not start with
+// a bad batch size, or while a staging table exists (after a failure it may
+// hold the only copy of the archive).
+func TestRebuildRefusesUnsafeStarts(t *testing.T) {
+	db := openTestClickHouse(t)
+	ctx := context.Background()
+	for _, name := range []string{storage.MessagesTable, rebuildTable, previousTable} {
+		_ = db.DropTable(ctx, name)
+	}
+	if err := db.CreateMessagesTable(ctx, storage.MessagesTable); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := rebuildArchive(ctx, db, registry.Default(), time.Time{}, 0); err == nil {
+		t.Error("batch size 0 accepted")
+	}
+	if exists, _ := db.TableExists(ctx, rebuildTable); exists {
+		t.Error("a rejected rebuild created the staging table")
+	}
+	_ = db.DropTable(ctx, storage.MessagesTable)
+	t.Cleanup(func() {
+		for _, name := range []string{storage.MessagesTable, rebuildTable, previousTable} {
+			_ = db.DropTable(context.Background(), name)
+		}
+	})
+	for _, name := range []string{storage.MessagesTable, rebuildTable} {
+		if err := db.CreateMessagesTable(ctx, name); err != nil {
+			t.Fatal(err)
+		}
+	}
+	keep := storage.CHInsertParams{ID: 1, Timestamp: time.Now(), Label: "H1", ParserType: "unparsed", RawText: "x", ParsedData: map[string]string{}}
+	if err := db.InsertBatchInto(ctx, rebuildTable, []storage.CHInsertParams{keep}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := rebuildArchive(ctx, db, registry.Default(), time.Time{}, 10); err == nil {
+		t.Error("a rebuild started while the staging table exists")
+	}
+	if n, _ := db.CountDistinctIDs(ctx, rebuildTable); n != 1 {
+		t.Errorf("the staging table was changed: %d messages", n)
+	}
+}
+
+func TestTestDatabaseNames(t *testing.T) {
+	for _, name := range []string{"foo --_test", "acars", "_test", "Acars_test"} {
+		if testDatabaseRe.MatchString(name) {
+			t.Errorf("%q accepted", name)
+		}
+	}
+	if !testDatabaseRe.MatchString("acars_test") {
+		t.Error("acars_test rejected")
 	}
 }

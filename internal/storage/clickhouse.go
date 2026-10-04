@@ -566,17 +566,54 @@ type RawMessage struct {
 }
 
 // StreamRawMessages calls fn once for each distinct message ID in a
-// messages table, with the message's transmitted content (taken from one
-// of its rows; they hold the same content). The query has no time limit.
-// fn's error stops the stream and is returned.
-func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, fn func(RawMessage) error) error {
+// messages table, in ID order, with the message's transmitted content
+// (taken from one of its rows; they hold the same content). The IDs are
+// read first, then the messages in ranges of chunk IDs, one short query per
+// range, so that no query runs for long. fn's error stops the stream and is
+// returned.
+func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chunk int, fn func(RawMessage) error) error {
 	if err := checkTableName(table); err != nil {
 		return err
 	}
-	rows, err := d.conn.Query(clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0})),
-		`SELECT id, timestamp, label, tail, flight, raw_text FROM `+table+` LIMIT 1 BY id`)
+	if chunk <= 0 {
+		return fmt.Errorf("chunk size %d: must be positive", chunk)
+	}
+	qctx := clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0}))
+
+	var ids []uint64
+	rows, err := d.conn.Query(qctx, `SELECT DISTINCT id FROM `+table+` ORDER BY id`)
 	if err != nil {
-		return fmt.Errorf("query messages: %w", err)
+		return fmt.Errorf("query message ids: %w", err)
+	}
+	for rows.Next() {
+		var id uint64
+		if err := rows.Scan(&id); err != nil {
+			_ = rows.Close()
+			return fmt.Errorf("scan message id: %w", err)
+		}
+		ids = append(ids, id)
+	}
+	if err := rows.Err(); err != nil {
+		_ = rows.Close()
+		return err
+	}
+	_ = rows.Close()
+
+	for start := 0; start < len(ids); start += chunk {
+		end := min(start+chunk, len(ids)) - 1
+		if err := d.streamRange(qctx, table, ids[start], ids[end], fn); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// streamRange calls fn for each distinct message with an ID from lo to hi.
+func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uint64, fn func(RawMessage) error) error {
+	rows, err := d.conn.Query(ctx,
+		`SELECT id, timestamp, label, tail, flight, raw_text FROM `+table+` WHERE id >= ? AND id <= ? ORDER BY id LIMIT 1 BY id`, lo, hi)
+	if err != nil {
+		return fmt.Errorf("query messages %d to %d: %w", lo, hi, err)
 	}
 	defer func() { _ = rows.Close() }()
 	for rows.Next() {
@@ -589,4 +626,17 @@ func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, fn f
 		}
 	}
 	return rows.Err()
+}
+
+// SwapInTable replaces the current table with the staging table and keeps
+// the current one as previous, in one RENAME statement, which ClickHouse
+// applies atomically in an Atomic database: either every table is renamed
+// or none is.
+func (d *ClickHouseDB) SwapInTable(ctx context.Context, current, staging, previous string) error {
+	for _, name := range []string{current, staging, previous} {
+		if err := checkTableName(name); err != nil {
+			return err
+		}
+	}
+	return d.conn.Exec(ctx, `RENAME TABLE `+current+` TO `+previous+`, `+staging+` TO `+current)
 }

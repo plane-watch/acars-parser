@@ -87,8 +87,8 @@ func runReparseCmd(args []string) {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Rebuilt: %d messages, %d rows (%d messages without text skipped). The previous archive is in %s.\n",
-			stats.Messages, stats.Rows, stats.Empty, previousTable)
+		fmt.Printf("Rebuilt: %d messages, %d rows. The previous archive is in %s; drop it once the rebuilt archive is checked.\n",
+			stats.Messages, stats.Rows, previousTable)
 		return
 	}
 

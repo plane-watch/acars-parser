@@ -19,6 +19,10 @@ func setupTestClickHouse(t *testing.T) *ClickHouseDB {
 	if err := checkTestDatabaseName(database); err != nil {
 		t.Fatal(err)
 	}
+	// The name is interpolated into SQL, so it must be a plain identifier.
+	if !tableNameRe.MatchString(database) {
+		t.Fatalf("refusing to use database %q: it must be a plain identifier", database)
+	}
 	port, err := strconv.Atoi(envOr("CLICKHOUSE_PORT", "9000"))
 	if err != nil {
 		t.Fatalf("CLICKHOUSE_PORT: %v", err)
@@ -83,7 +87,8 @@ func TestMessagesTableRebuildPrimitives(t *testing.T) {
 	}
 
 	got := map[uint64]RawMessage{}
-	if err := db.StreamRawMessages(ctx, a, func(m RawMessage) error {
+	// A chunk of one message reads each message in its own range.
+	if err := db.StreamRawMessages(ctx, a, 1, func(m RawMessage) error {
 		if _, dup := got[m.ID]; dup {
 			t.Errorf("message %d streamed twice", m.ID)
 		}
@@ -123,5 +128,43 @@ func TestTableNamesAreChecked(t *testing.T) {
 		if err := checkTableName(name); err == nil {
 			t.Errorf("checkTableName(%q) accepted", name)
 		}
+	}
+}
+
+// TestSwapInTable checks that the staging table becomes the current one and
+// the current one is kept, in one step.
+func TestSwapInTable(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	const cur, stg, prev = "swap_test_current", "swap_test_staging", "swap_test_previous"
+	for _, name := range []string{cur, stg, prev} {
+		_ = db.DropTable(ctx, name)
+		t.Cleanup(func() { _ = db.DropTable(context.Background(), name) })
+	}
+	for _, name := range []string{cur, stg} {
+		if err := db.CreateMessagesTable(ctx, name); err != nil {
+			t.Fatal(err)
+		}
+	}
+	row := func(id uint64) []CHInsertParams {
+		return []CHInsertParams{{ID: id, Timestamp: time.Now(), Label: "H1", ParserType: "unparsed", RawText: "x", ParsedData: map[string]string{}}}
+	}
+	if err := db.InsertBatchInto(ctx, cur, row(1)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.InsertBatchInto(ctx, stg, append(row(2), row(3)...)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.SwapInTable(ctx, cur, stg, prev); err != nil {
+		t.Fatal(err)
+	}
+	if n, _ := db.CountDistinctIDs(ctx, cur); n != 2 {
+		t.Errorf("current has %d messages, want the staging table's 2", n)
+	}
+	if n, _ := db.CountDistinctIDs(ctx, prev); n != 1 {
+		t.Errorf("previous has %d messages, want the old current table's 1", n)
+	}
+	if exists, _ := db.TableExists(ctx, stg); exists {
+		t.Error("the staging table still exists")
 	}
 }

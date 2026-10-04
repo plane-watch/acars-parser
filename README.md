@@ -273,9 +273,10 @@ Re-runs the current parsers over stored messages and compares each new result wi
 Behaviour to be aware of:
 
 - Each stored row is compared with the new result of the same type. If that type is no longer produced, the row is compared with the first match, so the change of type is reported.
-- Without `-update`, nothing is written to ClickHouse.
+- Without `-update` or `-rebuild`, nothing is written to ClickHouse.
 - `-update` inserts new rows and does not remove the old ones, because `messages` is a plain `MergeTree`. It creates duplicate rows (see [docs/storage.md](docs/storage.md)).
-- `-rebuild` reparses the whole archive without duplicates: it reads each distinct message once, writes its rows (as `live` would) into `messages_rebuild`, and, if the number of messages matches, exchanges the tables and keeps the old archive as `messages_previous`. It refuses to run while `messages_previous` exists; drop that table (`DROP TABLE acars.messages_previous`) once the rebuilt archive is checked. Stop `live` first: messages it stores during the rebuild are lost at the swap. The link-layer fields (direction, block ID, addresses) are not stored, so the reparse runs without them.
+- `-rebuild` reparses the whole archive without duplicates. It reads each distinct message once (in ranges of IDs), writes its rows into `messages_rebuild` with the same row construction as `live` (but without `live`'s `-exclude`; `-type`, `-label` and `-limit` do not apply), and keeps an unparsed row for a message no parser matches, so every message ID survives. If the rebuilt table holds exactly the archive's distinct IDs, one atomic `RENAME` makes it the archive and keeps the old one as `messages_previous`. Stop `live` first: messages it stores during the rebuild are lost at the swap. The link-layer fields (direction, block ID, addresses) are not stored, so the reparse runs without them.
+- `-rebuild` refuses to start while `messages_rebuild` or `messages_previous` exists, because either may hold an archive. After a successful rebuild, drop `messages_previous` (`DROP TABLE acars.messages_previous`) once the rebuilt archive is checked. After a failed one, the archive is unchanged and `messages_rebuild` holds the partial rebuild: drop it before retrying.
 - Code before the transmitted flight was kept stored Airframes' flight record in `flight`. `-drop-flight-before 2026-02-01` blanks it for the January 2026 corpus, so that the extractor and `backfill` do not treat it as transmitted.
 
 ### debug

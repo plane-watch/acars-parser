@@ -78,7 +78,7 @@ On a fresh installation, create the ClickHouse tables without migrating any SQLi
 - `reparse -update`
 - `unparse`
 
-The original row remains alongside the new one, including after `OPTIMIZE TABLE ... FINAL`. Queries on `id` can therefore return more than one row for a message that has been reparsed or unparsed. Both code paths carry a `TODO` describing the problem. `reparse -rebuild` reparses the whole archive without this problem, by writing a new table and exchanging it with `messages` (the old archive is kept as `messages_previous` until dropped).
+The original row remains alongside the new one, including after `OPTIMIZE TABLE ... FINAL`. Queries on `id` can therefore return more than one row for a message that has been reparsed or unparsed. Both code paths carry a `TODO` describing the problem. `reparse -rebuild` reparses the whole archive without this problem: it writes a new table and makes it `messages` with one atomic `RENAME`, keeping the old archive as `messages_previous` until it is dropped (see the README).
 
 `live -exclude` (default `sq_position`) also skips storage for the excluded types, so those results are not written to `messages`.
 
