@@ -93,7 +93,7 @@ This table has the same fields as `atis_current` (see below), stored as strings,
 
 | Table | Purpose | Key | Written by |
 |---|---|---|---|
-| `aircraft` | ICAO hex to registration, type and operator | `icao_hex` | `live`, `backfill`, `migrate` |
+| `aircraft` | ICAO hex to registration and type | `icao_hex` | `live`, `backfill`, `migrate` |
 | `waypoints` | Named waypoints with coordinates and an observation count | `name` | `live`, `backfill`, `migrate` |
 | `routes` | Observed flight number to origin/destination pairs | `(flight_pattern, origin_icao, dest_icao)` | `live`, `backfill`, `migrate` |
 | `route_legs` | Legs of multi-stop routes | `(route_id, sequence)` | `migrate` only |
@@ -109,9 +109,25 @@ Some tables have only one writer:
 - `route_legs`, `route_aircraft` and `aircraft_callsigns` are populated only by the SQLite migration. `live` and `backfill` do not maintain them, so `routeexport` output for multi-stop routes reflects migrated data only.
 - `flight_state` is not written by `live`.
 
+Only transmitted data is stored. `live` and `backfill` do not take facts from Airframes' `airframe`, `flight` or `station` records (see [airframes-payload.md](airframes-payload.md)):
+
+- **ICAO hex.** It comes from one of three sources, strongest first:
+  1. the aircraft's link-layer address;
+  2. an ADS-C airframe ID;
+  3. derivation from a US N-number registration.
+
+  The extractor records which, as `icao_hex_source`, ready for storage v2.
+- **Registration.** The transmitted tail.
+- **Type.** The ICAO designator of the transmitted type (`internal/aircrafttype`), only when the transmitted value identifies exactly one. The raw value is kept by the extractor.
+- **Operator.** No longer written, because it came only from Airframes.
+- **Routes.** Only pairs where both endpoints are ICAO codes are written, because the `routes` columns are ICAO codes. The extractor keeps IATA pairs as transmitted, for storage v2.
+
+Rows migrated from January may hold Airframes-derived values.
+
 Upsert behaviour:
 
 - Reference tables increment their `observation_count`, `source_count` or `msg_count` and update `last_seen` on conflict.
+- An empty registration, type or operator does not overwrite a stored value.
 - `synced_at` columns exist on `aircraft`, `waypoints`, `routes` and `atis_current`, but nothing in this repository sets them.
 
 `golden_annotations` also has a partial index on `is_golden` where it is true.

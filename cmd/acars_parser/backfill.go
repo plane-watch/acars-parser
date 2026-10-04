@@ -139,7 +139,9 @@ func runBackfillCmd(args []string) {
 				if data.Flight != nil && data.Flight.ICAOHex != "" {
 					atomic.AddInt64(&aircraftUpserted, 1)
 				}
-				if data.Flight != nil && data.Flight.Origin != "" && data.Flight.Destination != "" {
+				// The routes table holds ICAO pairs; IATA pairs are kept by the extractor
+				// for storage v2, which records the code type.
+				if data.Flight != nil && data.Flight.AirportCodes == extractor.AirportCodesICAO {
 					atomic.AddInt64(&routesUpserted, 1)
 				}
 				atomic.AddInt64(&waypointsFound, int64(len(data.Waypoints)))
@@ -262,8 +264,7 @@ func writeExtractedData(ctx context.Context, pg *storage.PostgresDB, data extrac
 		err := pg.UpsertAircraft(ctx, storage.Aircraft{
 			ICAOHex:      data.Flight.ICAOHex,
 			Registration: data.Flight.Registration,
-			TypeCode:     data.Flight.TypeCode,
-			Operator:     data.Flight.Operator,
+			TypeCode:     data.Flight.AircraftType, // ICAO designator, empty if not proven.
 			FirstSeen:    seenTime,
 			LastSeen:     seenTime,
 			MsgCount:     1,
@@ -316,7 +317,9 @@ func writeExtractedData(ctx context.Context, pg *storage.PostgresDB, data extrac
 	}
 
 	// Write route if we have origin and destination.
-	if data.Flight != nil && data.Flight.Origin != "" && data.Flight.Destination != "" {
+	// The routes table holds ICAO pairs; IATA pairs are kept by the extractor
+	// for storage v2, which records the code type.
+	if data.Flight != nil && data.Flight.AirportCodes == extractor.AirportCodesICAO {
 		flightPattern := data.Flight.FlightNumber
 		if flightPattern == "" {
 			// Use registration as a fallback pattern if no flight number.

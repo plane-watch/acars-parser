@@ -3,6 +3,8 @@
 package extractor
 
 import (
+	"acars_parser/internal/aircrafttype"
+	"acars_parser/internal/nnumber"
 	"encoding/json"
 	"regexp"
 	"strings"
@@ -17,19 +19,24 @@ var flightNumRe = regexp.MustCompile(`^([A-Z]{2,3})(\d{1,4})$`)
 
 // FlightUpdate contains flight data extracted from messages.
 type FlightUpdate struct {
-	ICAOHex      string  `json:"icao_hex,omitempty"`
-	Registration string  `json:"registration,omitempty"`
-	FlightNumber string  `json:"flight_number,omitempty"`
-	Origin       string  `json:"origin,omitempty"`
-	Destination  string  `json:"destination,omitempty"`
-	Latitude     float64 `json:"latitude,omitempty"`
-	Longitude    float64 `json:"longitude,omitempty"`
-	Altitude     int     `json:"altitude,omitempty"`
-	GroundSpeed  int     `json:"ground_speed,omitempty"`
-	Track        int     `json:"track,omitempty"`
-	Waypoint     string  `json:"waypoint,omitempty"`
-	TypeCode     string  `json:"type_code,omitempty"`
-	Operator     string  `json:"operator,omitempty"`
+	ICAOHex       string  `json:"icao_hex,omitempty"`
+	ICAOHexSource string  `json:"icao_hex_source,omitempty"` // How ICAOHex was proven: see the HexFrom constants.
+	Registration  string  `json:"registration,omitempty"`
+	FlightNumber  string  `json:"flight_number,omitempty"`
+	Origin        string  `json:"origin,omitempty"`        // As transmitted: ICAO or IATA.
+	Destination   string  `json:"destination,omitempty"`   // As transmitted: ICAO or IATA.
+	AirportCodes  string  `json:"airport_codes,omitempty"` // AirportCodesICAO or AirportCodesIATA when both endpoints are of that kind.
+	Latitude      float64 `json:"latitude,omitempty"`
+	Longitude     float64 `json:"longitude,omitempty"`
+	Altitude      int     `json:"altitude,omitempty"`
+	GroundSpeed   int     `json:"ground_speed,omitempty"`
+	Track         int     `json:"track,omitempty"`
+	Waypoint      string  `json:"waypoint,omitempty"`
+
+	// AircraftTypeRaw is the aircraft type as transmitted; AircraftType is
+	// its ICAO designator, or empty when the raw value is ambiguous.
+	AircraftTypeRaw string `json:"aircraft_type_raw,omitempty"`
+	AircraftType    string `json:"aircraft_type,omitempty"`
 }
 
 // WaypointUpdate contains waypoint data extracted from messages.
@@ -57,6 +64,22 @@ type ATISUpdate struct {
 	Remarks     []string `json:"remarks,omitempty"`
 }
 
+// Sources of FlightUpdate.ICAOHex, strongest first.
+const (
+	// HexFromLinkLayer is the aircraft's link-layer address (acars.Message.AircraftAddress).
+	HexFromLinkLayer = "link_layer"
+	// HexFromADSC is the airframe ID transmitted in an ADS-C report.
+	HexFromADSC = "adsc"
+	// HexDerivedFromTail is derived from a transmitted US N-number registration.
+	HexDerivedFromTail = "derived_from_tail"
+)
+
+// Values of FlightUpdate.AirportCodes.
+const (
+	AirportCodesICAO = "icao"
+	AirportCodesIATA = "iata"
+)
+
 // ExtractedData is a container for all data extracted from a message.
 type ExtractedData struct {
 	Flight    *FlightUpdate     `json:"flight,omitempty"`
@@ -73,26 +96,13 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 	// Build the base flight update from the message metadata.
 	update := &FlightUpdate{}
 
-	// Extract identity from the message/airframe.
-	if msg.Airframe != nil {
-		update.ICAOHex = msg.Airframe.ICAO
-		update.Registration = msg.Airframe.Tail
-		update.TypeCode = msg.Airframe.ManufacturerModel
-		update.Operator = msg.Airframe.Owner
-	}
-	if update.Registration == "" {
-		update.Registration = msg.Tail
-	}
-
-	// Extract flight info from the message.
-	if msg.Flight != nil {
-		update.FlightNumber = strings.TrimSpace(msg.Flight.Flight)
-		if update.Origin == "" && isValidAirportCode(msg.Flight.DepartingAirport) {
-			update.Origin = strings.TrimSpace(msg.Flight.DepartingAirport)
-		}
-		if update.Destination == "" && isValidAirportCode(msg.Flight.DestinationAirport) {
-			update.Destination = strings.TrimSpace(msg.Flight.DestinationAirport)
-		}
+	// Identity comes only from what was transmitted. Airframes' airframe and
+	// flight records are its own enrichment, of unknown accuracy, so they are
+	// never used as a source of facts.
+	update.Registration = msg.Tail
+	update.FlightNumber = msg.FlightNumber
+	if addr, ok := msg.AircraftAddress(); ok {
+		update.ICAOHex, update.ICAOHexSource = addr, HexFromLinkLayer
 	}
 
 	// Process each parsed result to extract additional data.
@@ -104,6 +114,18 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 	if update.FlightNumber != "" {
 		update.FlightNumber = NormaliseFlightNumber(update.FlightNumber)
 	}
+
+	// Without a transmitted address, derive one from a US N-number tail.
+	if update.ICAOHex == "" {
+		if addr, ok := nnumber.ICAOAddress(update.Registration); ok {
+			update.ICAOHex, update.ICAOHexSource = addr, HexDerivedFromTail
+		}
+	}
+
+	if update.AircraftTypeRaw != "" {
+		update.AircraftType, _ = aircrafttype.Normalise(update.AircraftTypeRaw)
+	}
+	update.AirportCodes = airportCodes(update.Origin, update.Destination)
 
 	// Only include the flight update if we have identity info.
 	if update.ICAOHex != "" || update.Registration != "" {
@@ -158,6 +180,40 @@ func isValidAirportCode(code string) bool {
 	return patterns.IsValidICAO(code)
 }
 
+// isIATAAirportCode reports whether code has the shape of an IATA airport
+// code: three letters.
+func isIATAAirportCode(code string) bool {
+	if len(code) != 3 {
+		return false
+	}
+	for i := 0; i < 3; i++ {
+		if code[i] < 'A' || code[i] > 'Z' {
+			return false
+		}
+	}
+	return true
+}
+
+// isAirportCode reports whether code is a valid ICAO or IATA airport code.
+func isAirportCode(code string) bool {
+	return isValidAirportCode(code) || isIATAAirportCode(code)
+}
+
+// airportCodes returns AirportCodesICAO or AirportCodesIATA when both
+// endpoints are codes of that kind, and "" otherwise.
+func airportCodes(origin, dest string) string {
+	switch {
+	case origin == "" || dest == "":
+		return ""
+	case isValidAirportCode(origin) && isValidAirportCode(dest):
+		return AirportCodesICAO
+	case isIATAAirportCode(origin) && isIATAAirportCode(dest):
+		return AirportCodesIATA
+	default:
+		return ""
+	}
+}
+
 // extractFromResult extracts data from a parsed result into the update struct.
 func extractFromResult(update *FlightUpdate, data *ExtractedData, result registry.Result) {
 	// Convert result to a map for generic field access.
@@ -191,13 +247,13 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 	}
 
 	// Extract route (with validation to reject corrupted codes).
-	if v, ok := m["origin"].(string); ok && v != "" && isValidAirportCode(v) {
+	if v, ok := m["origin"].(string); ok && v != "" && isAirportCode(strings.TrimSpace(v)) {
 		update.Origin = strings.TrimSpace(v)
 	}
 	if v, ok := m["origin_icao"].(string); ok && v != "" && isValidAirportCode(v) {
 		update.Origin = strings.TrimSpace(v)
 	}
-	if v, ok := m["destination"].(string); ok && v != "" && isValidAirportCode(v) {
+	if v, ok := m["destination"].(string); ok && v != "" && isAirportCode(strings.TrimSpace(v)) {
 		update.Destination = strings.TrimSpace(v)
 	}
 	if v, ok := m["dest_icao"].(string); ok && v != "" && isValidAirportCode(v) {
@@ -244,15 +300,15 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 		update.Track = int(v)
 	}
 
-	// Extract aircraft type.
+	// Extract the aircraft type as transmitted; Extract normalises it.
 	if v, ok := m["aircraft_type"].(string); ok && v != "" {
-		update.TypeCode = v
+		update.AircraftTypeRaw = strings.TrimSpace(v)
 	}
 
-	// Extract ICAO hex address (Mode-S transponder code).
-	// This is the 6-character hex identifier for the aircraft (e.g., "7C4EF3").
-	if v, ok := m["aircraft_icao"].(string); ok && v != "" && update.ICAOHex == "" {
-		update.ICAOHex = v
+	// An ADS-C report transmits the aircraft's address (its airframe ID);
+	// it is used when the link layer has not given one.
+	if v, ok := m["airframe_id"].(string); ok && v != "" && update.ICAOHex == "" {
+		update.ICAOHex, update.ICAOHexSource = strings.ToUpper(v), HexFromADSC
 	}
 
 	// Extract waypoint information.

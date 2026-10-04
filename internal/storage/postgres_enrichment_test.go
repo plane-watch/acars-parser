@@ -3,37 +3,34 @@ package storage
 import (
 	"context"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 )
 
-// setupTestPostgres creates a test database connection.
-// Returns nil if no PostgreSQL connection is available.
+// setupTestPostgres connects to the PostgreSQL test database, or returns nil
+// if none is reachable (the integration tests are then skipped).
+//
+// It uses the same POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER and
+// POSTGRES_PASSWORD variables as the binaries, but its own database,
+// POSTGRES_TEST_DATABASE (default acars_test), so that tests never write to
+// the database that holds real data.
 func setupTestPostgres(t *testing.T) *PostgresDB {
 	t.Helper()
 
-	// Check for environment variable or use defaults.
-	host := os.Getenv("POSTGRES_HOST")
-	if host == "" {
-		host = "localhost"
-	}
-	user := os.Getenv("POSTGRES_USER")
-	if user == "" {
-		user = "acars"
-	}
-	password := os.Getenv("POSTGRES_PASSWORD")
-	if password == "" {
-		password = "acars"
-	}
-	database := os.Getenv("POSTGRES_DB")
-	if database == "" {
-		database = "acars_state"
+	host := envOr("POSTGRES_HOST", "localhost")
+	user := envOr("POSTGRES_USER", "acars")
+	password := envOr("POSTGRES_PASSWORD", "acars")
+	database := envOr("POSTGRES_TEST_DATABASE", "acars_test")
+	port, err := strconv.Atoi(envOr("POSTGRES_PORT", "5432"))
+	if err != nil {
+		t.Fatalf("POSTGRES_PORT: %v", err)
 	}
 
 	ctx := context.Background()
 	pg, err := OpenPostgres(ctx, PostgresConfig{
 		Host:     host,
-		Port:     5432,
+		Port:     port,
 		User:     user,
 		Password: password,
 		Database: database,
@@ -49,6 +46,14 @@ func setupTestPostgres(t *testing.T) *PostgresDB {
 	}
 
 	return pg
+}
+
+// envOr returns the environment variable's value, or def if it is unset or empty.
+func envOr(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
 }
 
 func stringPtr(s string) *string { return &s }

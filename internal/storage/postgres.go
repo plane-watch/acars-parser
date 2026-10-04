@@ -259,15 +259,16 @@ type Aircraft struct {
 	SyncedAt     *time.Time
 }
 
-// UpsertAircraft inserts or updates an aircraft record.
+// UpsertAircraft inserts or updates an aircraft record. An empty registration,
+// type or operator does not overwrite a stored value.
 func (d *PostgresDB) UpsertAircraft(ctx context.Context, a Aircraft) error {
 	_, err := d.pool.Exec(ctx, `
 		INSERT INTO aircraft (icao_hex, registration, type_code, operator, first_seen, last_seen, msg_count)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		ON CONFLICT (icao_hex) DO UPDATE SET
-			registration = EXCLUDED.registration,
-			type_code = COALESCE(EXCLUDED.type_code, aircraft.type_code),
-			operator = COALESCE(EXCLUDED.operator, aircraft.operator),
+			registration = COALESCE(NULLIF(EXCLUDED.registration, ''), aircraft.registration),
+			type_code = COALESCE(NULLIF(EXCLUDED.type_code, ''), aircraft.type_code),
+			operator = COALESCE(NULLIF(EXCLUDED.operator, ''), aircraft.operator),
 			last_seen = EXCLUDED.last_seen,
 			msg_count = aircraft.msg_count + 1
 	`, a.ICAOHex, a.Registration, a.TypeCode, a.Operator, a.FirstSeen, a.LastSeen, a.MsgCount)

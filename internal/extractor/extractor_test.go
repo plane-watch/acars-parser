@@ -68,25 +68,25 @@ type mockResult struct {
 	Longitude    float64 `json:"longitude,omitempty"`
 	FlightNumber string  `json:"flight_number,omitempty"`
 	Waypoint     string  `json:"waypoint,omitempty"`
+	AircraftType string  `json:"aircraft_type,omitempty"`
+	AirframeID   string  `json:"airframe_id,omitempty"`
 }
 
 func (r *mockResult) Type() string     { return r.typeStr }
 func (r *mockResult) MessageID() int64 { return r.msgID }
 
 func TestExtract(t *testing.T) {
-	t.Run("extracts from message metadata", func(t *testing.T) {
+	t.Run("uses only transmitted identity, never Airframes metadata", func(t *testing.T) {
 		msg := &acars.Message{
-			ID:    123,
-			Label: "H1",
-			Airframe: &acars.Airframe{
-				ICAO: "7C6B2D",
-				Tail: "VH-OQA",
-			},
-			Flight: &acars.Flight{
-				Flight:             "QF1",
-				DepartingAirport:   "YSSY",
-				DestinationAirport: "KLAX",
-			},
+			ID:            123,
+			Label:         "H1",
+			Tail:          "VH-OQA",
+			FlightNumber:  "QFA001",
+			LinkDirection: "downlink",
+			FromHex:       "7C6B2D",
+			// Airframes' records must be ignored.
+			Airframe: &acars.Airframe{ICAO: "123456", Tail: "VH-XXX", ManufacturerModel: "A380-800", Owner: "Someone"},
+			Flight:   &acars.Flight{Flight: "QF9", DepartingAirport: "YSSY", DestinationAirport: "KLAX"},
 		}
 
 		data := Extract(msg, nil)
@@ -94,20 +94,76 @@ func TestExtract(t *testing.T) {
 		if data.Flight == nil {
 			t.Fatal("expected flight data")
 		}
-		if data.Flight.ICAOHex != "7C6B2D" {
-			t.Errorf("ICAOHex = %q, want 7C6B2D", data.Flight.ICAOHex)
+		f := data.Flight
+		if f.ICAOHex != "7C6B2D" || f.ICAOHexSource != HexFromLinkLayer {
+			t.Errorf("ICAOHex = %q (%s), want 7C6B2D (link_layer)", f.ICAOHex, f.ICAOHexSource)
 		}
-		if data.Flight.Registration != "VH-OQA" {
-			t.Errorf("Registration = %q, want VH-OQA", data.Flight.Registration)
+		if f.Registration != "VH-OQA" {
+			t.Errorf("Registration = %q, want VH-OQA", f.Registration)
 		}
-		if data.Flight.FlightNumber != "QF1" {
-			t.Errorf("FlightNumber = %q, want QF1", data.Flight.FlightNumber)
+		if f.FlightNumber != "QFA1" {
+			t.Errorf("FlightNumber = %q, want QFA1", f.FlightNumber)
 		}
-		if data.Flight.Origin != "YSSY" {
-			t.Errorf("Origin = %q, want YSSY", data.Flight.Origin)
+		if f.Origin != "" || f.Destination != "" || f.AircraftTypeRaw != "" {
+			t.Errorf("route or type taken from Airframes: %q-%q, %q", f.Origin, f.Destination, f.AircraftTypeRaw)
 		}
-		if data.Flight.Destination != "KLAX" {
-			t.Errorf("Destination = %q, want KLAX", data.Flight.Destination)
+	})
+
+	t.Run("ADS-C airframe ID gives a transmitted address", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "B6", Tail: "VH-ZNA"}
+		results := []registry.Result{&mockResult{typeStr: "adsc", AirframeID: "7C6CA3"}}
+
+		f := Extract(msg, results).Flight
+		if f == nil || f.ICAOHex != "7C6CA3" || f.ICAOHexSource != HexFromADSC {
+			t.Fatalf("flight = %+v, want 7C6CA3 from adsc", f)
+		}
+	})
+
+	t.Run("US N-number gives a derived address", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "H1", Tail: "N1"}
+
+		f := Extract(msg, nil).Flight
+		if f == nil || f.ICAOHex != "A00001" || f.ICAOHexSource != HexDerivedFromTail {
+			t.Fatalf("flight = %+v, want A00001 derived from the tail", f)
+		}
+	})
+
+	t.Run("a transmitted address wins over a derived one", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "H1", Tail: "N1", LinkDirection: "downlink", FromHex: "A12345"}
+
+		f := Extract(msg, nil).Flight
+		if f.ICAOHex != "A12345" || f.ICAOHexSource != HexFromLinkLayer {
+			t.Errorf("ICAOHex = %q (%s), want A12345 (link_layer)", f.ICAOHex, f.ICAOHexSource)
+		}
+	})
+
+	t.Run("aircraft type is kept raw and normalised", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "C1", Tail: "VH-VXA"}
+		for _, tt := range []struct{ raw, want string }{
+			{"B737-800", "B738"},
+			{"AT7", ""}, // Ambiguous: kept raw, not normalised.
+		} {
+			f := Extract(msg, []registry.Result{&mockResult{typeStr: "loadsheet", AircraftType: tt.raw}}).Flight
+			if f.AircraftTypeRaw != tt.raw || f.AircraftType != tt.want {
+				t.Errorf("type = %q / %q, want %q / %q", f.AircraftTypeRaw, f.AircraftType, tt.raw, tt.want)
+			}
+		}
+	})
+
+	t.Run("routes are kept as transmitted, ICAO or IATA", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "C1", Tail: "VH-VXA"}
+		tests := []struct {
+			origin, dest, wantCodes string
+		}{
+			{"YSSY", "YMML", AirportCodesICAO},
+			{"SYD", "MEL", AirportCodesIATA},
+			{"SYD", "YMML", ""}, // Mixed: kept, but no single code type.
+		}
+		for _, tt := range tests {
+			f := Extract(msg, []registry.Result{&mockResult{typeStr: "loadsheet", Origin: tt.origin, Destination: tt.dest}}).Flight
+			if f.Origin != tt.origin || f.Destination != tt.dest || f.AirportCodes != tt.wantCodes {
+				t.Errorf("route = %q-%q (%q), want %q-%q (%q)", f.Origin, f.Destination, f.AirportCodes, tt.origin, tt.dest, tt.wantCodes)
+			}
 		}
 	})
 
@@ -115,9 +171,7 @@ func TestExtract(t *testing.T) {
 		msg := &acars.Message{
 			ID:    456,
 			Label: "80",
-			Airframe: &acars.Airframe{
-				ICAO: "ABC123",
-			},
+			Tail:  "VH-ABC",
 		}
 
 		results := []registry.Result{
@@ -148,7 +202,8 @@ func TestExtract(t *testing.T) {
 		msg := &acars.Message{
 			ID:    789,
 			Label: "H1",
-			// No Airframe or Flight data.
+			// No transmitted tail, flight number or address.
+			Airframe: &acars.Airframe{ICAO: "7C6B2D", Tail: "VH-OQA"},
 		}
 
 		data := Extract(msg, nil)
@@ -165,9 +220,7 @@ func TestExtract_ZeroCoordinates(t *testing.T) {
 	msg := &acars.Message{
 		ID:    123,
 		Label: "80",
-		Airframe: &acars.Airframe{
-			ICAO: "ABC123",
-		},
+		Tail:  "VH-ABC",
 	}
 
 	t.Run("both zero - treated as unset", func(t *testing.T) {

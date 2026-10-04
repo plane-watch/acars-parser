@@ -620,7 +620,7 @@ golangci-lint run ./...   # configuration in .golangci.yml
 go test ./...
 ```
 
-The PostgreSQL integration tests in `internal/storage` are skipped when no database is reachable.
+The PostgreSQL integration tests in `internal/storage` use their own database, `POSTGRES_TEST_DATABASE` (default `acars_test`), never the one holding real data. They use the usual `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER` and `POSTGRES_PASSWORD` variables, and are skipped when no database is reachable.
 
 ### Parser regression baseline
 
