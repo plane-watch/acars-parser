@@ -2,8 +2,10 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
@@ -14,7 +16,9 @@ import (
 // It uses the same POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER and
 // POSTGRES_PASSWORD variables as the binaries, but its own database,
 // POSTGRES_TEST_DATABASE (default acars_test), so that tests never write to
-// the database that holds real data.
+// the database that holds real data. A database whose name does not end in
+// "_test" is refused, so a misconfigured variable cannot point the tests at
+// real data.
 func setupTestPostgres(t *testing.T) *PostgresDB {
 	t.Helper()
 
@@ -22,6 +26,9 @@ func setupTestPostgres(t *testing.T) *PostgresDB {
 	user := envOr("POSTGRES_USER", "acars")
 	password := envOr("POSTGRES_PASSWORD", "acars")
 	database := envOr("POSTGRES_TEST_DATABASE", "acars_test")
+	if err := checkTestDatabaseName(database); err != nil {
+		t.Fatal(err)
+	}
 	port, err := strconv.Atoi(envOr("POSTGRES_PORT", "5432"))
 	if err != nil {
 		t.Fatalf("POSTGRES_PORT: %v", err)
@@ -46,6 +53,14 @@ func setupTestPostgres(t *testing.T) *PostgresDB {
 	}
 
 	return pg
+}
+
+// checkTestDatabaseName refuses any database not named "<something>_test".
+func checkTestDatabaseName(name string) error {
+	if len(name) <= len("_test") || !strings.HasSuffix(name, "_test") {
+		return fmt.Errorf("refusing to run integration tests against database %q: its name must end in _test", name)
+	}
+	return nil
 }
 
 // envOr returns the environment variable's value, or def if it is unset or empty.

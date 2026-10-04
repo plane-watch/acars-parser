@@ -15,9 +15,6 @@ import (
 )
 
 var (
-	// designatorRe matches the shape of an ICAO type designator.
-	designatorRe = regexp.MustCompile(`^[A-Z][A-Z0-9]{1,3}$`)
-
 	// configuredRe matches a designator followed by a configuration code,
 	// e.g. "A333-BCS3". The configuration starts with a letter, which
 	// distinguishes it from a model number ("B737-800").
@@ -31,11 +28,8 @@ var (
 	// boeingMaxRe matches the compact MAX form "B7378MAX".
 	boeingMaxRe = regexp.MustCompile(`^B?737-?([789])\s*MAX`)
 
-	// familyNameRe matches manufacturer family names that look like
-	// designators but are not ones: Boeing "B707" to "B797", and Airbus
-	// "A330", "A340", "A350" and "A380" (whereas A310, A319, A320 and A321
-	// are designators).
-	familyNameRe = regexp.MustCompile(`^(?:B7\d7|A3[3-8]0)$`)
+	// embraerE2Re matches an Embraer E2 model name, e.g. "E195-E2".
+	embraerE2Re = regexp.MustCompile(`^E(175|190|195)-E2$`)
 
 	// airbusRe matches an Airbus model name, e.g. "A330-323", "A321-271N".
 	airbusRe = regexp.MustCompile(`^A3(\d)(\d)-(\d)\d{1,2}(N?)(?:\s|$)`)
@@ -90,8 +84,13 @@ var iataCodes = map[string]string{
 	"7M9": "B39M",
 }
 
+// embraerE2 maps an Embraer E2 model to its designator.
+var embraerE2 = map[string]string{"175": "E275", "190": "E290", "195": "E295"}
+
 // Normalise returns the ICAO type designator for an aircraft type as
-// transmitted, and false if the value does not identify exactly one.
+// transmitted, and false if the value does not identify exactly one listed
+// designator. Model names are matched before configurations, because a
+// model's suffix ("E195-E2") is not a configuration ("A333-BCS3").
 func Normalise(raw string) (string, bool) {
 	s := strings.ToUpper(strings.TrimSpace(raw))
 	if s == "" {
@@ -101,11 +100,8 @@ func Normalise(raw string) (string, bool) {
 	if d, ok := iataCodes[s]; ok {
 		return d, true
 	}
-	if m := configuredRe.FindStringSubmatch(s); m != nil {
-		if familyNameRe.MatchString(m[1]) {
-			return "", false
-		}
-		return m[1], true
+	if m := embraerE2Re.FindStringSubmatch(s); m != nil {
+		return embraerE2[m[1]], true
 	}
 	if m := boeingMaxRe.FindStringSubmatch(s); m != nil {
 		return boeingMax[m[1]], true
@@ -129,9 +125,13 @@ func Normalise(raw string) (string, bool) {
 		}
 		return "", false
 	}
-	// A designator-shaped value with a letter first is taken as transmitted.
-	// Purely numeric or ambiguous short codes (e.g. "737", "AT7") are not.
-	if designatorRe.MatchString(s) && len(s) == 4 && !familyNameRe.MatchString(s) {
+	if m := configuredRe.FindStringSubmatch(s); m != nil {
+		if designators[m[1]] {
+			return m[1], true
+		}
+		return "", false
+	}
+	if designators[s] {
 		return s, true
 	}
 	return "", false

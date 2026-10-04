@@ -1,6 +1,7 @@
 package loadsheet
 
 import (
+	"strings"
 	"testing"
 
 	"acars_parser/internal/acars"
@@ -30,6 +31,29 @@ func TestParseAircraftType(t *testing.T) {
 			}
 			if r := got.(*Result); r.AircraftType != tt.want {
 				t.Errorf("AircraftType = %q, want %q", r.AircraftType, tt.want)
+			}
+		})
+	}
+}
+
+// TestParseAircraftTypeLineIsStrict checks that the explicit type line is read
+// only from a complete "AIRCRAFT TYPE :" line.
+func TestParseAircraftTypeLineIsStrict(t *testing.T) {
+	tests := []struct {
+		name, line string
+	}{
+		{"empty value does not take the next line", "\tAIRCRAFT TYPE :      \n\tSIGN & LIC NO.: ......................"},
+		{"a different field ending in AIRCRAFT TYPE", "\tPREVIOUS AIRCRAFT TYPE : B738"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			text := strings.Replace(labelledTypeLoadsheet, "\tAIRCRAFT TYPE : B737-800               ", tt.line, 1)
+			got := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "C1", Text: text})
+			if got == nil {
+				t.Fatal("Parse returned nil")
+			}
+			if r := got.(*Result); r.AircraftType != "" {
+				t.Errorf("AircraftType = %q, want empty", r.AircraftType)
 			}
 		})
 	}

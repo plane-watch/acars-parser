@@ -77,9 +77,11 @@ func (p *Parser) QuickCheck(text string) bool {
 }
 
 // Parse extracts loadsheet data using validated grok patterns.
-// aircraftTypeLineRe matches an explicit aircraft type line in a loadsheet,
-// such as "AIRCRAFT TYPE : B737-800".
-var aircraftTypeLineRe = regexp.MustCompile(`(?m)AIRCRAFT\s+TYPE\s*:\s*([A-Z0-9][A-Z0-9-]*)`)
+// aircraftTypeLineRe matches a complete explicit aircraft type line in a
+// loadsheet, such as "\tAIRCRAFT TYPE : B737-800   ". It must start the line
+// (so "PREVIOUS AIRCRAFT TYPE" does not match), and the value must be on the
+// same line (so an empty field does not take the next line's text).
+var aircraftTypeLineRe = regexp.MustCompile(`(?m)^[ \t]*AIRCRAFT[ \t]+TYPE[ \t]*:[ \t]*([A-Z0-9][A-Z0-9-]*)[ \t]*\r?$`)
 
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if msg.Text == "" {

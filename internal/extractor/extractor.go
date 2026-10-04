@@ -242,6 +242,10 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 	if v, ok := m["flight_num"].(string); ok && v != "" {
 		update.FlightNumber = strings.TrimSpace(v)
 	}
+	// The loadsheet parser reports its flight number as "flight".
+	if v, ok := m["flight"].(string); ok && v != "" && update.FlightNumber == "" {
+		update.FlightNumber = strings.TrimSpace(v)
+	}
 	if v, ok := m["callsign"].(string); ok && v != "" && update.FlightNumber == "" {
 		update.FlightNumber = strings.TrimSpace(v)
 	}
@@ -307,8 +311,10 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 
 	// An ADS-C report transmits the aircraft's address (its airframe ID);
 	// it is used when the link layer has not given one.
-	if v, ok := m["airframe_id"].(string); ok && v != "" && update.ICAOHex == "" {
-		update.ICAOHex, update.ICAOHexSource = strings.ToUpper(v), HexFromADSC
+	if v, ok := m["airframe_id"].(string); ok && update.ICAOHex == "" {
+		if addr := strings.ToUpper(strings.TrimSpace(v)); acars.IsICAOAddress(addr) {
+			update.ICAOHex, update.ICAOHexSource = addr, HexFromADSC
+		}
 	}
 
 	// Extract waypoint information.

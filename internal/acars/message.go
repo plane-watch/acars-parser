@@ -75,7 +75,7 @@ type Message struct {
 // AircraftAddress returns the aircraft's 24-bit ICAO address as carried by the
 // link layer: the sender of a downlink or the recipient of an uplink. The
 // direction comes from LinkDirection, or failing that the block ID (digits are
-// downlinks, letters are uplinks). It reports false if the direction or a
+// downlinks, letters A to X are uplinks). It reports false if the direction or a
 // valid, non-zero address is not known.
 func (m *Message) AircraftAddress() (string, bool) {
 	var addr string
@@ -86,20 +86,22 @@ func (m *Message) AircraftAddress() (string, bool) {
 		addr = m.ToHex
 	case len(m.BlockID) == 1 && m.BlockID[0] >= '0' && m.BlockID[0] <= '9':
 		addr = m.FromHex
-	case len(m.BlockID) == 1 && m.BlockID[0] >= 'A' && m.BlockID[0] <= 'Z':
+	case len(m.BlockID) == 1 && m.BlockID[0] >= 'A' && m.BlockID[0] <= 'X':
 		addr = m.ToHex
 	default:
 		return "", false
 	}
-	if !isICAOAddress(addr) {
+	if !IsICAOAddress(addr) {
 		return "", false
 	}
 	return addr, true
 }
 
-// isICAOAddress reports whether s is six hex digits and not all zeros.
-func isICAOAddress(s string) bool {
-	if len(s) != 6 || s == "000000" {
+// IsICAOAddress reports whether s is a usable 24-bit ICAO aircraft address:
+// six upper-case hex digits, and neither all zeros nor all ones (which are
+// not assigned to aircraft).
+func IsICAOAddress(s string) bool {
+	if len(s) != 6 || s == "000000" || s == "FFFFFF" {
 		return false
 	}
 	for i := 0; i < len(s); i++ {

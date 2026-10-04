@@ -13,11 +13,15 @@ func TestUpsertAircraftKeepsValuesWhenNewOnesAreEmpty(t *testing.T) {
 	if pg == nil {
 		t.Skip("No PostgreSQL connection available")
 	}
-	defer pg.Close()
-	ctx := context.Background()
-
 	const hex = "7CFFF1"
-	t.Cleanup(func() { _, _ = pg.pool.Exec(context.Background(), `DELETE FROM aircraft WHERE icao_hex = $1`, hex) })
+	// Cleanups run last-registered first: delete the row, then close the pool.
+	t.Cleanup(pg.Close)
+	t.Cleanup(func() {
+		if _, err := pg.pool.Exec(context.Background(), `DELETE FROM aircraft WHERE icao_hex = $1`, hex); err != nil {
+			t.Errorf("cleanup: %v", err)
+		}
+	})
+	ctx := context.Background()
 
 	now := time.Now()
 	full := Aircraft{ICAOHex: hex, Registration: "VH-TST", TypeCode: "A332", Operator: "Test", FirstSeen: now, LastSeen: now, MsgCount: 1}

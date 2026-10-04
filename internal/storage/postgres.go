@@ -554,26 +554,31 @@ type FlightState struct {
 
 // UpsertFlightState inserts or updates flight state.
 func (d *PostgresDB) UpsertFlightState(ctx context.Context, fs FlightState) error {
-	waypointsJSON, err := json.Marshal(fs.Waypoints)
-	if err != nil {
-		return fmt.Errorf("marshal waypoints: %w", err)
+	// No waypoints is stored as NULL, so that an update without waypoints
+	// keeps the stored ones; likewise empty text fields keep stored values.
+	var waypointsJSON []byte
+	if len(fs.Waypoints) > 0 {
+		var err error
+		if waypointsJSON, err = json.Marshal(fs.Waypoints); err != nil {
+			return fmt.Errorf("marshal waypoints: %w", err)
+		}
 	}
 
-	_, err = d.pool.Exec(ctx, `
+	_, err := d.pool.Exec(ctx, `
 		INSERT INTO flight_state (key, icao_hex, registration, flight_number, origin, destination, latitude, longitude, altitude, ground_speed, track, waypoints, first_seen, last_seen, msg_count)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 		ON CONFLICT (key) DO UPDATE SET
-			icao_hex = COALESCE(EXCLUDED.icao_hex, flight_state.icao_hex),
-			registration = COALESCE(EXCLUDED.registration, flight_state.registration),
-			flight_number = COALESCE(EXCLUDED.flight_number, flight_state.flight_number),
-			origin = COALESCE(EXCLUDED.origin, flight_state.origin),
-			destination = COALESCE(EXCLUDED.destination, flight_state.destination),
+			icao_hex = COALESCE(NULLIF(EXCLUDED.icao_hex, ''), flight_state.icao_hex),
+			registration = COALESCE(NULLIF(EXCLUDED.registration, ''), flight_state.registration),
+			flight_number = COALESCE(NULLIF(EXCLUDED.flight_number, ''), flight_state.flight_number),
+			origin = COALESCE(NULLIF(EXCLUDED.origin, ''), flight_state.origin),
+			destination = COALESCE(NULLIF(EXCLUDED.destination, ''), flight_state.destination),
 			latitude = COALESCE(EXCLUDED.latitude, flight_state.latitude),
 			longitude = COALESCE(EXCLUDED.longitude, flight_state.longitude),
 			altitude = COALESCE(EXCLUDED.altitude, flight_state.altitude),
 			ground_speed = COALESCE(EXCLUDED.ground_speed, flight_state.ground_speed),
 			track = COALESCE(EXCLUDED.track, flight_state.track),
-			waypoints = EXCLUDED.waypoints,
+			waypoints = COALESCE(EXCLUDED.waypoints, flight_state.waypoints),
 			last_seen = EXCLUDED.last_seen,
 			msg_count = flight_state.msg_count + 1
 	`, fs.Key, fs.ICAOHex, fs.Registration, fs.FlightNumber, fs.Origin, fs.Destination, fs.Latitude, fs.Longitude, fs.Altitude, fs.GroundSpeed, fs.Track, waypointsJSON, fs.FirstSeen, fs.LastSeen, fs.MsgCount)

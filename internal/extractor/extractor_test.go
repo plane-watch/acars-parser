@@ -72,6 +72,15 @@ type mockResult struct {
 	AirframeID   string  `json:"airframe_id,omitempty"`
 }
 
+// loadsheetLike is a result that carries its flight number as "flight", as
+// the loadsheet parser does.
+type loadsheetLike struct {
+	Flight string `json:"flight,omitempty"`
+}
+
+func (r *loadsheetLike) Type() string     { return "loadsheet" }
+func (r *loadsheetLike) MessageID() int64 { return 0 }
+
 func (r *mockResult) Type() string     { return r.typeStr }
 func (r *mockResult) MessageID() int64 { return r.msgID }
 
@@ -116,6 +125,24 @@ func TestExtract(t *testing.T) {
 		f := Extract(msg, results).Flight
 		if f == nil || f.ICAOHex != "7C6CA3" || f.ICAOHexSource != HexFromADSC {
 			t.Fatalf("flight = %+v, want 7C6CA3 from adsc", f)
+		}
+	})
+
+	t.Run("an invalid ADS-C airframe ID is not an address", func(t *testing.T) {
+		for _, id := range []string{"000000", "FFFFFF", "XYZ"} {
+			msg := &acars.Message{ID: 1, Label: "B6", Tail: "N1"}
+			f := Extract(msg, []registry.Result{&mockResult{typeStr: "adsc", AirframeID: id}}).Flight
+			if f.ICAOHex != "A00001" || f.ICAOHexSource != HexDerivedFromTail {
+				t.Errorf("airframe ID %q: ICAOHex = %q (%s), want A00001 derived from the tail", id, f.ICAOHex, f.ICAOHexSource)
+			}
+		}
+	})
+
+	t.Run("loadsheet flight field gives the flight number", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "C1", Tail: "9M-MXE"}
+		f := Extract(msg, []registry.Result{&loadsheetLike{Flight: "MH616"}}).Flight
+		if f.FlightNumber != "MH616" {
+			t.Errorf("FlightNumber = %q, want MH616", f.FlightNumber)
 		}
 	})
 

@@ -220,6 +220,10 @@ func TestAircraftAddress(t *testing.T) {
 			Message{LinkDirection: "downlink", FromHex: "XYZ123"}, "", false},
 		{"all zeros is not an aircraft address",
 			Message{LinkDirection: "downlink", FromHex: "000000"}, "", false},
+		{"all ones is not an aircraft address",
+			Message{LinkDirection: "downlink", FromHex: "FFFFFF"}, "", false},
+		{"block ID outside A to X gives no direction",
+			Message{BlockID: "Y", FromHex: "11919A", ToHex: "A21127"}, "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -47,6 +47,25 @@ func TestNormalise(t *testing.T) {
 		{"388", "A388", true},
 		{"32N", "A20N", true},
 
+		// Embraer E2 model names: the suffix is part of the model, not a
+		// configuration.
+		{"E195-E2", "E295", true},
+		{"E190-E2", "E290", true},
+
+		// B737 is itself a designator (the 737-700).
+		{"B737", "B737", true},
+
+		// Values shaped like designators that are not on the list of ICAO
+		// designators are not normalised: they include flight levels,
+		// checksum fragments and words seen in older parser output.
+		{"TEST", "", false},
+		{"NONE", "", false},
+		{"A220", "", false},
+		{"F240", "", false},
+		{"C8AE", "", false},
+		{"BAW8", "", false},
+		{"A330-BCS1", "", false},
+
 		// Ambiguous: more than one designator is possible, so none is given.
 		{"AT7", "", false},
 		{"737", "", false},
@@ -60,6 +79,25 @@ func TestNormalise(t *testing.T) {
 		got, ok := Normalise(tt.raw)
 		if got != tt.want || ok != tt.wantOK {
 			t.Errorf("Normalise(%q) = %q, %v, want %q, %v", tt.raw, got, ok, tt.want, tt.wantOK)
+		}
+	}
+}
+
+// TestMappingTargetsAreListedDesignators keeps the mapping tables consistent
+// with the designator list, so that a mapping cannot return an unlisted type.
+func TestMappingTargetsAreListedDesignators(t *testing.T) {
+	var targets []string
+	for _, m := range []map[string]string{iataCodes, boeingVariants, boeingMax, airbusSeries, embraerE2} {
+		for _, d := range m {
+			targets = append(targets, d)
+		}
+	}
+	for _, fam := range airbusFamily {
+		targets = append(targets, fam[0], fam[1])
+	}
+	for _, d := range targets {
+		if !designators[d] {
+			t.Errorf("mapping target %q is not in the designator list", d)
 		}
 	}
 }
