@@ -95,6 +95,7 @@ func (r *reportLike) MessageID() int64 { return 0 }
 // afnLike is a result that reports the aircraft's address with its
 // registration, as an AFN logon does.
 type afnLike struct {
+	Callsign        string `json:"callsign,omitempty"`
 	Registration    string `json:"registration"`
 	AircraftAddress string `json:"aircraft_address"`
 }
@@ -268,6 +269,40 @@ func TestExtract(t *testing.T) {
 			if f.ICAOHex != tt.wantHex || f.ICAOHexSource != tt.wantSource {
 				t.Errorf("%s: ICAOHex = %q (%s), want %q (%s)", tt.name, f.ICAOHex, f.ICAOHexSource, tt.wantHex, tt.wantSource)
 			}
+		}
+	})
+
+	t.Run("a result about another aircraft contributes nothing", func(t *testing.T) {
+		afn := &afnLike{Callsign: "TZP16", Registration: "JA822J", AircraftAddress: "86D5BE"}
+
+		// No tail, and the link layer gives another address than the AFN
+		// header: the AFN registration must not be paired with it.
+		msg := &acars.Message{ID: 1, Label: "A0", LinkDirection: "uplink", ToHex: "A1BB45"}
+		f := Extract(msg, []registry.Result{afn}).Flight
+		if f.Registration == "JA822J" || f.ICAOHex != "A1BB45" {
+			t.Errorf("no tail: registration %q, hex %q; want no JA822J, A1BB45", f.Registration, f.ICAOHex)
+		}
+
+		// Another tail: the AFN header's callsign is not this aircraft's.
+		msg = &acars.Message{ID: 1, Label: "A0", Tail: "JA822K"}
+		f = Extract(msg, []registry.Result{afn}).Flight
+		if f.FlightNumber != "" || f.ICAOHex != "" {
+			t.Errorf("another tail: flight %q, hex %q; want none", f.FlightNumber, f.ICAOHex)
+		}
+
+		// The same aircraft: the callsign and address are used.
+		msg = &acars.Message{ID: 1, Label: "A0", Tail: "JA822J"}
+		f = Extract(msg, []registry.Result{afn}).Flight
+		if f.FlightNumber != "TZP16" || f.ICAOHex != "86D5BE" {
+			t.Errorf("same tail: flight %q, hex %q; want TZP16, 86D5BE", f.FlightNumber, f.ICAOHex)
+		}
+	})
+
+	t.Run("a dashed N-number is checked against its derived address", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "A0", Tail: "N-210UA"}
+		f := Extract(msg, []registry.Result{&afnLike{Registration: "N210UA", AircraftAddress: "58DD2A"}}).Flight
+		if f.ICAOHex != "A1BB45" || f.ICAOHexSource != HexDerivedFromTail {
+			t.Errorf("ICAOHex = %q (%s), want A1BB45 derived from the tail", f.ICAOHex, f.ICAOHexSource)
 		}
 	})
 

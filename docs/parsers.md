@@ -94,7 +94,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 |--------|---------|--------|----------|--------|-----------|-------|
 | [acmsreport](#acmsreport) | acmsreport | H1 | 60 | `acms_report` | Grok | Yes |
 | [adsc](#adsc) | adsc | B6 | 10 | `adsc` | Binary tag decoding | Yes |
-| [afn](#afn) | afn | A0, H1 | 50 | `afn` | Hand-written regex + CRC | No |
+| [afn](#afn) | afn | A0, H1 | 50 | `afn` | Hand-written regex + CRC | Yes |
 | [agfsr](#agfsr) | agfsr | 4T | 100 | `agfsr` | Grok | No |
 | [atis](#atis) | atis | A9 | 100 | `atis` | Hand-written regex | Yes |
 | [cmcreport](#cmcreport) | cmcreport | H1 | 60 | `cmc_report` | Grok | Yes |

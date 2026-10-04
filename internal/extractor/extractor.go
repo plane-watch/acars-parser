@@ -119,11 +119,39 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 		}
 	}
 
+	// Without a transmitted tail, the registration comes from the first
+	// result that names one, unless that result reports an aircraft
+	// address other than the link-layer one (it then names another
+	// aircraft, or a wrong registration).
+	if update.Registration == "" {
+		for _, f := range all {
+			reg := resultRegistration(f.m)
+			if reg == "" {
+				continue
+			}
+			if addr := resultAddress(f.m); addr != "" && update.ICAOHex != "" && addr != update.ICAOHex {
+				continue
+			}
+			update.Registration = reg
+			break
+		}
+	}
+
+	// A result that names another aircraft (another registration, or an
+	// address other than the link-layer one) contributes nothing: neither
+	// its flight, nor its route, nor its address.
+	same := all[:0]
+	for _, f := range all {
+		if describesAircraft(f.m, update.Registration, update.ICAOHex) {
+			same = append(same, f)
+		}
+	}
+
 	// The flight is resolved before any route is read, so that every
 	// result's route is checked against the same flight: the transmitted
 	// flight, or without one, the first flight a result names.
 	update.FlightNumber = msg.FlightNumber
-	for _, f := range all {
+	for _, f := range same {
 		if update.FlightNumber != "" {
 			break
 		}
@@ -131,7 +159,7 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 	}
 
 	// Process each parsed result to extract additional data.
-	for _, f := range all {
+	for _, f := range same {
 		extractFromResult(update, &data, msg, f.resultType, f.m)
 	}
 
@@ -142,7 +170,7 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 
 	// Without a transmitted address, derive one from a US N-number tail.
 	if update.ICAOHex == "" {
-		if addr, ok := nnumber.ICAOAddress(update.Registration); ok {
+		if addr, ok := nnumber.ICAOAddress(acars.NormaliseRegistration(update.Registration)); ok {
 			update.ICAOHex, update.ICAOHexSource = addr, HexDerivedFromTail
 		}
 	}
@@ -331,6 +359,41 @@ func resultMap(result registry.Result) map[string]interface{} {
 // reports (such as CMC reports) use "flight".
 var flightKeys = []string{"flight_number", "flight_num", "flight", "callsign"}
 
+// resultRegistration returns the registration a result names ("tail" or
+// "registration"), or "".
+func resultRegistration(m map[string]interface{}) string {
+	for _, k := range []string{"tail", "registration"} {
+		if v, ok := m[k].(string); ok && strings.TrimSpace(v) != "" {
+			return strings.TrimSpace(v)
+		}
+	}
+	return ""
+}
+
+// resultAddress returns the aircraft address a result reports with its
+// registration (an AFN logon's "aircraft_address"), upper case, or "".
+func resultAddress(m map[string]interface{}) string {
+	if v, ok := m["aircraft_address"].(string); ok {
+		return strings.ToUpper(strings.TrimSpace(v))
+	}
+	return ""
+}
+
+// describesAircraft reports whether a result is about the aircraft with
+// the given registration and address: it names no other registration, and
+// reports no other aircraft address. An empty registration or address
+// matches anything.
+func describesAircraft(m map[string]interface{}, registration, address string) bool {
+	if reg := resultRegistration(m); reg != "" && registration != "" &&
+		acars.NormaliseRegistration(reg) != acars.NormaliseRegistration(registration) {
+		return false
+	}
+	if addr := resultAddress(m); addr != "" && address != "" && addr != address {
+		return false
+	}
+	return true
+}
+
 // resultFlight returns the flight a result names, or "".
 func resultFlight(m map[string]interface{}) string {
 	for _, k := range flightKeys {
@@ -359,14 +422,6 @@ func routeIsFlight(m map[string]interface{}, flight, transmitted, tail string) b
 }
 
 func extractFromResult(update *FlightUpdate, data *ExtractedData, msg *acars.Message, resultType string, m map[string]interface{}) {
-
-	// Extract registration/tail.
-	if v, ok := m["tail"].(string); ok && v != "" && update.Registration == "" {
-		update.Registration = v
-	}
-	if v, ok := m["registration"].(string); ok && v != "" && update.Registration == "" {
-		update.Registration = v
-	}
 
 	// Extract route (with validation to reject corrupted codes).
 	if routeIsFlight(m, update.FlightNumber, msg.FlightNumber, msg.Tail) {
@@ -446,7 +501,7 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, msg *acars.Mes
 		addr := strings.ToUpper(strings.TrimSpace(v))
 		sameAircraft := reg != "" && acars.NormaliseRegistration(reg) == acars.NormaliseRegistration(update.Registration)
 		if acars.IsICAOAddress(addr) && sameAircraft {
-			if derived, ok := nnumber.ICAOAddress(update.Registration); !ok || derived == addr {
+			if derived, ok := nnumber.ICAOAddress(acars.NormaliseRegistration(update.Registration)); !ok || derived == addr {
 				update.ICAOHex, update.ICAOHexSource = addr, HexFromAFN
 			}
 		}
