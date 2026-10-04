@@ -19,10 +19,14 @@ var Formats = []patterns.Format{
 		Pattern: `ATIS\s+(?P<atis>{ATIS})`,
 		Fields:  []string{"atis"},
 	},
-	// Aircraft type extraction pattern.
+	// Aircraft type extraction pattern. The type is 2-4 characters (an ICAO
+	// designator such as DH8D, or an IATA code such as 32N). When "-TYP/" is
+	// the last field, the message's 4-character hex checksum follows it
+	// directly ("-TYP/DH8DFB0F"), so the type is the shortest prefix that,
+	// with an optional checksum, reaches the end of the field.
 	{
 		Name:    "aircraft_type",
-		Pattern: `-TYP/(?P<aircraft>[A-Z0-9]+)`,
+		Pattern: `-TYP/(?P<aircraft>[A-Z0-9]{2,4}?)(?:[0-9A-F]{4})?(?:\s|$)`,
 		Fields:  []string{"aircraft"},
 	},
 }

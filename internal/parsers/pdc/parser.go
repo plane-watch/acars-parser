@@ -5,6 +5,7 @@
 package pdc
 
 import (
+	"regexp"
 	"strings"
 	"sync"
 
@@ -31,6 +32,7 @@ type Result struct {
 	InitialAltitude string   `json:"initial_altitude,omitempty"`
 	FlightLevel     string   `json:"flight_level,omitempty"`
 	AircraftType    string   `json:"aircraft_type,omitempty"`
+	WakeCategory    string   `json:"wake_category,omitempty"` // L, M, H or J, when transmitted with the type.
 	ATIS            string   `json:"atis,omitempty"`
 	PDCFormat       string   `json:"pdc_format,omitempty"`
 	RawText         string   `json:"raw_text,omitempty"`
@@ -167,7 +169,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	result.SID = grokResult.SID
 	result.Route = grokResult.Route
 	result.Squawk = grokResult.Squawk
-	result.AircraftType = grokResult.Aircraft
+	result.AircraftType, result.WakeCategory = splitWakeCategory(grokResult.Aircraft)
 	result.DepartureFreq = grokResult.Frequency
 	result.ATIS = grokResult.ATIS
 	if grokResult.Altitude != "" {
@@ -291,4 +293,18 @@ func calculateConfidence(pdc *Result) float64 {
 	}
 
 	return score / maxScore
+}
+
+// wakeTypeEquipmentRe matches the flight plan form of the aircraft field:
+// wake turbulence category / type / equipment, e.g. "M/A320/W".
+var wakeTypeEquipmentRe = regexp.MustCompile(`^([LMHJ])/([A-Z0-9]{2,4})/[A-Z0-9]+$`)
+
+// splitWakeCategory separates the aircraft type from the wake turbulence
+// category when the field is in flight plan form ("M/A320/W" gives A320 and
+// M). Any other value is returned unchanged as the type.
+func splitWakeCategory(field string) (aircraftType, wake string) {
+	if m := wakeTypeEquipmentRe.FindStringSubmatch(field); m != nil {
+		return m[2], m[1]
+	}
+	return field, ""
 }

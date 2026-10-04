@@ -496,7 +496,7 @@ var LoadsheetFormats = []LoadsheetFormat{
 		Pattern: regexp.MustCompile(`(?s)` +
 			`LOADSHEET\s+(?P<flight>[A-Z0-9]+)\s+REF` +
 			`.*?` +
-			`FLT\s+(?P<origin>[A-Z]{3})-\d?(?P<destination>[A-Z]{3})\s+[A-Z0-9-]+\s*/\s*(?P<tail>[A-Z0-9]+)` +
+			`FLT\s+(?P<origin>[A-Z]{3})-\d?(?P<destination>[A-Z]{3})\s+(?P<aircraft_type>[A-Z0-9-]+)\s*/\s*(?P<tail>[A-Z0-9]+)` +
 			`.*?` +
 			`ALL\s+WGHTS\s+KG` +
 			`.*?` +

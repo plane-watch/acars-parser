@@ -4,6 +4,7 @@
 package loadsheet
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -76,6 +77,10 @@ func (p *Parser) QuickCheck(text string) bool {
 }
 
 // Parse extracts loadsheet data using validated grok patterns.
+// aircraftTypeLineRe matches an explicit aircraft type line in a loadsheet,
+// such as "AIRCRAFT TYPE : B737-800".
+var aircraftTypeLineRe = regexp.MustCompile(`(?m)AIRCRAFT\s+TYPE\s*:\s*([A-Z0-9][A-Z0-9-]*)`)
+
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if msg.Text == "" {
 		return nil
@@ -116,6 +121,16 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 	if v, ok := fields["edition"]; ok {
 		result.Edition = v
+	}
+
+	// The transmitting aircraft's type, as transmitted: from the format's own
+	// field (e.g. the DHL flight line "A333-BCS3"), or else from an explicit
+	// "AIRCRAFT TYPE : B737-800" line, which some loadsheets carry whatever
+	// their format.
+	if v, ok := fields["aircraft_type"]; ok {
+		result.AircraftType = v
+	} else if m := aircraftTypeLineRe.FindStringSubmatch(msg.Text); m != nil {
+		result.AircraftType = m[1]
 	}
 
 	// Extract weights - handle both kg and tonnes.
