@@ -168,3 +168,28 @@ func TestSwapInTable(t *testing.T) {
 		t.Error("the staging table still exists")
 	}
 }
+
+// TestTableUUIDFollowsTheTable checks that a table's UUID stays with it
+// when the table is exchanged, so it identifies the table whatever its name.
+func TestTableUUIDFollowsTheTable(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	const a, b = "uuid_test_a", "uuid_test_b"
+	for _, name := range []string{a, b} {
+		_ = db.DropTable(ctx, name)
+		if err := db.CreateMessagesTable(ctx, name); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = db.DropTable(context.Background(), name) })
+	}
+	ua, err := db.TableUUID(ctx, a)
+	if err != nil || ua == "" {
+		t.Fatalf("TableUUID(%s) = %q, %v", a, ua, err)
+	}
+	if err := db.ExchangeTables(ctx, a, b); err != nil {
+		t.Fatal(err)
+	}
+	if ub, _ := db.TableUUID(ctx, b); ub != ua {
+		t.Errorf("after the exchange, %s has UUID %q, want %q", b, ub, ua)
+	}
+}

@@ -3,6 +3,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -513,6 +514,17 @@ func (d *ClickHouseDB) TableExists(ctx context.Context, name string) (bool, erro
 	return n > 0, err
 }
 
+// TableUUID returns a table's UUID, which stays with the table when it is
+// renamed or exchanged ("" if the table does not exist).
+func (d *ClickHouseDB) TableUUID(ctx context.Context, name string) (string, error) {
+	var uuid string
+	err := d.conn.QueryRow(ctx, `SELECT toString(uuid) FROM system.tables WHERE database = currentDatabase() AND name = ?`, name).Scan(&uuid)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil
+	}
+	return uuid, err
+}
+
 // DropTable drops a table if it exists.
 func (d *ClickHouseDB) DropTable(ctx context.Context, name string) error {
 	if err := checkTableName(name); err != nil {
@@ -631,16 +643,18 @@ func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uin
 }
 
 // ErrSwapRename is returned by SwapInTable when the swap itself succeeded
-// but the old table could not be renamed: the staging table's name then
-// holds the old table.
-var ErrSwapRename = errors.New("tables exchanged, but the old table was not renamed")
+// but the rename of the old table was not confirmed: the old table is under
+// the staging name or, if the rename happened and only its reply was lost,
+// the previous name.
+var ErrSwapRename = errors.New("tables exchanged, but the rename of the old table was not confirmed")
 
 // SwapInTable replaces the current table with the staging table and keeps
 // the current one as previous. The swap is an EXCHANGE TABLES, which is
 // atomic (a multi-table RENAME is not: ClickHouse can apply part of it);
 // the old table, now under the staging name, is then renamed to previous.
-// If that rename fails, the error wraps ErrSwapRename: the current name
-// holds the new table and the staging name the old one.
+// If that rename is not confirmed, the error wraps ErrSwapRename: the
+// current name holds the new table, and the old one is under the staging
+// or the previous name.
 func (d *ClickHouseDB) SwapInTable(ctx context.Context, current, staging, previous string) error {
 	for _, name := range []string{current, staging, previous} {
 		if err := checkTableName(name); err != nil {

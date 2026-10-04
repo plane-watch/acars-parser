@@ -122,11 +122,21 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 	if written != source || uint64(stats.Messages) != source {
 		return stats, fmt.Errorf("the archive has %d messages, %d were read and %s holds %d; not swapped", source, stats.Messages, rebuildTable, written)
 	}
+	// The UUIDs identify the tables whatever their names; row counts cannot,
+	// since both hold the same messages.
+	oldUUID, err := db.TableUUID(ctx, storage.MessagesTable)
+	if err != nil {
+		return stats, err
+	}
+	newUUID, err := db.TableUUID(ctx, rebuildTable)
+	if err != nil {
+		return stats, err
+	}
 	if err := db.SwapInTable(ctx, storage.MessagesTable, rebuildTable, previousTable); err != nil {
 		if errors.Is(err, storage.ErrSwapRename) {
-			return stats, fmt.Errorf("%w: %s holds the rebuilt archive and %s the old one; rename %s to %s", err, storage.MessagesTable, rebuildTable, rebuildTable, previousTable)
+			return stats, fmt.Errorf("%w: %s holds the rebuilt archive (UUID %s); the old archive (UUID %s) is %s or %s, so rename %s to %s if it exists", err, storage.MessagesTable, newUUID, oldUUID, rebuildTable, previousTable, rebuildTable, previousTable)
 		}
-		return stats, fmt.Errorf("%w: the exchange is atomic, but if its reply was lost it may have happened; check which of %s and %s holds the rebuilt archive (by row count) before dropping either", err, storage.MessagesTable, rebuildTable)
+		return stats, fmt.Errorf("%w: the exchange is atomic, but if its reply was lost it may have happened; the rebuilt archive is the table with UUID %s and the old one UUID %s (SELECT name, uuid FROM system.tables WHERE database = currentDatabase()); check before dropping either", err, newUUID, oldUUID)
 	}
 	return stats, nil
 }
