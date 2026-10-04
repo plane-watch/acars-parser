@@ -44,11 +44,13 @@ The message archive is copied in ClickHouse's Native format, and the state with 
 2. On the old host, export both databases:
 
    ```bash
-   set -o pipefail
+   set -euo pipefail
    docker exec acars-clickhouse clickhouse-client --password acars \
        --query "SELECT * FROM acars.messages FORMAT Native" | zstd > messages.native.zst
    docker exec acars-postgres pg_dump -U acars --data-only acars_state | zstd > state.sql.zst
    ```
+
+   With `set -e`, a failed export stops the block instead of being followed by the next one.
 
 3. Copy both files to the new host.
 4. On the new host, start the databases and create the tables, without starting `live`:
@@ -58,15 +60,18 @@ The message archive is copied in ClickHouse's Native format, and the state with 
    docker compose -f deployments/docker-compose.yml run --rm schema
    ```
 
-5. On the new host, import both, PostgreSQL in a single transaction that stops at the first error:
+5. On the new host, check both archives, then import them, PostgreSQL in a single transaction that stops at the first error:
 
    ```bash
-   set -o pipefail
+   set -euo pipefail
+   zstd -t messages.native.zst state.sql.zst
    zstd -dc messages.native.zst | docker exec -i acars-clickhouse clickhouse-client --password acars \
        --query "INSERT INTO acars.messages FORMAT Native"
    zstd -dc state.sql.zst | docker exec -i acars-postgres \
-       psql -U acars -d acars_state -v ON_ERROR_STOP=1 --single-transaction
+       psql -X -U acars -d acars_state -v ON_ERROR_STOP=1 --single-transaction -f -
    ```
+
+   `zstd -t` checks each archive in full first, so a damaged archive cannot end the input early and leave a partial import committed. `--single-transaction` needs `-f` (here `-f -`, standard input).
 
 6. Check the row counts against the old host, then start `live` on the new host.
 
