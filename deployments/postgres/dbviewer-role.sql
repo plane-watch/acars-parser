@@ -1,9 +1,11 @@
--- Creates or updates the read-only PostgreSQL role that the dbviewer service
--- (pgweb) connects as. See docs/deployment.md.
+-- Creates the read-only PostgreSQL role that the dbviewer service (pgweb)
+-- connects as. See docs/deployment.md.
 --
--- The script is idempotent: running it again resets the password and
--- re-applies the grants, so it is also the way to change the password and to
--- cover tables created since the last run.
+-- The role is dropped and created afresh on every run, so whatever an
+-- earlier role of the same name could do (grants on tables, functions,
+-- large objects or other schemas, default privileges, memberships) is
+-- removed, and the new role holds only the grants below. Running it again
+-- also changes the password and covers tables created since the last run.
 --
 -- It must run as the acars role (a superuser in the postgres image): the
 -- default privileges below apply to the tables that role creates later, and
@@ -18,45 +20,34 @@
 \set ON_ERROR_STOP on
 \getenv viewer_password VIEWER_PASSWORD
 
--- Create the role only if it does not exist. CREATE ROLE has no IF NOT EXISTS,
--- so the statement is built here and run by \gexec only when no row matches.
-SELECT format('CREATE ROLE %I LOGIN', :'viewer_role')
-WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'viewer_role')
-\gexec
-
--- A role that owns objects can change them whatever its grants, so such a
--- role is refused rather than reconciled. The query always returns one row;
+-- An existing role that owns anything is refused, not dropped: DROP OWNED
+-- would delete what it owns. The query returns one row if the role exists;
 -- a NULL reason leaves the psql variable unset.
-SELECT CASE WHEN EXISTS (SELECT 1 FROM pg_class WHERE relowner = r.oid)
+SELECT CASE WHEN EXISTS (SELECT 1 FROM pg_database WHERE datdba = r.oid)
+              OR EXISTS (SELECT 1 FROM pg_class WHERE relowner = r.oid)
               OR EXISTS (SELECT 1 FROM pg_namespace WHERE nspowner = r.oid)
               OR EXISTS (SELECT 1 FROM pg_proc WHERE proowner = r.oid)
+              OR EXISTS (SELECT 1 FROM pg_type WHERE typowner = r.oid)
               OR EXISTS (SELECT 1 FROM pg_largeobject_metadata WHERE lomowner = r.oid)
-       THEN format('the role %I owns database objects; refusing to make it the read-only viewer', r.rolname)
+       THEN format('the role %I owns database objects; refusing to replace it', r.rolname)
        END AS reason
 FROM pg_roles r WHERE r.rolname = :'viewer_role'
 \gset refused_
 \if :{?refused_reason}
-\echo :refused_reason
-\quit 3
+-- An SQL error, so that psql stops with a failure status.
+SELECT format('DO $$BEGIN RAISE EXCEPTION %L; END$$', :'refused_reason')
+\gexec
 \endif
 
--- The attributes are set explicitly, so that a pre-existing role of the same
--- name loses any extra powers.
-ALTER ROLE :"viewer_role" WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT
-    PASSWORD :'viewer_password';
-
--- Remove any membership in other roles (a member can SET ROLE to them,
--- whatever NOINHERIT says) and any privilege granted earlier, then grant
--- only what reading needs.
-SELECT format('REVOKE %I FROM %I', g.rolname, :'viewer_role')
-FROM pg_auth_members m JOIN pg_roles g ON g.oid = m.roleid
-WHERE m.member = (SELECT oid FROM pg_roles WHERE rolname = :'viewer_role')
+-- Remove an existing role and everything granted to it, then create it
+-- afresh. DROP OWNED revokes its privileges (it owns nothing, as checked
+-- above); DROP ROLE fails if anything still depends on it.
+SELECT format('DROP OWNED BY %I', :'viewer_role'), format('DROP ROLE %I', :'viewer_role')
+WHERE EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'viewer_role')
 \gexec
-REVOKE ALL ON ALL TABLES IN SCHEMA public FROM :"viewer_role";
-REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM :"viewer_role";
-REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM :"viewer_role";
-REVOKE ALL ON SCHEMA public FROM :"viewer_role";
-REVOKE ALL ON DATABASE acars_state FROM :"viewer_role";
+
+CREATE ROLE :"viewer_role" WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT
+    PASSWORD :'viewer_password';
 
 GRANT CONNECT ON DATABASE acars_state TO :"viewer_role";
 GRANT USAGE ON SCHEMA public TO :"viewer_role";
@@ -76,7 +67,6 @@ REVOKE EXECUTE ON FUNCTION pg_catalog.lo_creat(integer) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION pg_catalog.lo_from_bytea(oid, bytea) FROM PUBLIC;
 
 -- Every transaction of the role starts read-only. The role can switch this
--- off (SET default_transaction_read_only, or BEGIN READ WRITE), so it is
--- not a safeguard on its own: the safeguard is that the role holds no
--- privilege to change anything.
+-- off (BEGIN READ WRITE), so it is not a safeguard on its own: the
+-- safeguard is that the role holds no privilege to change stored data.
 ALTER ROLE :"viewer_role" SET default_transaction_read_only = on;

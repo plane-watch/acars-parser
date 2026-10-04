@@ -46,14 +46,16 @@ docker compose -f deployments/docker-compose.yml up -d dbviewer
 
 `dbviewer` runs pgweb, a single-binary PostgreSQL browser, which serves the tables, their rows and structure, and an SQL query box at `http://<host>:8081` (for the collector, http://acars-collector.local:8081). pgweb is used because it is a maintained tool that runs as one container and has a read-only mode, so the project does not need a web application of its own.
 
-It cannot change data because of the role it connects as. `acars_viewer` holds only `CONNECT` on `acars_state`, `USAGE` on the `public` schema and `SELECT` on its tables (default privileges extend that to tables the `acars` role creates later), owns nothing and is a member of no other role. The role script also revokes from `PUBLIC`, which every role belongs to, the two privileges that need no table grant: creating temporary tables and creating large objects (`lo_create`, `lo_creat`, `lo_from_bytea`), since a large object persists. `acars_parser` uses neither, and its `acars` role is a superuser and unaffected.
+It cannot change stored data because of the role it connects as. The role script drops `acars_viewer` and creates it afresh on every run (refusing if the existing role owns anything, since dropping it would delete what it owns), so the role holds only `CONNECT` on `acars_state`, `USAGE` on the `public` schema and `SELECT` on its tables (default privileges extend that to tables the `acars` role creates later), and is a member of no other role. The role script also revokes from `PUBLIC`, which every role belongs to, the two privileges that need no table grant: creating temporary tables and creating large objects (`lo_create`, `lo_creat`, `lo_from_bytea`), since a large object persists. `acars_parser` uses neither, and its `acars` role is a superuser and unaffected.
 
 Two further layers do not stop writes on their own:
 
 - pgweb's `--readonly` rejects queries containing some write keywords (`UPDATE`, `CREATE` and so on), but not all writes: `BEGIN READ WRITE; SELECT lo_from_bytea(...)` passed it before the revoke above. `--lock-session` stops the interface from connecting to another server or database or as another user.
 - The role's transactions start read-only, but the role can switch that off (`BEGIN READ WRITE`).
 
-pgweb keeps one database connection. A query that opens a transaction (`BEGIN ...`) and then fails leaves that connection in an aborted transaction, and every later query fails with "current transaction is aborted" (pgweb cannot recover it, even with `ROLLBACK`). Restart the viewer to reset it: `docker compose -f deployments/docker-compose.yml restart dbviewer`.
+The protection covers stored data. Actions with only session effects remain open to the role, as to any database user: sending a notification (`pg_notify`), taking advisory locks, or changing its own session settings.
+
+pgweb keeps one database connection. On the collector, a query that opened a transaction (`BEGIN ...`) and then failed left that connection in an aborted transaction: every later query failed with "current transaction is aborted", and a `ROLLBACK` sent through pgweb failed the same way. Restart the viewer to reset it: `docker compose -f deployments/docker-compose.yml restart dbviewer`.
 
 The enrichment API's examples also use port 8081; on the same host, run the API on another port.
 
