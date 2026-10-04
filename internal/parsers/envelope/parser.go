@@ -133,9 +133,6 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if result.Tail == "" && msg.Tail != "" {
 		result.Tail = msg.Tail
 	}
-	if result.Tail == "" && msg.Airframe != nil && msg.Airframe.Tail != "" {
-		result.Tail = msg.Airframe.Tail
-	}
 
 	// Verify CRC if we have the required components.
 	if textPrefix != "" && hexPayload != "" {

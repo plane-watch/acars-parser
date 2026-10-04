@@ -137,15 +137,12 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		result.RawText = msg.Text
 	}
 
-	// Get tail from message or airframe.
+	// Identity comes only from what was transmitted: the tail, and the
+	// aircraft's link-layer address (the recipient of the PDC uplink).
+	// Airframes' airframe record is not used.
 	result.Tail = msg.Tail
-	if result.Tail == "" && msg.Airframe != nil {
-		result.Tail = msg.Airframe.Tail
-	}
-
-	// Get ICAO hex from airframe.
-	if msg.Airframe != nil {
-		result.AircraftICAO = msg.Airframe.ICAO
+	if addr, ok := msg.AircraftAddress(); ok {
+		result.AircraftICAO = addr
 	}
 
 	// Strict grok-only parsing. If no grok pattern matches, we don't parse.
@@ -183,10 +180,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		result.DepartureTime = grokResult.DepartureTime
 	}
 
-	// Use ACARS envelope flight number only if not parsed from PDC text.
-	// This is metadata from the message envelope, not fallback extraction.
-	if result.FlightNumber == "" && msg.Flight != nil && msg.Flight.Flight != "" {
-		result.FlightNumber = msg.Flight.Flight
+	// Use the transmitted flight number only if none was parsed from the PDC
+	// text. Airframes' flight record is not used.
+	if result.FlightNumber == "" {
+		result.FlightNumber = msg.FlightNumber
 	}
 
 	// Extract route waypoints from structured text (uses grok.go's ExtractRouteWaypoints).

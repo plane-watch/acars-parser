@@ -4,6 +4,7 @@ package acars
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 )
 
 // FlexInt64 handles JSON fields that can be either string or number.
@@ -48,14 +49,66 @@ type Message struct {
 	Label     string    `json:"label"`
 	Frequency float64   `json:"frequency"`
 
+	// FlightNumber is the flight number as transmitted in the message, with
+	// padding trimmed. It is distinct from Flight, which is Airframes' record.
+	FlightNumber string `json:"flight_number,omitempty"`
+
 	// Direction indicators from the transport layer.
 	BlockID       string `json:"block_id,omitempty"`       // ACARS block ID ('0'-'9' = downlink, 'A'-'X' = uplink).
 	LinkDirection string `json:"link_direction,omitempty"` // Explicit direction: "uplink" or "downlink".
 
-	// These may be present in the message itself (old format) or at wrapper level (NATS)
+	// Link-layer (VDL) addresses of the sender and recipient: 24-bit ICAO
+	// addresses as six upper-case hex digits. See AircraftAddress.
+	FromHex string `json:"from_hex,omitempty"`
+	ToHex   string `json:"to_hex,omitempty"`
+
+	// Airframes' own metadata about the aircraft, flight and receiving
+	// station. It is Airframes' enrichment, not transmitted data, so it must
+	// not be used as a source of facts that acars_parser publishes (its
+	// accuracy is unknown, and Airframes may itself draw on data that
+	// acars_parser feeds). It may be shown for context in the console.
 	Airframe *Airframe `json:"airframe,omitempty"`
 	Flight   *Flight   `json:"flight,omitempty"`
 	Station  *Station  `json:"station,omitempty"`
+}
+
+// AircraftAddress returns the aircraft's 24-bit ICAO address as carried by the
+// link layer: the sender of a downlink or the recipient of an uplink. The
+// direction comes from LinkDirection, or failing that the block ID (digits are
+// downlinks, letters are uplinks). It reports false if the direction or a
+// valid, non-zero address is not known.
+func (m *Message) AircraftAddress() (string, bool) {
+	var addr string
+	switch {
+	case m.LinkDirection == "downlink":
+		addr = m.FromHex
+	case m.LinkDirection == "uplink":
+		addr = m.ToHex
+	case len(m.BlockID) == 1 && m.BlockID[0] >= '0' && m.BlockID[0] <= '9':
+		addr = m.FromHex
+	case len(m.BlockID) == 1 && m.BlockID[0] >= 'A' && m.BlockID[0] <= 'Z':
+		addr = m.ToHex
+	default:
+		return "", false
+	}
+	if !isICAOAddress(addr) {
+		return "", false
+	}
+	return addr, true
+}
+
+// isICAOAddress reports whether s is six hex digits and not all zeros.
+func isICAOAddress(s string) bool {
+	if len(s) != 6 || s == "000000" {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if (c < '0' || c > '9') && (c < 'A' || c > 'F') {
+			return false
+		}
+	}
+	return true
 }
 
 // Airframe contains aircraft identification data.
@@ -135,17 +188,17 @@ func (w *NATSWrapper) ToMessage() *Message {
 		Text:          w.Message.Text,
 		Tail:          w.Message.Tail,
 		Frequency:     w.Message.Frequency,
+		FlightNumber:  strings.TrimSpace(w.Message.Flight),
 		BlockID:       w.Message.BlockID,
 		LinkDirection: w.Message.LinkDirection,
+		FromHex:       strings.ToUpper(strings.TrimSpace(w.Message.FromHex)),
+		ToHex:         strings.ToUpper(strings.TrimSpace(w.Message.ToHex)),
 		Airframe:      w.Airframe,
 		Flight:        w.Flight,
 		Station:       w.Station,
 	}
 
-	// Use tail from airframe if not in message
-	if msg.Tail == "" && w.Airframe != nil {
-		msg.Tail = w.Airframe.Tail
-	}
-
+	// The tail is only what was transmitted: an empty tail is not filled in
+	// from Airframes' airframe record.
 	return msg
 }

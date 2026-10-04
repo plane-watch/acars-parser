@@ -4,6 +4,8 @@ This document describes the JSON messages published on the Airframes NATS bus (s
 
 `internal/acars/message.go` models only part of this payload (`NATSWrapper`, `NATSInner`, `Airframe`, `Flight`, `Station`). Go's JSON decoder ignores the rest, so the other fields are discarded at ingest.
 
+**Only transmitted data is used as a source of facts.** The `airframe`, `flight` and `station` objects are Airframes' own enrichment: their accuracy is unknown, and Airframes may draw on data that acars_parser feeds downstream. They are kept on the message for console display, but parsers and stored data never take values from them. The aircraft's identity comes from the transmitted `message.tail` and `message.flight`, and from the link-layer `from_hex`/`to_hex` (`acars.Message.AircraftAddress`).
+
 ## Delivery behaviour
 
 - **Every message is published twice.** In the capture, all 1,000 distinct message IDs arrived exactly twice, as byte-identical payloads on the same subject, one or two messages apart. The relay's message-ID deduplication and `live`'s subject-ID check drop the second copy.
@@ -29,12 +31,12 @@ This document describes the JSON messages published on the Airframes NATS bus (s
 | `timestamp` | always | yes | Reception time (RFC 3339, UTC) |
 | `label` | ~52% | yes | ACARS label |
 | `text` | ~35% | yes | Message text |
-| `tail` | ~50% | yes | Registration as transmitted |
-| `flight` | ~35% | yes | Flight number as transmitted, sometimes space-padded |
+| `tail` | ~50% | yes | Registration as transmitted (`Message.Tail`; never filled in from `airframe.tail`) |
+| `flight` | ~35% | yes | Flight number as transmitted, sometimes space-padded (`Message.FlightNumber`, trimmed) |
 | `frequency` | always | yes | MHz; `0.0` for satellite sources |
 | `block_id` | ~50% | yes | ACARS block ID (digits are downlink, letters are uplink) |
 | `link_direction` | ~11% | yes | `uplink` or `downlink` |
-| `from_hex`, `to_hex` | ~72% | modelled, not used | ICAO addresses of the sender and recipient (VDL) |
+| `from_hex`, `to_hex` | ~72% | yes | ICAO addresses of the sender and recipient (VDL). `Message.AircraftAddress` returns the aircraft's: the sender of a downlink, the recipient of an uplink |
 | `level` | always | no | Signal level (dB) |
 | `error` | always | no | Decoder error count |
 | `channel` | always | no | Receiver channel |
@@ -52,11 +54,11 @@ This document describes the JSON messages published on the Airframes NATS bus (s
 
 | Field | Present | Read by the code | Notes |
 |---|---|---|---|
-| `icao` | ~83% | yes | 24-bit ICAO address (hex) |
-| `tail` | ~81% | yes | Registration |
-| `manufacturer`, `manufacturer_model` | ~8% | yes | Aircraft type, when known |
-| `owner` | ~10% | yes | Registered owner |
-| `military` | ~85% | yes | |
+| `icao` | ~83% | display only | 24-bit ICAO address (hex) |
+| `tail` | ~81% | display only | Registration |
+| `manufacturer`, `manufacturer_model` | ~8% | display only | Aircraft type, when known |
+| `owner` | ~10% | display only | Registered owner |
+| `military` | ~85% | no | |
 | `id`, `airline_id` | ~85% / ~77% | no | Airframes internal IDs |
 | `faa_ladd`, `faa_pia` | ~85% | no | FAA privacy programme flags |
 | `created_at`, `updated_at` | ~85% | no | Airframes record times |
@@ -65,7 +67,7 @@ This document describes the JSON messages published on the Airframes NATS bus (s
 
 | Field | Present | Read by the code | Notes |
 |---|---|---|---|
-| `flight` | ~73% | yes | Flight number |
+| `flight` | ~73% | display only | Airframes' flight number for the flight record |
 | `status` | ~73% | yes | e.g. `in-flight` |
 | `latitude`, `longitude`, `altitude` | ~73% | yes | Last known position (0 when unknown) |
 | `flight_iata` | ~73% | no | The IATA form of the flight number |

@@ -134,13 +134,13 @@ func sampleBaseline(ctx context.Context, db *storage.ClickHouseDB, cutoff string
 
 	const window = `timestamp <= toDateTime64(?, 3, 'UTC')`
 	const duplicateIDs = `SELECT id FROM messages WHERE ` + window + ` GROUP BY id HAVING count() > 1`
-	const inputs = `tuple(timestamp, label, tail, flight, raw_text)`
+	const inputs = `tuple(timestamp, label, tail, raw_text)`
 
 	// Duplicated IDs: one canonical copy each (the earliest stored, chosen as
 	// a whole tuple), unless the copies' inputs differ. Inputs are compared
 	// exactly, not by hash.
 	dupRows, err := db.Conn().Query(ctx, `
-		SELECT id, t.1, t.2, t.3, t.4, t.5, cityHash64(id), variants
+		SELECT id, t.1, t.2, t.3, t.4, cityHash64(id), variants
 		FROM (
 			SELECT id,
 			       argMin(`+inputs+`, created_at) AS t,
@@ -174,7 +174,7 @@ func sampleBaseline(ctx context.Context, db *storage.ClickHouseDB, cutoff string
 
 	// Every other message, streamed in storage order.
 	rows, err := db.Conn().Query(ctx, `
-		SELECT id, timestamp, label, tail, flight, raw_text, cityHash64(id)
+		SELECT id, timestamp, label, tail, raw_text, cityHash64(id)
 		FROM messages
 		WHERE `+window+` AND id NOT IN (`+duplicateIDs+`)`, cutoff, cutoff)
 	if err != nil {
@@ -209,11 +209,11 @@ type rowScanner interface {
 // conflicting-copies column of the duplicated-IDs query.
 func scanBaselineRow(rows rowScanner, withVariants bool) (baseline.Case, uint64, uint64, error) {
 	var (
-		id, hash, variants              uint64
-		ts                              time.Time
-		label, tail, flight, rawMessage string
+		id, hash, variants      uint64
+		ts                      time.Time
+		label, tail, rawMessage string
 	)
-	dest := []any{&id, &ts, &label, &tail, &flight, &rawMessage, &hash}
+	dest := []any{&id, &ts, &label, &tail, &rawMessage, &hash}
 	if withVariants {
 		dest = append(dest, &variants)
 	}
@@ -225,7 +225,6 @@ func scanBaselineRow(rows rowScanner, withVariants bool) (baseline.Case, uint64,
 		Timestamp: ts.UTC().Format(baselineTimeFormat),
 		Label:     label,
 		Tail:      tail,
-		Flight:    flight,
 		Text:      rawMessage,
 	}, hash, variants, nil
 }

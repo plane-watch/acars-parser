@@ -41,7 +41,6 @@ type Case struct {
 	Timestamp string `json:"timestamp,omitempty"`
 	Label     string `json:"label"`
 	Tail      string `json:"tail,omitempty"`
-	Flight    string `json:"flight,omitempty"`
 	Text      string `json:"text"`
 	// Stratum is the "<label>/<stored parser type>" group the case was sampled from.
 	Stratum  string        `json:"stratum"`
@@ -66,17 +65,15 @@ type Manifest struct {
 
 // Message converts the case into the ACARS message that the parsers receive.
 func (c Case) Message() *acars.Message {
-	msg := &acars.Message{
+	// The stored corpus's flight column came from Airframes' flight record,
+	// not the transmission, so it is deliberately not part of a case.
+	return &acars.Message{
 		ID:        acars.FlexInt64(c.ID),
 		Timestamp: c.Timestamp,
 		Label:     c.Label,
 		Text:      c.Text,
 		Tail:      c.Tail,
 	}
-	if c.Flight != "" {
-		msg.Flight = &acars.Flight{Flight: c.Flight}
-	}
-	return msg
 }
 
 // Observe converts dispatch matches into expectations.

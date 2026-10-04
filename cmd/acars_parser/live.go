@@ -501,18 +501,11 @@ func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars
 		}
 	}
 
-	// Upsert flight enrichment data for ADS-B integration.
-	// Extract ICAO hex from message airframe data.
-	icaoHex := ""
-	if msg.Airframe != nil && msg.Airframe.ICAO != "" {
-		icaoHex = msg.Airframe.ICAO
-	}
-
-	// Extract callsign from flight data.
-	callsign := ""
-	if msg.Flight != nil && msg.Flight.Flight != "" {
-		callsign = msg.Flight.Flight
-	}
+	// Upsert flight enrichment data for ADS-B integration, keyed only on
+	// transmitted identity: the aircraft's link-layer address and the
+	// transmitted flight number (not Airframes' airframe or flight records).
+	icaoHex, _ := msg.AircraftAddress()
+	callsign := msg.FlightNumber
 
 	// Extract enrichment and upsert if we have the required fields.
 	if icaoHex != "" && len(results) > 0 {
@@ -589,10 +582,7 @@ func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry,
 				origin, dest := extractRouteFromResult(result)
 				confidence := extractConfidenceFromResult(result)
 
-				flight := ""
-				if msg.Flight != nil {
-					flight = strings.TrimSpace(msg.Flight.Flight)
-				}
+				flight := msg.FlightNumber
 
 				ts := parseTimestamp(msg.Timestamp)
 
@@ -625,10 +615,7 @@ func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry,
 
 		// Store unparsed messages too.
 		if msgBuffer != nil && msg.Text != "" {
-			flight := ""
-			if msg.Flight != nil {
-				flight = strings.TrimSpace(msg.Flight.Flight)
-			}
+			flight := msg.FlightNumber
 
 			ts := parseTimestamp(msg.Timestamp)
 
