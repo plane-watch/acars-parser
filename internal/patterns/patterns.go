@@ -28,6 +28,13 @@ var (
 	routeSlashPattern = regexp.MustCompile(`\b([A-Z]{4})/([A-Z]{4})\b`)
 )
 
+// ModelEngineLinePattern matches a line that holds only an aircraft model and
+// its engine, as in takeoff and landing performance data: "A320-232
+// V2527-A5", "737-900ER CFM56-7B27", "B777-300ER GE90-115BL", "737-8
+// LEAP-1B28". The groups are the model and the engine. The whole line must
+// match, so that a model number inside other text is not taken as the type.
+var ModelEngineLinePattern = regexp.MustCompile(`(?m)^[ \t]*((?:B?7[0-9]7|A3[0-9]{2})-[0-9]{1,4}(?:ER|LR|NX|N)?)[ \t]+([A-Z0-9][A-Z0-9-]*)[ \t]*\r?$`)
+
 // PDC / Clearance patterns.
 var (
 	RunwayOffPattern = regexp.MustCompile(`\bOFF\s+(\d{1,2}[LRC]?)\b`)

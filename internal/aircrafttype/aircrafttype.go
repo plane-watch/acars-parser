@@ -38,8 +38,10 @@ var (
 	// embraerE2Re matches an Embraer E2 model name, e.g. "E195-E2".
 	embraerE2Re = regexp.MustCompile(`^E(175|190|195)-E2$`)
 
-	// airbusRe matches an Airbus model name, e.g. "A330-323", "A321-271N".
-	airbusRe = regexp.MustCompile(`^A3(\d)(\d)-(\d)\d{1,2}(N?)(?:\s|$)`)
+	// airbusRe matches an Airbus model name, e.g. "A330-323", "A321-271N",
+	// "A350-1041". The groups are the series digits, the first and second
+	// digits of the model number, the rest of it, and the neo suffix.
+	airbusRe = regexp.MustCompile(`^A3(\d)(\d)-(\d)(\d)(\d{0,2})(NX?)?(?:\s|$)`)
 )
 
 // boeingVariants maps a Boeing series and variant to its designator. Only
@@ -77,7 +79,11 @@ var airbusSeries = map[string]string{
 	"380-8": "A388",
 }
 
-// airbusFamily maps the A320 family to its designators (ceo, neo).
+// airbusFamily maps the A320 family to its designators (ceo, neo). In an
+// A320 family model number the second digit is the engine: 1 the CFM56, 3 the
+// IAE V2500, 5 the CFM LEAP-1A and 7 the PW1100G. The last two are only
+// fitted to the neo, so a model such as "A321-271" is a neo even when the "N"
+// suffix is left off.
 var airbusFamily = map[string][2]string{
 	"319": {"A319", "A19N"},
 	"320": {"A320", "A20N"},
@@ -102,6 +108,10 @@ var iataCodes = map[string]string{
 
 // embraerE2 maps an Embraer E2 model to its designator.
 var embraerE2 = map[string]string{"175": "E275", "190": "E290", "195": "E295"}
+
+// airbusNeoEngines are the A320 family model-number engine digits that are
+// only fitted to the neo.
+var airbusNeoEngines = map[string]bool{"5": true, "7": true}
 
 // Normalise returns the ICAO type designator for an aircraft type as
 // transmitted, and false if the value does not identify exactly one listed
@@ -146,7 +156,7 @@ func Normalise(raw string) (string, bool) {
 	if m := airbusRe.FindStringSubmatch(s); m != nil {
 		series := m[1] + m[2]
 		if fam, ok := airbusFamily["3"+series]; ok {
-			if m[4] == "N" {
+			if m[6] != "" || airbusNeoEngines[m[4]] {
 				return fam[1], true
 			}
 			return fam[0], true

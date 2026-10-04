@@ -55,11 +55,21 @@ func TestNormalise(t *testing.T) {
 		// Airbus model names: the series gives the designator.
 		{"A330-323", "A333", true},
 		{"A330-223", "A332", true},
-		{"A321-271", "A321", true},
 		{"A320-232", "A320", true},
 		{"A319-131", "A319", true},
+		{"A321-211", "A321", true},
 		{"A321-271N", "A21N", true},
+
+		// A320 family model numbers with a neo engine code (5 for the CFM
+		// LEAP-1A, 7 for the PW1100G) are neos even without the "N".
+		{"A321-271", "A21N", true},
+		{"A321-271NX", "A21N", true},
+		{"A321-271 PW1133GA-JM", "A21N", true},
+		{"A320-251N", "A20N", true},
+		{"A320-251", "A20N", true},
+		{"A319-171", "A19N", true},
 		{"A350-941", "A359", true},
+		{"A350-1041", "A35K", true},
 
 		// IATA codes with a single ICAO designator.
 		{"388", "A388", true},

@@ -120,7 +120,7 @@ Only transmitted data is stored. `live` and `backfill` do not take facts from Ai
   The extractor records which, as `icao_hex_source`, ready for storage v2.
 - **Registration.** The transmitted tail. Without one, the first registration a parser result names, unless that result reports an aircraft address other than the link-layer one.
 - **Other aircraft.** A parser result that names another registration than the message's, or reports an aircraft address other than the link-layer one, describes another aircraft (or is wrong): none of its data (flight, route, address) is used.
-- **Type.** The ICAO designator of the transmitted type (`internal/aircrafttype`), only when the transmitted value identifies exactly one. The raw value is kept by the extractor.
+- **Type.** The ICAO designator of the transmitted type (`internal/aircrafttype`), only when the transmitted value identifies exactly one. The raw value is kept by the extractor. An A320 family model number whose engine digit is 5 (CFM LEAP-1A) or 7 (PW1100G) is a neo even without the "N" suffix: United sends its A321neo as `A321-271`.
 - **Operator.** No longer written, because it came only from Airframes.
 - **Routes.** Only pairs where both endpoints are ICAO codes are written, because the `routes` columns are ICAO codes. The extractor keeps IATA pairs as transmitted, for storage v2. A route is written only with a flight number: a route seen without one is an aircraft's movement, not a flight's route, and is not written (it used to be written with the registration as its flight pattern).
 - **Flight.** The transmitted flight. Without one, the first flight a parser result names (e.g. a loadsheet's flight) is used. A flight named in the message content never replaces the transmitted one.

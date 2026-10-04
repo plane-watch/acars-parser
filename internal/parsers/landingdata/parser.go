@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
@@ -19,6 +20,7 @@ type Result struct {
 	Runway           string  `json:"runway,omitempty"`
 	RunwayLength     int     `json:"runway_length,omitempty"`
 	AircraftType     string  `json:"aircraft_type,omitempty"`
+	EngineType       string  `json:"engine_type,omitempty"`
 	FlapSetting      string  `json:"flap_setting,omitempty"`
 	Temperature      int     `json:"temperature,omitempty"`
 	Altimeter        float64 `json:"altimeter,omitempty"`
@@ -57,8 +59,8 @@ var (
 	// Runway length: 12245 FT
 	rwyLengthRe = regexp.MustCompile(`(\d{4,5})\s*FT`)
 
-	// Aircraft type: 777-200 PW4077 or 787-10 GENX-1B76
-	acTypeRe = regexp.MustCompile(`\n\s*([A-Z0-9]{3}-\d+)\s+([A-Z0-9-]+)`)
+	// Aircraft model and engine: "A320-232 V2527-A5", "777-300ER GE90-115BL".
+	acTypeRe = patterns.ModelEngineLinePattern
 
 	// Flap setting: *FLAPS 30*
 	flapRe = regexp.MustCompile(`\*FLAPS?\s*(\d+)\*`)
@@ -108,7 +110,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	// Extract aircraft type.
 	if m := acTypeRe.FindStringSubmatch(text); len(m) > 2 {
-		result.AircraftType = m[1] + " " + m[2]
+		result.AircraftType = m[1]
+		result.EngineType = m[2]
 	}
 
 	// Extract flap setting.

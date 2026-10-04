@@ -115,3 +115,19 @@ func TestParseQatarTypeLine(t *testing.T) {
 		t.Errorf("type %q taken from an unanchored line", r.AircraftType)
 	}
 }
+
+// qatarLabel10Loadsheet is a real Qatar loadsheet sent on label 10, cut after
+// the type line.
+const qatarLabel10Loadsheet = "QUDOHEOQR~1DIS01010101\n\t\n\tLOADSHEET FINAL 0353 EDNO1\n\tQR523/02      03JAN26\n\tGOX DOH A7-BCA   2/10\n\t************************\n\tZFW 148102 MAX 161025  L\n\t************************\n\tTOF 19900\n\t************************\n\tTOW 168002 MAX 213000\n\t************************\n\tTIF 15800\n\tLAW 152202 MAX 172365\n\tUNDLD 12923\n\tPAX/20/232 TTL 252\n\tPAX 252 PLUS 0\n\tDOI     502.4\n\tLIZFW   512.3\n\tLITOW   514.9\n\tMACZFW   26.7\n\tMACTOW   27.2\n\tA20 B135 C97 \n\tSEATROW TRIM\n\tSI DOI 502.4\n\tDOW 121283\n\t787-8\n\tSERVICE WEIGHT ADJUSTMENT WEIGHT/INDEX\n\tADD\n"
+
+// TestParseQatarLoadsheetOnLabel10 checks that Qatar's loadsheets, which are
+// also sent on label 10, are parsed there with their type.
+func TestParseQatarLoadsheetOnLabel10(t *testing.T) {
+	r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "10", Text: qatarLabel10Loadsheet}).(*Result)
+	if !ok {
+		t.Fatal("expected a loadsheet result on label 10")
+	}
+	if r.AircraftType != "787-8" || r.Tail != "A7-BCA" || r.Flight != "QR523" {
+		t.Errorf("AircraftType, Tail, Flight = %q, %q, %q, want 787-8, A7-BCA, QR523", r.AircraftType, r.Tail, r.Flight)
+	}
+}

@@ -142,3 +142,18 @@ func TestParser_QuickCheck(t *testing.T) {
 		}
 	}
 }
+
+// TestParser_UnitedModelLine checks that the model line of United's takeoff
+// data, which gives the Boeing model without the "B" prefix, is captured.
+func TestParser_UnitedModelLine(t *testing.T) {
+	text := "QUNDCULUA~1TAKEOFF DATA\n** PART 01 OF 01 **\n************************\n" +
+		"T/O FSD 21 \n8999 FT\n737-900ER CFM56-7B27\nTEMP 10C       ALT 30.33\nWIND 355/0 MAG\n"
+	result := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "RA", Text: text})
+	tr, ok := result.(*Result)
+	if !ok {
+		t.Fatalf("expected *Result, got %T", result)
+	}
+	if tr.AircraftType != "737-900ER" || tr.EngineType != "CFM56-7B27" {
+		t.Errorf("AircraftType, EngineType = %q, %q, want %q, %q", tr.AircraftType, tr.EngineType, "737-900ER", "CFM56-7B27")
+	}
+}

@@ -721,7 +721,7 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 
 **Description:** Parses landing performance data. The quick check looks for `LANDING DATA`.
 
-**Extracted fields:** airport, runway, runway length, aircraft type, flap setting, temperature, altimeter, wind, landing weight, structural limit, performance limit and runway condition.
+**Extracted fields:** airport, runway, runway length, aircraft model and engine type, flap setting, temperature, altimeter, wind, landing weight, structural limit, performance limit and runway condition. The model and engine come from a line that holds only the two, such as `777-300ER GE90-115BL` (the pattern is `patterns.ModelEngineLinePattern`, shared with `takeoff_data`).
 
 ---
 
@@ -819,7 +819,7 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 
 **Description:** Parses takeoff performance data. The quick check looks for `TAKEOFF DATA` or `T/O DATA`. A result is returned only if a gross takeoff weight or at least one runway is found.
 
-**Extracted fields:** flight number, aircraft type, engine type, time, wind, OAT, QNH, gross takeoff weight, centre of gravity, passengers, fuel, cargo, ZFW, remarks, and runways (airport, runway, length and shift). V1 is assigned to the last runway found.
+**Extracted fields:** flight number, aircraft model and engine type (from a line that holds only the two, such as `A320-232 V2527-A5` or United's `737-900ER CFM56-7B27`), time, wind, OAT, QNH, gross takeoff weight, centre of gravity, passengers, fuel, cargo, ZFW, remarks, and runways (airport, runway, length and shift). V1 is assigned to the last runway found.
 
 **Limitations:** `RunwayData` also declares VR, V2, flex temperature, flex EPR, flaps, EPR, MRTW, MTOW and the limit code, but `Parse` never populates them, so they are always absent from the output. The VR, V2 and flex patterns are used only by `ParseWithTrace`. `takeoff/parser.go` has a `TODO` explaining that more sample messages are needed to confirm which runway column each value belongs to.
 

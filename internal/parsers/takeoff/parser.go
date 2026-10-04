@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
@@ -52,8 +53,8 @@ func (r *Result) Type() string     { return "takeoff_data" }
 func (r *Result) MessageID() int64 { return r.MsgID }
 
 var (
-	// Aircraft type: A320-232 V2527-A5
-	acTypeRe = regexp.MustCompile(`([AB]\d{3}-\d{3})\s+([A-Z0-9-]+)`)
+	// Aircraft model and engine: "A320-232 V2527-A5", "777-300ER GE90-115BL".
+	acTypeRe = patterns.ModelEngineLinePattern
 
 	// Time: 1808Z
 	timeRe = regexp.MustCompile(`(\d{4}Z)`)

@@ -66,7 +66,7 @@ var LoadsheetFormats = []LoadsheetFormat{
 	// PAX/6/59 TTL 65
 	{
 		Name:   "standard_kg",
-		Labels: []string{"C1", "RA", "H1", "30", "31", "2A", "22", "35", "45", "13", "42"},
+		Labels: []string{"C1", "RA", "H1", "10", "30", "31", "2A", "22", "35", "45", "13", "42"},
 		Pattern: regexp.MustCompile(`(?s)` +
 			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
 			`.*?` +
@@ -99,7 +99,7 @@ var LoadsheetFormats = []LoadsheetFormat{
 	// TOW 40001  MAX 51800
 	{
 		Name:   "standard_kg_minimal",
-		Labels: []string{"C1", "RA", "H1", "30", "31", "2A", "22", "35", "45", "13", "42"},
+		Labels: []string{"C1", "RA", "H1", "10", "30", "31", "2A", "22", "35", "45", "13", "42"},
 		Pattern: regexp.MustCompile(`(?s)` +
 			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
 			`.*?` +
