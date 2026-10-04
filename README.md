@@ -475,7 +475,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `h1_position` | H1 position reports (POS) | H1 |
 | `pwi` | Predicted wind information | H1 |
 | `mdc` | Maintenance and fault reports | H1 |
-| `trajectory` | `++` trajectory messages | H1 |
+| `trajectory` | Southwest flight data reports (`++86501`, `++76502`): aircraft type, flight, route, and samples of position, temperature and wind | H1 |
 | `h2_wind` | Wind layers | H2 |
 | `hazard_alert` | ARINC Direct HAZARD ALERT | H1, SA |
 | `label10_position` | Position with route and waypoint timing | 10 |

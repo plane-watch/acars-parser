@@ -7,34 +7,49 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
-// TrajectoryResult represents a parsed aircraft trajectory message.
-// These messages contain position history data, typically from Boeing 737 MAX aircraft.
+// TrajectoryResult represents a parsed Southwest Airlines flight data
+// report (737 NG and 737 MAX): the aircraft's type, the flight and route,
+// and a series of samples.
+//
+// The meanings of the sample fields were established from the January 2026
+// corpus: the temperature falls by 1.8 °C per 1,000 ft (the standard
+// atmosphere gives 2.0); the wind speed rises with altitude (median 17 kt
+// below 10,000 ft, 82 kt above 30,000 ft) and the wind direction is 84%
+// westerly; the phase codes match the altitude (TO and IC near the ground,
+// CR at cruise); and the time is DDHHMM, since several samples ~1.8 nm apart
+// share one value, and samples a minute apart are ~7.7 nm apart. The
+// header's eighth field ("0196") is not captured: its meaning is not
+// established (it is not the route distance).
 type TrajectoryResult struct {
-	MsgID        int64      `json:"message_id,omitempty"`
-	Registration string     `json:"registration"`
-	AircraftType string     `json:"aircraft_type"`
-	Date         string     `json:"date"` // YYMMDD format
+	MsgID int64 `json:"message_id,omitempty"`
+
+	// Registration is reported only when the header's registration field
+	// is the transmitted tail; the field also holds fleet numbers ("201"),
+	// "XXX" and truncated registrations (" N8852" for N8852Q).
+	Registration string     `json:"registration,omitempty"`
+	AircraftType string     `json:"aircraft_type"` // As transmitted, e.g. B7378MAX.
+	Date         string     `json:"date"`          // YYMMDD format
 	FlightNumber string     `json:"flight_number,omitempty"`
 	Origin       string     `json:"origin,omitempty"`
 	Destination  string     `json:"destination,omitempty"`
-	Distance     int        `json:"distance,omitempty"` // Nautical miles
-	SystemID     string     `json:"system_id,omitempty"`
+	SystemID     string     `json:"system_id,omitempty"` // e.g. SMX34-2502-F320.
 	Positions    []Position `json:"positions"`
 }
 
-// Position represents a single position report in a trajectory.
+// Position represents a single sample in a trajectory.
 type Position struct {
-	Latitude    float64 `json:"latitude"`
-	Longitude   float64 `json:"longitude"`
-	Time        string  `json:"time"`                  // HHMMSS format
-	Altitude    int     `json:"altitude"`              // Feet
-	Temperature float64 `json:"temperature,omitempty"` // Celsius
-	Heading     int     `json:"heading,omitempty"`     // Degrees
-	Speed       int     `json:"speed,omitempty"`       // Knots (ground speed)
-	Phase       string  `json:"phase,omitempty"`       // Flight phase: IC, CL, ER, DC, AP, TO
+	Latitude      float64 `json:"latitude"`
+	Longitude     float64 `json:"longitude"`
+	Time          string  `json:"time"`                     // DDHHMM: day of the month, hour and minute.
+	Altitude      int     `json:"altitude"`                 // Feet
+	Temperature   float64 `json:"temperature,omitempty"`    // Outside air temperature, Celsius.
+	WindDirection int     `json:"wind_direction,omitempty"` // Degrees
+	WindSpeed     int     `json:"wind_speed,omitempty"`     // Knots
+	Phase         string  `json:"phase,omitempty"`          // Flight phase: TO, IC, CL, CR, ER, DC, AP
 }
 
 func (r *TrajectoryResult) Type() string     { return "trajectory" }
@@ -91,15 +106,17 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
-	result.Registration = strings.TrimSpace(headerMatch[1])
+	if !patterns.IsValidICAO(headerMatch[5]) || !patterns.IsValidICAO(headerMatch[6]) {
+		return nil
+	}
+	if reg := strings.TrimSpace(headerMatch[1]); isTransmittedTail(reg, msg.Tail) {
+		result.Registration = reg
+	}
 	result.AircraftType = headerMatch[2]
 	result.Date = headerMatch[3]
 	result.FlightNumber = headerMatch[4]
 	result.Origin = headerMatch[5]
 	result.Destination = headerMatch[6]
-	if dist, err := strconv.Atoi(headerMatch[7]); err == nil {
-		result.Distance = dist
-	}
 	result.SystemID = headerMatch[8]
 
 	// Parse position entries.
@@ -128,8 +145,8 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 		pos.Time = m[7]
 		pos.Altitude, _ = strconv.Atoi(m[8])
 		pos.Temperature, _ = strconv.ParseFloat(m[9], 64)
-		pos.Heading, _ = strconv.Atoi(m[10])
-		pos.Speed, _ = strconv.Atoi(m[11])
+		pos.WindDirection, _ = strconv.Atoi(m[10])
+		pos.WindSpeed, _ = strconv.Atoi(m[11])
 		pos.Phase = m[12]
 
 		result.Positions = append(result.Positions, pos)
@@ -140,6 +157,17 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	return result
+}
+
+// isTransmittedTail reports whether a registration field is the transmitted
+// tail, ignoring dashes and a leading "." (as some messages transmit the
+// tail). An empty tail matches nothing.
+func isTransmittedTail(reg, tail string) bool {
+	norm := func(s string) string {
+		return strings.ReplaceAll(strings.TrimPrefix(strings.TrimSpace(s), "."), "-", "")
+	}
+	t := norm(tail)
+	return t != "" && norm(reg) == t
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.

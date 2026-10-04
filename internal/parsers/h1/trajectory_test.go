@@ -11,6 +11,7 @@ func TestTrajectoryParser_Parse(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		tail           string
 		text           string
 		wantReg        string
 		wantType       string
@@ -22,6 +23,7 @@ func TestTrajectoryParser_Parse(t *testing.T) {
 	}{
 		{
 			name: "WN0057 KDAL-KHOU climb",
+			tail: "N8747Q",
 			text: "++86501,N8747Q,B7378MAX,260107,WN0057,KDAL,KHOU,0208,SMX34-2502-F320\r\n6\r\n" +
 				"N3248.3,W09658.6,070355,10498, 05.3,271,029,CL,00000,0,\r\n" +
 				"N3246.5,W09658.4,070355,10963, 04.5,270,027,CL,00000,0,\r\n" +
@@ -39,6 +41,7 @@ func TestTrajectoryParser_Parse(t *testing.T) {
 		},
 		{
 			name: "WN2545 KMCO-KDEN enroute",
+			tail: "N8951S",
 			text: "++86501,N8951S,B7378MAX,260107,WN2545,KMCO,KDEN,0059,SMX34-2502-F320\r\n6\r\n" +
 				"N3640.3,W09644.9,070342,33998,-48.3,269,117,ER,00000,0,\r\n" +
 				"N3643.4,W09706.1,070345,33999,-48.8,270,114,ER,00000,0,\r\n" +
@@ -55,12 +58,14 @@ func TestTrajectoryParser_Parse(t *testing.T) {
 			wantFirstPhase: "ER",
 		},
 		{
+			// The registration field holds "XXX", not a registration.
 			name: "76502 format B737-800",
+			tail: "N8315C",
 			text: "++76502,XXX,B737-800,260111,WN0297,KMDW,KLAX,1175,SW2501\r\n3\r\n" +
 				"N4148.2,W08828.3,110221,19322,-36.3,262,048,CL,00000,0,\r\n" +
 				"N4148.1,W08830.9,110221,20125,-36.7,258,047,CL,00000,0,\r\n" +
 				"N4148.1,W08833.5,110222,20945,-37.0,255,057,CL,00000,0,\r\n:\r\n",
-			wantReg:        "XXX",
+			wantReg:        "",
 			wantType:       "B737-800",
 			wantFlight:     "WN0297",
 			wantOrigin:     "KMDW",
@@ -75,6 +80,7 @@ func TestTrajectoryParser_Parse(t *testing.T) {
 			msg := &acars.Message{
 				ID:    12345,
 				Label: "H1",
+				Tail:  tt.tail,
 				Text:  tt.text,
 			}
 
@@ -151,11 +157,49 @@ func TestTrajectoryParser_LatLonParsing(t *testing.T) {
 	if pos.Temperature != -48.3 {
 		t.Errorf("Temperature = %f, want -48.3", pos.Temperature)
 	}
-	if pos.Heading != 269 {
-		t.Errorf("Heading = %d, want 269", pos.Heading)
+	if pos.WindDirection != 269 {
+		t.Errorf("WindDirection = %d, want 269", pos.WindDirection)
 	}
-	if pos.Speed != 117 {
-		t.Errorf("Speed = %d, want 117", pos.Speed)
+	if pos.WindSpeed != 117 {
+		t.Errorf("WindSpeed = %d, want 117", pos.WindSpeed)
+	}
+	if pos.Time != "070342" {
+		t.Errorf("Time = %q, want 070342 (DDHHMM)", pos.Time)
+	}
+}
+
+// TestTrajectoryParser_RegistrationField checks that the header's
+// registration field is reported only when it is the transmitted tail. It
+// also holds fleet numbers ("201"), "XXX" and truncated registrations
+// (" N8852" for N8852Q), which must not become a registration, for example
+// when the message has no tail.
+func TestTrajectoryParser_RegistrationField(t *testing.T) {
+	const body = "\r\n1\r\nN3640.3,W09644.9,070342,33998,-48.3,269,117,ER,00000,0,\r\n:\r\n"
+	tests := []struct{ field, tail, want string }{
+		{"N8951S", "N8951S", "N8951S"},
+		{"N8951S", "", ""},
+		{"201", "N201LV", ""},
+		{" N8852", "N8852Q", ""},
+	}
+	for _, tt := range tests {
+		text := "++86501," + tt.field + ",B7378MAX,260107,WN2545,KMCO,KDEN,0059,SMX34-2502-F320" + body
+		r, ok := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: tt.tail, Text: text}).(*TrajectoryResult)
+		if !ok {
+			t.Fatalf("field %q: Parse returned no result", tt.field)
+		}
+		if r.Registration != tt.want {
+			t.Errorf("field %q, tail %q: Registration = %q, want %q", tt.field, tt.tail, r.Registration, tt.want)
+		}
+	}
+}
+
+// TestTrajectoryParser_RejectsInvalidAirports checks that a header whose
+// airports are not plausible ICAO codes is not parsed.
+func TestTrajectoryParser_RejectsInvalidAirports(t *testing.T) {
+	text := "++86501,N8951S,B7378MAX,260107,WN2545,KMCO,XXXX,0059,SMX34-2502-F320\r\n1\r\n" +
+		"N3640.3,W09644.9,070342,33998,-48.3,269,117,ER,00000,0,\r\n:\r\n"
+	if r := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "N8951S", Text: text}); r != nil {
+		t.Errorf("Parse = %+v, want nil", r)
 	}
 }
 
