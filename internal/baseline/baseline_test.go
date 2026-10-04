@@ -289,3 +289,74 @@ func mustRemove(t *testing.T, path string) {
 		t.Fatal(err)
 	}
 }
+
+// TestSaveRecoversFromAnInterruptedSwap simulates a crash between moving the
+// old baseline aside and installing the new one. A later Save that fails must
+// not lose the old baseline.
+func TestSaveRecoversFromAnInterruptedSwap(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "baseline")
+	old := []Case{{ID: 1, Label: "H1", Stratum: "H1/x"}}
+	if err := Save(dir, old, testManifest()); err != nil {
+		t.Fatalf("Save() error = %v", err)
+	}
+	// Crash state: the baseline has been moved aside and a staging directory remains.
+	if err := os.Rename(dir, dir+".previous"); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(dir+".staging", 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	// A Save that fails while writing (invalid JSON cannot be marshalled).
+	bad := []Case{{ID: 2, Label: "H1", Stratum: "H1/x",
+		Expected: []Expectation{{Parser: "p", Type: "p", Result: json.RawMessage(`{`)}}}}
+	if err := Save(dir, bad, testManifest()); err == nil {
+		t.Fatal("Save() succeeded with an unmarshallable case")
+	}
+
+	loaded, _, err := Load(dir)
+	if err != nil {
+		t.Fatalf("the old baseline was lost: Load() error = %v", err)
+	}
+	if len(loaded) != 1 || loaded[0].ID != 1 {
+		t.Errorf("loaded %v, want the old case 1", loaded)
+	}
+}
+
+func TestLoadRejectsInvalidCases(t *testing.T) {
+	tests := []struct {
+		name string
+		line string
+	}{
+		{"null row", `null`},
+		{"zero ID", `{"id":0,"label":"H1","text":"x","stratum":"H1/x","expected":[]}`},
+		{"label does not match the file", `{"id":5,"label":"RA","text":"x","stratum":"RA/x","expected":[]}`},
+		{"duplicate parser in one case", `{"id":5,"label":"H1","text":"x","stratum":"H1/p","expected":[{"parser":"p","type":"p","result":{}},{"parser":"p","type":"p","result":{}}]}`},
+		{"missing stratum", `{"id":5,"label":"H1","text":"x","expected":[]}`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := filepath.Join(t.TempDir(), "baseline")
+			if err := Save(dir, []Case{{ID: 1, Label: "H1", Stratum: "H1/x"}}, testManifest()); err != nil {
+				t.Fatal(err)
+			}
+			// Replace the only row, keeping the manifest's count of one.
+			mustWrite(t, filepath.Join(dir, "label_H1.jsonl"), tt.line+"\n")
+			if _, _, err := Load(dir); err == nil {
+				t.Error("Load() accepted an invalid case")
+			}
+		})
+	}
+
+	t.Run("duplicate ID across files", func(t *testing.T) {
+		dir := filepath.Join(t.TempDir(), "baseline")
+		cases := []Case{{ID: 1, Label: "H1", Stratum: "H1/x"}, {ID: 2, Label: "RA", Stratum: "RA/x"}}
+		if err := Save(dir, cases, testManifest()); err != nil {
+			t.Fatal(err)
+		}
+		mustWrite(t, filepath.Join(dir, "label_RA.jsonl"), `{"id":1,"label":"RA","text":"","stratum":"RA/x","expected":[]}`+"\n")
+		if _, _, err := Load(dir); err == nil {
+			t.Error("Load() accepted a duplicate ID")
+		}
+	})
+}

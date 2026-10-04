@@ -17,7 +17,9 @@ import (
 // package's path: other packages do not define the flag, so
 // `go test ./... -update-baseline` fails them.
 //
-//	go test ./internal/parsers -run TestBaseline -update-baseline
+//	go test -buildvcs=true ./internal/parsers -run TestBaseline -update-baseline
+//
+// -buildvcs=true embeds the commit, which the manifest records as recorded_by.
 var updateBaseline = flag.Bool("update-baseline", false, "re-record the parser regression baseline")
 
 // baselineDir holds the fixtures written by `acars_parser baseline`.
@@ -67,7 +69,11 @@ func TestBaseline(t *testing.T) {
 	}
 
 	if *updateBaseline {
-		manifest.RecordedBy = version.Parser()
+		recordedBy := version.Parser()
+		if recordedBy == version.Unknown {
+			t.Fatal("test binaries carry no VCS information by default; re-run with -buildvcs=true so the manifest records which commit re-recorded the baseline")
+		}
+		manifest.RecordedBy = recordedBy
 		if err := baseline.Save(baselineDir, cases, manifest); err != nil {
 			t.Fatalf("write baseline: %v", err)
 		}

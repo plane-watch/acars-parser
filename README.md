@@ -378,7 +378,9 @@ The output is one file per label, plus a `manifest.json` that records:
 - the commit that drew the sample and the commit that recorded the expectations
 - the number of cases in each file
 
-The new baseline is written to a staging directory and swapped in, so a failed run leaves the previous baseline intact. A full scan of the 11.7M-message corpus takes a few minutes.
+The new baseline is written to a staging directory and swapped in, so a failed run leaves the previous baseline intact, and an interrupted run is recovered by the next one. A full scan of the 11.7M-message corpus takes a few minutes.
+
+Generate the baseline against a corpus that is not receiving writes timestamped before the cutoff. Duplicate IDs are resolved in a separate query from the main scan, so rows inserted between the two can be handled inconsistently.
 
 ### unparse
 
@@ -633,9 +635,9 @@ The PostgreSQL integration tests in `internal/storage` are skipped when no datab
 When every reported difference is intended, re-record the expectations and commit them with the parser change, so that the diff shows the effect of the change:
 
 ```bash
-go test ./internal/parsers -run TestBaseline -update-baseline
+go test -buildvcs=true ./internal/parsers -run TestBaseline -update-baseline
 ```
 
-Pass the package path as shown. Other packages do not define the flag, so `go test ./... -update-baseline` fails them.
+Pass the package path as shown. Other packages do not define the flag, so `go test ./... -update-baseline` fails them. `-buildvcs=true` is required: without it the test binary does not know its commit, and the update refuses to run rather than record an unknown version.
 
 Use `acars_parser baseline` to draw a new sample, for example after the stored corpus has grown.

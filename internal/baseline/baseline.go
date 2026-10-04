@@ -220,6 +220,18 @@ func Save(dir string, cases []Case, m Manifest) error {
 	dir = filepath.Clean(dir)
 	staging := dir + ".staging"
 	previous := dir + ".previous"
+
+	// Recover from an interrupted swap first: if the baseline is missing but
+	// a moved-aside copy exists, restore it, so that it is never deleted
+	// before a replacement is in place.
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if _, err := os.Stat(previous); err == nil {
+			if err := os.Rename(previous, dir); err != nil {
+				return fmt.Errorf("restore the baseline from an interrupted save: %w", err)
+			}
+		}
+	}
+
 	if err := os.RemoveAll(staging); err != nil {
 		return fmt.Errorf("clear %s: %w", staging, err)
 	}
@@ -240,7 +252,8 @@ func Save(dir string, cases []Case, m Manifest) error {
 	}
 
 	// Swap the staging directory into place, keeping the previous baseline
-	// until the new one is in position.
+	// until the new one is in position. A leftover moved-aside copy is stale
+	// at this point, because the baseline itself exists.
 	if err := os.RemoveAll(previous); err != nil {
 		return fmt.Errorf("clear %s: %w", previous, err)
 	}
@@ -253,7 +266,10 @@ func Save(dir string, cases []Case, m Manifest) error {
 	}
 	if err := os.Rename(staging, dir); err != nil {
 		if hadPrevious {
-			_ = os.Rename(previous, dir)
+			if rollbackErr := os.Rename(previous, dir); rollbackErr != nil {
+				return fmt.Errorf("install %s: %w; restoring the previous baseline also failed (it is in %s): %v",
+					dir, err, previous, rollbackErr)
+			}
 		}
 		return fmt.Errorf("install %s: %w", dir, err)
 	}
@@ -333,6 +349,7 @@ func Load(dir string) ([]Case, Manifest, error) {
 
 	var cases []Case
 	seen := make(map[string]bool, len(files))
+	ids := make(map[int64]string)
 	for _, f := range files {
 		name := filepath.Base(f)
 		want, listed := m.Files[name]
@@ -346,6 +363,15 @@ func Load(dir string) ([]Case, Manifest, error) {
 		if len(fileCases) != want {
 			return nil, m, fmt.Errorf("%s holds %d cases, the manifest records %d", name, len(fileCases), want)
 		}
+		for _, c := range fileCases {
+			if err := validateCase(c, name); err != nil {
+				return nil, m, err
+			}
+			if other, dup := ids[c.ID]; dup {
+				return nil, m, fmt.Errorf("message %d appears in both %s and %s", c.ID, other, name)
+			}
+			ids[c.ID] = name
+		}
 		seen[name] = true
 		cases = append(cases, fileCases...)
 	}
@@ -358,6 +384,32 @@ func Load(dir string) ([]Case, Manifest, error) {
 		return nil, m, fmt.Errorf("baseline holds %d cases, the manifest records %d", len(cases), m.Cases)
 	}
 	return cases, m, nil
+}
+
+// validateCase checks that a loaded case is well formed and belongs in the
+// file it was read from, so that rows replaced with null or copied between
+// files cannot keep the counts while losing coverage.
+func validateCase(c Case, file string) error {
+	if c.ID == 0 {
+		return fmt.Errorf("%s: a case has no message ID (a null or empty row?)", file)
+	}
+	if labelFileName(c.Label) != file {
+		return fmt.Errorf("%s: message %d has label %q, which belongs in %s", file, c.ID, c.Label, labelFileName(c.Label))
+	}
+	if c.Stratum == "" {
+		return fmt.Errorf("%s: message %d has no stratum", file, c.ID)
+	}
+	parsers := make(map[string]bool, len(c.Expected))
+	for _, e := range c.Expected {
+		if e.Parser == "" {
+			return fmt.Errorf("%s: message %d has an expectation with no parser", file, c.ID)
+		}
+		if parsers[e.Parser] {
+			return fmt.Errorf("%s: message %d has two expectations from parser %q", file, c.ID, e.Parser)
+		}
+		parsers[e.Parser] = true
+	}
+	return nil
 }
 
 func loadFile(path string) ([]Case, error) {

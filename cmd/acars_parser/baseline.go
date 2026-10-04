@@ -134,19 +134,21 @@ func sampleBaseline(ctx context.Context, db *storage.ClickHouseDB, cutoff string
 
 	const window = `timestamp <= toDateTime64(?, 3, 'UTC')`
 	const duplicateIDs = `SELECT id FROM messages WHERE ` + window + ` GROUP BY id HAVING count() > 1`
-	const inputHash = `cityHash64(timestamp, label, tail, flight, raw_text)`
+	const inputs = `tuple(timestamp, label, tail, flight, raw_text)`
 
-	// Duplicated IDs: one canonical copy each, unless the copies conflict.
+	// Duplicated IDs: one canonical copy each (the earliest stored, chosen as
+	// a whole tuple), unless the copies' inputs differ. Inputs are compared
+	// exactly, not by hash.
 	dupRows, err := db.Conn().Query(ctx, `
-		SELECT id,
-		       argMin(timestamp, created_at) AS ts,
-		       argMin(label, created_at), argMin(tail, created_at),
-		       argMin(flight, created_at), argMin(raw_text, created_at),
-		       cityHash64(id),
-		       uniqExact(`+inputHash+`) AS variants
-		FROM messages
-		WHERE `+window+` AND id IN (`+duplicateIDs+`)
-		GROUP BY id`, cutoff, cutoff)
+		SELECT id, t.1, t.2, t.3, t.4, t.5, cityHash64(id), variants
+		FROM (
+			SELECT id,
+			       argMin(`+inputs+`, created_at) AS t,
+			       uniqExact(`+inputs+`) AS variants
+			FROM messages
+			WHERE `+window+` AND id IN (`+duplicateIDs+`)
+			GROUP BY id
+		)`, cutoff, cutoff)
 	if err != nil {
 		return stats, fmt.Errorf("query duplicated IDs: %w", err)
 	}
