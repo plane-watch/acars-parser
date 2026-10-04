@@ -30,13 +30,19 @@ var LoadsheetFormats = []LoadsheetFormat{
 	// LAW 42554  MAX 49050   L
 	// ...
 	// PAX/6/59 TTL 65
+	//
+	// Etihad's variant has a three-digit number (probably the edition)
+	// before the time, and the aircraft type after the flight date:
+	// LOADSHEET FINAL   001 0242
+	// EY401/19 20JAN26 B78X
+	// BKK AUH A6BMA    2/11
 	{
 		Name:   "standard_kg",
 		Labels: []string{"C1", "RA", "H1", "30", "31", "2A", "22", "35", "45", "13", "42"},
 		Pattern: regexp.MustCompile(`(?s)` +
-			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
+			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?:\d{3}\s+)?(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
 			`.*?` +
-			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+\s*\n` +
+			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+(?:[ \t]+(?P<aircraft_type>[A-Z][A-Z0-9]{2,3}))?[ \t]*\n` +
 			`\s*(?P<origin>[A-Z]{3})\s+(?P<destination>[A-Z]{3})\s+(?P<tail>[A-Z0-9-]+)\s+(?P<crew>\d+/\d+)` +
 			`.*?` +
 			`ZFW\s+(?P<zfw>\d+)\s+MAX\s+(?P<zfw_max>\d+)` +
@@ -67,9 +73,9 @@ var LoadsheetFormats = []LoadsheetFormat{
 		Name:   "standard_kg_minimal",
 		Labels: []string{"C1", "RA", "H1", "30", "31", "2A", "22", "35", "45", "13", "42"},
 		Pattern: regexp.MustCompile(`(?s)` +
-			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
+			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?:\d{3}\s+)?(?P<time>\d{4})\s+(?:EDNO?\s*(?P<edition>\d+))?` +
 			`.*?` +
-			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+\s*\n` +
+			`(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+(?:[ \t]+(?P<aircraft_type>[A-Z][A-Z0-9]{2,3}))?[ \t]*\n` +
 			`\s*(?P<origin>[A-Z]{3})\s+(?P<destination>[A-Z]{3})\s+(?P<tail>[A-Z0-9-]+)\s+(?P<crew>\d+/\d+)` +
 			`.*?` +
 			`ZFW\s+(?P<zfw>\d+)\s+MAX\s+(?P<zfw_max>\d+)` +
