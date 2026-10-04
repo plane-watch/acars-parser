@@ -111,10 +111,11 @@ Some tables have only one writer:
 
 Only transmitted data is stored. `live` and `backfill` do not take facts from Airframes' `airframe`, `flight` or `station` records (see [airframes-payload.md](airframes-payload.md)):
 
-- **ICAO hex.** It comes from one of three sources, strongest first:
+- **ICAO hex.** It comes from one of four sources, strongest first:
   1. the aircraft's link-layer address;
   2. an ADS-C airframe ID;
-  3. derivation from a US N-number registration.
+  3. the aircraft address in an AFN logon header, used only for the registration it was reported with, and not when it contradicts an N-number derivation;
+  4. derivation from a US N-number registration.
 
   The extractor records which, as `icao_hex_source`, ready for storage v2.
 - **Registration.** The transmitted tail.

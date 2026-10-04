@@ -70,6 +70,9 @@ const (
 	HexFromLinkLayer = "link_layer"
 	// HexFromADSC is the airframe ID transmitted in an ADS-C report.
 	HexFromADSC = "adsc"
+	// HexFromAFN is the aircraft address reported in an AFN logon header,
+	// with the registration it was reported for.
+	HexFromAFN = "afn"
 	// HexDerivedFromTail is derived from a transmitted US N-number registration.
 	HexDerivedFromTail = "derived_from_tail"
 )
@@ -431,6 +434,21 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, msg *acars.Mes
 	if v, ok := m["airframe_id"].(string); ok && update.ICAOHex == "" {
 		if addr := strings.ToUpper(strings.TrimSpace(v)); acars.IsICAOAddress(addr) {
 			update.ICAOHex, update.ICAOHexSource = addr, HexFromADSC
+		}
+	}
+
+	// An AFN logon reports the aircraft's address with its registration. It
+	// is used only for that registration, and not when it contradicts the
+	// address derived from a US N-number: in the January 2026 corpus, 31
+	// of 7,847 logons from N-registered aircraft reported another address.
+	if v, ok := m["aircraft_address"].(string); ok && update.ICAOHex == "" {
+		reg, _ := m["registration"].(string)
+		addr := strings.ToUpper(strings.TrimSpace(v))
+		sameAircraft := reg != "" && acars.NormaliseRegistration(reg) == acars.NormaliseRegistration(update.Registration)
+		if acars.IsICAOAddress(addr) && sameAircraft {
+			if derived, ok := nnumber.ICAOAddress(update.Registration); !ok || derived == addr {
+				update.ICAOHex, update.ICAOHexSource = addr, HexFromAFN
+			}
 		}
 	}
 

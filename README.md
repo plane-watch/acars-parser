@@ -459,6 +459,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 |---|---|---|
 | `acms_report` | Airbus ACMS report headers: aircraft series, registration, route and flight number digits | H1 |
 | `adsc` | ADS-C reports (binary tag decoding) | B6 |
+| `afn` | AFN logons: callsign, registration, 24-bit aircraft address, ATS facility | A0, H1 |
 | `agfsr` | AGFSR flight status | 4T |
 | `atis` | D-ATIS | A9 |
 | `cmc_report` | Boeing CMC report headers (RTE, PLF, CFG): registration, airline code, callsign and route | H1 |

@@ -206,6 +206,11 @@ func TestUnwrap(t *testing.T) {
 		{"USADCXA.AT1.N200WN679F2093004DAA", "/USADCXA.AT1.N200WN679F2093004DAA", ""},
 		// Already in the form Parse reads.
 		{"/SOUCAYA.AT1.HL8251ABCD", "/SOUCAYA.AT1.HL8251ABCD", ""},
+		// Character-oriented applications, such as AFN, follow the IMI with
+		// "/" rather than ".".
+		{"- #MD/A0 OAKODYA.AFN/FMHTZP16,.JA822J", "/OAKODYA.AFN/FMHTZP16,.JA822J", "A0"},
+		{"OAKODYA.AFN/FMHTZP16,.JA822J", "/OAKODYA.AFN/FMHTZP16,.JA822J", ""},
+		{"/OAKODYA.AFN/FMHTZP16,.JA822J", "/OAKODYA.AFN/FMHTZP16,.JA822J", ""},
 	}
 	for _, tt := range tests {
 		got, label, ok := Unwrap(tt.text)

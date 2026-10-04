@@ -65,7 +65,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
@@ -94,6 +94,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 |--------|---------|--------|----------|--------|-----------|-------|
 | [acmsreport](#acmsreport) | acmsreport | H1 | 60 | `acms_report` | Grok | Yes |
 | [adsc](#adsc) | adsc | B6 | 10 | `adsc` | Binary tag decoding | Yes |
+| [afn](#afn) | afn | A0, H1 | 50 | `afn` | Hand-written regex + CRC | No |
 | [agfsr](#agfsr) | agfsr | 4T | 100 | `agfsr` | Grok | No |
 | [atis](#atis) | atis | A9 | 100 | `atis` | Hand-written regex | Yes |
 | [cmcreport](#cmcreport) | cmcreport | H1 | 60 | `cmc_report` | Grok | Yes |
@@ -137,7 +138,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [turbulence](#turbulence) | turbulence | C1 | 65 | `turbulence` | Hand-written regex | No |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 44 parsers in 40 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 45 parsers in 41 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
 
 ---
 
@@ -196,6 +197,28 @@ A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0T
 | Report time | 0.125 s per bit |
 
 **Limitations:** The intermediate projection (tag 22, 8 bytes per point) and fixed projection (tag 23, 9 bytes) groups are skipped by length and not decoded; `adsc/parser.go` marks both with a `TODO`.
+
+---
+
+### afn
+
+**Package:** `internal/parsers/afn` · **Labels:** A0, H1 · **Priority:** 50 · **Type:** `afn`
+
+**Technique:** Hand-written regex, with the CRC verified.
+
+**Description:** Parses ARINC 622 ATS facilities notification (AFN) messages, with which an aircraft logs on to an air traffic services unit for CPDLC and ADS-C. For example:
+
+```
+/OAKODYA.AFN/FMHTZP16,.JA822J,86D5BE,031321/FAK0,KZAK/FARADS,0/FARATC,0A0F8
+```
+
+The message is the ground station, the IMI `AFN`, a header (FMH), segments and a CRC: the last four hex digits, CRC-16/ARINC over `AFN/` and the text before it. A message whose CRC does not match is not parsed. Label H1 carries AFN relayed with its original label (`- #MD/A0 ...`) or without the leading `/`, which `arinc.Unwrap` converts.
+
+**Extracted fields:** the ground station; from the header, the flight ID (`callsign`), the registration (without ARINC's leading padding dots), the 24-bit aircraft address and a time (HHMMSS), the last two when present; an acknowledgement (FAK: a code and an ICAO ATS facility, e.g. `KZAK`); a contact advisory (FCA: the next ground station and a code); and application statuses (FAR: the application, e.g. `ADS` or `ATC`, a code and an optional ground station). The codes are reported as transmitted; their meanings are not decoded.
+
+**Aircraft address:** The header's third field is the aircraft's 24-bit ICAO address. For N-registered aircraft in the January 2026 corpus, it equals the address derived from the registration in 7,816 of 7,847 logons. The 31 others report an address outside the US block (N210UA reported `58DD2A`); 26 of them were acknowledged with code 1 by the FAA's Data Comm service. The extractor uses the address only for the registration it was reported with, and not when it contradicts an N-number (see [storage.md](storage.md)).
+
+**Coverage (January 2026 corpus):** 426,370 of 426,620 AFN messages on A0 and H1, giving an address for 3,223 registrations (none with two addresses), a callsign for 8,180 registrations, and 90 ATS facilities.
 
 ---
 

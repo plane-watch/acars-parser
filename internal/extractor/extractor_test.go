@@ -92,6 +92,16 @@ type reportLike struct {
 func (r *reportLike) Type() string     { return "report" }
 func (r *reportLike) MessageID() int64 { return 0 }
 
+// afnLike is a result that reports the aircraft's address with its
+// registration, as an AFN logon does.
+type afnLike struct {
+	Registration    string `json:"registration"`
+	AircraftAddress string `json:"aircraft_address"`
+}
+
+func (r *afnLike) Type() string     { return "afn" }
+func (r *afnLike) MessageID() int64 { return 0 }
+
 // digitsReport is a result that names its flight by number only, without
 // the airline code, as an Airbus ACMS report does.
 type digitsReport struct {
@@ -229,6 +239,34 @@ func TestExtract(t *testing.T) {
 			}
 			if f.FlightNumber == "0816" || f.FlightNumber == "816" {
 				t.Errorf("transmitted %q: the digits became the flight number", tt.transmitted)
+			}
+		}
+	})
+
+	t.Run("an AFN logon gives the address of its registration", func(t *testing.T) {
+		tests := []struct {
+			name, tail, fromHex, reg, addr, wantHex, wantSource string
+		}{
+			{"same registration", "JA822J", "", ".JA822J", "86D5BE", "86D5BE", HexFromAFN},
+			{"no tail: the AFN registration is used", "", "", "JA822J", "86D5BE", "86D5BE", HexFromAFN},
+			{"another registration", "JA822K", "", "JA822J", "86D5BE", "", ""},
+			// A real logon from the January 2026 corpus: N210UA reported
+			// 58DD2A, not its address A1BB45.
+			{"contradicts the N-number", "N210UA", "", "N210UA", "58DD2A", "A1BB45", HexDerivedFromTail},
+			{"agrees with the N-number", "N802AN", "", "N802AN", "AAE958", "AAE958", HexFromAFN},
+			{"the link layer comes first", "JA822J", "86D5BE", "JA822J", "86D5BF", "86D5BE", HexFromLinkLayer},
+		}
+		for _, tt := range tests {
+			msg := &acars.Message{ID: 1, Label: "A0", Tail: tt.tail, FromHex: tt.fromHex, LinkDirection: "downlink"}
+			f := Extract(msg, []registry.Result{&afnLike{Registration: tt.reg, AircraftAddress: tt.addr}}).Flight
+			if f == nil {
+				if tt.wantHex != "" {
+					t.Errorf("%s: no flight update", tt.name)
+				}
+				continue
+			}
+			if f.ICAOHex != tt.wantHex || f.ICAOHexSource != tt.wantSource {
+				t.Errorf("%s: ICAOHex = %q (%s), want %q (%s)", tt.name, f.ICAOHex, f.ICAOHexSource, tt.wantHex, tt.wantSource)
 			}
 		}
 	})

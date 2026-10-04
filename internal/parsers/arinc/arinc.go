@@ -45,20 +45,27 @@ type Result struct {
 // Registration + hex follows.
 var messagePattern = regexp.MustCompile(`^/([A-Z0-9]{4,7})\.([A-Z]{2,3}[0-9])\.(.+)$`)
 
-// relayedPattern matches an ARINC binary message relayed in label H1 with
-// its original label, e.g. "- #MD/AA PIKCPYA.AT1.N657UA...": a "- #" sublabel,
-// "/", the original label (AA for CPDLC, A6 for ADS-C) and a space.
-var relayedPattern = regexp.MustCompile(`^- #[A-Z0-9]{2}/([A-Z0-9]{2}) ([A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9]\..+)$`)
+// relayedPattern matches an ARINC 622 message relayed in label H1 with its
+// original label, e.g. "- #MD/AA PIKCPYA.AT1.N657UA...": a "- #" sublabel,
+// "/", the original label (AA for CPDLC, A6 for ADS-C, A0 for AFN) and a
+// space. The IMI is followed by "." in binary applications (AT1, ADS) and
+// by "/" in character-oriented ones (AFN).
+var relayedPattern = regexp.MustCompile(`^- #[A-Z0-9]{2}/([A-Z0-9]{2}) ([A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][./].+)$`)
 
-// barePattern matches an ARINC binary message without its leading "/", as
+// barePattern matches an ARINC 622 message without its leading "/", as
 // label H1 also carries it, e.g. "USADCXA.AT1.N200WN...".
-var barePattern = regexp.MustCompile(`^[A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9]\.`)
+var barePattern = regexp.MustCompile(`^[A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][./]`)
 
-// Unwrap returns an ARINC binary message in the form Parse reads
-// ("/<ground_station>.<IMI>.<registration><hex>") from the forms in which
-// label H1 carries it: relayed with its original label ("- #MD/AA ..."),
-// whose label is returned, or without the leading "/". A message already in
-// that form is returned unchanged. ok is false for any other text.
+// envelopePattern matches an ARINC 622 message in envelope form.
+var envelopePattern = regexp.MustCompile(`^/[A-Z0-9]{4,7}\.[A-Z]{2}[A-Z0-9][./]`)
+
+// Unwrap returns an ARINC 622 message in envelope form
+// ("/<ground_station>.<IMI>.<registration><hex>" for binary applications,
+// which Parse reads, or "/<ground_station>.<IMI>/<text>" for character ones)
+// from the forms in which label H1 carries it: relayed with its original
+// label ("- #MD/AA ..."), whose label is returned, or without the leading
+// "/". A message already in envelope form is returned unchanged. ok is false
+// for any other text.
 func Unwrap(text string) (msg, label string, ok bool) {
 	text = strings.TrimSpace(text)
 	if m := relayedPattern.FindStringSubmatch(text); m != nil {
@@ -67,7 +74,7 @@ func Unwrap(text string) (msg, label string, ok bool) {
 	if barePattern.MatchString(text) {
 		return "/" + text, "", true
 	}
-	if messagePattern.MatchString(text) {
+	if envelopePattern.MatchString(text) {
 		return text, "", true
 	}
 	return "", "", false
