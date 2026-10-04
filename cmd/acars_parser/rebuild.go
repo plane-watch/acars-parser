@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -36,8 +37,8 @@ type rebuildStats struct {
 // live writes it, into messages_rebuild; a message no parser matches, even
 // one without text, keeps an unparsed row, so that every message ID
 // survives. When the rebuilt table holds exactly the archive's distinct
-// IDs, a single RENAME (atomic in an Atomic database) makes it the archive
-// and keeps the old one as messages_previous; nothing is swapped otherwise.
+// IDs, an atomic EXCHANGE TABLES makes it the archive, and the old one is
+// renamed to messages_previous; nothing is swapped otherwise.
 //
 // A rebuild refuses to start while messages_rebuild or messages_previous
 // exists: either may hold the only copy of an archive (a failed rebuild
@@ -122,7 +123,10 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 		return stats, fmt.Errorf("the archive has %d messages, %d were read and %s holds %d; not swapped", source, stats.Messages, rebuildTable, written)
 	}
 	if err := db.SwapInTable(ctx, storage.MessagesTable, rebuildTable, previousTable); err != nil {
-		return stats, fmt.Errorf("swap: %w (the RENAME is atomic, so the tables are unchanged)", err)
+		if errors.Is(err, storage.ErrSwapRename) {
+			return stats, fmt.Errorf("%w: %s holds the rebuilt archive and %s the old one; rename %s to %s", err, storage.MessagesTable, rebuildTable, rebuildTable, previousTable)
+		}
+		return stats, fmt.Errorf("%w: the exchange is atomic, but if its reply was lost it may have happened; check which of %s and %s holds the rebuilt archive (by row count) before dropping either", err, storage.MessagesTable, rebuildTable)
 	}
 	return stats, nil
 }

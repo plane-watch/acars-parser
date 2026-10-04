@@ -4,6 +4,7 @@ package storage
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -568,9 +569,10 @@ type RawMessage struct {
 // StreamRawMessages calls fn once for each distinct message ID in a
 // messages table, in ID order, with the message's transmitted content
 // (taken from one of its rows; they hold the same content). The IDs are
-// read first, then the messages in ranges of chunk IDs, one short query per
-// range, so that no query runs for long. fn's error stops the stream and is
-// returned.
+// read first (8 bytes each: about 96 MB for 12 million messages), then the
+// messages in ranges of chunk IDs, one query per range, so that no query
+// stays open for long (on the 11.9M-message archive, each took about 0.2 s).
+// fn's error stops the stream and is returned.
 func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chunk int, fn func(RawMessage) error) error {
 	if err := checkTableName(table); err != nil {
 		return err
@@ -628,15 +630,28 @@ func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uin
 	return rows.Err()
 }
 
+// ErrSwapRename is returned by SwapInTable when the swap itself succeeded
+// but the old table could not be renamed: the staging table's name then
+// holds the old table.
+var ErrSwapRename = errors.New("tables exchanged, but the old table was not renamed")
+
 // SwapInTable replaces the current table with the staging table and keeps
-// the current one as previous, in one RENAME statement, which ClickHouse
-// applies atomically in an Atomic database: either every table is renamed
-// or none is.
+// the current one as previous. The swap is an EXCHANGE TABLES, which is
+// atomic (a multi-table RENAME is not: ClickHouse can apply part of it);
+// the old table, now under the staging name, is then renamed to previous.
+// If that rename fails, the error wraps ErrSwapRename: the current name
+// holds the new table and the staging name the old one.
 func (d *ClickHouseDB) SwapInTable(ctx context.Context, current, staging, previous string) error {
 	for _, name := range []string{current, staging, previous} {
 		if err := checkTableName(name); err != nil {
 			return err
 		}
 	}
-	return d.conn.Exec(ctx, `RENAME TABLE `+current+` TO `+previous+`, `+staging+` TO `+current)
+	if err := d.conn.Exec(ctx, `EXCHANGE TABLES `+current+` AND `+staging); err != nil {
+		return fmt.Errorf("exchange %s and %s: %w", current, staging, err)
+	}
+	if err := d.conn.Exec(ctx, `RENAME TABLE `+staging+` TO `+previous); err != nil {
+		return fmt.Errorf("%w: rename %s to %s: %v", ErrSwapRename, staging, previous, err)
+	}
+	return nil
 }
