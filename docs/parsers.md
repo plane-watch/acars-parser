@@ -64,7 +64,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 
 | Label | Parsers (priority) |
 |-------|--------------------|
-| RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), fuel_delivery (100) |
+| RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), ualuplink (60), fuel_delivery (100) |
 | H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
@@ -136,9 +136,10 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [sq](#sq) | sq | SQ | 100 | `sq_position` | Grok | Yes |
 | [takeoff_data](#takeoff_data) | takeoff | RA, H1, C1 | 55 | `takeoff_data` | Hand-written regex | Yes |
 | [turbulence](#turbulence) | turbulence | C1 | 65 | `turbulence` | Hand-written regex | No |
+| [ualuplink](#ualuplink) | ualuplink | RA | 60 | `united_uplink` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 45 parsers in 41 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 46 parsers in 42 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
 
 ---
 
@@ -756,6 +757,28 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 **Description:** Parses turbulence advisories and SIGMETs. The quick check requires `TURB` together with `SIGMET`, `ADVISORY` or `WSI`.
 
 **Extracted fields:** turbulence type, ID, severity, lower and upper altitude, validity period, movement, description, and entry and exit points.
+
+---
+
+### ualuplink
+
+**Package:** `internal/parsers/ualuplink` · **Labels:** RA · **Priority:** 60 · **Type:** `united_uplink`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the header of United Airlines uplinks from its operations system (address `QUNDCULUA`). The first line names the message, and the first or second line after it names the flight the message is for. For example:
+
+```
+QUNDCULUA~1TURB SIGMET
+	UAL252-04 PHNL KIAH
+	YOUR FLIGHT IS WITHIN A
+```
+
+**Extracted fields:** title (e.g. `TURB SIGMET`, `GATE ASSIGN`, `EPNF INFO`), flight number as transmitted (`UA0187` or `UAL252`), the flight's day of the month, origin and destination. Both airports must pass `patterns.IsValidICAO`. The body is not parsed.
+
+**Why the header matters:** ACARS uplinks carry no flight ID field (acarsdec reports one only for downlink blocks, and none of 322 sampled live uplinks had one), so this header is the only transmitted statement of the flight on these messages. The day was checked against the January 2026 corpus: in 99.5% of messages it is the day of the message or the day before.
+
+**Coverage (January 2026 corpus):** 23,958 of 35,059 United uplinks, giving about 1,100 distinct (flight, origin, destination) combinations. The rest have no flight line (e.g. lavatory and service messages).
 
 ---
 

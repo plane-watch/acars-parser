@@ -501,6 +501,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `sq_position` | SQ ARINC position and AVICOM frequency | SQ |
 | `takeoff_data` | Takeoff performance | RA, H1, C1 |
 | `turbulence` | Turbulence reports | C1 |
+| `united_uplink` | United Airlines uplink headers: title, flight, day, origin and destination | RA |
 | `weather` | METAR, TAF and SIGMET | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 |
 
 See [docs/parsers.md](docs/parsers.md) for each parser's formats, fields, priority and matching technique.
