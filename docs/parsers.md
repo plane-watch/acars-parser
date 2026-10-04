@@ -304,7 +304,7 @@ RTE 1 04OCT26 0930 TG HS-TWC THA482 YPPH/VTBS BCG4F-45LD-0077 C L 0915 04OCT26
 
 The decoder was checked against the libacars reference decoder on every distinct AA and BA CPDLC message in the January 2026 corpus (454,629 messages): for each of the 454,569 messages libacars decodes, the element templates and every data value it prints are the same, and the 60 messages libacars reports as unparseable are not decoded. Types that no corpus message uses (uM91 holds, uM73 pre-departure clearances, the additional route information, satellite channels, every position report component) were checked by decoding synthetic messages with libacars.
 
-**Description:** Parses FANS-1/A CPDLC (Controller-Pilot Data Link Communications) messages. The quick check looks for the `.AT1.`, `.CR1.`, `.CC1.` and `.DR1.` IMI markers.
+**Description:** Parses FANS-1/A CPDLC (Controller-Pilot Data Link Communications) messages. The quick check looks for the AT1, CR1, CC1 or DR1 IMI after the ground station, followed by the registration field (`.AT1.N514DN`, or `.AT1B-18772` for a seven-character registration, which has no padding dot).
 
 Label H1 carries CPDLC in two further forms, which `arinc.Unwrap` converts to the envelope form: relayed with its original label (`- #MD/AA PIKCPYA.AT1.N657UA...`) and without the leading `/` (`USADCXA.AT1.N200WN...`).
 

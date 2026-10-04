@@ -247,27 +247,27 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 	}
 
 	if !quickCheckPassed {
-		trace.QuickCheck.Reason = "No CPDLC IMI marker (.AT1., .CR1., .CC1., .DR1.) found"
+		trace.QuickCheck.Reason = "No CPDLC IMI marker (AT1, CR1, CC1 or DR1 after the ground station) found"
 		return trace
 	}
 
 	text, _ := envelopeText(msg)
 
-	// Identify which IMI marker is present.
+	// Identify which IMI marker is present (the same match as QuickCheck).
+	imiNames := map[string]string{
+		"AT1": "AT1 (CPDLC message)",
+		"CR1": "CR1 (connection request)",
+		"CC1": "CC1 (connection confirm)",
+		"DR1": "DR1 (disconnect request)",
+	}
 	imiType := ""
-	if strings.Contains(text, IMI_AT1) {
-		imiType = "AT1 (CPDLC message)"
-	} else if strings.Contains(text, IMI_CR1) {
-		imiType = "CR1 (connection request)"
-	} else if strings.Contains(text, IMI_CC1) {
-		imiType = "CC1 (connection confirm)"
-	} else if strings.Contains(text, IMI_DR1) {
-		imiType = "DR1 (disconnect request)"
+	if m := imiRe.FindString(text); m != "" {
+		imiType = imiNames[m[1:4]]
 	}
 
 	trace.Extractors = append(trace.Extractors, registry.Extractor{
 		Name:    "imi_type",
-		Pattern: ".AT1., .CR1., .CC1., or .DR1.",
+		Pattern: imiRe.String(),
 		Matched: imiType != "",
 		Value:   imiType,
 	})

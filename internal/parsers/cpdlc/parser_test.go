@@ -275,3 +275,14 @@ func TestParseSevenCharacterRegistration(t *testing.T) {
 		t.Errorf("got %+v", r)
 	}
 }
+
+// TestParseWithTraceSevenCharacterRegistration checks that tracing reports
+// the IMI of a message with a seven-character registration.
+func TestParseWithTraceSevenCharacterRegistration(t *testing.T) {
+	trace := (&Parser{}).ParseWithTrace(&acars.Message{ID: 1, Label: "AA", Text: "/YEGE2YA.AT1B-1877224C8C0DE2B1624D9F3AA4F9C17A760F1D0"})
+	for _, e := range trace.Extractors {
+		if e.Name == "imi_type" && !e.Matched {
+			t.Errorf("imi_type not matched: %+v", e)
+		}
+	}
+}
