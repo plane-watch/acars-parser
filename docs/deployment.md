@@ -8,8 +8,10 @@
 | `postgres` | `acars-postgres` | Mutable state (database `acars_state`). Data in the `postgres-data` volume. |
 | `live` | `acars-live` | `acars_parser live`: subscribes to the Airframes NATS feed, parses each message and stores it. |
 | `schema` | (one-off) | `acars_parser migrate -skip-messages -skip-state`: creates the ClickHouse and PostgreSQL tables. In the `tools` profile, so it runs only when asked for. |
+| `dbviewer` | `acars-dbviewer` | A read-only web interface to the PostgreSQL state database ([pgweb](https://github.com/sosedoff/pgweb)), on port 8081. See [State database viewer](#state-database-viewer). |
+| `dbviewer-role` | (one-off) | Runs `deployments/postgres/dbviewer-role.sql`: creates or updates the read-only `acars_viewer` role that `dbviewer` connects as. In the `tools` profile. |
 
-The database ports are published on 127.0.0.1 only, so the CLI on the host can reach them with the default settings, and nothing else can.
+The database ports are published on 127.0.0.1 only, so the CLI on the host can reach them with the default settings, and nothing else can. The `dbviewer` port is published on all interfaces by default (see `DBVIEWER_BIND`).
 
 ## Image
 
@@ -22,6 +24,8 @@ The database ports are published on 127.0.0.1 only, so the CLI on the host can r
 | `NATS_CREDS` | none (required for `live`) | The path, on the host, of the Airframes NATS credentials file. It is mounted read-only and is never copied into the image or the repository. Without it, `up live` fails; other commands do not need it. |
 | `CLICKHOUSE_PASSWORD` | `acars` | The ClickHouse password, for the server and the clients. |
 | `POSTGRES_PASSWORD` | `acars` | The PostgreSQL password, for the server and the clients. |
+| `DBVIEWER_PASSWORD` | `acars_viewer` | The password of the read-only `acars_viewer` role, set by `dbviewer-role` and used by `dbviewer`. |
+| `DBVIEWER_BIND` | `0.0.0.0` | The host address that `dbviewer`'s port 8081 is published on. `127.0.0.1` keeps it to the host itself. |
 
 Compose reads these from the environment or from a `deployments/.env` file, which is excluded from git and from the image build context.
 
@@ -34,6 +38,34 @@ export NATS_CREDS=$HOME/airframes_nats.creds
 docker compose -f deployments/docker-compose.yml up -d clickhouse postgres
 docker compose -f deployments/docker-compose.yml run --rm schema
 docker compose -f deployments/docker-compose.yml up -d --build live
+docker compose -f deployments/docker-compose.yml run --rm dbviewer-role
+docker compose -f deployments/docker-compose.yml up -d dbviewer
+```
+
+## State database viewer
+
+`dbviewer` runs pgweb, a single-binary PostgreSQL browser, which serves the tables, their rows and structure, and an SQL query box at `http://<host>:8081` (for the collector, http://acars-collector.local:8081). pgweb is used because it is a maintained tool that runs as one container and has a read-only mode, so the project does not need a web application of its own.
+
+It cannot change data, for two independent reasons:
+
+- pgweb runs with `--readonly`, which rejects queries containing write keywords (`UPDATE`, `CREATE` and so on) before they reach the database, and with `--lock-session`, which stops the interface from connecting to another server or database or as another user.
+- It connects as `acars_viewer`, a role that holds only `CONNECT` on `acars_state`, `USAGE` on the `public` schema and `SELECT` on its tables, and whose transactions start read-only. Default privileges grant it `SELECT` on tables that the `acars` role creates later, so new tables are readable without another step.
+
+The enrichment API's examples also use port 8081; on the same host, run the API on another port.
+
+It has no authentication: anyone who can reach port 8081 can read every table. It is meant for the local network only; do not publish the port to the internet. To keep it to the host itself, set `DBVIEWER_BIND=127.0.0.1` (in the environment or `deployments/.env`), recreate it with `up -d dbviewer`, and reach it through an SSH tunnel:
+
+```bash
+ssh -N -L 8081:127.0.0.1:8081 acars-collector.local   # then open http://localhost:8081
+```
+
+### Setting up the role
+
+The role is created by `deployments/postgres/dbviewer-role.sql`, run by the one-off `dbviewer-role` service. It is not an init script of the `postgres` service, because PostgreSQL runs those only when its volume is first initialised, and existing deployments already are. The script is idempotent: run it before the first `up dbviewer`, after changing `DBVIEWER_PASSWORD` (followed by `up -d --force-recreate dbviewer`), and at any other time without harm.
+
+```bash
+docker compose -f deployments/docker-compose.yml run --rm dbviewer-role
+docker compose -f deployments/docker-compose.yml up -d dbviewer
 ```
 
 ## Moving the data from another host
