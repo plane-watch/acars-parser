@@ -139,9 +139,8 @@ func runBackfillCmd(args []string) {
 				if data.Flight != nil && data.Flight.ICAOHex != "" {
 					atomic.AddInt64(&aircraftUpserted, 1)
 				}
-				// The routes table holds ICAO pairs; IATA pairs are kept by the extractor
-				// for storage v2, which records the code type.
-				if data.Flight != nil && data.Flight.AirportCodes == extractor.AirportCodesICAO {
+				// Count only the routes that are written (see flightRoute).
+				if _, ok := flightRoute(data.Flight, time.Time{}); ok {
 					atomic.AddInt64(&routesUpserted, 1)
 				}
 				atomic.AddInt64(&waypointsFound, int64(len(data.Waypoints)))

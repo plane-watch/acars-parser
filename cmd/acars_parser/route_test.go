@@ -19,7 +19,8 @@ func TestFlightRoute(t *testing.T) {
 	}
 
 	r, ok := flightRoute(icao("QFA11"), seen)
-	if !ok || r.FlightPattern != "QFA11" || r.OriginICAO != "YSSY" || r.DestICAO != "KLAX" || r.ObservationCount != 1 || !r.FirstSeen.Equal(seen) {
+	if !ok || r.FlightPattern != "QFA11" || r.OriginICAO != "YSSY" || r.DestICAO != "KLAX" || r.ObservationCount != 1 ||
+		!r.FirstSeen.Equal(seen) || !r.LastSeen.Equal(seen) || r.IsMultiStop {
 		t.Errorf("flightRoute = %+v, %v", r, ok)
 	}
 	if r, ok := flightRoute(icao(""), seen); ok {
