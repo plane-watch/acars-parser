@@ -450,7 +450,7 @@ The payload is decoded with both message sets. A decode is valid when every elem
 
 **Technique:** Hand-written regex.
 
-**Description:** Parses Southwest Airlines flight data reports, which start with `++86501` (737 MAX) or `++76502` (737 NG). For example:
+**Description:** Parses Southwest Airlines flight data reports, which start with `++86501` (737 MAX) or `++76502` (737 NG), and United's ABS reports (`ABS0nnAA_`), which carry the same samples under another header. For example:
 
 ```
 ++86501,N8960L,B7378MAX,260109,WN0712,KABQ,KAUS,0196,SMX34-2502-F320
@@ -459,13 +459,15 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 :
 ```
 
-**Extracted fields:** registration, aircraft type (as transmitted, e.g. `B7378MAX`, `B737-800`), date (YYMMDD), flight number, origin, destination, system ID, and a list of samples, each with latitude, longitude, time (DDHHMM), altitude (feet), outside air temperature (°C), wind direction and wind speed (knots), and flight phase (TO, IC, CL, CR, ER, DC, AP).
+**Extracted fields:** report (e.g. `86501`, `ABS026`), registration, aircraft type (Southwest only, as transmitted, e.g. `B7378MAX`, `B737-800`), date (YYMMDD), flight number, origin, destination, system ID, and a list of samples, each with latitude, longitude, time (DDHHMM), altitude (feet), outside air temperature (°C), wind direction and wind speed (knots), and flight phase (TO, IC, CL, CR, ER, DC, AP).
 
-**Registration:** The header's second field is reported as the registration only when it is the transmitted tail. It also holds fleet numbers (`201`), `XXX` and truncated registrations (` N8852` for N8852Q).
+**United ABS reports:** The header (`ABS026AA_N37510,B737N37-1260104,UA    ,KPHX,KIAH,0878,BCG2E-S200-0009`) gives the report, the registration, a field ending in the date (YYMMDD), the airline, origin, destination, an unidentified number and the system ID. It names no flight. The field before the date is `B737` followed by part of the registration; `B737` is the family rather than the model (N37510 is a 737-900ER, designator B739, while `B737` designates the 737-700), so no type is reported. The `ABS0nnDA_` reports, whose samples are packed differently, are not parsed.
+
+**Registration:** The header's registration field is reported as the registration only when it is the transmitted tail. It also holds fleet numbers (`201`), `XXX` and truncated registrations (` N8852` for N8852Q).
 
 **Field meanings:** These were established from the January 2026 corpus, not from a specification. The temperature falls by 1.8 °C per 1,000 ft (the standard atmosphere gives 2.0). The wind speed rises with altitude (median 17 kt below 10,000 ft, 82 kt above 30,000 ft), and 84% of wind directions are westerly. The phase codes match the altitude. The time is DDHHMM: several samples about 1.8 nm apart share one value, and samples a minute apart are about 7.7 nm apart. The header's eighth field (`0196`) is not captured, because its meaning is not established; it is not the route distance.
 
-**Coverage (January 2026 corpus):** 106,169 of 106,490 `++` reports. Across 585 tails, each tail always reports the same aircraft type.
+**Coverage (January 2026 corpus):** 106,169 of 106,490 `++` reports, and 33,707 of 36,023 United `ABS0nnAA_` reports (111,934 samples). Across 585 tails, each tail always reports the same aircraft type.
 ---
 
 ### h2_wind

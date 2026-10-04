@@ -234,3 +234,24 @@ func TestTrajectoryParser_TraceMatchesParse(t *testing.T) {
 		t.Error("ParseWithTrace reports a match that Parse rejects")
 	}
 }
+
+// TestTrajectoryParser_UnitedABS checks United's ABS reports, which use the
+// same samples under another header (real message, cut short). The header
+// names no flight, and its type field ("B737", followed by part of the
+// registration) does not identify a model, so no type is reported.
+func TestTrajectoryParser_UnitedABS(t *testing.T) {
+	text := "ABS026AA_N37510,B737N37-1260104,UA    ,KPHX,KIAH,0878,BCG2E-S200-0009\r\n" +
+		"N3107.9,W10040.9,041759,29898,-37.5,256,066,DC,00000,0,\r\n" +
+		"N3107.0,W10030.5,041800,28991,-35.5,258,062,DC,00000,0,\r\n"
+	r, ok := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "N37510", Text: text}).(*TrajectoryResult)
+	if !ok {
+		t.Fatal("Parse returned no result")
+	}
+	if r.Report != "ABS026" || r.Registration != "N37510" || r.AircraftType != "" || r.FlightNumber != "" ||
+		r.Date != "260104" || r.Origin != "KPHX" || r.Destination != "KIAH" || r.SystemID != "BCG2E-S200-0009" || len(r.Positions) != 2 {
+		t.Errorf("got %+v", r)
+	}
+	if p := r.Positions[0]; p.Time != "041759" || p.WindDirection != 256 || p.WindSpeed != 66 || p.Phase != "DC" {
+		t.Errorf("first sample %+v", p)
+	}
+}
