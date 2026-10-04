@@ -9,7 +9,7 @@ name: acars
 
 services:
   clickhouse:
-    image: clickhouse/clickhouse-server:25.8
+    image: clickhouse/clickhouse-server:25.12
     container_name: acars-clickhouse
     restart: unless-stopped
     environment:
@@ -21,6 +21,10 @@ services:
       - "127.0.0.1:8123:8123"
     volumes:
       - clickhouse-data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --password \"$$CLICKHOUSE_PASSWORD\" --query 'SELECT 1'"]
+      interval: 10s
+      retries: 12
     ulimits:
       nofile:
         soft: 262144
@@ -59,7 +63,7 @@ services:
     command: ["migrate", "-skip-messages", "-skip-state"]
     depends_on:
       clickhouse:
-        condition: service_started
+        condition: service_healthy
       postgres:
         condition: service_healthy
 
@@ -73,11 +77,19 @@ services:
     environment: *db-env
     # The NATS credentials file stays outside the repository and the image.
     command: ["live", "-creds", "/run/secrets/airframes_nats.creds", "-exclude", ""]
+    # NATS_CREDS is read only when the service is created, so other commands
+    # work without it; a missing file stops "up live" rather than being
+    # created as an empty directory.
     volumes:
-      - ${NATS_CREDS:?set NATS_CREDS to the path of the NATS credentials file}:/run/secrets/airframes_nats.creds:ro
+      - type: bind
+        source: ${NATS_CREDS:-/run/acars/nats-credentials-not-set}
+        target: /run/secrets/airframes_nats.creds
+        read_only: true
+        bind:
+          create_host_path: false
     depends_on:
       clickhouse:
-        condition: service_started
+        condition: service_healthy
       postgres:
         condition: service_healthy
     logging:
