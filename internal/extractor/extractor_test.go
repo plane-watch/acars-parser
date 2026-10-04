@@ -92,6 +92,17 @@ type reportLike struct {
 func (r *reportLike) Type() string     { return "report" }
 func (r *reportLike) MessageID() int64 { return 0 }
 
+// digitsReport is a result that names its flight by number only, without
+// the airline code, as an Airbus ACMS report does.
+type digitsReport struct {
+	FlightNumberDigits string `json:"flight_number_digits"`
+	Origin             string `json:"origin"`
+	Destination        string `json:"destination"`
+}
+
+func (r *digitsReport) Type() string     { return "digits_report" }
+func (r *digitsReport) MessageID() int64 { return 0 }
+
 func (r *mockResult) Type() string     { return r.typeStr }
 func (r *mockResult) MessageID() int64 { return r.msgID }
 
@@ -145,6 +156,26 @@ func TestExtract(t *testing.T) {
 			f := Extract(msg, []registry.Result{report}).Flight
 			if f.FlightNumber != tt.wantFlight || f.Origin != tt.wantOrigin || (f.Destination != "") != (tt.wantOrigin != "") {
 				t.Errorf("%s: flight %q, route %q-%q; want %q, origin %q", tt.name, f.FlightNumber, f.Origin, f.Destination, tt.wantFlight, tt.wantOrigin)
+			}
+		}
+	})
+
+	t.Run("a route named by flight digits needs a transmitted flight with them", func(t *testing.T) {
+		report := &digitsReport{FlightNumberDigits: "0816", Origin: "YSSY", Destination: "YBBN"}
+		tests := []struct{ transmitted, wantOrigin string }{
+			{"JST816", "YSSY"},
+			{"JQ816", "YSSY"},
+			{"JST817", ""},
+			{"", ""},
+		}
+		for _, tt := range tests {
+			msg := &acars.Message{ID: 1, Label: "H1", Tail: "VH-VWT", FlightNumber: tt.transmitted}
+			f := Extract(msg, []registry.Result{report}).Flight
+			if f.Origin != tt.wantOrigin || (f.Destination != "") != (tt.wantOrigin != "") {
+				t.Errorf("transmitted %q: route %q-%q, want origin %q", tt.transmitted, f.Origin, f.Destination, tt.wantOrigin)
+			}
+			if f.FlightNumber == "0816" || f.FlightNumber == "816" {
+				t.Errorf("transmitted %q: the digits became the flight number", tt.transmitted)
 			}
 		}
 	})

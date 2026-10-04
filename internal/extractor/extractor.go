@@ -273,6 +273,15 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 			routeIsThisFlight = false
 		}
 	}
+	// A report that names its flight by number only (an Airbus ACMS report
+	// gives "0816", without the airline code) cannot supply a flight
+	// number, so its route is used only for a transmitted flight with that
+	// number.
+	if v, ok := m["flight_number_digits"].(string); ok && v != "" {
+		if update.FlightNumber == "" || !sameFlightNumber(v, update.FlightNumber) {
+			routeIsThisFlight = false
+		}
+	}
 	if v, ok := m["callsign"].(string); ok && v != "" && update.FlightNumber == "" {
 		update.FlightNumber = strings.TrimSpace(v)
 	}

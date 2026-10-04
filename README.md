@@ -457,6 +457,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 
 | Result type | Parser | Labels |
 |---|---|---|
+| `acms_report` | Airbus ACMS report headers: aircraft series, registration, route and flight number digits | H1 |
 | `adsc` | ADS-C reports (binary tag decoding) | B6 |
 | `agfsr` | AGFSR flight status | 4T |
 | `atis` | D-ATIS | A9 |

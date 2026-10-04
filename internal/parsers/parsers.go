@@ -4,6 +4,7 @@ package parsers
 
 import (
 	// Import all parser packages to register them with the registry.
+	_ "acars_parser/internal/parsers/acmsreport"
 	_ "acars_parser/internal/parsers/adsc"
 	_ "acars_parser/internal/parsers/agfsr"
 	_ "acars_parser/internal/parsers/atis"

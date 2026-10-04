@@ -92,6 +92,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 
 | Name() | Package | Labels | Priority | Type() | Technique | Tests |
 |--------|---------|--------|----------|--------|-----------|-------|
+| [acmsreport](#acmsreport) | acmsreport | H1 | 60 | `acms_report` | Grok | Yes |
 | [adsc](#adsc) | adsc | B6 | 10 | `adsc` | Binary tag decoding | Yes |
 | [agfsr](#agfsr) | agfsr | 4T | 100 | `agfsr` | Grok | No |
 | [atis](#atis) | atis | A9 | 100 | `atis` | Hand-written regex | Yes |
@@ -143,6 +144,32 @@ That is 43 parsers in 38 packages. The `h1` package registers five parsers: `fpn
 ## Parser Details
 
 The parsers are listed in alphabetical order of package.
+
+### acmsreport
+
+**Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
+
+**Technique:** Grok (format `acms_cc`).
+
+**Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
+
+```
+A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0TIA05JST4R0000/...
+```
+
+**Extracted fields:** the aircraft series (`A321`), the report number (`001`), and from the CC block the registration, report date (MMMDD, no year) and time (HHMMSS), origin, destination and the flight number's digits (`0816`). The serial number and the `TB000000` block are not captured, because their meaning is not established.
+
+**Aircraft series, not type:** The series is reported as `aircraft_series`, not `aircraft_type`, so it is not normalised to an ICAO designator. In the January 2026 corpus, `A320` and `A321` were sent by aircraft that other messages identify as A20N (39 tails) and A21N (52 tails): the series does not distinguish the ceo from the neo.
+
+**Registration:** Reported only when it is the tail transmitted in the ACARS header, ignoring dashes and a leading `.`.
+
+**Route pairing:** The CC block gives the flight number without its airline code. The extractor uses the route only when the message transmits a flight with the same number (`JST816` for `0816`), since a report can be stored on one flight and sent on another (see [storage.md](storage.md)).
+
+**Validation:** Both airports must pass `patterns.IsValidICAO`.
+
+**Coverage (January 2026 corpus):** 49,603 of the 50,606 reports with a CC block parsed, giving a series for 2,623 registrations (none with two series) and 208 (flight, origin, destination) combinations. The rest are other layouts: blanked airports, padded IATA codes, and blocks without a time.
+
+---
 
 ### adsc
 
