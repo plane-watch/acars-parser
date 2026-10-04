@@ -173,6 +173,34 @@ func TestExtract(t *testing.T) {
 		}
 	})
 
+	t.Run("a registration used as the callsign is not split", func(t *testing.T) {
+		// N123AB would otherwise split as airline N1, flight 23, suffix AB,
+		// and match SWR23AB.
+		msg := &acars.Message{ID: 1, Label: "H1", Tail: "N123AB", FlightNumber: "N123AB"}
+		f := Extract(msg, []registry.Result{&reportLike{Flight: "SWR23AB", Origin: "KJFK", Destination: "KLAX"}}).Flight
+		if f.Origin != "" || f.Destination != "" {
+			t.Errorf("route %q-%q; want none", f.Origin, f.Destination)
+		}
+		f = Extract(msg, []registry.Result{&digitsReport{FlightNumberDigits: "0023", Origin: "KJFK", Destination: "KLAX"}}).Flight
+		if f.Origin != "" || f.Destination != "" {
+			t.Errorf("digits route %q-%q; want none", f.Origin, f.Destination)
+		}
+	})
+
+	t.Run("flight digits are checked against the transmitted flight only", func(t *testing.T) {
+		// Without a transmitted flight, a flight plan names JST816; the
+		// ACMS digits must not borrow it.
+		msg := &acars.Message{ID: 1, Label: "H1", Tail: "VH-VWT"}
+		results := []registry.Result{
+			&mockResult{typeStr: "flight_plan", FlightNumber: "JST816", Origin: "YSSY", Destination: "YMML"},
+			&digitsReport{FlightNumberDigits: "0816", Origin: "YSSY", Destination: "YBBN"},
+		}
+		f := Extract(msg, results).Flight
+		if f.FlightNumber != "JST816" || f.Destination != "YMML" {
+			t.Errorf("flight %q, route %q-%q; want JST816 YSSY-YMML", f.FlightNumber, f.Origin, f.Destination)
+		}
+	})
+
 	t.Run("without a transmitted flight, the first named flight is used", func(t *testing.T) {
 		msg := &acars.Message{ID: 1, Label: "H1", Tail: "HS-TWC"}
 		results := []registry.Result{
@@ -399,33 +427,34 @@ func TestIsValidAirportCode(t *testing.T) {
 
 func TestSameFlight(t *testing.T) {
 	tests := []struct {
-		a, b string
-		want bool
+		a, b, tail string
+		want       bool
 	}{
-		{"THA482", "THA482", true},
-		{"QFA001", "QFA1", true},
-		{"SWR4WF", "SWR4WF", true},
+		{"THA482", "THA482", "", true},
+		{"QFA001", "QFA1", "", true},
+		{"SWR4WF", "SWR4WF", "", true},
 		// ICAO and IATA forms: there is no table of airline codes, so the
 		// same number and suffix on the same aircraft are taken to match.
-		{"THA482", "TG482", true},
-		{"BAW990G", "BA990G", true},
+		{"THA482", "TG482", "", true},
+		{"BAW990G", "BA990G", "", true},
 		// The same form with different airlines.
-		{"UAL482", "THA482", false},
-		{"TG482", "BR482", false},
+		{"UAL482", "THA482", "", false},
+		{"TG482", "BR482", "", false},
 		// IATA codes may contain a digit: B6123 is B6 flight 123.
-		{"B6123", "JBU6123", false},
-		{"B6123", "JBU123", true},
-		{"BAW990G", "BAW990", false},
-		{"UAL2443", "UAL243", false},
-		// Identifiers that cannot be split match only themselves, e.g. a
-		// registration used as a callsign.
-		{"N123AB", "N123AB", true},
-		{"N123AB", "N123AC", false},
-		{"", "QF1", false},
+		{"B6123", "JBU6123", "", false},
+		{"B6123", "JBU123", "", true},
+		{"BAW990G", "BAW990", "", false},
+		{"UAL2443", "UAL243", "", false},
+		// A registration used as the callsign is not split, so it matches
+		// only itself (N123AB would otherwise read as N1 flight 23 AB).
+		{"N123AB", "N123AB", "N123AB", true},
+		{"N123AB", "SWR23AB", "N123AB", false},
+		{"N-123AB", "N123AB", "N123AB", true},
+		{"", "QF1", "", false},
 	}
 	for _, tt := range tests {
-		if got := sameFlight(tt.a, tt.b); got != tt.want {
-			t.Errorf("sameFlight(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
+		if got := sameFlight(tt.a, tt.b, tt.tail); got != tt.want {
+			t.Errorf("sameFlight(%q, %q, tail %q) = %v, want %v", tt.a, tt.b, tt.tail, got, tt.want)
 		}
 	}
 }
@@ -444,7 +473,7 @@ func TestHasFlightNumber(t *testing.T) {
 		{"0816", "", false},
 	}
 	for _, tt := range tests {
-		if got := hasFlightNumber(tt.digits, tt.flight); got != tt.want {
+		if got := hasFlightNumber(tt.digits, tt.flight, ""); got != tt.want {
 			t.Errorf("hasFlightNumber(%q, %q) = %v, want %v", tt.digits, tt.flight, got, tt.want)
 		}
 	}

@@ -129,7 +129,7 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 
 	// Process each parsed result to extract additional data.
 	for _, f := range all {
-		extractFromResult(update, &data, f.resultType, f.m)
+		extractFromResult(update, &data, msg, f.resultType, f.m)
 	}
 
 	// Normalise flight number to strip leading zeros.
@@ -201,9 +201,15 @@ type flightID struct {
 
 // parseFlightID splits a flight identifier, and returns false if it is not
 // an airline code followed by a flight number. An IATA code must contain a
-// letter.
-func parseFlightID(s string) (flightID, bool) {
-	m := callsignRe.FindStringSubmatch(strings.TrimSpace(s))
+// letter. An identifier that is the aircraft's tail (ignoring dashes) is a
+// registration used as the callsign, and is not split: "N123AB" would
+// otherwise read as airline N1, flight 23, suffix AB.
+func parseFlightID(s, tail string) (flightID, bool) {
+	s = strings.TrimSpace(s)
+	if t := strings.ReplaceAll(strings.TrimPrefix(strings.TrimSpace(tail), "."), "-", ""); t != "" && strings.ReplaceAll(s, "-", "") == t {
+		return flightID{}, false
+	}
+	m := callsignRe.FindStringSubmatch(s)
 	if m == nil {
 		return flightID{}, false
 	}
@@ -223,16 +229,17 @@ func parseFlightID(s string) (flightID, bool) {
 // codes, so an IATA and an ICAO form with the same number and suffix
 // ("TG482" and "THA482") are taken to match: both describe the same
 // aircraft, so a different airline with the same flight number is not
-// expected. Identifiers that cannot be split match only themselves.
-func sameFlight(a, b string) bool {
+// expected. Identifiers that cannot be split match only themselves, ignoring
+// dashes. tail is the transmitted tail (see parseFlightID).
+func sameFlight(a, b, tail string) bool {
 	a, b = strings.TrimSpace(a), strings.TrimSpace(b)
 	if a == "" || b == "" {
 		return false
 	}
-	ia, okA := parseFlightID(a)
-	ib, okB := parseFlightID(b)
+	ia, okA := parseFlightID(a, tail)
+	ib, okB := parseFlightID(b, tail)
 	if !okA || !okB {
-		return a == b
+		return strings.ReplaceAll(a, "-", "") == strings.ReplaceAll(b, "-", "")
 	}
 	if ia.number != ib.number || ia.suffix != ib.suffix {
 		return false
@@ -242,9 +249,10 @@ func sameFlight(a, b string) bool {
 
 // hasFlightNumber reports whether a flight identifier has the given flight
 // number, as a report that gives digits only ("0816") names it. The suffix
-// is not compared, since the digits cannot carry one.
-func hasFlightNumber(digits, flight string) bool {
-	id, ok := parseFlightID(flight)
+// is not compared, since the digits cannot carry one. tail is the
+// transmitted tail (see parseFlightID).
+func hasFlightNumber(digits, flight, tail string) bool {
+	id, ok := parseFlightID(flight, tail)
 	return ok && id.number == strings.TrimLeft(strings.TrimSpace(digits), "0")
 }
 
@@ -331,21 +339,23 @@ func resultFlight(m map[string]interface{}) string {
 }
 
 // routeIsFlight reports whether a result's route can be attributed to the
-// flight: a result that names another flight (such as a report stored on an
-// earlier flight and sent on this one) describes that flight's route. A
-// result that names its flight by number only (an Airbus ACMS report gives
-// "0816", without the airline code) needs a flight with that number.
-func routeIsFlight(m map[string]interface{}, flight string) bool {
-	if own := resultFlight(m); own != "" && flight != "" && !sameFlight(own, flight) {
+// resolved flight: a result that names another flight (such as a report
+// stored on an earlier flight and sent on this one) describes that flight's
+// route. A result that names its flight by number only (an Airbus ACMS
+// report gives "0816", without the airline code) needs the transmitted
+// flight to have that number: a flight named by another result is not
+// evidence enough. tail is the transmitted tail (see parseFlightID).
+func routeIsFlight(m map[string]interface{}, flight, transmitted, tail string) bool {
+	if own := resultFlight(m); own != "" && flight != "" && !sameFlight(own, flight, tail) {
 		return false
 	}
-	if v, ok := m["flight_number_digits"].(string); ok && v != "" && !hasFlightNumber(v, flight) {
+	if v, ok := m["flight_number_digits"].(string); ok && v != "" && !hasFlightNumber(v, transmitted, tail) {
 		return false
 	}
 	return true
 }
 
-func extractFromResult(update *FlightUpdate, data *ExtractedData, resultType string, m map[string]interface{}) {
+func extractFromResult(update *FlightUpdate, data *ExtractedData, msg *acars.Message, resultType string, m map[string]interface{}) {
 
 	// Extract registration/tail.
 	if v, ok := m["tail"].(string); ok && v != "" && update.Registration == "" {
@@ -356,7 +366,7 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, resultType str
 	}
 
 	// Extract route (with validation to reject corrupted codes).
-	if routeIsFlight(m, update.FlightNumber) {
+	if routeIsFlight(m, update.FlightNumber, msg.FlightNumber, msg.Tail) {
 		if v, ok := m["origin"].(string); ok && v != "" && isAirportCode(strings.TrimSpace(v)) {
 			update.Origin = strings.TrimSpace(v)
 		}
