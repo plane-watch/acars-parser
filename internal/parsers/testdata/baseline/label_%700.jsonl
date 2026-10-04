@@ -1,1 +1,1 @@
-{"id":3822606,"timestamp":"2026-01-08 03:00:37.524","label":"p0","tail":"N5:8VL","text":"3N01 POSRPT 7911/07 MMSD/KOAK .N528VL\r\n/POS N32496W117325/ALT +300q7/MCH 680/FOBa0049/ETA 0413","stratum":"p0/unparsed","expected":[]}
+{"id":3822606,"timestamp":"2026-01-08T03:00:37.524Z","label":"p0","tail":"N5:8VL","text":"3N01 POSRPT 7911/07 MMSD/KOAK .N528VL\r\n/POS N32496W117325/ALT +300q7/MCH 680/FOBa0049/ETA 0413","stratum":"p0/unparsed","expected":[]}

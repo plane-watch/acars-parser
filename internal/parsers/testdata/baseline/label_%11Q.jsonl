@@ -1,5 +1,5 @@
-{"id":118960,"timestamp":"2026-01-02 18:03:42.541","label":"\u0011Q","text":"00XS","stratum":"\u0011Q/unparsed","expected":[]}
-{"id":2030211,"timestamp":"2026-01-06 00:11:58.941","label":"\u0011Q","text":"02XACRQKCRQ13307N11716WV136975/ARINC","stratum":"\u0011Q/unparsed","expected":[]}
-{"id":5010019,"timestamp":"2026-01-09 17:55:49.038","label":"\u0011Q","text":"P:XS","stratum":"\u0011Q/unparsed","expected":[]}
-{"id":8115017,"timestamp":"2026-01-13 23:37:13.195","label":"\u0011Q","text":"00XS","stratum":"\u0011Q/unparsed","expected":[]}
-{"id":10818476,"timestamp":"2026-01-20 03:58:09.023","label":"\u0011Q","text":"p2X","stratum":"\u0011Q/unparsed","expected":[]}
+{"id":118960,"timestamp":"2026-01-02T18:03:42.541Z","label":"\u0011Q","text":"00XS","stratum":"\u0011Q/unparsed","expected":[]}
+{"id":2030211,"timestamp":"2026-01-06T00:11:58.941Z","label":"\u0011Q","text":"02XACRQKCRQ13307N11716WV136975/ARINC","stratum":"\u0011Q/unparsed","expected":[]}
+{"id":5010019,"timestamp":"2026-01-09T17:55:49.038Z","label":"\u0011Q","text":"P:XS","stratum":"\u0011Q/unparsed","expected":[]}
+{"id":8115017,"timestamp":"2026-01-13T23:37:13.195Z","label":"\u0011Q","text":"00XS","stratum":"\u0011Q/unparsed","expected":[]}
+{"id":10818476,"timestamp":"2026-01-20T03:58:09.023Z","label":"\u0011Q","text":"p2X","stratum":"\u0011Q/unparsed","expected":[]}

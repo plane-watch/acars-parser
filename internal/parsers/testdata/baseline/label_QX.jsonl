@@ -1,1 +1,1 @@
-{"id":10108110,"timestamp":"2026-01-19 06:21:42.686","label":"QX","tail":"CGJZG","text":"INVALID LABEL OR SUBLABEL. LABEL=RA. TEXT=--------------\r\nFOB      -     3390\r\nTOF      -    ...","stratum":"QX/unparsed","expected":[]}
+{"id":10108110,"timestamp":"2026-01-19T06:21:42.686Z","label":"QX","tail":"CGJZG","text":"INVALID LABEL OR SUBLABEL. LABEL=RA. TEXT=--------------\r\nFOB      -     3390\r\nTOF      -    ...","stratum":"QX/unparsed","expected":[]}

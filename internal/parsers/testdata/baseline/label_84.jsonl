@@ -1,100 +1,100 @@
-{"id":311625,"timestamp":"2026-01-03 09:50:29.399","label":"84","tail":"EI-EVH","text":"SUSPECT BIRD STRIKE\r\nON DEPARTURE.STBD SIDE\r\nALL ENGS NORMAL IND\r\nNFTR\r\n","stratum":"84/unparsed","expected":[]}
-{"id":311632,"timestamp":"2026-01-03 09:50:30.638","label":"84","tail":"EI-EVH","text":"SUSPECT BIRD STRIKE\r\nON DEPARTURE.STBD SIDE\r\nALL ENGS NORMAL IND\r\nNFTR\r\n","stratum":"84/unparsed","expected":[]}
-{"id":311678,"timestamp":"2026-01-03 09:50:36.184","label":"84","tail":"EI-EVH","text":"SUSPECT BIRD STRIKE\r\nON DEPARTURE.STBD SIDE\r\nALL ENGS NORMAL IND\r\nNFTR\r\n","stratum":"84/unparsed","expected":[]}
-{"id":544877,"timestamp":"2026-01-03 23:06:33.528","label":"84","tail":"OE-LQC","text":"CI20\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":1270945,"timestamp":"2026-01-05 05:15:19.414","label":"84","tail":"CS-TPP","text":"BOM DIA\r\nEM FALTA 1 CADEADO\r\nDE TROLLEY\r\nOBG\r\n","stratum":"84/unparsed","expected":[]}
-{"id":1360263,"timestamp":"2026-01-05 07:01:17.110","label":"84","tail":"CS-TPP","text":"FAIL PRINT\r\n","stratum":"84/unparsed","expected":[]}
-{"id":1473315,"timestamp":"2026-01-05 09:40:28.751","label":"84","tail":"ET-AOV","text":"00LIRFKORD0628051409","stratum":"84/unparsed","expected":[]}
-{"id":1473325,"timestamp":"2026-01-05 09:40:28.780","label":"84","tail":"ET-AOV","text":"00LIRFKORD0628051409","stratum":"84/unparsed","expected":[]}
-{"id":1473326,"timestamp":"2026-01-05 09:40:28.842","label":"84","tail":"ET-AOV","text":"00LIRFKORD0628051409","stratum":"84/unparsed","expected":[]}
-{"id":1537945,"timestamp":"2026-01-05 13:00:18.544","label":"84","tail":"EI-ENC","text":"69\r\nCONTINUE MAN\r\nINCORRECT ATT\r\n","stratum":"84/unparsed","expected":[]}
-{"id":1538153,"timestamp":"2026-01-05 13:00:32.882","label":"84","tail":"EI-ENC","text":"69\r\nCONTINUE MAN\r\nINCORRECT ATT\r\n","stratum":"84/unparsed","expected":[]}
-{"id":1591256,"timestamp":"2026-01-05 14:02:22.394","label":"84","tail":"ET-AOO","text":"00HAABKATL1234051336","stratum":"84/unparsed","expected":[]}
-{"id":1645566,"timestamp":"2026-01-05 14:49:24.746","label":"84","tail":"PH-TFM","text":"/HAJXAX3.1HR","stratum":"84/unparsed","expected":[]}
-{"id":1770801,"timestamp":"2026-01-05 17:18:13.648","label":"84","tail":"EC-JLI","text":"PBK1/1317.LD1/1319.","stratum":"84/unparsed","expected":[]}
-{"id":1794693,"timestamp":"2026-01-05 17:44:09.003","label":"84","tail":"ET-AOV","text":"00LIRFKORD1328051415","stratum":"84/unparsed","expected":[]}
-{"id":1803416,"timestamp":"2026-01-05 17:54:11.577","label":"84","tail":"C-GFEH","text":"GOOD MORNING. SHOWING AT\r\nTHE GATE IN HOG AT 1624Z\r\nIF THE TURN IS QUICK AND\r\nTHE FLT BACK ISNT OVER B\r\nLOCK OR DUTY SHOULD WORK\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":2191649,"timestamp":"2026-01-06 09:06:41.643","label":"84","tail":"OY-TCN","text":"38H3 MTCRP  1552/06 ENGM/GCTS .OY-TCN\r\nHEI MOC.ETTER TAKE OFF.A\r\nMBER XX ON BRAKE 2 TEMP.\r\nMVH.DK1552\r\n","stratum":"84/unparsed","expected":[]}
-{"id":2207968,"timestamp":"2026-01-06 09:30:35.432","label":"84","tail":"LN-RGN","text":"V08CA/FUELRP/4290/LTR/0.800/A1/2394/3432/5826/5895/69/0/25624/","stratum":"84/unparsed","expected":[]}
-{"id":2236602,"timestamp":"2026-01-06 10:16:01.388","label":"84","tail":"9H-QED","text":"MMO EXCEEDANCE .821M\r\nFOR 3 SEC DUE TURBULENCE\r\nREQ ENGINEERS IN MAN\r\n","stratum":"84/unparsed","expected":[]}
-{"id":2236608,"timestamp":"2026-01-06 10:16:01.762","label":"84","tail":"9H-QED","text":"MMO EXCEEDANCE .821M\r\nFOR 3 SEC DUE TURBULENCE\r\nREQ ENGINEERS IN MAN\r\n","stratum":"84/unparsed","expected":[]}
-{"id":2341360,"timestamp":"2026-01-06 13:24:07.556","label":"84","tail":"ET-AXK","text":"00LIRFKORD1256061332","stratum":"84/unparsed","expected":[]}
-{"id":2363944,"timestamp":"2026-01-06 13:54:30.000","label":"84","tail":"EC-JDM","text":"PBK1/1249.LD1/1252.","stratum":"84/unparsed","expected":[]}
-{"id":2505363,"timestamp":"2026-01-06 16:06:39.249","label":"84","tail":"EC-JGS","text":"PBK1/1325.LD1/1327.","stratum":"84/unparsed","expected":[]}
-{"id":3015458,"timestamp":"2026-01-07 08:08:40.931","label":"84","tail":"EC-LXQ","text":"PBK1/2125.LD1/0539.","stratum":"84/unparsed","expected":[]}
-{"id":3209659,"timestamp":"2026-01-07 12:32:17.717","label":"84","tail":"EC-LRG","text":"PBK1/1013.LD1/1015.","stratum":"84/unparsed","expected":[]}
-{"id":3392435,"timestamp":"2026-01-07 19:12:05.719","label":"84","tail":"LN-RGN","text":"V08CA/MAINTMSG/LOG 000/MEL UNKNOWN/\r\n1.MISSING 1 INF BELT\r\n2.UPHOLD MECHANISM U/S\r\nCOMP FWD GALLEY\r\n3.FOR INFO LOUD VOLUME\r\nFWD GALLEY FROM PA","stratum":"84/unparsed","expected":[]}
-{"id":3448210,"timestamp":"2026-01-07 20:22:45.774","label":"84","tail":"F-HBLG","text":"BONSOIR RQST TK CDG\r\nTOBOGGANS AVANT GAUCHE\r\nREPORTE DUR A FERMER\r\nSLTS\r\n","stratum":"84/unparsed","expected":[]}
-{"id":3597956,"timestamp":"2026-01-07 23:15:34.437","label":"84","tail":"YU-ATC","text":"WE NEED TO CALL YOU\r\nLET US KNOW WHEN AVAILBL\r\n","stratum":"84/unparsed","expected":[]}
-{"id":3770627,"timestamp":"2026-01-08 06:05:20.345","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
-{"id":3770638,"timestamp":"2026-01-08 06:05:20.510","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
-{"id":3770670,"timestamp":"2026-01-08 06:05:23.416","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
-{"id":3770799,"timestamp":"2026-01-08 06:05:35.271","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
-{"id":3841196,"timestamp":"2026-01-08 07:36:31.043","label":"84","tail":"EI-IFZ","text":"BACKTOILET KEEPS\r\nFLUSHING EVEN WITH\r\nSHUTOFF VALVE PULLED\r\n","stratum":"84/unparsed","expected":[]}
-{"id":3991803,"timestamp":"2026-01-08 11:18:54.586","label":"84","tail":"EI-SIE","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nHI\r\nSEAT 1F BACK COVER NEED\r\nREPLACEMENT. GOT HUMAN\r\nWASTE ON IT .SHI..","stratum":"84/unparsed","expected":[]}
-{"id":4078466,"timestamp":"2026-01-08 14:14:46.721","label":"84","tail":"EI-ILB","text":"GPS L/R INVALID\r\nVOR L FLAG\r\nINTERMITTENT ON CLIMB\r\nNO FAULT ATM\r\n","stratum":"84/unparsed","expected":[]}
-{"id":4573503,"timestamp":"2026-01-09 07:54:52.870","label":"84","tail":"ET-AOP","text":"00LIRFKORD0559091404","stratum":"84/unparsed","expected":[]}
-{"id":4592773,"timestamp":"2026-01-09 08:22:59.797","label":"84","tail":"ET-ATK","text":"00ESSAENGM0627090709","stratum":"84/unparsed","expected":[]}
-{"id":4669967,"timestamp":"2026-01-09 10:10:54.980","label":"84","tail":"F-HXSE","text":"BONJOUR. PLAINTE AFL\r\n18320-1. OVERSPEED 2KTS.\r\nPREVOIR MECANO A ATHENES\r\nMERCI.\r\n","stratum":"84/unparsed","expected":[]}
-{"id":4795861,"timestamp":"2026-01-09 15:31:37.885","label":"84","tail":"SE-ROG","text":"V08CA/MAINTMSG/LOG 171/MEL UNKNOWN/\r\nFOR INFO ONLY\r\nGNSS RFI\r\nADS-B RPTG 1+2 FAULT","stratum":"84/unparsed","expected":[]}
-{"id":4917232,"timestamp":"2026-01-09 19:00:53.658","label":"84","tail":"SE-ROL","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nHI MAINT. WE HAVE ECAM D\r\nOOR R AFT EMER EXIT.\r\nCAB PRESS IS NORMAL.\r\nWE CONTINUE TO OSL.\r\nSK9126 SE-ROL","stratum":"84/unparsed","expected":[]}
-{"id":5027780,"timestamp":"2026-01-09 21:02:01.599","label":"84","tail":"SE-RUO","text":"V08CA/MAINTMSG/LOG 000/MEL UNKNOWN/\r\nREPAIRED PATCH IN FWD\r\nCARGO LOOSE\r\nSTORED IN COCKPIT","stratum":"84/unparsed","expected":[]}
-{"id":5263554,"timestamp":"2026-01-10 01:09:46.645","label":"84","tail":"OE-LSJ","text":"CI50 USED FOR CURFEW\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":5330638,"timestamp":"2026-01-10 05:41:36.623","label":"84","tail":"ET-AOO","text":"00LIRFKORD0541101334","stratum":"84/unparsed","expected":[]}
-{"id":5575423,"timestamp":"2026-01-10 21:44:19.403","label":"84","tail":"G-EZWY","text":"CI20 USED\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":5594942,"timestamp":"2026-01-10 22:09:52.006","label":"84","tail":"EC-NTQ","text":"PBK1/2147.LD1/2148.","stratum":"84/unparsed","expected":[]}
-{"id":5890383,"timestamp":"2026-01-10 23:42:58.860","label":"84","tail":"F-FLUJ","text":"WE ARE ABLE TO\u0010GET ATIS\r\nAND SEND ACARS MESSAGES.\r\nUoABLE TO GET WEATHER\r\nIN FLIGHT.\r\n","stratum":"84/unparsed","expected":[]}
-{"id":5927739,"timestamp":"2026-01-10 23:28:58.683","label":"84","tail":"C-GWCM","text":"HELLO WE LAND 1730L DHIS\r\n1750. LONG WALK B15 TO C\r\nUSTOMS THEN GO TO DOMEST\r\nIC SECURITY.\r\nXTRA TIME REQUIRED\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":6007553,"timestamp":"2026-01-11 06:02:26.991","label":"84","tail":"LN-RKU","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nEMERGENCY FLASHLIGHT POS\r\n1R US","stratum":"84/unparsed","expected":[]}
-{"id":6140622,"timestamp":"2026-01-11 08:55:44.136","label":"84","tail":"ET-ASH","text":"00LIRFKATL0558111430","stratum":"84/unparsed","expected":[]}
-{"id":6164031,"timestamp":"2026-01-11 09:27:26.214","label":"84","tail":"F-HBQB","text":"BJR RQST TK A LARRIVEE\r\nCDG STAND J13\r\nBOILER AVANT NE CHAUFFE\r\nPAS DEPUIS LE DEPART\r\nDE BLL\r\nMERCI D AVANCE\r\nNICOLAS ET ERIC\r\n","stratum":"84/unparsed","expected":[]}
-{"id":6385882,"timestamp":"2026-01-11 15:56:26.115","label":"84","tail":"LN-FNC","text":"/NBTPMXS.HI. ETA 2356Z\r\nXOXO /34","stratum":"84/unparsed","expected":[]}
-{"id":6706958,"timestamp":"2026-01-12 06:22:30.847","label":"84","tail":"SE-RZE","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nNO WATER SUPPLY IN EITHE\r\nR GALLEYS AND LAVATORIES\r\n. SUSPECT FROZEN WATER\r\nLINES.","stratum":"84/unparsed","expected":[]}
-{"id":6712137,"timestamp":"2026-01-12 06:29:42.469","label":"84","tail":"EI-HMT","text":"CPDLC NOT AVAILABLE\r\n","stratum":"84/unparsed","expected":[]}
-{"id":6868931,"timestamp":"2026-01-12 10:14:39.071","label":"84","tail":"SE-RUP","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nFWD CURTAIN LOOSE","stratum":"84/unparsed","expected":[]}
-{"id":6899464,"timestamp":"2026-01-12 10:59:35.581","label":"84","tail":"G-EZTY","text":"SIMILAR EZY CALLSIGN ON\r\nFREQUENCY FOR THE LAST 3\r\n+ SECTORS EZY84QD WITH E\r\nZY83QG\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":6906140,"timestamp":"2026-01-12 11:09:36.559","label":"84","tail":"OE-LSO","text":"CI50 USED AS REQUESTED\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":6912386,"timestamp":"2026-01-12 11:18:35.762","label":"84","tail":"LN-FNB","text":"/NBTPMXS.SEEYA","stratum":"84/unparsed","expected":[]}
-{"id":6957432,"timestamp":"2026-01-12 12:18:24.667","label":"84","tail":"SE-RUA","text":"V08CA/FUELRP/4650/LTR/0.800/A1/2721/3720/6441/6494/53/0/38946/","stratum":"84/unparsed","expected":[]}
-{"id":7132595,"timestamp":"2026-01-12 15:26:01.072","label":"84","tail":"C-FYJD","text":"I THINK IT WAS SHANE THI\r\nS AM THAT CALLED ME...\r\nPASSS ON THAT MY AWESOME\r\nCREW HAD THE PLANE AND\r\nGUESTS READY..\r\nCHECKLISTS AND FLIGHT PL\r\nAN REVIEWED AND WE DID\r\nONE MINUTE EARLY\r\n","stratum":"84/unparsed","expected":[]}
-{"id":7143854,"timestamp":"2026-01-12 17:59:41.565","label":"84","tail":"G-CKWN","text":"/NBTPMXS.HI IT LOOKED LIKE\r\nCLEANING WAS DONE.\r\nNO BLANKETS OR PILLOWS","stratum":"84/unparsed","expected":[]}
-{"id":7160838,"timestamp":"2026-01-12 18:19:48.874","label":"84","tail":"SE-ROK","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nADVISORY ON LOW OIL LVL\r\nAFTER APU START\r\nGND PERSONNEL CHKD APU\r\nAREA AND NO LEAK FOUND\r\nREL ACC MEL 49-07-01A","stratum":"84/unparsed","expected":[]}
-{"id":7277032,"timestamp":"2026-01-12 20:53:56.780","label":"84","tail":"C-GMXB","text":"HI CAN WE GET THE\r\nBOOKING REFS\r\nFOR DH 2MORO THX\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":7336434,"timestamp":"2026-01-12 22:18:30.771","label":"84","tail":"N779XY","text":"/FMCBOCR.RECIEVED THANKS","stratum":"84/unparsed","expected":[]}
-{"id":7473782,"timestamp":"2026-01-13 01:01:03.385","label":"84","tail":"ET-AXS","text":"00ESSAHAAB2145130307","stratum":"84/unparsed","expected":[]}
-{"id":7671111,"timestamp":"2026-01-13 10:14:31.615","label":"84","tail":"LY-NVL","text":"HI\r\nGEN1 FAULT\r\nLO PR\r\nGEN1 DISCONECTED\r\n","stratum":"84/unparsed","expected":[]}
-{"id":7800998,"timestamp":"2026-01-13 13:17:19.324","label":"84","tail":"G-EZUP","text":"CI50 USED\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":7801607,"timestamp":"2026-01-13 13:18:22.613","label":"84","tail":"ET-AXK","text":"00LIRFKORD1243131326","stratum":"84/unparsed","expected":[]}
-{"id":8539116,"timestamp":"2026-01-17 10:53:24.927","label":"84","tail":"SE-RZB","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nAFT GALLEY\r\nLATCH 422B LOOSE","stratum":"84/unparsed","expected":[]}
-{"id":8728235,"timestamp":"2026-01-17 15:02:21.562","label":"84","tail":"9H-VUH","text":"CODE 80.AUTOFAIL\r\nMANUAL OPERATION REQUIRE\r\n","stratum":"84/unparsed","expected":[]}
-{"id":8728237,"timestamp":"2026-01-17 15:02:21.566","label":"84","tail":"9H-VUH","text":"CODE 80.AUTOFAIL\r\nMANUAL OPERATION REQUIRE\r\n","stratum":"84/unparsed","expected":[]}
-{"id":8729089,"timestamp":"2026-01-17 15:03:00.103","label":"84","tail":"EC-JGS","text":"PBK1/1334.LD1/1336.","stratum":"84/unparsed","expected":[]}
-{"id":8921006,"timestamp":"2026-01-17 18:36:09.741","label":"84","tail":"ET-AOS","text":"00KORDHAAB1615180512","stratum":"84/unparsed","expected":[]}
-{"id":8954176,"timestamp":"2026-01-17 19:12:53.726","label":"84","tail":"EC-OJT","text":"GEN2 FAULT\r\nAPU ON\r\nCONTINUE TO EICK\r\n","stratum":"84/unparsed","expected":[]}
-{"id":9259452,"timestamp":"2026-01-18 05:38:29.981","label":"84","tail":"CS-TPO","text":"BOM DIA\r\nAVIAO PRECISA DE OLEO\r\nNOS MOTORES A CHEGADA\r\nOBRIGADO\r\n","stratum":"84/unparsed","expected":[]}
-{"id":9396693,"timestamp":"2026-01-18 09:04:55.822","label":"84","tail":"LN-RGM","text":"V08CA/FUELRP/3047/LTR/0.800/A1/2902/2437/5340/5568/229/0/26380/","stratum":"84/unparsed","expected":[]}
-{"id":9446147,"timestamp":"2026-01-18 10:27:42.668","label":"84","tail":"9H-VUJ","text":"APPARENT SPURIOUS ENGINE\r\n1 VIBRATIONIN INDICATION\r\n.POP UP SHOWED 4.6 FOR A\r\nFEW SECS. NOW NORMAL. FE\r\n","stratum":"84/unparsed","expected":[]}
-{"id":9460380,"timestamp":"2026-01-18 10:52:48.738","label":"84","tail":"9H-VUJ","text":"REF ENGINE 1 INDICATION\r\nMOMENTARY INDICATIONS\r\nOVER 4.0 OCCURRED FOUR\r\nTIMES. NOW NORMAL\r\n","stratum":"84/unparsed","expected":[]}
-{"id":9481808,"timestamp":"2026-01-18 11:26:12.446","label":"84","tail":"SE-RZB","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nLATCH INSIDE OVERHEAD\r\nSTOWAGE COMPARTMENT ROW\r\n9ABC DOES NOT LOCK IN\r\nPOSITION","stratum":"84/unparsed","expected":[]}
-{"id":9615942,"timestamp":"2026-01-18 15:27:38.094","label":"84","tail":"C-GRTB","text":"HI\r\nTHIS IS SEB 39561\r\nCOULD I HAVE AIRPORT\r\nHOTEL TONIGHT INSTEAD\r\nOF DOWNTOWN PLEASE\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":9760186,"timestamp":"2026-01-18 18:28:10.487","label":"84","tail":"ET-AOT","text":"00KORDHAAB1620190506","stratum":"84/unparsed","expected":[]}
-{"id":9773853,"timestamp":"2026-01-18 18:44:10.218","label":"84","tail":"ET-ASI","text":"00FQMAHAAB1626181751","stratum":"84/unparsed","expected":[]}
-{"id":9822802,"timestamp":"2026-01-18 20:05:29.957","label":"84","tail":"LN-FNB","text":"/NBTPMXS.HELLO RIGA\r\nBOM ETA 0053Z\r\nBRGDS FNB","stratum":"84/unparsed","expected":[]}
-{"id":9852171,"timestamp":"2026-01-18 20:48:53.999","label":"84","tail":"EI-IHB","text":"LOUD SQUEAL FRM T/O\r\nPOSS COCKPIT VENT FAN\r\nUP AND BEHIND CAPT\r\nANY IDEAS\r\n","stratum":"84/unparsed","expected":[]}
-{"id":9852180,"timestamp":"2026-01-18 20:48:54.903","label":"84","tail":"EI-IHB","text":"LOUD SQUEAL FRM T/O\r\nPOSS COCKPIT VENT FAN\r\nUP AND BEHIND CAPT\r\nANY IDEAS\r\n","stratum":"84/unparsed","expected":[]}
-{"id":9862277,"timestamp":"2026-01-18 21:03:52.441","label":"84","tail":"EI-SCE","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nHI ACC\r\nWO30100399\r\nDTA LNK ATSU FROZEN\r\nRESET W ASS FM SAS MAINT","stratum":"84/unparsed","expected":[]}
-{"id":10134488,"timestamp":"2026-01-19 07:27:47.486","label":"84","tail":"ET-ASH","text":"00LIRFKORD0726191505","stratum":"84/unparsed","expected":[]}
-{"id":10134490,"timestamp":"2026-01-19 07:27:47.487","label":"84","tail":"ET-ASH","text":"00LIRFKORD0726191505","stratum":"84/unparsed","expected":[]}
-{"id":10360446,"timestamp":"2026-01-19 13:32:48.700","label":"84","tail":"EC-JEJ","text":"PBK1/1329.LD1/1330.","stratum":"84/unparsed","expected":[]}
-{"id":10529216,"timestamp":"2026-01-19 17:39:56.185","label":"84","tail":"PH-TFL","text":"/HAJXAX3.HELLO TOCC. ETA 0030\r\nWIT MACH .86 ETA 0015\r\nFUEL OK","stratum":"84/unparsed","expected":[]}
-{"id":10529340,"timestamp":"2026-01-19 17:40:07.447","label":"84","tail":"PH-TFL","text":"/HAJXAX3.HELLO TOCC. ETA 0030\r\nWIT MACH .86 ETA 0015\r\nFUEL OK","stratum":"84/unparsed","expected":[]}
-{"id":10728287,"timestamp":"2026-01-20 00:13:20.232","label":"84","tail":"C-GXAX","text":"NO HOTEL NEEDED\r\nSHAWN\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":10728297,"timestamp":"2026-01-20 00:13:20.821","label":"84","tail":"C-GXAX","text":"NO HOTEL NEEDED\r\nSHAWN\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
-{"id":10907196,"timestamp":"2026-01-20 05:52:41.362","label":"84","tail":"SE-ROS","text":"V08CA/MAINTMSG/LOG 185/MEL UNKNOWN/\r\nTL0185\r\nAFT LAVATORY LF LAEKING","stratum":"84/unparsed","expected":[]}
-{"id":10916441,"timestamp":"2026-01-20 06:05:01.918","label":"84","tail":"EC-MXY","text":"PBK1/2111.LD1/0547.","stratum":"84/unparsed","expected":[]}
-{"id":11107301,"timestamp":"2026-01-20 10:48:26.975","label":"84","tail":"LN-FNL","text":"/NBTPMXS.OK THANKS ALOT\r\nBR 6E33","stratum":"84/unparsed","expected":[]}
-{"id":11107302,"timestamp":"2026-01-20 10:48:26.972","label":"84","tail":"LN-FNL","text":"/NBTPMXS.OK THANKS ALOT\r\nBR 6E33","stratum":"84/unparsed","expected":[]}
-{"id":11108735,"timestamp":"2026-01-20 10:50:49.427","label":"84","tail":"SE-RZD","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nAFTER TAKE OFF.800FT AGL\r\n. GPWS AURAL CAUTION\r\nDONT SINK. VERTICAL SPD\r\nAND PITCH NORMAL. RADIO\r\nALT NORMAL.","stratum":"84/unparsed","expected":[]}
-{"id":11269900,"timestamp":"2026-01-20 14:14:17.093","label":"84","tail":"EI-SIS","text":"V08CA/MAINTMSG/LOG 370/MEL UNKNOWN/\r\nHI. CAN U ARRANGE MAINT\r\nON ARRIVAL. LOOSE EMER\r\nESCAPE PATH LIST\r\nWRITTEN IN LOG. THX","stratum":"84/unparsed","expected":[]}
-{"id":11384009,"timestamp":"2026-01-21 17:31:01.837","label":"84","tail":"ET-AOS","text":"00KORDHAAB1608220430","stratum":"84/unparsed","expected":[]}
-{"id":11508273,"timestamp":"2026-01-21 20:08:24.942","label":"84","tail":"F-HBLQ","text":"BONSOIR\r\nDEMO OXY MASK DAMAGE\r\nNOT REPLACABLE BY SPARE\r\nLDR/LLU THKS\r\n","stratum":"84/unparsed","expected":[]}
+{"id":311625,"timestamp":"2026-01-03T09:50:29.399Z","label":"84","tail":"EI-EVH","text":"SUSPECT BIRD STRIKE\r\nON DEPARTURE.STBD SIDE\r\nALL ENGS NORMAL IND\r\nNFTR\r\n","stratum":"84/unparsed","expected":[]}
+{"id":311632,"timestamp":"2026-01-03T09:50:30.638Z","label":"84","tail":"EI-EVH","text":"SUSPECT BIRD STRIKE\r\nON DEPARTURE.STBD SIDE\r\nALL ENGS NORMAL IND\r\nNFTR\r\n","stratum":"84/unparsed","expected":[]}
+{"id":311678,"timestamp":"2026-01-03T09:50:36.184Z","label":"84","tail":"EI-EVH","text":"SUSPECT BIRD STRIKE\r\nON DEPARTURE.STBD SIDE\r\nALL ENGS NORMAL IND\r\nNFTR\r\n","stratum":"84/unparsed","expected":[]}
+{"id":544877,"timestamp":"2026-01-03T23:06:33.528Z","label":"84","tail":"OE-LQC","text":"CI20\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":1270945,"timestamp":"2026-01-05T05:15:19.414Z","label":"84","tail":"CS-TPP","text":"BOM DIA\r\nEM FALTA 1 CADEADO\r\nDE TROLLEY\r\nOBG\r\n","stratum":"84/unparsed","expected":[]}
+{"id":1360263,"timestamp":"2026-01-05T07:01:17.110Z","label":"84","tail":"CS-TPP","text":"FAIL PRINT\r\n","stratum":"84/unparsed","expected":[]}
+{"id":1473315,"timestamp":"2026-01-05T09:40:28.751Z","label":"84","tail":"ET-AOV","text":"00LIRFKORD0628051409","stratum":"84/unparsed","expected":[]}
+{"id":1473325,"timestamp":"2026-01-05T09:40:28.780Z","label":"84","tail":"ET-AOV","text":"00LIRFKORD0628051409","stratum":"84/unparsed","expected":[]}
+{"id":1473326,"timestamp":"2026-01-05T09:40:28.842Z","label":"84","tail":"ET-AOV","text":"00LIRFKORD0628051409","stratum":"84/unparsed","expected":[]}
+{"id":1537945,"timestamp":"2026-01-05T13:00:18.544Z","label":"84","tail":"EI-ENC","text":"69\r\nCONTINUE MAN\r\nINCORRECT ATT\r\n","stratum":"84/unparsed","expected":[]}
+{"id":1538153,"timestamp":"2026-01-05T13:00:32.882Z","label":"84","tail":"EI-ENC","text":"69\r\nCONTINUE MAN\r\nINCORRECT ATT\r\n","stratum":"84/unparsed","expected":[]}
+{"id":1591256,"timestamp":"2026-01-05T14:02:22.394Z","label":"84","tail":"ET-AOO","text":"00HAABKATL1234051336","stratum":"84/unparsed","expected":[]}
+{"id":1645566,"timestamp":"2026-01-05T14:49:24.746Z","label":"84","tail":"PH-TFM","text":"/HAJXAX3.1HR","stratum":"84/unparsed","expected":[]}
+{"id":1770801,"timestamp":"2026-01-05T17:18:13.648Z","label":"84","tail":"EC-JLI","text":"PBK1/1317.LD1/1319.","stratum":"84/unparsed","expected":[]}
+{"id":1794693,"timestamp":"2026-01-05T17:44:09.003Z","label":"84","tail":"ET-AOV","text":"00LIRFKORD1328051415","stratum":"84/unparsed","expected":[]}
+{"id":1803416,"timestamp":"2026-01-05T17:54:11.577Z","label":"84","tail":"C-GFEH","text":"GOOD MORNING. SHOWING AT\r\nTHE GATE IN HOG AT 1624Z\r\nIF THE TURN IS QUICK AND\r\nTHE FLT BACK ISNT OVER B\r\nLOCK OR DUTY SHOULD WORK\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":2191649,"timestamp":"2026-01-06T09:06:41.643Z","label":"84","tail":"OY-TCN","text":"38H3 MTCRP  1552/06 ENGM/GCTS .OY-TCN\r\nHEI MOC.ETTER TAKE OFF.A\r\nMBER XX ON BRAKE 2 TEMP.\r\nMVH.DK1552\r\n","stratum":"84/unparsed","expected":[]}
+{"id":2207968,"timestamp":"2026-01-06T09:30:35.432Z","label":"84","tail":"LN-RGN","text":"V08CA/FUELRP/4290/LTR/0.800/A1/2394/3432/5826/5895/69/0/25624/","stratum":"84/unparsed","expected":[]}
+{"id":2236602,"timestamp":"2026-01-06T10:16:01.388Z","label":"84","tail":"9H-QED","text":"MMO EXCEEDANCE .821M\r\nFOR 3 SEC DUE TURBULENCE\r\nREQ ENGINEERS IN MAN\r\n","stratum":"84/unparsed","expected":[]}
+{"id":2236608,"timestamp":"2026-01-06T10:16:01.762Z","label":"84","tail":"9H-QED","text":"MMO EXCEEDANCE .821M\r\nFOR 3 SEC DUE TURBULENCE\r\nREQ ENGINEERS IN MAN\r\n","stratum":"84/unparsed","expected":[]}
+{"id":2341360,"timestamp":"2026-01-06T13:24:07.556Z","label":"84","tail":"ET-AXK","text":"00LIRFKORD1256061332","stratum":"84/unparsed","expected":[]}
+{"id":2363944,"timestamp":"2026-01-06T13:54:30.000Z","label":"84","tail":"EC-JDM","text":"PBK1/1249.LD1/1252.","stratum":"84/unparsed","expected":[]}
+{"id":2505363,"timestamp":"2026-01-06T16:06:39.249Z","label":"84","tail":"EC-JGS","text":"PBK1/1325.LD1/1327.","stratum":"84/unparsed","expected":[]}
+{"id":3015458,"timestamp":"2026-01-07T08:08:40.931Z","label":"84","tail":"EC-LXQ","text":"PBK1/2125.LD1/0539.","stratum":"84/unparsed","expected":[]}
+{"id":3209659,"timestamp":"2026-01-07T12:32:17.717Z","label":"84","tail":"EC-LRG","text":"PBK1/1013.LD1/1015.","stratum":"84/unparsed","expected":[]}
+{"id":3392435,"timestamp":"2026-01-07T19:12:05.719Z","label":"84","tail":"LN-RGN","text":"V08CA/MAINTMSG/LOG 000/MEL UNKNOWN/\r\n1.MISSING 1 INF BELT\r\n2.UPHOLD MECHANISM U/S\r\nCOMP FWD GALLEY\r\n3.FOR INFO LOUD VOLUME\r\nFWD GALLEY FROM PA","stratum":"84/unparsed","expected":[]}
+{"id":3448210,"timestamp":"2026-01-07T20:22:45.774Z","label":"84","tail":"F-HBLG","text":"BONSOIR RQST TK CDG\r\nTOBOGGANS AVANT GAUCHE\r\nREPORTE DUR A FERMER\r\nSLTS\r\n","stratum":"84/unparsed","expected":[]}
+{"id":3597956,"timestamp":"2026-01-07T23:15:34.437Z","label":"84","tail":"YU-ATC","text":"WE NEED TO CALL YOU\r\nLET US KNOW WHEN AVAILBL\r\n","stratum":"84/unparsed","expected":[]}
+{"id":3770627,"timestamp":"2026-01-08T06:05:20.345Z","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
+{"id":3770638,"timestamp":"2026-01-08T06:05:20.510Z","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
+{"id":3770670,"timestamp":"2026-01-08T06:05:23.416Z","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
+{"id":3770799,"timestamp":"2026-01-08T06:05:35.271Z","label":"84","tail":"ET-ASH","text":"00LIRFKORD0605081402","stratum":"84/unparsed","expected":[]}
+{"id":3841196,"timestamp":"2026-01-08T07:36:31.043Z","label":"84","tail":"EI-IFZ","text":"BACKTOILET KEEPS\r\nFLUSHING EVEN WITH\r\nSHUTOFF VALVE PULLED\r\n","stratum":"84/unparsed","expected":[]}
+{"id":3991803,"timestamp":"2026-01-08T11:18:54.586Z","label":"84","tail":"EI-SIE","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nHI\r\nSEAT 1F BACK COVER NEED\r\nREPLACEMENT. GOT HUMAN\r\nWASTE ON IT .SHI..","stratum":"84/unparsed","expected":[]}
+{"id":4078466,"timestamp":"2026-01-08T14:14:46.721Z","label":"84","tail":"EI-ILB","text":"GPS L/R INVALID\r\nVOR L FLAG\r\nINTERMITTENT ON CLIMB\r\nNO FAULT ATM\r\n","stratum":"84/unparsed","expected":[]}
+{"id":4573503,"timestamp":"2026-01-09T07:54:52.870Z","label":"84","tail":"ET-AOP","text":"00LIRFKORD0559091404","stratum":"84/unparsed","expected":[]}
+{"id":4592773,"timestamp":"2026-01-09T08:22:59.797Z","label":"84","tail":"ET-ATK","text":"00ESSAENGM0627090709","stratum":"84/unparsed","expected":[]}
+{"id":4669967,"timestamp":"2026-01-09T10:10:54.980Z","label":"84","tail":"F-HXSE","text":"BONJOUR. PLAINTE AFL\r\n18320-1. OVERSPEED 2KTS.\r\nPREVOIR MECANO A ATHENES\r\nMERCI.\r\n","stratum":"84/unparsed","expected":[]}
+{"id":4795861,"timestamp":"2026-01-09T15:31:37.885Z","label":"84","tail":"SE-ROG","text":"V08CA/MAINTMSG/LOG 171/MEL UNKNOWN/\r\nFOR INFO ONLY\r\nGNSS RFI\r\nADS-B RPTG 1+2 FAULT","stratum":"84/unparsed","expected":[]}
+{"id":4917232,"timestamp":"2026-01-09T19:00:53.658Z","label":"84","tail":"SE-ROL","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nHI MAINT. WE HAVE ECAM D\r\nOOR R AFT EMER EXIT.\r\nCAB PRESS IS NORMAL.\r\nWE CONTINUE TO OSL.\r\nSK9126 SE-ROL","stratum":"84/unparsed","expected":[]}
+{"id":5027780,"timestamp":"2026-01-09T21:02:01.599Z","label":"84","tail":"SE-RUO","text":"V08CA/MAINTMSG/LOG 000/MEL UNKNOWN/\r\nREPAIRED PATCH IN FWD\r\nCARGO LOOSE\r\nSTORED IN COCKPIT","stratum":"84/unparsed","expected":[]}
+{"id":5263554,"timestamp":"2026-01-10T01:09:46.645Z","label":"84","tail":"OE-LSJ","text":"CI50 USED FOR CURFEW\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":5330638,"timestamp":"2026-01-10T05:41:36.623Z","label":"84","tail":"ET-AOO","text":"00LIRFKORD0541101334","stratum":"84/unparsed","expected":[]}
+{"id":5575423,"timestamp":"2026-01-10T21:44:19.403Z","label":"84","tail":"G-EZWY","text":"CI20 USED\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":5594942,"timestamp":"2026-01-10T22:09:52.006Z","label":"84","tail":"EC-NTQ","text":"PBK1/2147.LD1/2148.","stratum":"84/unparsed","expected":[]}
+{"id":5890383,"timestamp":"2026-01-10T23:42:58.860Z","label":"84","tail":"F-FLUJ","text":"WE ARE ABLE TO\u0010GET ATIS\r\nAND SEND ACARS MESSAGES.\r\nUoABLE TO GET WEATHER\r\nIN FLIGHT.\r\n","stratum":"84/unparsed","expected":[]}
+{"id":5927739,"timestamp":"2026-01-10T23:28:58.683Z","label":"84","tail":"C-GWCM","text":"HELLO WE LAND 1730L DHIS\r\n1750. LONG WALK B15 TO C\r\nUSTOMS THEN GO TO DOMEST\r\nIC SECURITY.\r\nXTRA TIME REQUIRED\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":6007553,"timestamp":"2026-01-11T06:02:26.991Z","label":"84","tail":"LN-RKU","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nEMERGENCY FLASHLIGHT POS\r\n1R US","stratum":"84/unparsed","expected":[]}
+{"id":6140622,"timestamp":"2026-01-11T08:55:44.136Z","label":"84","tail":"ET-ASH","text":"00LIRFKATL0558111430","stratum":"84/unparsed","expected":[]}
+{"id":6164031,"timestamp":"2026-01-11T09:27:26.214Z","label":"84","tail":"F-HBQB","text":"BJR RQST TK A LARRIVEE\r\nCDG STAND J13\r\nBOILER AVANT NE CHAUFFE\r\nPAS DEPUIS LE DEPART\r\nDE BLL\r\nMERCI D AVANCE\r\nNICOLAS ET ERIC\r\n","stratum":"84/unparsed","expected":[]}
+{"id":6385882,"timestamp":"2026-01-11T15:56:26.115Z","label":"84","tail":"LN-FNC","text":"/NBTPMXS.HI. ETA 2356Z\r\nXOXO /34","stratum":"84/unparsed","expected":[]}
+{"id":6706958,"timestamp":"2026-01-12T06:22:30.847Z","label":"84","tail":"SE-RZE","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nNO WATER SUPPLY IN EITHE\r\nR GALLEYS AND LAVATORIES\r\n. SUSPECT FROZEN WATER\r\nLINES.","stratum":"84/unparsed","expected":[]}
+{"id":6712137,"timestamp":"2026-01-12T06:29:42.469Z","label":"84","tail":"EI-HMT","text":"CPDLC NOT AVAILABLE\r\n","stratum":"84/unparsed","expected":[]}
+{"id":6868931,"timestamp":"2026-01-12T10:14:39.071Z","label":"84","tail":"SE-RUP","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nFWD CURTAIN LOOSE","stratum":"84/unparsed","expected":[]}
+{"id":6899464,"timestamp":"2026-01-12T10:59:35.581Z","label":"84","tail":"G-EZTY","text":"SIMILAR EZY CALLSIGN ON\r\nFREQUENCY FOR THE LAST 3\r\n+ SECTORS EZY84QD WITH E\r\nZY83QG\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":6906140,"timestamp":"2026-01-12T11:09:36.559Z","label":"84","tail":"OE-LSO","text":"CI50 USED AS REQUESTED\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":6912386,"timestamp":"2026-01-12T11:18:35.762Z","label":"84","tail":"LN-FNB","text":"/NBTPMXS.SEEYA","stratum":"84/unparsed","expected":[]}
+{"id":6957432,"timestamp":"2026-01-12T12:18:24.667Z","label":"84","tail":"SE-RUA","text":"V08CA/FUELRP/4650/LTR/0.800/A1/2721/3720/6441/6494/53/0/38946/","stratum":"84/unparsed","expected":[]}
+{"id":7132595,"timestamp":"2026-01-12T15:26:01.072Z","label":"84","tail":"C-FYJD","text":"I THINK IT WAS SHANE THI\r\nS AM THAT CALLED ME...\r\nPASSS ON THAT MY AWESOME\r\nCREW HAD THE PLANE AND\r\nGUESTS READY..\r\nCHECKLISTS AND FLIGHT PL\r\nAN REVIEWED AND WE DID\r\nONE MINUTE EARLY\r\n","stratum":"84/unparsed","expected":[]}
+{"id":7143854,"timestamp":"2026-01-12T17:59:41.565Z","label":"84","tail":"G-CKWN","text":"/NBTPMXS.HI IT LOOKED LIKE\r\nCLEANING WAS DONE.\r\nNO BLANKETS OR PILLOWS","stratum":"84/unparsed","expected":[]}
+{"id":7160838,"timestamp":"2026-01-12T18:19:48.874Z","label":"84","tail":"SE-ROK","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nADVISORY ON LOW OIL LVL\r\nAFTER APU START\r\nGND PERSONNEL CHKD APU\r\nAREA AND NO LEAK FOUND\r\nREL ACC MEL 49-07-01A","stratum":"84/unparsed","expected":[]}
+{"id":7277032,"timestamp":"2026-01-12T20:53:56.780Z","label":"84","tail":"C-GMXB","text":"HI CAN WE GET THE\r\nBOOKING REFS\r\nFOR DH 2MORO THX\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":7336434,"timestamp":"2026-01-12T22:18:30.771Z","label":"84","tail":"N779XY","text":"/FMCBOCR.RECIEVED THANKS","stratum":"84/unparsed","expected":[]}
+{"id":7473782,"timestamp":"2026-01-13T01:01:03.385Z","label":"84","tail":"ET-AXS","text":"00ESSAHAAB2145130307","stratum":"84/unparsed","expected":[]}
+{"id":7671111,"timestamp":"2026-01-13T10:14:31.615Z","label":"84","tail":"LY-NVL","text":"HI\r\nGEN1 FAULT\r\nLO PR\r\nGEN1 DISCONECTED\r\n","stratum":"84/unparsed","expected":[]}
+{"id":7800998,"timestamp":"2026-01-13T13:17:19.324Z","label":"84","tail":"G-EZUP","text":"CI50 USED\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":7801607,"timestamp":"2026-01-13T13:18:22.613Z","label":"84","tail":"ET-AXK","text":"00LIRFKORD1243131326","stratum":"84/unparsed","expected":[]}
+{"id":8539116,"timestamp":"2026-01-17T10:53:24.927Z","label":"84","tail":"SE-RZB","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nAFT GALLEY\r\nLATCH 422B LOOSE","stratum":"84/unparsed","expected":[]}
+{"id":8728235,"timestamp":"2026-01-17T15:02:21.562Z","label":"84","tail":"9H-VUH","text":"CODE 80.AUTOFAIL\r\nMANUAL OPERATION REQUIRE\r\n","stratum":"84/unparsed","expected":[]}
+{"id":8728237,"timestamp":"2026-01-17T15:02:21.566Z","label":"84","tail":"9H-VUH","text":"CODE 80.AUTOFAIL\r\nMANUAL OPERATION REQUIRE\r\n","stratum":"84/unparsed","expected":[]}
+{"id":8729089,"timestamp":"2026-01-17T15:03:00.103Z","label":"84","tail":"EC-JGS","text":"PBK1/1334.LD1/1336.","stratum":"84/unparsed","expected":[]}
+{"id":8921006,"timestamp":"2026-01-17T18:36:09.741Z","label":"84","tail":"ET-AOS","text":"00KORDHAAB1615180512","stratum":"84/unparsed","expected":[]}
+{"id":8954176,"timestamp":"2026-01-17T19:12:53.726Z","label":"84","tail":"EC-OJT","text":"GEN2 FAULT\r\nAPU ON\r\nCONTINUE TO EICK\r\n","stratum":"84/unparsed","expected":[]}
+{"id":9259452,"timestamp":"2026-01-18T05:38:29.981Z","label":"84","tail":"CS-TPO","text":"BOM DIA\r\nAVIAO PRECISA DE OLEO\r\nNOS MOTORES A CHEGADA\r\nOBRIGADO\r\n","stratum":"84/unparsed","expected":[]}
+{"id":9396693,"timestamp":"2026-01-18T09:04:55.822Z","label":"84","tail":"LN-RGM","text":"V08CA/FUELRP/3047/LTR/0.800/A1/2902/2437/5340/5568/229/0/26380/","stratum":"84/unparsed","expected":[]}
+{"id":9446147,"timestamp":"2026-01-18T10:27:42.668Z","label":"84","tail":"9H-VUJ","text":"APPARENT SPURIOUS ENGINE\r\n1 VIBRATIONIN INDICATION\r\n.POP UP SHOWED 4.6 FOR A\r\nFEW SECS. NOW NORMAL. FE\r\n","stratum":"84/unparsed","expected":[]}
+{"id":9460380,"timestamp":"2026-01-18T10:52:48.738Z","label":"84","tail":"9H-VUJ","text":"REF ENGINE 1 INDICATION\r\nMOMENTARY INDICATIONS\r\nOVER 4.0 OCCURRED FOUR\r\nTIMES. NOW NORMAL\r\n","stratum":"84/unparsed","expected":[]}
+{"id":9481808,"timestamp":"2026-01-18T11:26:12.446Z","label":"84","tail":"SE-RZB","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nLATCH INSIDE OVERHEAD\r\nSTOWAGE COMPARTMENT ROW\r\n9ABC DOES NOT LOCK IN\r\nPOSITION","stratum":"84/unparsed","expected":[]}
+{"id":9615942,"timestamp":"2026-01-18T15:27:38.094Z","label":"84","tail":"C-GRTB","text":"HI\r\nTHIS IS SEB 39561\r\nCOULD I HAVE AIRPORT\r\nHOTEL TONIGHT INSTEAD\r\nOF DOWNTOWN PLEASE\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":9760186,"timestamp":"2026-01-18T18:28:10.487Z","label":"84","tail":"ET-AOT","text":"00KORDHAAB1620190506","stratum":"84/unparsed","expected":[]}
+{"id":9773853,"timestamp":"2026-01-18T18:44:10.218Z","label":"84","tail":"ET-ASI","text":"00FQMAHAAB1626181751","stratum":"84/unparsed","expected":[]}
+{"id":9822802,"timestamp":"2026-01-18T20:05:29.957Z","label":"84","tail":"LN-FNB","text":"/NBTPMXS.HELLO RIGA\r\nBOM ETA 0053Z\r\nBRGDS FNB","stratum":"84/unparsed","expected":[]}
+{"id":9852171,"timestamp":"2026-01-18T20:48:53.999Z","label":"84","tail":"EI-IHB","text":"LOUD SQUEAL FRM T/O\r\nPOSS COCKPIT VENT FAN\r\nUP AND BEHIND CAPT\r\nANY IDEAS\r\n","stratum":"84/unparsed","expected":[]}
+{"id":9852180,"timestamp":"2026-01-18T20:48:54.903Z","label":"84","tail":"EI-IHB","text":"LOUD SQUEAL FRM T/O\r\nPOSS COCKPIT VENT FAN\r\nUP AND BEHIND CAPT\r\nANY IDEAS\r\n","stratum":"84/unparsed","expected":[]}
+{"id":9862277,"timestamp":"2026-01-18T21:03:52.441Z","label":"84","tail":"EI-SCE","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nHI ACC\r\nWO30100399\r\nDTA LNK ATSU FROZEN\r\nRESET W ASS FM SAS MAINT","stratum":"84/unparsed","expected":[]}
+{"id":10134488,"timestamp":"2026-01-19T07:27:47.486Z","label":"84","tail":"ET-ASH","text":"00LIRFKORD0726191505","stratum":"84/unparsed","expected":[]}
+{"id":10134490,"timestamp":"2026-01-19T07:27:47.487Z","label":"84","tail":"ET-ASH","text":"00LIRFKORD0726191505","stratum":"84/unparsed","expected":[]}
+{"id":10360446,"timestamp":"2026-01-19T13:32:48.700Z","label":"84","tail":"EC-JEJ","text":"PBK1/1329.LD1/1330.","stratum":"84/unparsed","expected":[]}
+{"id":10529216,"timestamp":"2026-01-19T17:39:56.185Z","label":"84","tail":"PH-TFL","text":"/HAJXAX3.HELLO TOCC. ETA 0030\r\nWIT MACH .86 ETA 0015\r\nFUEL OK","stratum":"84/unparsed","expected":[]}
+{"id":10529340,"timestamp":"2026-01-19T17:40:07.447Z","label":"84","tail":"PH-TFL","text":"/HAJXAX3.HELLO TOCC. ETA 0030\r\nWIT MACH .86 ETA 0015\r\nFUEL OK","stratum":"84/unparsed","expected":[]}
+{"id":10728287,"timestamp":"2026-01-20T00:13:20.232Z","label":"84","tail":"C-GXAX","text":"NO HOTEL NEEDED\r\nSHAWN\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":10728297,"timestamp":"2026-01-20T00:13:20.821Z","label":"84","tail":"C-GXAX","text":"NO HOTEL NEEDED\r\nSHAWN\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"84/unparsed","expected":[]}
+{"id":10907196,"timestamp":"2026-01-20T05:52:41.362Z","label":"84","tail":"SE-ROS","text":"V08CA/MAINTMSG/LOG 185/MEL UNKNOWN/\r\nTL0185\r\nAFT LAVATORY LF LAEKING","stratum":"84/unparsed","expected":[]}
+{"id":10916441,"timestamp":"2026-01-20T06:05:01.918Z","label":"84","tail":"EC-MXY","text":"PBK1/2111.LD1/0547.","stratum":"84/unparsed","expected":[]}
+{"id":11107301,"timestamp":"2026-01-20T10:48:26.975Z","label":"84","tail":"LN-FNL","text":"/NBTPMXS.OK THANKS ALOT\r\nBR 6E33","stratum":"84/unparsed","expected":[]}
+{"id":11107302,"timestamp":"2026-01-20T10:48:26.972Z","label":"84","tail":"LN-FNL","text":"/NBTPMXS.OK THANKS ALOT\r\nBR 6E33","stratum":"84/unparsed","expected":[]}
+{"id":11108735,"timestamp":"2026-01-20T10:50:49.427Z","label":"84","tail":"SE-RZD","text":"V08CA/MAINTMSG/LOG ---/MEL UNKNOWN/\r\nAFTER TAKE OFF.800FT AGL\r\n. GPWS AURAL CAUTION\r\nDONT SINK. VERTICAL SPD\r\nAND PITCH NORMAL. RADIO\r\nALT NORMAL.","stratum":"84/unparsed","expected":[]}
+{"id":11269900,"timestamp":"2026-01-20T14:14:17.093Z","label":"84","tail":"EI-SIS","text":"V08CA/MAINTMSG/LOG 370/MEL UNKNOWN/\r\nHI. CAN U ARRANGE MAINT\r\nON ARRIVAL. LOOSE EMER\r\nESCAPE PATH LIST\r\nWRITTEN IN LOG. THX","stratum":"84/unparsed","expected":[]}
+{"id":11384009,"timestamp":"2026-01-21T17:31:01.837Z","label":"84","tail":"ET-AOS","text":"00KORDHAAB1608220430","stratum":"84/unparsed","expected":[]}
+{"id":11508273,"timestamp":"2026-01-21T20:08:24.942Z","label":"84","tail":"F-HBLQ","text":"BONSOIR\r\nDEMO OXY MASK DAMAGE\r\nNOT REPLACABLE BY SPARE\r\nLDR/LLU THKS\r\n","stratum":"84/unparsed","expected":[]}

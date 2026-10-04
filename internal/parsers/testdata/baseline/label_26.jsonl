@@ -1,100 +1,100 @@
-{"id":99540,"timestamp":"2025-12-31 18:56:36.547","label":"26","tail":"JA924A","flight":"NH879","text":"M40ANH0879ETA01ANA879    /31311856RJTTYSSY\n\t2332806 390   ","stratum":"26/unparsed","expected":[]}
-{"id":470444,"timestamp":"2026-01-03 21:46:57.165","label":"26","tail":"ZK-NZG","text":"NZ105  2146EDNO  01\n\tSPECIAL LOAD NOTIFICATION TO CAPTAIN  FINAL EDNO 1\n\tMESSAGE 1\n\tFROM         FLIGHT        DATE       A/C REG   PREPARED BY\n\tAKL          NZ105/03      04JAN26    ZKNZG     RAVINDER SINGH \n\t***************************************************************\n\t*** DANGEROUS GOODS ***\n\tTO  AWB      CL/DV UN/ID SUB PCS QTY/TI RRR PCK IMP  CAO    POS\n\t    NR        COMP   NR  RSK            CAT GRP DRIL   ULD/CODE\n\t---------------------------------------------------------------\n\tNO DANGEROUS GOODS UPLIFTED EX AKL\n\t***************************************************************\n\t*** OTHER SPECIAL LOAD ***\n\tTO  AWB      CONTENTS              PCS  QTY     IMP         POS\n\t    NR                                          CODE   ULD/CODE\n\t---------------------------------------------------------------\n\tNO SPECIAL LOAD UPLIFTED EX AKL\n\t***************************************************************\n\tSI AMADEUS ACARS NOTOC.\n\t***************************************************************\n\tTHERE IS NO EVIDENCE THAT ANY DAMAGED OR LEAKING PACKAGES\n\tCONTAINING DANGEROUS GOODS HAVE BEEN LOADED ON THE AIRCRAFT.\n\t***************************************************************\n\t\n\tLOADING SUPERVISOR                              CAPTAIN\n\t(NAME AND SIGNATURE)                       (NAME AND SIGNATURE)\n\t\n\tEMERGENCY TELEPHONE NUMBER 64 9 256-3585\n\t\n\tENDNOTOC\n\t","stratum":"26/unparsed","expected":[]}
-{"id":475516,"timestamp":"2026-01-03 22:00:15.312","label":"26","tail":"B-2001","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":498704,"timestamp":"2026-01-03 22:48:14.157","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":756022,"timestamp":"2026-01-04 12:24:12.699","label":"26","tail":"B-2002","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":812674,"timestamp":"2026-01-04 14:12:09.124","label":"26","tail":"B-7369","flight":"MU588","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":826726,"timestamp":"2026-01-04 14:36:11.833","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1086494,"timestamp":"2026-01-05 00:35:50.738","label":"26","tail":"B-2021","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1089596,"timestamp":"2026-01-05 00:41:58.556","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1387993,"timestamp":"2026-01-05 08:57:28.691","label":"26","tail":"B-304D","flight":"MU224","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1612127,"timestamp":"2026-01-05 16:08:07.355","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1625002,"timestamp":"2026-01-05 16:40:06.417","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1625003,"timestamp":"2026-01-05 16:40:06.452","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1641097,"timestamp":"2026-01-05 17:12:10.367","label":"26","tail":"B-2025","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1742429,"timestamp":"2026-01-05 16:38:45.928","label":"26","tail":"B-7369","flight":"MU588","text":"-\r\n","stratum":"26/unparsed","expected":[]}
-{"id":1770095,"timestamp":"2026-01-05 21:24:10.952","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1825025,"timestamp":"2026-01-05 23:08:11.253","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1848746,"timestamp":"2026-01-05 23:56:08.895","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1868666,"timestamp":"2026-01-06 00:32:12.084","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1868672,"timestamp":"2026-01-06 00:32:12.571","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1936328,"timestamp":"2026-01-06 02:28:09.366","label":"26","tail":"B-2005","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":1995576,"timestamp":"2026-01-06 04:01:00.659","label":"26","tail":"HL8346","text":"R","stratum":"26/unparsed","expected":[]}
-{"id":2204912,"timestamp":"2026-01-06 09:52:08.742","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2228758,"timestamp":"2026-01-06 10:01:47.741","label":"26","tail":"RA89044","text":"ETA01SDM6325   /05060902ULLIUMKK    \r\nFUEL   52\r\nTEMP- 59\r\nWDIR23672\r\nWSPD  71\r\nLATN 59.888\r\nLONE 25.455\r\nETA1021\r\nTUR \r\nALT  34008\r\nPRNR\r\n\r\n\r\n","stratum":"26/unparsed","expected":[]}
-{"id":2318795,"timestamp":"2026-01-06 13:24:10.056","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2388417,"timestamp":"2026-01-06 15:36:12.373","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2519307,"timestamp":"2026-01-06 20:02:46.949","label":"26","tail":"B-227J","flight":"MU214","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2531395,"timestamp":"2026-01-06 20:28:08.718","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2566104,"timestamp":"2026-01-06 21:40:05.893","label":"26","tail":"B-227J","flight":"MU214","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2622998,"timestamp":"2026-01-06 23:40:11.427","label":"26","tail":"B-7365","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2681120,"timestamp":"2026-01-07 01:24:10.759","label":"26","tail":"B-5828","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2697139,"timestamp":"2026-01-07 01:52:09.457","label":"26","tail":"B-7881","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2704826,"timestamp":"2026-01-07 02:04:13.169","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":2730214,"timestamp":"2026-01-07 02:43:00.562","label":"26","tail":"HL8011","text":"R","stratum":"26/unparsed","expected":[]}
-{"id":2931907,"timestamp":"2026-01-07 07:16:14.224","label":"26","tail":"B-6476","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":3098366,"timestamp":"2026-01-07 10:02:53.574","label":"26","tail":"N627QX","text":"33\r\n\r\n   DOORS CURR   2410/      PANC/PAFA N627QX \r\nL1 C: 06:44:57/ O: 07:50:35\r\nL2 C: 06:18:14/ O: 07:49:53\r\nR1 C:   :  :  / O: 07:50:05\r\nR2 C:   :  :  / O: 07:49:58\r\nCG C: 06:39:31/ O: 07:49:31\r\nCG C: 06:40:5","stratum":"26/unparsed","expected":[]}
-{"id":3124876,"timestamp":"2026-01-07 10:35:42.744","label":"26","tail":"F-GRXF","text":"0826EGBBAF1565/07\r0904LFPG26L","stratum":"26/unparsed","expected":[]}
-{"id":3297518,"timestamp":"2026-01-07 17:32:09.273","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":3672783,"timestamp":"2026-01-08 03:48:14.243","label":"26","tail":"B-1858","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":3687238,"timestamp":"2026-01-08 04:08:12.998","label":"26","tail":"B-6432","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":3700443,"timestamp":"2026-01-08 04:29:59.744","label":"26","tail":"B-6432","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":3810653,"timestamp":"2026-01-08 06:56:19.883","label":"26","tail":"F-HPNZ","text":"0656EGPHAF1887/08\r0742LFPG   ","stratum":"26/unparsed","expected":[]}
-{"id":4094227,"timestamp":"2026-01-08 17:14:48.557","label":"26","tail":"B-2023","flight":"MU553","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":4148200,"timestamp":"2026-01-08 22:12:06.842","label":"26","tail":"B-7365","flight":"MU207","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":4178767,"timestamp":"2026-01-09 00:44:11.956","label":"26","tail":"B-2002","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":4216568,"timestamp":"2026-01-09 01:36:10.916","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":4227686,"timestamp":"2026-01-09 01:52:12.210","label":"26","tail":"B-2001","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":4804107,"timestamp":"2026-01-09 15:43:52.714","label":"26","tail":"B-2025","text":"-\r\n","stratum":"26/unparsed","expected":[]}
-{"id":4955725,"timestamp":"2026-01-09 20:20:10.418","label":"26","tail":"B-227T","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":5010475,"timestamp":"2026-01-09 20:42:47.169","label":"26","tail":"F-HUVD","text":"1920LFPGAF028G/09\r\n0456KLAX25L","stratum":"26/unparsed","expected":[]}
-{"id":5028306,"timestamp":"2026-01-09 22:26:44.356","label":"26","tail":"ZK-NZR","text":"NZ6068 2226EDNO  01\n\tSPECIAL LOAD NOTIFICATION TO CAPTAIN  FINAL EDNO 1\n\tMESSAGE 1\n\tFROM         FLIGHT        DATE       A/C REG   PREPARED BY\n\tAKL          NZ6068/09     10JAN26    ZKNZR     DANIEL CORDERY \n\t***************************************************************\n\t*** DANGEROUS GOODS ***\n\tTO  AWB      CL/DV UN/ID SUB PCS QTY/TI RRR PCK IMP  CAO    POS\n\t    NR        COMP   NR  RSK            CAT GRP DRIL   ULD/CODE\n\t---------------------------------------------------------------\n\tNO DANGEROUS GOODS UPLIFTED EX AKL\n\t***************************************************************\n\t*** OTHER SPECIAL LOAD ***\n\tTO  AWB      CONTENTS              PCS  QTY     IMP         POS\n\t    NR                                          CODE   ULD/CODE\n\t---------------------------------------------------------------\n\tNO SPECIAL LOAD UPLIFTED EX AKL\n\t***************************************************************\n\tSI AMADEUS ACARS NOTOC.\n\t***************************************************************\n\tTHERE IS NO EVIDENCE THAT ANY DAMAGED OR LEAKING PACKAGES\n\tCONTAINING DANGEROUS GOODS HAVE BEEN LOADED ON THE AIRCRAFT.\n\t***************************************************************\n\t\n\tLOADING SUPERVISOR                              CAPTAIN\n\t(NAME AND SIGNATURE)                       (NAME AND SIGNATURE)\n\t\n\tEMERGENCY TELEPHONE NUMBER 64 9 256-3585\n\t\n\tENDNOTOC\n\t","stratum":"26/unparsed","expected":[]}
-{"id":5362215,"timestamp":"2026-01-10 06:22:15.602","label":"26","tail":"F-HEPB","text":"0622LROPAF1089/10\r0707LFPG27R","stratum":"26/unparsed","expected":[]}
-{"id":5626895,"timestamp":"2026-01-10 23:20:10.339","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":5673166,"timestamp":"2026-01-10 23:44:23.875","label":"26","tail":"B-2021","text":"-\r\n","stratum":"26/unparsed","expected":[]}
-{"id":5686692,"timestamp":"2026-01-11 00:52:09.966","label":"26","tail":"B-7868","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":5967929,"timestamp":"2026-01-11 05:03:53.423","label":"26","tail":"N506GJ","text":"DPT01G74548/10110146KGRRKORD****************************","stratum":"26/unparsed","expected":[]}
-{"id":6154955,"timestamp":"2026-01-11 10:16:07.938","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":6174894,"timestamp":"2026-01-11 09:42:26.320","label":"26","tail":"F-HZUS","text":"0703ESSAAF1463/11\r0748LFPG   ","stratum":"26/unparsed","expected":[]}
-{"id":6545120,"timestamp":"2026-01-12 02:10:11.402","label":"26","tail":"B-227T","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":6579517,"timestamp":"2026-01-12 03:49:20.588","label":"26","tail":"N547GJ","text":"DPT01G74589/11120345KORDKDAY****************************","stratum":"26/unparsed","expected":[]}
-{"id":6978859,"timestamp":"2026-01-12 13:16:09.183","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7110828,"timestamp":"2026-01-12 15:06:02.777","label":"26","tail":"F-GKXO","text":"1303ESSAAF1263/12\r1513LFPG27R","stratum":"26/unparsed","expected":[]}
-{"id":7120325,"timestamp":"2026-01-12 17:16:12.891","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7337963,"timestamp":"2026-01-13 00:48:09.747","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7400763,"timestamp":"2026-01-13 02:40:11.141","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7422124,"timestamp":"2026-01-13 03:16:11.382","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7526908,"timestamp":"2026-01-13 06:01:21.867","label":"26","tail":"B-6166","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7751650,"timestamp":"2026-01-13 12:32:10.108","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7857586,"timestamp":"2026-01-13 15:36:09.205","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":7865328,"timestamp":"2026-01-13 15:48:12.132","label":"26","tail":"B-2020","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8054832,"timestamp":"2026-01-13 21:40:10.985","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8076248,"timestamp":"2026-01-13 22:20:16.111","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8113218,"timestamp":"2026-01-13 23:40:25.203","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8145971,"timestamp":"2026-01-14 00:23:13.274","label":"26","tail":"N541GJ","text":"DPT01G74189/13132353KEWRKBGR****************************","stratum":"26/unparsed","expected":[]}
-{"id":8150033,"timestamp":"2026-01-14 00:28:35.864","label":"26","tail":"B-2025","text":"-\r\n","stratum":"26/unparsed","expected":[]}
-{"id":8190008,"timestamp":"2026-01-14 01:52:08.787","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8198401,"timestamp":"2026-01-14 02:04:09.267","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8654922,"timestamp":"2026-01-17 14:12:11.552","label":"26","tail":"B-7367","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8682926,"timestamp":"2026-01-17 14:56:17.080","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8688423,"timestamp":"2026-01-17 15:04:14.761","label":"26","tail":"B-7368","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":8865639,"timestamp":"2026-01-17 19:41:23.914","label":"26","tail":"B-6108","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9019717,"timestamp":"2026-01-18 00:21:33.497","label":"26","tail":"B-2025","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9062682,"timestamp":"2026-01-18 01:32:12.082","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9130026,"timestamp":"2026-01-18 02:56:13.769","label":"26","tail":"B-6461","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9565393,"timestamp":"2026-01-18 14:08:11.194","label":"26","tail":"B-7868","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9605690,"timestamp":"2026-01-18 15:18:16.667","label":"26","tail":"B-1900","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9770601,"timestamp":"2026-01-18 18:41:12.437","label":"26","tail":"F-HEPB","text":"1625EDDBAF1235/18\r1710LFPG09L","stratum":"26/unparsed","expected":[]}
-{"id":9822765,"timestamp":"2026-01-18 23:04:08.847","label":"26","tail":"B-6545","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9839381,"timestamp":"2026-01-18 23:36:08.132","label":"26","tail":"B-7369","flight":"MU588","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":9970727,"timestamp":"2026-01-19 03:36:46.337","label":"26","tail":"B-7636","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":10063810,"timestamp":"2026-01-19 05:22:37.399","label":"26","tail":"B-7343","text":"-\r\n","stratum":"26/unparsed","expected":[]}
-{"id":10347674,"timestamp":"2026-01-19 13:12:12.609","label":"26","tail":"B-2025","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":10350692,"timestamp":"2026-01-19 13:16:57.146","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":10418237,"timestamp":"2026-01-19 15:24:10.081","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":10697619,"timestamp":"2026-01-20 00:32:15.829","label":"26","tail":"B-6432","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":10714614,"timestamp":"2026-01-20 01:00:10.111","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":10726703,"timestamp":"2026-01-20 01:20:10.592","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":10731982,"timestamp":"2026-01-20 01:28:10.209","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":11276184,"timestamp":"2026-01-20 15:12:08.675","label":"26","tail":"B-5937","text":"-","stratum":"26/unparsed","expected":[]}
-{"id":11341128,"timestamp":"2026-01-21 17:22:41.329","label":"26","tail":"HL8082","flight":"KE412","text":"R","stratum":"26/unparsed","expected":[]}
+{"id":99540,"timestamp":"2025-12-31T18:56:36.547Z","label":"26","tail":"JA924A","flight":"NH879","text":"M40ANH0879ETA01ANA879    /31311856RJTTYSSY\n\t2332806 390   ","stratum":"26/unparsed","expected":[]}
+{"id":470444,"timestamp":"2026-01-03T21:46:57.165Z","label":"26","tail":"ZK-NZG","text":"NZ105  2146EDNO  01\n\tSPECIAL LOAD NOTIFICATION TO CAPTAIN  FINAL EDNO 1\n\tMESSAGE 1\n\tFROM         FLIGHT        DATE       A/C REG   PREPARED BY\n\tAKL          NZ105/03      04JAN26    ZKNZG     RAVINDER SINGH \n\t***************************************************************\n\t*** DANGEROUS GOODS ***\n\tTO  AWB      CL/DV UN/ID SUB PCS QTY/TI RRR PCK IMP  CAO    POS\n\t    NR        COMP   NR  RSK            CAT GRP DRIL   ULD/CODE\n\t---------------------------------------------------------------\n\tNO DANGEROUS GOODS UPLIFTED EX AKL\n\t***************************************************************\n\t*** OTHER SPECIAL LOAD ***\n\tTO  AWB      CONTENTS              PCS  QTY     IMP         POS\n\t    NR                                          CODE   ULD/CODE\n\t---------------------------------------------------------------\n\tNO SPECIAL LOAD UPLIFTED EX AKL\n\t***************************************************************\n\tSI AMADEUS ACARS NOTOC.\n\t***************************************************************\n\tTHERE IS NO EVIDENCE THAT ANY DAMAGED OR LEAKING PACKAGES\n\tCONTAINING DANGEROUS GOODS HAVE BEEN LOADED ON THE AIRCRAFT.\n\t***************************************************************\n\t\n\tLOADING SUPERVISOR                              CAPTAIN\n\t(NAME AND SIGNATURE)                       (NAME AND SIGNATURE)\n\t\n\tEMERGENCY TELEPHONE NUMBER 64 9 256-3585\n\t\n\tENDNOTOC\n\t","stratum":"26/unparsed","expected":[]}
+{"id":475516,"timestamp":"2026-01-03T22:00:15.312Z","label":"26","tail":"B-2001","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":498704,"timestamp":"2026-01-03T22:48:14.157Z","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":756022,"timestamp":"2026-01-04T12:24:12.699Z","label":"26","tail":"B-2002","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":812674,"timestamp":"2026-01-04T14:12:09.124Z","label":"26","tail":"B-7369","flight":"MU588","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":826726,"timestamp":"2026-01-04T14:36:11.833Z","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1086494,"timestamp":"2026-01-05T00:35:50.738Z","label":"26","tail":"B-2021","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1089596,"timestamp":"2026-01-05T00:41:58.556Z","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1387993,"timestamp":"2026-01-05T08:57:28.691Z","label":"26","tail":"B-304D","flight":"MU224","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1612127,"timestamp":"2026-01-05T16:08:07.355Z","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1625002,"timestamp":"2026-01-05T16:40:06.417Z","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1625003,"timestamp":"2026-01-05T16:40:06.452Z","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1641097,"timestamp":"2026-01-05T17:12:10.367Z","label":"26","tail":"B-2025","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1742429,"timestamp":"2026-01-05T16:38:45.928Z","label":"26","tail":"B-7369","flight":"MU588","text":"-\r\n","stratum":"26/unparsed","expected":[]}
+{"id":1770095,"timestamp":"2026-01-05T21:24:10.952Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1825025,"timestamp":"2026-01-05T23:08:11.253Z","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1848746,"timestamp":"2026-01-05T23:56:08.895Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1868666,"timestamp":"2026-01-06T00:32:12.084Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1868672,"timestamp":"2026-01-06T00:32:12.571Z","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1936328,"timestamp":"2026-01-06T02:28:09.366Z","label":"26","tail":"B-2005","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":1995576,"timestamp":"2026-01-06T04:01:00.659Z","label":"26","tail":"HL8346","text":"R","stratum":"26/unparsed","expected":[]}
+{"id":2204912,"timestamp":"2026-01-06T09:52:08.742Z","label":"26","tail":"B-7349","flight":"MU0554","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2228758,"timestamp":"2026-01-06T10:01:47.741Z","label":"26","tail":"RA89044","text":"ETA01SDM6325   /05060902ULLIUMKK    \r\nFUEL   52\r\nTEMP- 59\r\nWDIR23672\r\nWSPD  71\r\nLATN 59.888\r\nLONE 25.455\r\nETA1021\r\nTUR \r\nALT  34008\r\nPRNR\r\n\r\n\r\n","stratum":"26/unparsed","expected":[]}
+{"id":2318795,"timestamp":"2026-01-06T13:24:10.056Z","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2388417,"timestamp":"2026-01-06T15:36:12.373Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2519307,"timestamp":"2026-01-06T20:02:46.949Z","label":"26","tail":"B-227J","flight":"MU214","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2531395,"timestamp":"2026-01-06T20:28:08.718Z","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2566104,"timestamp":"2026-01-06T21:40:05.893Z","label":"26","tail":"B-227J","flight":"MU214","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2622998,"timestamp":"2026-01-06T23:40:11.427Z","label":"26","tail":"B-7365","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2681120,"timestamp":"2026-01-07T01:24:10.759Z","label":"26","tail":"B-5828","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2697139,"timestamp":"2026-01-07T01:52:09.457Z","label":"26","tail":"B-7881","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2704826,"timestamp":"2026-01-07T02:04:13.169Z","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":2730214,"timestamp":"2026-01-07T02:43:00.562Z","label":"26","tail":"HL8011","text":"R","stratum":"26/unparsed","expected":[]}
+{"id":2931907,"timestamp":"2026-01-07T07:16:14.224Z","label":"26","tail":"B-6476","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":3098366,"timestamp":"2026-01-07T10:02:53.574Z","label":"26","tail":"N627QX","text":"33\r\n\r\n   DOORS CURR   2410/      PANC/PAFA N627QX \r\nL1 C: 06:44:57/ O: 07:50:35\r\nL2 C: 06:18:14/ O: 07:49:53\r\nR1 C:   :  :  / O: 07:50:05\r\nR2 C:   :  :  / O: 07:49:58\r\nCG C: 06:39:31/ O: 07:49:31\r\nCG C: 06:40:5","stratum":"26/unparsed","expected":[]}
+{"id":3124876,"timestamp":"2026-01-07T10:35:42.744Z","label":"26","tail":"F-GRXF","text":"0826EGBBAF1565/07\r0904LFPG26L","stratum":"26/unparsed","expected":[]}
+{"id":3297518,"timestamp":"2026-01-07T17:32:09.273Z","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":3672783,"timestamp":"2026-01-08T03:48:14.243Z","label":"26","tail":"B-1858","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":3687238,"timestamp":"2026-01-08T04:08:12.998Z","label":"26","tail":"B-6432","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":3700443,"timestamp":"2026-01-08T04:29:59.744Z","label":"26","tail":"B-6432","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":3810653,"timestamp":"2026-01-08T06:56:19.883Z","label":"26","tail":"F-HPNZ","text":"0656EGPHAF1887/08\r0742LFPG   ","stratum":"26/unparsed","expected":[]}
+{"id":4094227,"timestamp":"2026-01-08T17:14:48.557Z","label":"26","tail":"B-2023","flight":"MU553","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":4148200,"timestamp":"2026-01-08T22:12:06.842Z","label":"26","tail":"B-7365","flight":"MU207","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":4178767,"timestamp":"2026-01-09T00:44:11.956Z","label":"26","tail":"B-2002","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":4216568,"timestamp":"2026-01-09T01:36:10.916Z","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":4227686,"timestamp":"2026-01-09T01:52:12.210Z","label":"26","tail":"B-2001","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":4804107,"timestamp":"2026-01-09T15:43:52.714Z","label":"26","tail":"B-2025","text":"-\r\n","stratum":"26/unparsed","expected":[]}
+{"id":4955725,"timestamp":"2026-01-09T20:20:10.418Z","label":"26","tail":"B-227T","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":5010475,"timestamp":"2026-01-09T20:42:47.169Z","label":"26","tail":"F-HUVD","text":"1920LFPGAF028G/09\r\n0456KLAX25L","stratum":"26/unparsed","expected":[]}
+{"id":5028306,"timestamp":"2026-01-09T22:26:44.356Z","label":"26","tail":"ZK-NZR","text":"NZ6068 2226EDNO  01\n\tSPECIAL LOAD NOTIFICATION TO CAPTAIN  FINAL EDNO 1\n\tMESSAGE 1\n\tFROM         FLIGHT        DATE       A/C REG   PREPARED BY\n\tAKL          NZ6068/09     10JAN26    ZKNZR     DANIEL CORDERY \n\t***************************************************************\n\t*** DANGEROUS GOODS ***\n\tTO  AWB      CL/DV UN/ID SUB PCS QTY/TI RRR PCK IMP  CAO    POS\n\t    NR        COMP   NR  RSK            CAT GRP DRIL   ULD/CODE\n\t---------------------------------------------------------------\n\tNO DANGEROUS GOODS UPLIFTED EX AKL\n\t***************************************************************\n\t*** OTHER SPECIAL LOAD ***\n\tTO  AWB      CONTENTS              PCS  QTY     IMP         POS\n\t    NR                                          CODE   ULD/CODE\n\t---------------------------------------------------------------\n\tNO SPECIAL LOAD UPLIFTED EX AKL\n\t***************************************************************\n\tSI AMADEUS ACARS NOTOC.\n\t***************************************************************\n\tTHERE IS NO EVIDENCE THAT ANY DAMAGED OR LEAKING PACKAGES\n\tCONTAINING DANGEROUS GOODS HAVE BEEN LOADED ON THE AIRCRAFT.\n\t***************************************************************\n\t\n\tLOADING SUPERVISOR                              CAPTAIN\n\t(NAME AND SIGNATURE)                       (NAME AND SIGNATURE)\n\t\n\tEMERGENCY TELEPHONE NUMBER 64 9 256-3585\n\t\n\tENDNOTOC\n\t","stratum":"26/unparsed","expected":[]}
+{"id":5362215,"timestamp":"2026-01-10T06:22:15.602Z","label":"26","tail":"F-HEPB","text":"0622LROPAF1089/10\r0707LFPG27R","stratum":"26/unparsed","expected":[]}
+{"id":5626895,"timestamp":"2026-01-10T23:20:10.339Z","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":5673166,"timestamp":"2026-01-10T23:44:23.875Z","label":"26","tail":"B-2021","text":"-\r\n","stratum":"26/unparsed","expected":[]}
+{"id":5686692,"timestamp":"2026-01-11T00:52:09.966Z","label":"26","tail":"B-7868","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":5967929,"timestamp":"2026-01-11T05:03:53.423Z","label":"26","tail":"N506GJ","text":"DPT01G74548/10110146KGRRKORD****************************","stratum":"26/unparsed","expected":[]}
+{"id":6154955,"timestamp":"2026-01-11T10:16:07.938Z","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":6174894,"timestamp":"2026-01-11T09:42:26.320Z","label":"26","tail":"F-HZUS","text":"0703ESSAAF1463/11\r0748LFPG   ","stratum":"26/unparsed","expected":[]}
+{"id":6545120,"timestamp":"2026-01-12T02:10:11.402Z","label":"26","tail":"B-227T","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":6579517,"timestamp":"2026-01-12T03:49:20.588Z","label":"26","tail":"N547GJ","text":"DPT01G74589/11120345KORDKDAY****************************","stratum":"26/unparsed","expected":[]}
+{"id":6978859,"timestamp":"2026-01-12T13:16:09.183Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7110828,"timestamp":"2026-01-12T15:06:02.777Z","label":"26","tail":"F-GKXO","text":"1303ESSAAF1263/12\r1513LFPG27R","stratum":"26/unparsed","expected":[]}
+{"id":7120325,"timestamp":"2026-01-12T17:16:12.891Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7337963,"timestamp":"2026-01-13T00:48:09.747Z","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7400763,"timestamp":"2026-01-13T02:40:11.141Z","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7422124,"timestamp":"2026-01-13T03:16:11.382Z","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7526908,"timestamp":"2026-01-13T06:01:21.867Z","label":"26","tail":"B-6166","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7751650,"timestamp":"2026-01-13T12:32:10.108Z","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7857586,"timestamp":"2026-01-13T15:36:09.205Z","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":7865328,"timestamp":"2026-01-13T15:48:12.132Z","label":"26","tail":"B-2020","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8054832,"timestamp":"2026-01-13T21:40:10.985Z","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8076248,"timestamp":"2026-01-13T22:20:16.111Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8113218,"timestamp":"2026-01-13T23:40:25.203Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8145971,"timestamp":"2026-01-14T00:23:13.274Z","label":"26","tail":"N541GJ","text":"DPT01G74189/13132353KEWRKBGR****************************","stratum":"26/unparsed","expected":[]}
+{"id":8150033,"timestamp":"2026-01-14T00:28:35.864Z","label":"26","tail":"B-2025","text":"-\r\n","stratum":"26/unparsed","expected":[]}
+{"id":8190008,"timestamp":"2026-01-14T01:52:08.787Z","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8198401,"timestamp":"2026-01-14T02:04:09.267Z","label":"26","tail":"B-7349","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8654922,"timestamp":"2026-01-17T14:12:11.552Z","label":"26","tail":"B-7367","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8682926,"timestamp":"2026-01-17T14:56:17.080Z","label":"26","tail":"B-7369","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8688423,"timestamp":"2026-01-17T15:04:14.761Z","label":"26","tail":"B-7368","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":8865639,"timestamp":"2026-01-17T19:41:23.914Z","label":"26","tail":"B-6108","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9019717,"timestamp":"2026-01-18T00:21:33.497Z","label":"26","tail":"B-2025","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9062682,"timestamp":"2026-01-18T01:32:12.082Z","label":"26","tail":"B-7347","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9130026,"timestamp":"2026-01-18T02:56:13.769Z","label":"26","tail":"B-6461","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9565393,"timestamp":"2026-01-18T14:08:11.194Z","label":"26","tail":"B-7868","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9605690,"timestamp":"2026-01-18T15:18:16.667Z","label":"26","tail":"B-1900","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9770601,"timestamp":"2026-01-18T18:41:12.437Z","label":"26","tail":"F-HEPB","text":"1625EDDBAF1235/18\r1710LFPG09L","stratum":"26/unparsed","expected":[]}
+{"id":9822765,"timestamp":"2026-01-18T23:04:08.847Z","label":"26","tail":"B-6545","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9839381,"timestamp":"2026-01-18T23:36:08.132Z","label":"26","tail":"B-7369","flight":"MU588","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":9970727,"timestamp":"2026-01-19T03:36:46.337Z","label":"26","tail":"B-7636","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":10063810,"timestamp":"2026-01-19T05:22:37.399Z","label":"26","tail":"B-7343","text":"-\r\n","stratum":"26/unparsed","expected":[]}
+{"id":10347674,"timestamp":"2026-01-19T13:12:12.609Z","label":"26","tail":"B-2025","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":10350692,"timestamp":"2026-01-19T13:16:57.146Z","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":10418237,"timestamp":"2026-01-19T15:24:10.081Z","label":"26","tail":"B-7343","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":10697619,"timestamp":"2026-01-20T00:32:15.829Z","label":"26","tail":"B-6432","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":10714614,"timestamp":"2026-01-20T01:00:10.111Z","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":10726703,"timestamp":"2026-01-20T01:20:10.592Z","label":"26","tail":"B-2023","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":10731982,"timestamp":"2026-01-20T01:28:10.209Z","label":"26","tail":"B-2003","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":11276184,"timestamp":"2026-01-20T15:12:08.675Z","label":"26","tail":"B-5937","text":"-","stratum":"26/unparsed","expected":[]}
+{"id":11341128,"timestamp":"2026-01-21T17:22:41.329Z","label":"26","tail":"HL8082","flight":"KE412","text":"R","stratum":"26/unparsed","expected":[]}

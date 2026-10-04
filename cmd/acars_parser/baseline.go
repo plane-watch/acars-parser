@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/ClickHouse/clickhouse-go/v2"
+
 	"acars_parser/internal/baseline"
 	"acars_parser/internal/registry"
 	"acars_parser/internal/storage"
@@ -16,8 +18,11 @@ import (
 // defaultBaselineDir is where the regression gate test reads its fixtures.
 const defaultBaselineDir = "internal/parsers/testdata/baseline"
 
-// baselineOrdering documents the deterministic ordering within each stratum.
+// baselineOrdering documents the deterministic ranking within each stratum.
 const baselineOrdering = "cityHash64(id), id"
+
+// baselineTimeFormat is the UTC format used for fixture timestamps.
+const baselineTimeFormat = "2006-01-02T15:04:05.000Z"
 
 func runBaselineCmd(args []string) {
 	fs := flag.NewFlagSet("baseline", flag.ExitOnError)
@@ -28,7 +33,7 @@ func runBaselineCmd(args []string) {
 	chPassword := fs.String("ch-password", defaultCHPassword(), "ClickHouse password")
 	chDB := fs.String("ch-db", defaultCHDatabase(), "ClickHouse database")
 	outDir := fs.String("out", defaultBaselineDir, "Directory to write the baseline fixtures to")
-	perStratum := fs.Int("per-stratum", 100, "Maximum messages per (label, parser type) stratum")
+	perStratum := fs.Int("per-stratum", 100, "Maximum messages per stratum (label and current result types)")
 	cutoff := fs.String("cutoff", "", "Only sample messages at or before this UTC time (YYYY-MM-DD HH:MM:SS); required")
 
 	if err := fs.Parse(args); err != nil {
@@ -62,92 +67,163 @@ func runBaselineCmd(args []string) {
 	}
 	defer func() { _ = db.Close() }()
 
-	cases, strata, err := sampleBaseline(ctx, db, *cutoff, *perStratum)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error sampling messages: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Record what the current parsers produce for each sampled message.
 	reg := registry.Default()
 	reg.Sort()
-	for i := range cases {
-		expected, err := baseline.Observe(reg.Dispatch(cases[i].Message()))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error recording message %d: %v\n", cases[i].ID, err)
-			os.Exit(1)
-		}
-		cases[i].Expected = expected
-	}
+	sampler := baseline.NewSampler(*perStratum)
 
-	if err := baseline.Write(*outDir, cases); err != nil {
+	stats, err := sampleBaseline(ctx, db, *cutoff, func(c baseline.Case, hash uint64) error {
+		expected, err := baseline.Observe(reg.Dispatch(c.Message()))
+		if err != nil {
+			return fmt.Errorf("message %d: %w", c.ID, err)
+		}
+		c.Expected = expected
+		c.Stratum = baseline.StratumOf(c.Label, expected)
+		sampler.Offer(c, hash)
+		return nil
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "\nError sampling messages: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println()
+
+	cases := sampler.Cases()
+	parserVersion := version.Parser()
+	manifest := baseline.Manifest{
+		Source:     "clickhouse " + *chDB + ".messages",
+		Cutoff:     *cutoff,
+		PerStratum: *perStratum,
+		Ordering:   baselineOrdering,
+		Strata:     sampler.Strata(),
+		SampledBy:  parserVersion,
+		RecordedBy: parserVersion,
+	}
+	if err := baseline.Save(*outDir, cases, manifest); err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing baseline: %v\n", err)
 		os.Exit(1)
 	}
-	manifest := baseline.Manifest{
-		Source:        "clickhouse " + *chDB + ".messages",
-		Cutoff:        *cutoff,
-		PerStratum:    *perStratum,
-		Ordering:      baselineOrdering,
-		Strata:        strata,
-		Cases:         len(cases),
-		ParserVersion: version.Parser(),
-	}
-	if err := baseline.WriteManifest(*outDir, manifest); err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing manifest: %v\n", err)
-		os.Exit(1)
-	}
 
-	fmt.Printf("Wrote %d cases from %d strata to %s\n", len(cases), strata, *outDir)
+	fmt.Printf("Scanned %d messages (%d duplicated IDs kept once, %d IDs excluded because their stored copies conflict).\n",
+		stats.scanned, stats.duplicatesKept, stats.conflictsExcluded)
+	fmt.Printf("Wrote %d cases from %d strata to %s\n", len(cases), sampler.Strata(), *outDir)
 }
 
-// sampleBaseline draws up to perStratum messages from each (label, parser type)
-// stratum at or before the cutoff. Messages are first deduplicated by ID (the
-// earliest stored row wins), then ordered within each stratum by a hash of the
-// ID with the ID as a tie-breaker, so the same data always yields the same sample.
-func sampleBaseline(ctx context.Context, db *storage.ClickHouseDB, cutoff string, perStratum int) ([]baseline.Case, int, error) {
-	query := `
-		SELECT id, toString(timestamp) AS ts, label, tail, flight, raw_text, parser_type
-		FROM (
-			SELECT id, timestamp, label, tail, flight, raw_text, parser_type
-			FROM messages
-			WHERE timestamp <= toDateTime64(?, 3, 'UTC')
-			ORDER BY id, created_at, parser_type
-			LIMIT 1 BY id
-		)
-		ORDER BY label, parser_type, ` + baselineOrdering + `
-		LIMIT ? BY label, parser_type`
+// sampleStats counts what the baseline scan saw.
+type sampleStats struct {
+	scanned           int
+	duplicatesKept    int
+	conflictsExcluded int
+}
 
-	rows, err := db.Conn().Query(ctx, query, cutoff, perStratum)
+// sampleBaseline calls offer for every message stored at or before the cutoff,
+// once per message ID, with the message's cityHash64(id) rank.
+//
+// An ID stored more than once is offered once if every copy has the same input
+// fields, and is excluded (and counted) if the copies conflict, since no copy
+// can be chosen as the input without guessing. Duplicates are resolved in a
+// separate, small query so that the scan of every other message needs neither
+// a GROUP BY nor a sort over the whole table; the sampler does not depend on
+// the order messages are offered in.
+func sampleBaseline(ctx context.Context, db *storage.ClickHouseDB, cutoff string, offer func(baseline.Case, uint64) error) (sampleStats, error) {
+	var stats sampleStats
+
+	// The connection's default 60-second max_execution_time is too short for a
+	// scan that parses every message as it streams, so it is lifted for these
+	// two queries only.
+	ctx = clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0}))
+
+	const window = `timestamp <= toDateTime64(?, 3, 'UTC')`
+	const duplicateIDs = `SELECT id FROM messages WHERE ` + window + ` GROUP BY id HAVING count() > 1`
+	const inputHash = `cityHash64(timestamp, label, tail, flight, raw_text)`
+
+	// Duplicated IDs: one canonical copy each, unless the copies conflict.
+	dupRows, err := db.Conn().Query(ctx, `
+		SELECT id,
+		       argMin(timestamp, created_at) AS ts,
+		       argMin(label, created_at), argMin(tail, created_at),
+		       argMin(flight, created_at), argMin(raw_text, created_at),
+		       cityHash64(id),
+		       uniqExact(`+inputHash+`) AS variants
+		FROM messages
+		WHERE `+window+` AND id IN (`+duplicateIDs+`)
+		GROUP BY id`, cutoff, cutoff)
 	if err != nil {
-		return nil, 0, fmt.Errorf("query: %w", err)
+		return stats, fmt.Errorf("query duplicated IDs: %w", err)
+	}
+	defer func() { _ = dupRows.Close() }()
+	for dupRows.Next() {
+		c, hash, variants, err := scanBaselineRow(dupRows, true)
+		if err != nil {
+			return stats, err
+		}
+		if variants > 1 {
+			stats.conflictsExcluded++
+			continue
+		}
+		stats.duplicatesKept++
+		stats.scanned++
+		if err := offer(c, hash); err != nil {
+			return stats, err
+		}
+	}
+	if err := dupRows.Err(); err != nil {
+		return stats, fmt.Errorf("iterate duplicated IDs: %w", err)
+	}
+
+	// Every other message, streamed in storage order.
+	rows, err := db.Conn().Query(ctx, `
+		SELECT id, timestamp, label, tail, flight, raw_text, cityHash64(id)
+		FROM messages
+		WHERE `+window+` AND id NOT IN (`+duplicateIDs+`)`, cutoff, cutoff)
+	if err != nil {
+		return stats, fmt.Errorf("query messages: %w", err)
 	}
 	defer func() { _ = rows.Close() }()
-
-	var cases []baseline.Case
-	strata := make(map[string]bool)
 	for rows.Next() {
-		var (
-			id                                 uint64
-			ts, label, tail, flight, text, ptp string
-		)
-		if err := rows.Scan(&id, &ts, &label, &tail, &flight, &text, &ptp); err != nil {
-			return nil, 0, fmt.Errorf("scan: %w", err)
+		c, hash, _, err := scanBaselineRow(rows, false)
+		if err != nil {
+			return stats, err
 		}
-		stratum := label + "/" + ptp
-		strata[stratum] = true
-		cases = append(cases, baseline.Case{
-			ID:        int64(id),
-			Timestamp: ts,
-			Label:     label,
-			Tail:      tail,
-			Flight:    flight,
-			Text:      text,
-			Stratum:   stratum,
-		})
+		stats.scanned++
+		if stats.scanned%1_000_000 == 0 {
+			fmt.Printf("\rScanned %d messages...", stats.scanned)
+		}
+		if err := offer(c, hash); err != nil {
+			return stats, err
+		}
 	}
 	if err := rows.Err(); err != nil {
-		return nil, 0, fmt.Errorf("iterate: %w", err)
+		return stats, fmt.Errorf("iterate messages: %w", err)
 	}
-	return cases, len(strata), nil
+	return stats, nil
+}
+
+// rowScanner is the part of the ClickHouse driver's rows used by the scan.
+type rowScanner interface {
+	Scan(dest ...any) error
+}
+
+// scanBaselineRow reads one message row; withVariants reads the extra
+// conflicting-copies column of the duplicated-IDs query.
+func scanBaselineRow(rows rowScanner, withVariants bool) (baseline.Case, uint64, uint64, error) {
+	var (
+		id, hash, variants              uint64
+		ts                              time.Time
+		label, tail, flight, rawMessage string
+	)
+	dest := []any{&id, &ts, &label, &tail, &flight, &rawMessage, &hash}
+	if withVariants {
+		dest = append(dest, &variants)
+	}
+	if err := rows.Scan(dest...); err != nil {
+		return baseline.Case{}, 0, 0, fmt.Errorf("scan: %w", err)
+	}
+	return baseline.Case{
+		ID:        int64(id),
+		Timestamp: ts.UTC().Format(baselineTimeFormat),
+		Label:     label,
+		Tail:      tail,
+		Flight:    flight,
+		Text:      rawMessage,
+	}, hash, variants, nil
 }

@@ -1,100 +1,100 @@
-{"id":11768,"timestamp":"2025-12-31 18:08:36.909","label":"Q7","tail":"CGGMN","flight":"QK8421","text":"0CYYCI18451","stratum":"Q7/unparsed","expected":[]}
-{"id":13396,"timestamp":"2025-12-31 18:09:27.021","label":"Q7","tail":"N918NN","flight":"AA884","text":"OS KFLL /EON2015","stratum":"Q7/unparsed","expected":[]}
-{"id":13400,"timestamp":"2025-12-31 18:09:27.136","label":"Q7","tail":"N918NN","flight":"AA884","text":"OS KFLL /EON2015","stratum":"Q7/unparsed","expected":[]}
-{"id":24028,"timestamp":"2025-12-31 18:15:40.187","label":"Q7","tail":"N293NV","flight":"G43193","text":"OTHER, 105,2100,KATW, 232,DEPARTURE\r\nDEPLANED AIRCRAFT AND RE\r\nSCREED PAX.\r\n","stratum":"Q7/unparsed","expected":[]}
-{"id":60655,"timestamp":"2025-12-31 18:35:28.818","label":"Q7","tail":"N922AE","flight":"PT5951","text":"OS GSO /EON1944","stratum":"Q7/unparsed","expected":[]}
-{"id":83591,"timestamp":"2025-12-31 18:48:17.366","label":"Q7","tail":"N653AE","flight":"PT5852","text":"OS CAE /EON2012","stratum":"Q7/unparsed","expected":[]}
-{"id":94411,"timestamp":"2025-12-31 18:54:07.683","label":"Q7","tail":"N663AR","flight":"PT5898","text":"OS BGR /EON1956","stratum":"Q7/unparsed","expected":[]}
-{"id":103976,"timestamp":"2025-12-31 18:58:45.137","label":"Q7","tail":"N698CB","flight":"PT5833","text":"OS TLH /EON1927","stratum":"Q7/unparsed","expected":[]}
-{"id":512486,"timestamp":"2026-01-03 22:28:16.287","label":"Q7","tail":"CGJZY","text":"0CYYJI21491","stratum":"Q7/unparsed","expected":[]}
-{"id":595316,"timestamp":"2026-01-04 00:11:52.628","label":"Q7","tail":"CGGNW","text":"0KPDXI22421","stratum":"Q7/unparsed","expected":[]}
-{"id":769199,"timestamp":"2026-01-04 07:03:34.685","label":"Q7","tail":"CGGMZ","text":"0CYVRI00441","stratum":"Q7/unparsed","expected":[]}
-{"id":1203540,"timestamp":"2026-01-05 03:59:49.097","label":"Q7","tail":"CGGMN","text":"0CYVRI04001","stratum":"Q7/unparsed","expected":[]}
-{"id":1445874,"timestamp":"2026-01-05 08:52:44.249","label":"Q7","tail":"N858NN","text":"OS KCOS /EON0727","stratum":"Q7/unparsed","expected":[]}
-{"id":2015757,"timestamp":"2026-01-06 03:09:04.706","label":"Q7","tail":"CGGOI","text":"0CYLWI01391","stratum":"Q7/unparsed","expected":[]}
-{"id":3001047,"timestamp":"2026-01-07 07:51:36.459","label":"Q7","tail":"N971NN","text":"OS KLAX /EON0816","stratum":"Q7/unparsed","expected":[]}
-{"id":3142212,"timestamp":"2026-01-07 11:13:47.946","label":"Q7","tail":"N24990","text":"/D3 HOLD MSG       / KDEN EGLL 06 085748 BNN 0910 0173\r\nBINGO 11.0\r\nREMF EGKK 8.0","stratum":"Q7/unparsed","expected":[]}
-{"id":3440784,"timestamp":"2026-01-07 20:14:08.811","label":"Q7","tail":"CGGMQ","text":"0CYYJI18501","stratum":"Q7/unparsed","expected":[]}
-{"id":3609636,"timestamp":"2026-01-07 23:28:31.797","label":"Q7","tail":"N68821","text":"/D3 HOLD MSG       / KAUS KEWR 07 195551 PALEO 2010 0100\r\nHOLD AVAIL 60MIN WITH NO\r\nDIVERT FUEL","stratum":"Q7/unparsed","expected":[]}
-{"id":3757713,"timestamp":"2026-01-08 05:47:43.920","label":"Q7","tail":"CGYJZ","text":"0KSEAI06171","stratum":"Q7/unparsed","expected":[]}
-{"id":4119073,"timestamp":"2026-01-08 22:15:49.743","label":"Q7","tail":"CGGNW","text":"0CYYCI22281","stratum":"Q7/unparsed","expected":[]}
-{"id":4119610,"timestamp":"2026-01-08 22:16:18.569","label":"Q7","tail":"CGGNW","text":"0CYYCI22281","stratum":"Q7/unparsed","expected":[]}
-{"id":4127619,"timestamp":"2026-01-08 22:29:14.506","label":"Q7","tail":"CGBJZ","text":"0KPDXI22351","stratum":"Q7/unparsed","expected":[]}
-{"id":4193929,"timestamp":"2026-01-09 00:59:03.100","label":"Q7","tail":"N883NN","text":"OS KMIA /EON0217","stratum":"Q7/unparsed","expected":[]}
-{"id":4202072,"timestamp":"2026-01-09 01:05:10.084","label":"Q7","tail":"CGJZD","text":"0CYTZI01251","stratum":"Q7/unparsed","expected":[]}
-{"id":4202105,"timestamp":"2026-01-09 01:05:12.585","label":"Q7","tail":"CGJZD","text":"0CYTZI01401","stratum":"Q7/unparsed","expected":[]}
-{"id":4274814,"timestamp":"2026-01-09 02:22:17.680","label":"Q7","tail":"CGSJZ","text":"0CYYCI02001","stratum":"Q7/unparsed","expected":[]}
-{"id":4279489,"timestamp":"2026-01-09 02:27:08.811","label":"Q7","tail":"CGJZA","text":"0CYTZI02211","stratum":"Q7/unparsed","expected":[]}
-{"id":4289998,"timestamp":"2026-01-09 02:38:39.508","label":"Q7","tail":"CGBJZ","text":"0KPDXI02201","stratum":"Q7/unparsed","expected":[]}
-{"id":4299112,"timestamp":"2026-01-09 02:48:26.859","label":"Q7","tail":"N153AN","text":"OS KDFW /EON0348","stratum":"Q7/unparsed","expected":[]}
-{"id":4404341,"timestamp":"2026-01-09 04:28:55.159","label":"Q7","tail":"CGYJZ","text":"0KSEAI03091","stratum":"Q7/unparsed","expected":[]}
-{"id":4513570,"timestamp":"2026-01-09 06:39:23.072","label":"Q7","tail":"CGYJZ","text":"0CYVRI05001","stratum":"Q7/unparsed","expected":[]}
-{"id":4560947,"timestamp":"2026-01-09 07:40:07.019","label":"Q7","tail":"CGGND","text":"0CYQQI06061","stratum":"Q7/unparsed","expected":[]}
-{"id":4568389,"timestamp":"2026-01-09 07:48:24.107","label":"Q7","tail":"CGGMQ","text":"0CYCDI06021","stratum":"Q7/unparsed","expected":[]}
-{"id":4854359,"timestamp":"2026-01-09 16:28:36.102","label":"Q7","tail":"N904NN","text":"OS KMIA /EON1724","stratum":"Q7/unparsed","expected":[]}
-{"id":5120574,"timestamp":"2026-01-09 22:50:02.727","label":"Q7","tail":"CGGMI","text":"0CYMMI20401","stratum":"Q7/unparsed","expected":[]}
-{"id":5120854,"timestamp":"2026-01-09 22:50:13.413","label":"Q7","tail":"CGGMI","text":"0CYMMI20401","stratum":"Q7/unparsed","expected":[]}
-{"id":5121224,"timestamp":"2026-01-09 22:50:25.866","label":"Q7","tail":"CGGMI","text":"0CYMMI20401","stratum":"Q7/unparsed","expected":[]}
-{"id":5125893,"timestamp":"2026-01-09 22:53:32.429","label":"Q7","tail":"N951XV","text":"OS KLAS /EON0020","stratum":"Q7/unparsed","expected":[]}
-{"id":5160093,"timestamp":"2026-01-09 23:19:52.706","label":"Q7","tail":"CGGNY","text":"0CYVRI20151","stratum":"Q7/unparsed","expected":[]}
-{"id":5219479,"timestamp":"2026-01-10 00:17:46.005","label":"Q7","tail":"N446AN","text":"OS KCLT /EON2314","stratum":"Q7/unparsed","expected":[]}
-{"id":5318662,"timestamp":"2026-01-10 05:25:50.204","label":"Q7","tail":"N145AN","text":"OS KDFW /EON0543","stratum":"Q7/unparsed","expected":[]}
-{"id":5334612,"timestamp":"2026-01-10 05:47:03.699","label":"Q7","tail":"CGGOI","text":"0CYQQI06071","stratum":"Q7/unparsed","expected":[]}
-{"id":5334688,"timestamp":"2026-01-10 05:47:11.357","label":"Q7","tail":"CGGOI","text":"0CYQQI06071","stratum":"Q7/unparsed","expected":[]}
-{"id":5578222,"timestamp":"2026-01-10 21:48:35.265","label":"Q7","tail":"N889NN","text":"OS KLAX /EON0045","stratum":"Q7/unparsed","expected":[]}
-{"id":5604010,"timestamp":"2026-01-10 22:22:03.373","label":"Q7","tail":"N117AN","text":"OS KLAX /EON0314","stratum":"Q7/unparsed","expected":[]}
-{"id":5604233,"timestamp":"2026-01-10 22:22:14.332","label":"Q7","tail":"N117AN","text":"OS KLAX /EON0314","stratum":"Q7/unparsed","expected":[]}
-{"id":5671693,"timestamp":"2026-01-10 23:42:54.805","label":"Q7","tail":"N17285","text":"/D3 HOLD MSG       / KRSW KEWR 10 223351 ARD   2305 0093","stratum":"Q7/unparsed","expected":[]}
-{"id":5671878,"timestamp":"2026-01-10 23:43:07.601","label":"Q7","tail":"N17285","text":"/D3 HOLD MSG       / KRSW KEWR 10 223351 ARD   2305 0093","stratum":"Q7/unparsed","expected":[]}
-{"id":5672481,"timestamp":"2026-01-10 23:43:54.178","label":"Q7","tail":"N901AA","text":"OS KPHL /EON2240","stratum":"Q7/unparsed","expected":[]}
-{"id":5956995,"timestamp":"2026-01-11 04:49:19.993","label":"Q7","tail":"CGGOI","text":"0CYYJI01231","stratum":"Q7/unparsed","expected":[]}
-{"id":5994845,"timestamp":"2026-01-11 05:42:55.871","label":"Q7","tail":"CGGNZ","text":"0CYYJI02251","stratum":"Q7/unparsed","expected":[]}
-{"id":6021016,"timestamp":"2026-01-11 06:21:52.641","label":"Q7","tail":"CGBJZ","text":"0CYKAI02311","stratum":"Q7/unparsed","expected":[]}
-{"id":6046889,"timestamp":"2026-01-11 06:57:31.122","label":"Q7","tail":"CGGNZ","text":"0CYVRI03351","stratum":"Q7/unparsed","expected":[]}
-{"id":6621951,"timestamp":"2026-01-12 04:36:05.056","label":"Q7","tail":"N122NN","text":"OS KLAX /EON0649","stratum":"Q7/unparsed","expected":[]}
-{"id":6704673,"timestamp":"2026-01-12 06:19:15.758","label":"Q7","tail":"CGJZG","text":"0CYYJI06301","stratum":"Q7/unparsed","expected":[]}
-{"id":6733782,"timestamp":"2026-01-12 06:57:41.489","label":"Q7","tail":"N224UA","text":"/D3 HOLD MSG       / KSFO EGLL 11 065653 BNN 0700 0245\r\nEXPECTING 5MIN HOLDING","stratum":"Q7/unparsed","expected":[]}
-{"id":6985582,"timestamp":"2026-01-12 12:53:49.973","label":"Q7","tail":"N675UA","text":"/D3 HOLD MSG       / KEWR EGLL 11 120142 BNN   1220 0227","stratum":"Q7/unparsed","expected":[]}
-{"id":7226538,"timestamp":"2026-01-12 19:45:07.709","label":"Q7","tail":"N878NN","text":"OS KCLT /EON2023","stratum":"Q7/unparsed","expected":[]}
-{"id":7243610,"timestamp":"2026-01-12 20:05:25.082","label":"Q7","tail":"CGJZN","text":"0CYVRI19001","stratum":"Q7/unparsed","expected":[]}
-{"id":7395661,"timestamp":"2026-01-12 23:20:40.426","label":"Q7","tail":"CGGMI","text":"0CYMMI20201","stratum":"Q7/unparsed","expected":[]}
-{"id":7763368,"timestamp":"2026-01-13 12:28:55.043","label":"Q7","tail":"N301NW","text":"OS KDFW /EON1426","stratum":"Q7/unparsed","expected":[]}
-{"id":7873651,"timestamp":"2026-01-13 15:26:10.876","label":"Q7","tail":"CGGMQ","text":"0CYVRI14551","stratum":"Q7/unparsed","expected":[]}
-{"id":8108049,"timestamp":"2026-01-13 23:28:22.692","label":"Q7","tail":"N305UG","text":"OS KMIA /EON0116","stratum":"Q7/unparsed","expected":[]}
-{"id":8108819,"timestamp":"2026-01-13 23:29:39.974","label":"Q7","tail":"N406AN","text":"OS KPHX /EON0350","stratum":"Q7/unparsed","expected":[]}
-{"id":8108951,"timestamp":"2026-01-13 23:29:46.131","label":"Q7","tail":"N406AN","text":"OS KPHX /EON0350","stratum":"Q7/unparsed","expected":[]}
-{"id":8132740,"timestamp":"2026-01-14 00:04:49.067","label":"Q7","tail":"N9019F","text":"OS KMIA /EON0148","stratum":"Q7/unparsed","expected":[]}
-{"id":8153765,"timestamp":"2026-01-14 00:34:26.842","label":"Q7","tail":"CGVJZ","text":"0CYULI00281","stratum":"Q7/unparsed","expected":[]}
-{"id":8154073,"timestamp":"2026-01-14 00:34:41.831","label":"Q7","tail":"CGVJZ","text":"0CYULI00281","stratum":"Q7/unparsed","expected":[]}
-{"id":8154087,"timestamp":"2026-01-14 00:34:48.932","label":"Q7","tail":"CGVJZ","text":"0CYULI00281","stratum":"Q7/unparsed","expected":[]}
-{"id":8209817,"timestamp":"2026-01-14 01:42:39.173","label":"Q7","tail":"N849NN","text":"OS KLAX /EON0310","stratum":"Q7/unparsed","expected":[]}
-{"id":8221236,"timestamp":"2026-01-14 01:55:41.702","label":"Q7","tail":"N849NN","text":"OS KLAX /EON0300","stratum":"Q7/unparsed","expected":[]}
-{"id":8269189,"timestamp":"2026-01-14 03:12:14.390","label":"Q7","tail":"CGGNZ","text":"0CYMMI02001","stratum":"Q7/unparsed","expected":[]}
-{"id":8271854,"timestamp":"2026-01-14 03:15:33.163","label":"Q7","tail":"CGGNY","text":"0CYYCI02101","stratum":"Q7/unparsed","expected":[]}
-{"id":8298503,"timestamp":"2026-01-14 04:02:25.179","label":"Q7","tail":"N200NV","text":"OS KSAN /EON0520","stratum":"Q7/unparsed","expected":[]}
-{"id":8298624,"timestamp":"2026-01-14 04:02:32.274","label":"Q7","tail":"N200NV","text":"OS KSAN /EON0520","stratum":"Q7/unparsed","expected":[]}
-{"id":8300669,"timestamp":"2026-01-14 04:04:52.212","label":"Q7","tail":"N848NN","text":"OS KATL /EON0341","stratum":"Q7/unparsed","expected":[]}
-{"id":8308152,"timestamp":"2026-01-14 04:16:13.645","label":"Q7","tail":"CGJZA","text":"0CYTZI02441","stratum":"Q7/unparsed","expected":[]}
-{"id":8902978,"timestamp":"2026-01-17 18:15:59.102","label":"Q7","tail":"CGGOI","text":"0CYVRI15251","stratum":"Q7/unparsed","expected":[]}
-{"id":9136845,"timestamp":"2026-01-18 02:50:01.038","label":"Q7","tail":"CGXJZ","text":"0CYTZI02411","stratum":"Q7/unparsed","expected":[]}
-{"id":9172950,"timestamp":"2026-01-18 03:46:09.697","label":"Q7","tail":"CGJZN","text":"0CYYCI04121","stratum":"Q7/unparsed","expected":[]}
-{"id":9183349,"timestamp":"2026-01-18 03:58:47.489","label":"Q7","tail":"CGGMI","text":"0CYVRI04121","stratum":"Q7/unparsed","expected":[]}
-{"id":9274440,"timestamp":"2026-01-18 06:00:03.918","label":"Q7","tail":"CGGNZ","text":"0CYQQI06161","stratum":"Q7/unparsed","expected":[]}
-{"id":9299511,"timestamp":"2026-01-18 06:38:06.889","label":"Q7","tail":"CGBJZ","text":"0CYYJI06471","stratum":"Q7/unparsed","expected":[]}
-{"id":9541627,"timestamp":"2026-01-18 13:18:01.873","label":"Q7","tail":"N8009T","text":"OS KMIA /EON1340","stratum":"Q7/unparsed","expected":[]}
-{"id":9881249,"timestamp":"2026-01-18 21:32:42.043","label":"Q7","tail":"N305NX","text":"OS KLGA /EON1956","stratum":"Q7/unparsed","expected":[]}
-{"id":9898628,"timestamp":"2026-01-19 01:46:52.565","label":"Q7","tail":"N341RW","text":"OS KPHX /EON0240","stratum":"Q7/unparsed","expected":[]}
-{"id":10069194,"timestamp":"2026-01-19 05:28:14.065","label":"Q7","tail":"CGJZN","text":"0CYYJI04401","stratum":"Q7/unparsed","expected":[]}
-{"id":10474346,"timestamp":"2026-01-19 16:31:04.382","label":"Q7","tail":"CGGMI","text":"0CYLWI16071","stratum":"Q7/unparsed","expected":[]}
-{"id":10510571,"timestamp":"2026-01-19 17:13:22.740","label":"Q7","tail":"N959NN","text":"OS KORD /EON1808","stratum":"Q7/unparsed","expected":[]}
-{"id":10848039,"timestamp":"2026-01-20 04:36:21.889","label":"Q7","tail":"CGGMZ","text":"0CYEGI04271","stratum":"Q7/unparsed","expected":[]}
-{"id":10893016,"timestamp":"2026-01-20 05:34:11.102","label":"Q7","tail":"CGJZG","text":"0CYVRI05281","stratum":"Q7/unparsed","expected":[]}
-{"id":10922344,"timestamp":"2026-01-20 06:12:30.682","label":"Q7","tail":"N434AN","text":"OS KLAX /EON0840","stratum":"Q7/unparsed","expected":[]}
-{"id":10922389,"timestamp":"2026-01-20 06:12:30.688","label":"Q7","tail":"N434AN","text":"OS KLAX /EON0840","stratum":"Q7/unparsed","expected":[]}
-{"id":11096238,"timestamp":"2026-01-20 10:31:51.773","label":"Q7","tail":"N943NN","text":"OS KDFW /EON1344","stratum":"Q7/unparsed","expected":[]}
-{"id":11178142,"timestamp":"2026-01-20 12:25:18.877","label":"Q7","tail":"CGXJZ","text":"0CYTZI12451","stratum":"Q7/unparsed","expected":[]}
-{"id":11236039,"timestamp":"2026-01-20 13:34:29.649","label":"Q7","tail":"N881NN","text":"OS KMIA /EON1455","stratum":"Q7/unparsed","expected":[]}
-{"id":11460557,"timestamp":"2026-01-21 19:03:52.471","label":"Q7","tail":"N272NV","text":"OTHER,   1,1906,KPGD, 193,DEPARTURE\r\nING TO CLOSE THE DOOR.\r\nTOOK A 1 MIN DELAY\r\n","stratum":"Q7/unparsed","expected":[]}
-{"id":11565310,"timestamp":"2026-01-21 21:34:13.740","label":"Q7","tail":"CGGMZ","text":"0CYYCI17491","stratum":"Q7/unparsed","expected":[]}
-{"id":11603660,"timestamp":"2026-01-21 22:24:13.517","label":"Q7","tail":"CGGMI","text":"0CYVRI17481","stratum":"Q7/unparsed","expected":[]}
-{"id":11674154,"timestamp":"2026-01-22 04:28:22.474","label":"Q7","tail":"N9026C","text":"OS MMSP /EON0556","stratum":"Q7/unparsed","expected":[]}
+{"id":11768,"timestamp":"2025-12-31T18:08:36.909Z","label":"Q7","tail":"CGGMN","flight":"QK8421","text":"0CYYCI18451","stratum":"Q7/unparsed","expected":[]}
+{"id":13396,"timestamp":"2025-12-31T18:09:27.021Z","label":"Q7","tail":"N918NN","flight":"AA884","text":"OS KFLL /EON2015","stratum":"Q7/unparsed","expected":[]}
+{"id":13400,"timestamp":"2025-12-31T18:09:27.136Z","label":"Q7","tail":"N918NN","flight":"AA884","text":"OS KFLL /EON2015","stratum":"Q7/unparsed","expected":[]}
+{"id":24028,"timestamp":"2025-12-31T18:15:40.187Z","label":"Q7","tail":"N293NV","flight":"G43193","text":"OTHER, 105,2100,KATW, 232,DEPARTURE\r\nDEPLANED AIRCRAFT AND RE\r\nSCREED PAX.\r\n","stratum":"Q7/unparsed","expected":[]}
+{"id":60655,"timestamp":"2025-12-31T18:35:28.818Z","label":"Q7","tail":"N922AE","flight":"PT5951","text":"OS GSO /EON1944","stratum":"Q7/unparsed","expected":[]}
+{"id":83591,"timestamp":"2025-12-31T18:48:17.366Z","label":"Q7","tail":"N653AE","flight":"PT5852","text":"OS CAE /EON2012","stratum":"Q7/unparsed","expected":[]}
+{"id":94411,"timestamp":"2025-12-31T18:54:07.683Z","label":"Q7","tail":"N663AR","flight":"PT5898","text":"OS BGR /EON1956","stratum":"Q7/unparsed","expected":[]}
+{"id":103976,"timestamp":"2025-12-31T18:58:45.137Z","label":"Q7","tail":"N698CB","flight":"PT5833","text":"OS TLH /EON1927","stratum":"Q7/unparsed","expected":[]}
+{"id":512486,"timestamp":"2026-01-03T22:28:16.287Z","label":"Q7","tail":"CGJZY","text":"0CYYJI21491","stratum":"Q7/unparsed","expected":[]}
+{"id":595316,"timestamp":"2026-01-04T00:11:52.628Z","label":"Q7","tail":"CGGNW","text":"0KPDXI22421","stratum":"Q7/unparsed","expected":[]}
+{"id":769199,"timestamp":"2026-01-04T07:03:34.685Z","label":"Q7","tail":"CGGMZ","text":"0CYVRI00441","stratum":"Q7/unparsed","expected":[]}
+{"id":1203540,"timestamp":"2026-01-05T03:59:49.097Z","label":"Q7","tail":"CGGMN","text":"0CYVRI04001","stratum":"Q7/unparsed","expected":[]}
+{"id":1445874,"timestamp":"2026-01-05T08:52:44.249Z","label":"Q7","tail":"N858NN","text":"OS KCOS /EON0727","stratum":"Q7/unparsed","expected":[]}
+{"id":2015757,"timestamp":"2026-01-06T03:09:04.706Z","label":"Q7","tail":"CGGOI","text":"0CYLWI01391","stratum":"Q7/unparsed","expected":[]}
+{"id":3001047,"timestamp":"2026-01-07T07:51:36.459Z","label":"Q7","tail":"N971NN","text":"OS KLAX /EON0816","stratum":"Q7/unparsed","expected":[]}
+{"id":3142212,"timestamp":"2026-01-07T11:13:47.946Z","label":"Q7","tail":"N24990","text":"/D3 HOLD MSG       / KDEN EGLL 06 085748 BNN 0910 0173\r\nBINGO 11.0\r\nREMF EGKK 8.0","stratum":"Q7/unparsed","expected":[]}
+{"id":3440784,"timestamp":"2026-01-07T20:14:08.811Z","label":"Q7","tail":"CGGMQ","text":"0CYYJI18501","stratum":"Q7/unparsed","expected":[]}
+{"id":3609636,"timestamp":"2026-01-07T23:28:31.797Z","label":"Q7","tail":"N68821","text":"/D3 HOLD MSG       / KAUS KEWR 07 195551 PALEO 2010 0100\r\nHOLD AVAIL 60MIN WITH NO\r\nDIVERT FUEL","stratum":"Q7/unparsed","expected":[]}
+{"id":3757713,"timestamp":"2026-01-08T05:47:43.920Z","label":"Q7","tail":"CGYJZ","text":"0KSEAI06171","stratum":"Q7/unparsed","expected":[]}
+{"id":4119073,"timestamp":"2026-01-08T22:15:49.743Z","label":"Q7","tail":"CGGNW","text":"0CYYCI22281","stratum":"Q7/unparsed","expected":[]}
+{"id":4119610,"timestamp":"2026-01-08T22:16:18.569Z","label":"Q7","tail":"CGGNW","text":"0CYYCI22281","stratum":"Q7/unparsed","expected":[]}
+{"id":4127619,"timestamp":"2026-01-08T22:29:14.506Z","label":"Q7","tail":"CGBJZ","text":"0KPDXI22351","stratum":"Q7/unparsed","expected":[]}
+{"id":4193929,"timestamp":"2026-01-09T00:59:03.100Z","label":"Q7","tail":"N883NN","text":"OS KMIA /EON0217","stratum":"Q7/unparsed","expected":[]}
+{"id":4202072,"timestamp":"2026-01-09T01:05:10.084Z","label":"Q7","tail":"CGJZD","text":"0CYTZI01251","stratum":"Q7/unparsed","expected":[]}
+{"id":4202105,"timestamp":"2026-01-09T01:05:12.585Z","label":"Q7","tail":"CGJZD","text":"0CYTZI01401","stratum":"Q7/unparsed","expected":[]}
+{"id":4274814,"timestamp":"2026-01-09T02:22:17.680Z","label":"Q7","tail":"CGSJZ","text":"0CYYCI02001","stratum":"Q7/unparsed","expected":[]}
+{"id":4279489,"timestamp":"2026-01-09T02:27:08.811Z","label":"Q7","tail":"CGJZA","text":"0CYTZI02211","stratum":"Q7/unparsed","expected":[]}
+{"id":4289998,"timestamp":"2026-01-09T02:38:39.508Z","label":"Q7","tail":"CGBJZ","text":"0KPDXI02201","stratum":"Q7/unparsed","expected":[]}
+{"id":4299112,"timestamp":"2026-01-09T02:48:26.859Z","label":"Q7","tail":"N153AN","text":"OS KDFW /EON0348","stratum":"Q7/unparsed","expected":[]}
+{"id":4404341,"timestamp":"2026-01-09T04:28:55.159Z","label":"Q7","tail":"CGYJZ","text":"0KSEAI03091","stratum":"Q7/unparsed","expected":[]}
+{"id":4513570,"timestamp":"2026-01-09T06:39:23.072Z","label":"Q7","tail":"CGYJZ","text":"0CYVRI05001","stratum":"Q7/unparsed","expected":[]}
+{"id":4560947,"timestamp":"2026-01-09T07:40:07.019Z","label":"Q7","tail":"CGGND","text":"0CYQQI06061","stratum":"Q7/unparsed","expected":[]}
+{"id":4568389,"timestamp":"2026-01-09T07:48:24.107Z","label":"Q7","tail":"CGGMQ","text":"0CYCDI06021","stratum":"Q7/unparsed","expected":[]}
+{"id":4854359,"timestamp":"2026-01-09T16:28:36.102Z","label":"Q7","tail":"N904NN","text":"OS KMIA /EON1724","stratum":"Q7/unparsed","expected":[]}
+{"id":5120574,"timestamp":"2026-01-09T22:50:02.727Z","label":"Q7","tail":"CGGMI","text":"0CYMMI20401","stratum":"Q7/unparsed","expected":[]}
+{"id":5120854,"timestamp":"2026-01-09T22:50:13.413Z","label":"Q7","tail":"CGGMI","text":"0CYMMI20401","stratum":"Q7/unparsed","expected":[]}
+{"id":5121224,"timestamp":"2026-01-09T22:50:25.866Z","label":"Q7","tail":"CGGMI","text":"0CYMMI20401","stratum":"Q7/unparsed","expected":[]}
+{"id":5125893,"timestamp":"2026-01-09T22:53:32.429Z","label":"Q7","tail":"N951XV","text":"OS KLAS /EON0020","stratum":"Q7/unparsed","expected":[]}
+{"id":5160093,"timestamp":"2026-01-09T23:19:52.706Z","label":"Q7","tail":"CGGNY","text":"0CYVRI20151","stratum":"Q7/unparsed","expected":[]}
+{"id":5219479,"timestamp":"2026-01-10T00:17:46.005Z","label":"Q7","tail":"N446AN","text":"OS KCLT /EON2314","stratum":"Q7/unparsed","expected":[]}
+{"id":5318662,"timestamp":"2026-01-10T05:25:50.204Z","label":"Q7","tail":"N145AN","text":"OS KDFW /EON0543","stratum":"Q7/unparsed","expected":[]}
+{"id":5334612,"timestamp":"2026-01-10T05:47:03.699Z","label":"Q7","tail":"CGGOI","text":"0CYQQI06071","stratum":"Q7/unparsed","expected":[]}
+{"id":5334688,"timestamp":"2026-01-10T05:47:11.357Z","label":"Q7","tail":"CGGOI","text":"0CYQQI06071","stratum":"Q7/unparsed","expected":[]}
+{"id":5578222,"timestamp":"2026-01-10T21:48:35.265Z","label":"Q7","tail":"N889NN","text":"OS KLAX /EON0045","stratum":"Q7/unparsed","expected":[]}
+{"id":5604010,"timestamp":"2026-01-10T22:22:03.373Z","label":"Q7","tail":"N117AN","text":"OS KLAX /EON0314","stratum":"Q7/unparsed","expected":[]}
+{"id":5604233,"timestamp":"2026-01-10T22:22:14.332Z","label":"Q7","tail":"N117AN","text":"OS KLAX /EON0314","stratum":"Q7/unparsed","expected":[]}
+{"id":5671693,"timestamp":"2026-01-10T23:42:54.805Z","label":"Q7","tail":"N17285","text":"/D3 HOLD MSG       / KRSW KEWR 10 223351 ARD   2305 0093","stratum":"Q7/unparsed","expected":[]}
+{"id":5671878,"timestamp":"2026-01-10T23:43:07.601Z","label":"Q7","tail":"N17285","text":"/D3 HOLD MSG       / KRSW KEWR 10 223351 ARD   2305 0093","stratum":"Q7/unparsed","expected":[]}
+{"id":5672481,"timestamp":"2026-01-10T23:43:54.178Z","label":"Q7","tail":"N901AA","text":"OS KPHL /EON2240","stratum":"Q7/unparsed","expected":[]}
+{"id":5956995,"timestamp":"2026-01-11T04:49:19.993Z","label":"Q7","tail":"CGGOI","text":"0CYYJI01231","stratum":"Q7/unparsed","expected":[]}
+{"id":5994845,"timestamp":"2026-01-11T05:42:55.871Z","label":"Q7","tail":"CGGNZ","text":"0CYYJI02251","stratum":"Q7/unparsed","expected":[]}
+{"id":6021016,"timestamp":"2026-01-11T06:21:52.641Z","label":"Q7","tail":"CGBJZ","text":"0CYKAI02311","stratum":"Q7/unparsed","expected":[]}
+{"id":6046889,"timestamp":"2026-01-11T06:57:31.122Z","label":"Q7","tail":"CGGNZ","text":"0CYVRI03351","stratum":"Q7/unparsed","expected":[]}
+{"id":6621951,"timestamp":"2026-01-12T04:36:05.056Z","label":"Q7","tail":"N122NN","text":"OS KLAX /EON0649","stratum":"Q7/unparsed","expected":[]}
+{"id":6704673,"timestamp":"2026-01-12T06:19:15.758Z","label":"Q7","tail":"CGJZG","text":"0CYYJI06301","stratum":"Q7/unparsed","expected":[]}
+{"id":6733782,"timestamp":"2026-01-12T06:57:41.489Z","label":"Q7","tail":"N224UA","text":"/D3 HOLD MSG       / KSFO EGLL 11 065653 BNN 0700 0245\r\nEXPECTING 5MIN HOLDING","stratum":"Q7/unparsed","expected":[]}
+{"id":6985582,"timestamp":"2026-01-12T12:53:49.973Z","label":"Q7","tail":"N675UA","text":"/D3 HOLD MSG       / KEWR EGLL 11 120142 BNN   1220 0227","stratum":"Q7/unparsed","expected":[]}
+{"id":7226538,"timestamp":"2026-01-12T19:45:07.709Z","label":"Q7","tail":"N878NN","text":"OS KCLT /EON2023","stratum":"Q7/unparsed","expected":[]}
+{"id":7243610,"timestamp":"2026-01-12T20:05:25.082Z","label":"Q7","tail":"CGJZN","text":"0CYVRI19001","stratum":"Q7/unparsed","expected":[]}
+{"id":7395661,"timestamp":"2026-01-12T23:20:40.426Z","label":"Q7","tail":"CGGMI","text":"0CYMMI20201","stratum":"Q7/unparsed","expected":[]}
+{"id":7763368,"timestamp":"2026-01-13T12:28:55.043Z","label":"Q7","tail":"N301NW","text":"OS KDFW /EON1426","stratum":"Q7/unparsed","expected":[]}
+{"id":7873651,"timestamp":"2026-01-13T15:26:10.876Z","label":"Q7","tail":"CGGMQ","text":"0CYVRI14551","stratum":"Q7/unparsed","expected":[]}
+{"id":8108049,"timestamp":"2026-01-13T23:28:22.692Z","label":"Q7","tail":"N305UG","text":"OS KMIA /EON0116","stratum":"Q7/unparsed","expected":[]}
+{"id":8108819,"timestamp":"2026-01-13T23:29:39.974Z","label":"Q7","tail":"N406AN","text":"OS KPHX /EON0350","stratum":"Q7/unparsed","expected":[]}
+{"id":8108951,"timestamp":"2026-01-13T23:29:46.131Z","label":"Q7","tail":"N406AN","text":"OS KPHX /EON0350","stratum":"Q7/unparsed","expected":[]}
+{"id":8132740,"timestamp":"2026-01-14T00:04:49.067Z","label":"Q7","tail":"N9019F","text":"OS KMIA /EON0148","stratum":"Q7/unparsed","expected":[]}
+{"id":8153765,"timestamp":"2026-01-14T00:34:26.842Z","label":"Q7","tail":"CGVJZ","text":"0CYULI00281","stratum":"Q7/unparsed","expected":[]}
+{"id":8154073,"timestamp":"2026-01-14T00:34:41.831Z","label":"Q7","tail":"CGVJZ","text":"0CYULI00281","stratum":"Q7/unparsed","expected":[]}
+{"id":8154087,"timestamp":"2026-01-14T00:34:48.932Z","label":"Q7","tail":"CGVJZ","text":"0CYULI00281","stratum":"Q7/unparsed","expected":[]}
+{"id":8209817,"timestamp":"2026-01-14T01:42:39.173Z","label":"Q7","tail":"N849NN","text":"OS KLAX /EON0310","stratum":"Q7/unparsed","expected":[]}
+{"id":8221236,"timestamp":"2026-01-14T01:55:41.702Z","label":"Q7","tail":"N849NN","text":"OS KLAX /EON0300","stratum":"Q7/unparsed","expected":[]}
+{"id":8269189,"timestamp":"2026-01-14T03:12:14.390Z","label":"Q7","tail":"CGGNZ","text":"0CYMMI02001","stratum":"Q7/unparsed","expected":[]}
+{"id":8271854,"timestamp":"2026-01-14T03:15:33.163Z","label":"Q7","tail":"CGGNY","text":"0CYYCI02101","stratum":"Q7/unparsed","expected":[]}
+{"id":8298503,"timestamp":"2026-01-14T04:02:25.179Z","label":"Q7","tail":"N200NV","text":"OS KSAN /EON0520","stratum":"Q7/unparsed","expected":[]}
+{"id":8298624,"timestamp":"2026-01-14T04:02:32.274Z","label":"Q7","tail":"N200NV","text":"OS KSAN /EON0520","stratum":"Q7/unparsed","expected":[]}
+{"id":8300669,"timestamp":"2026-01-14T04:04:52.212Z","label":"Q7","tail":"N848NN","text":"OS KATL /EON0341","stratum":"Q7/unparsed","expected":[]}
+{"id":8308152,"timestamp":"2026-01-14T04:16:13.645Z","label":"Q7","tail":"CGJZA","text":"0CYTZI02441","stratum":"Q7/unparsed","expected":[]}
+{"id":8902978,"timestamp":"2026-01-17T18:15:59.102Z","label":"Q7","tail":"CGGOI","text":"0CYVRI15251","stratum":"Q7/unparsed","expected":[]}
+{"id":9136845,"timestamp":"2026-01-18T02:50:01.038Z","label":"Q7","tail":"CGXJZ","text":"0CYTZI02411","stratum":"Q7/unparsed","expected":[]}
+{"id":9172950,"timestamp":"2026-01-18T03:46:09.697Z","label":"Q7","tail":"CGJZN","text":"0CYYCI04121","stratum":"Q7/unparsed","expected":[]}
+{"id":9183349,"timestamp":"2026-01-18T03:58:47.489Z","label":"Q7","tail":"CGGMI","text":"0CYVRI04121","stratum":"Q7/unparsed","expected":[]}
+{"id":9274440,"timestamp":"2026-01-18T06:00:03.918Z","label":"Q7","tail":"CGGNZ","text":"0CYQQI06161","stratum":"Q7/unparsed","expected":[]}
+{"id":9299511,"timestamp":"2026-01-18T06:38:06.889Z","label":"Q7","tail":"CGBJZ","text":"0CYYJI06471","stratum":"Q7/unparsed","expected":[]}
+{"id":9541627,"timestamp":"2026-01-18T13:18:01.873Z","label":"Q7","tail":"N8009T","text":"OS KMIA /EON1340","stratum":"Q7/unparsed","expected":[]}
+{"id":9881249,"timestamp":"2026-01-18T21:32:42.043Z","label":"Q7","tail":"N305NX","text":"OS KLGA /EON1956","stratum":"Q7/unparsed","expected":[]}
+{"id":9898628,"timestamp":"2026-01-19T01:46:52.565Z","label":"Q7","tail":"N341RW","text":"OS KPHX /EON0240","stratum":"Q7/unparsed","expected":[]}
+{"id":10069194,"timestamp":"2026-01-19T05:28:14.065Z","label":"Q7","tail":"CGJZN","text":"0CYYJI04401","stratum":"Q7/unparsed","expected":[]}
+{"id":10474346,"timestamp":"2026-01-19T16:31:04.382Z","label":"Q7","tail":"CGGMI","text":"0CYLWI16071","stratum":"Q7/unparsed","expected":[]}
+{"id":10510571,"timestamp":"2026-01-19T17:13:22.740Z","label":"Q7","tail":"N959NN","text":"OS KORD /EON1808","stratum":"Q7/unparsed","expected":[]}
+{"id":10848039,"timestamp":"2026-01-20T04:36:21.889Z","label":"Q7","tail":"CGGMZ","text":"0CYEGI04271","stratum":"Q7/unparsed","expected":[]}
+{"id":10893016,"timestamp":"2026-01-20T05:34:11.102Z","label":"Q7","tail":"CGJZG","text":"0CYVRI05281","stratum":"Q7/unparsed","expected":[]}
+{"id":10922344,"timestamp":"2026-01-20T06:12:30.682Z","label":"Q7","tail":"N434AN","text":"OS KLAX /EON0840","stratum":"Q7/unparsed","expected":[]}
+{"id":10922389,"timestamp":"2026-01-20T06:12:30.688Z","label":"Q7","tail":"N434AN","text":"OS KLAX /EON0840","stratum":"Q7/unparsed","expected":[]}
+{"id":11096238,"timestamp":"2026-01-20T10:31:51.773Z","label":"Q7","tail":"N943NN","text":"OS KDFW /EON1344","stratum":"Q7/unparsed","expected":[]}
+{"id":11178142,"timestamp":"2026-01-20T12:25:18.877Z","label":"Q7","tail":"CGXJZ","text":"0CYTZI12451","stratum":"Q7/unparsed","expected":[]}
+{"id":11236039,"timestamp":"2026-01-20T13:34:29.649Z","label":"Q7","tail":"N881NN","text":"OS KMIA /EON1455","stratum":"Q7/unparsed","expected":[]}
+{"id":11460557,"timestamp":"2026-01-21T19:03:52.471Z","label":"Q7","tail":"N272NV","text":"OTHER,   1,1906,KPGD, 193,DEPARTURE\r\nING TO CLOSE THE DOOR.\r\nTOOK A 1 MIN DELAY\r\n","stratum":"Q7/unparsed","expected":[]}
+{"id":11565310,"timestamp":"2026-01-21T21:34:13.740Z","label":"Q7","tail":"CGGMZ","text":"0CYYCI17491","stratum":"Q7/unparsed","expected":[]}
+{"id":11603660,"timestamp":"2026-01-21T22:24:13.517Z","label":"Q7","tail":"CGGMI","text":"0CYVRI17481","stratum":"Q7/unparsed","expected":[]}
+{"id":11674154,"timestamp":"2026-01-22T04:28:22.474Z","label":"Q7","tail":"N9026C","text":"OS MMSP /EON0556","stratum":"Q7/unparsed","expected":[]}

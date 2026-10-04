@@ -1,11 +1,11 @@
-{"id":183007,"timestamp":"2026-01-03 06:13:05.891","label":"QV","tail":"OY-MAD","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":1348355,"timestamp":"2026-01-05 06:48:55.486","label":"QV","tail":"N896FD","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":3049080,"timestamp":"2026-01-07 08:57:05.776","label":"QV","tail":"A7-BTA","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":3080439,"timestamp":"2026-01-07 09:44:30.488","label":"QV","tail":"A7-BFU","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":3080454,"timestamp":"2026-01-07 09:44:31.128","label":"QV","tail":"A7-BFU","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":5199344,"timestamp":"2026-01-09 23:57:51.470","label":"QV","tail":"OY-SRG","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":5251677,"timestamp":"2026-01-10 00:54:07.143","label":"QV","tail":"G-MACY","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":7005984,"timestamp":"2026-01-12 13:14:46.571","label":"QV","tail":"N852FD","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":7513773,"timestamp":"2026-01-13 01:50:45.359","label":"QV","tail":"OY-SRG","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":8104957,"timestamp":"2026-01-13 23:23:57.972","label":"QV","tail":"OE-IXV","text":"2","stratum":"QV/unparsed","expected":[]}
-{"id":10239937,"timestamp":"2026-01-19 10:11:43.854","label":"QV","tail":"PH-EZF","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":183007,"timestamp":"2026-01-03T06:13:05.891Z","label":"QV","tail":"OY-MAD","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":1348355,"timestamp":"2026-01-05T06:48:55.486Z","label":"QV","tail":"N896FD","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":3049080,"timestamp":"2026-01-07T08:57:05.776Z","label":"QV","tail":"A7-BTA","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":3080439,"timestamp":"2026-01-07T09:44:30.488Z","label":"QV","tail":"A7-BFU","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":3080454,"timestamp":"2026-01-07T09:44:31.128Z","label":"QV","tail":"A7-BFU","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":5199344,"timestamp":"2026-01-09T23:57:51.470Z","label":"QV","tail":"OY-SRG","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":5251677,"timestamp":"2026-01-10T00:54:07.143Z","label":"QV","tail":"G-MACY","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":7005984,"timestamp":"2026-01-12T13:14:46.571Z","label":"QV","tail":"N852FD","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":7513773,"timestamp":"2026-01-13T01:50:45.359Z","label":"QV","tail":"OY-SRG","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":8104957,"timestamp":"2026-01-13T23:23:57.972Z","label":"QV","tail":"OE-IXV","text":"2","stratum":"QV/unparsed","expected":[]}
+{"id":10239937,"timestamp":"2026-01-19T10:11:43.854Z","label":"QV","tail":"PH-EZF","text":"2","stratum":"QV/unparsed","expected":[]}

@@ -1,17 +1,17 @@
-{"id":161722,"timestamp":"2026-01-03 05:30:17.461","label":"2E","tail":"A7-BCX","text":"021700,0400,027200,0.785,213000\r\n\r\n\r\nSI\r\nRZFW 161025,CREW 02/10","stratum":"2E/unparsed","expected":[]}
-{"id":323270,"timestamp":"2026-01-03 10:18:04.546","label":"2E","tail":"A7-ALX","text":"027200,0800,033100,0.785,239500\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
-{"id":1462325,"timestamp":"2026-01-05 09:22:27.289","label":"2E","tail":"A7-ALT","text":"027900,0400,033300,0.785,232800\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
-{"id":1656034,"timestamp":"2026-01-05 15:01:38.563","label":"2E","tail":"A7-AHU","text":"011400,0200,014300,0.785,077000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
-{"id":1764027,"timestamp":"2026-01-05 17:08:59.758","label":"2E","tail":"A7-ALQ","text":"027500,0500,034100,0.785,263500\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/14","stratum":"2E/unparsed","expected":[]}
-{"id":2461828,"timestamp":"2026-01-06 15:16:50.961","label":"2E","tail":"A7-ALJ","text":"029900,0500,036900,0.785,263800\r\n\r\n\r\nSI\r\nRZFW 195700,CREW 02/13","stratum":"2E/unparsed","expected":[]}
-{"id":2561995,"timestamp":"2026-01-06 17:49:38.540","label":"2E","tail":"A7-ALE","text":"029400,0500,038200,0.785,235700\r\n\r\n\r\nSI\r\nRZFW 195700,CREW 02/13","stratum":"2E/unparsed","expected":[]}
-{"id":2997019,"timestamp":"2026-01-07 07:47:49.295","label":"2E","tail":"A7-BCA","text":"023900,0400,028900,0.785,213000\r\n\r\n\r\nSI\r\nRZFW 161025,CREW 02/10","stratum":"2E/unparsed","expected":[]}
-{"id":3070831,"timestamp":"2026-01-07 09:35:00.032","label":"2E","tail":"A7-AHX","text":"011400,0200,014400,0.785,078000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
-{"id":3458209,"timestamp":"2026-01-07 21:21:58.272","label":"2E","tail":"A7-BFY","text":"M02AQR0000081400,0800,089400,0.785,347814\n\t\n\t\n\tSI\n\tRZFW 248115,CREW 03/00","stratum":"2E/unparsed","expected":[]}
-{"id":4627661,"timestamp":"2026-01-09 09:11:58.401","label":"2E","tail":"A7-AHQ","text":"010600,0400,013600,0.785,077000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
-{"id":4637284,"timestamp":"2026-01-09 09:20:32.221","label":"2E","tail":"A7-ALW","text":"028600,0500,034500,0.785,262000\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
-{"id":6108226,"timestamp":"2026-01-11 08:04:50.015","label":"2E","tail":"A7-BCR","text":"026000,0400,031400,0.785,213000\r\n\r\n\r\nSI\r\nRZFW 161025,CREW 02/10","stratum":"2E/unparsed","expected":[]}
-{"id":7094288,"timestamp":"2026-01-12 14:54:34.179","label":"2E","tail":"A7-AHP","text":"010800,0200,013900,0.785,077000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 03/06","stratum":"2E/unparsed","expected":[]}
-{"id":8413163,"timestamp":"2026-01-17 07:41:00.194","label":"2E","tail":"A7-ALI","text":"030400,0500,040700,0.785,271000\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
-{"id":8655874,"timestamp":"2026-01-17 13:45:31.080","label":"2E","tail":"A7-AHY","text":"010600,0200,014300,0.785,078000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
-{"id":9309548,"timestamp":"2026-01-18 06:53:22.993","label":"2E","tail":"A7-ALC","text":"029700,0400,036500,0.785,271100\r\n\r\n\r\nSI\r\nRZFW 195700,CREW 02/13","stratum":"2E/unparsed","expected":[]}
+{"id":161722,"timestamp":"2026-01-03T05:30:17.461Z","label":"2E","tail":"A7-BCX","text":"021700,0400,027200,0.785,213000\r\n\r\n\r\nSI\r\nRZFW 161025,CREW 02/10","stratum":"2E/unparsed","expected":[]}
+{"id":323270,"timestamp":"2026-01-03T10:18:04.546Z","label":"2E","tail":"A7-ALX","text":"027200,0800,033100,0.785,239500\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
+{"id":1462325,"timestamp":"2026-01-05T09:22:27.289Z","label":"2E","tail":"A7-ALT","text":"027900,0400,033300,0.785,232800\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
+{"id":1656034,"timestamp":"2026-01-05T15:01:38.563Z","label":"2E","tail":"A7-AHU","text":"011400,0200,014300,0.785,077000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
+{"id":1764027,"timestamp":"2026-01-05T17:08:59.758Z","label":"2E","tail":"A7-ALQ","text":"027500,0500,034100,0.785,263500\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/14","stratum":"2E/unparsed","expected":[]}
+{"id":2461828,"timestamp":"2026-01-06T15:16:50.961Z","label":"2E","tail":"A7-ALJ","text":"029900,0500,036900,0.785,263800\r\n\r\n\r\nSI\r\nRZFW 195700,CREW 02/13","stratum":"2E/unparsed","expected":[]}
+{"id":2561995,"timestamp":"2026-01-06T17:49:38.540Z","label":"2E","tail":"A7-ALE","text":"029400,0500,038200,0.785,235700\r\n\r\n\r\nSI\r\nRZFW 195700,CREW 02/13","stratum":"2E/unparsed","expected":[]}
+{"id":2997019,"timestamp":"2026-01-07T07:47:49.295Z","label":"2E","tail":"A7-BCA","text":"023900,0400,028900,0.785,213000\r\n\r\n\r\nSI\r\nRZFW 161025,CREW 02/10","stratum":"2E/unparsed","expected":[]}
+{"id":3070831,"timestamp":"2026-01-07T09:35:00.032Z","label":"2E","tail":"A7-AHX","text":"011400,0200,014400,0.785,078000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
+{"id":3458209,"timestamp":"2026-01-07T21:21:58.272Z","label":"2E","tail":"A7-BFY","text":"M02AQR0000081400,0800,089400,0.785,347814\n\t\n\t\n\tSI\n\tRZFW 248115,CREW 03/00","stratum":"2E/unparsed","expected":[]}
+{"id":4627661,"timestamp":"2026-01-09T09:11:58.401Z","label":"2E","tail":"A7-AHQ","text":"010600,0400,013600,0.785,077000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
+{"id":4637284,"timestamp":"2026-01-09T09:20:32.221Z","label":"2E","tail":"A7-ALW","text":"028600,0500,034500,0.785,262000\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
+{"id":6108226,"timestamp":"2026-01-11T08:04:50.015Z","label":"2E","tail":"A7-BCR","text":"026000,0400,031400,0.785,213000\r\n\r\n\r\nSI\r\nRZFW 161025,CREW 02/10","stratum":"2E/unparsed","expected":[]}
+{"id":7094288,"timestamp":"2026-01-12T14:54:34.179Z","label":"2E","tail":"A7-AHP","text":"010800,0200,013900,0.785,077000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 03/06","stratum":"2E/unparsed","expected":[]}
+{"id":8413163,"timestamp":"2026-01-17T07:41:00.194Z","label":"2E","tail":"A7-ALI","text":"030400,0500,040700,0.785,271000\r\n\r\n\r\nSI\r\nRZFW 192000,CREW 02/13","stratum":"2E/unparsed","expected":[]}
+{"id":8655874,"timestamp":"2026-01-17T13:45:31.080Z","label":"2E","tail":"A7-AHY","text":"010600,0200,014300,0.785,078000\r\n\r\n\r\nSI\r\nRZFW 062500,CREW 02/06","stratum":"2E/unparsed","expected":[]}
+{"id":9309548,"timestamp":"2026-01-18T06:53:22.993Z","label":"2E","tail":"A7-ALC","text":"029700,0400,036500,0.785,271100\r\n\r\n\r\nSI\r\nRZFW 195700,CREW 02/13","stratum":"2E/unparsed","expected":[]}

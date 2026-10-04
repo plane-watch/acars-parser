@@ -1,41 +1,41 @@
-{"id":19755,"timestamp":"2025-12-31 18:13:18.085","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M26ASA0281S 33.992,E 98.132,0248,YPPH,FAOR,160200,  437750,32000,21840,  62","stratum":"8H/unparsed","expected":[]}
-{"id":38523,"timestamp":"2025-12-31 18:23:18.779","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M27ASA0281S 34.211,E 96.696,0249,YPPH,FAOR,157520,  435000,32000,22016,  66","stratum":"8H/unparsed","expected":[]}
-{"id":56779,"timestamp":"2025-12-31 18:33:19.084","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M29ASA0281S 34.413,E 95.272,0249,YPPH,FAOR,154600,  427875,31998,22791,  71","stratum":"8H/unparsed","expected":[]}
-{"id":74750,"timestamp":"2025-12-31 18:43:19.390","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M31ASA0281S 34.598,E 93.842,0249,YPPH,FAOR,151600,  435375,31998,22439,  66","stratum":"8H/unparsed","expected":[]}
-{"id":108366,"timestamp":"2025-12-31 19:01:02.677","label":"8H","tail":"ZS-SZJ","flight":"SA0058","text":"S 26.083,E 28.075,2225,FAOR,FZAA,38440,  331000,10868,24235,  16","stratum":"8H/unparsed","expected":[]}
-{"id":1211845,"timestamp":"2026-01-05 04:08:30.788","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/05/0357/","stratum":"8H/unparsed","expected":[]}
-{"id":2230478,"timestamp":"2026-01-06 10:05:24.007","label":"8H","tail":"OY-KAS","text":"3SH3 LOADCF 0347/06 ENVA/ENGM .OY-KAS\r\n084201,090700,,090700,38733,A","stratum":"8H/unparsed","expected":[]}
-{"id":2247133,"timestamp":"2026-01-06 10:29:35.516","label":"8H","tail":"LN-RGN","text":"V08CA/CRGDRSCL/06/0922/","stratum":"8H/unparsed","expected":[]}
-{"id":3154197,"timestamp":"2026-01-07 11:38:43.983","label":"8H","tail":"SE-ROT","text":"V08CA/CRGDRSCL/07/0920/","stratum":"8H/unparsed","expected":[]}
-{"id":3166044,"timestamp":"2026-01-07 11:52:42.774","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/07/0939/","stratum":"8H/unparsed","expected":[]}
-{"id":3523364,"timestamp":"2026-01-07 21:49:47.563","label":"8H","tail":"EI-SIA","text":"V08CA/CRGDRSCL/07/1915/","stratum":"8H/unparsed","expected":[]}
-{"id":3906212,"timestamp":"2026-01-08 09:10:13.875","label":"8H","tail":"EI-SIB","text":"V08CA/CRGDRSCL/08/0910/","stratum":"8H/unparsed","expected":[]}
-{"id":3911588,"timestamp":"2026-01-08 09:17:59.168","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/08/0917/","stratum":"8H/unparsed","expected":[]}
-{"id":4013774,"timestamp":"2026-01-08 11:49:49.984","label":"8H","tail":"EI-SIN","text":"V08CA/CRGDRSCL/08/1113/","stratum":"8H/unparsed","expected":[]}
-{"id":4729091,"timestamp":"2026-01-09 11:35:39.290","label":"8H","tail":"OY-KBT","text":"3SH3 LOADCF 1707/09 EFHK/EKCH .OY-KBT\r\n091501,091724,,091724,21682,A","stratum":"8H/unparsed","expected":[]}
-{"id":4999212,"timestamp":"2026-01-09 20:28:29.606","label":"8H","tail":"EI-SII","text":"V08CA/CRGDRSCL/09/1917/","stratum":"8H/unparsed","expected":[]}
-{"id":5436375,"timestamp":"2026-01-10 08:09:38.187","label":"8H","tail":"EI-SCE","text":"V08CA/CRGDRSCL/10/0733/","stratum":"8H/unparsed","expected":[]}
-{"id":5442804,"timestamp":"2026-01-10 08:25:09.928","label":"8H","tail":"EI-SCE","text":"V08CA/CRGDRSCL/10/0741/","stratum":"8H/unparsed","expected":[]}
-{"id":6203457,"timestamp":"2026-01-11 11:21:55.228","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/11/1118/","stratum":"8H/unparsed","expected":[]}
-{"id":6288551,"timestamp":"2026-01-11 12:58:47.341","label":"8H","tail":"SE-RUD","text":"V08CA/CRGDRSCL/11/1221/","stratum":"8H/unparsed","expected":[]}
-{"id":6488786,"timestamp":"2026-01-11 20:02:08.521","label":"8H","tail":"EI-SIL","text":"V08CA/CRGDRSCL/11/1933/","stratum":"8H/unparsed","expected":[]}
-{"id":6583227,"timestamp":"2026-01-12 03:53:25.685","label":"8H","tail":"EI-SIV","text":"V08CA/CRGDRSCL/12/0349/","stratum":"8H/unparsed","expected":[]}
-{"id":6826674,"timestamp":"2026-01-12 09:10:28.750","label":"8H","tail":"EI-SCF","text":"V08CA/CRGDRSCL/12/0910/","stratum":"8H/unparsed","expected":[]}
-{"id":6840986,"timestamp":"2026-01-12 09:32:12.124","label":"8H","tail":"OY-KBT","text":"3SH3 LOADCF 1707/12 EFHK/EKCH .OY-KBT\r\n093101,093148,,093148,26434,A","stratum":"8H/unparsed","expected":[]}
-{"id":6944932,"timestamp":"2026-01-12 12:03:43.964","label":"8H","tail":"SE-RUA","text":"V08CA/CRGDRSCL/12/1136/","stratum":"8H/unparsed","expected":[]}
-{"id":7146638,"timestamp":"2026-01-12 18:03:19.136","label":"8H","tail":"EI-SIS","text":"V08CA/CRGDRSCL/12/1754/","stratum":"8H/unparsed","expected":[]}
-{"id":7628950,"timestamp":"2026-01-13 09:04:24.240","label":"8H","tail":"EI-SIX","text":"V08CA/CRGDRSCL/13/0904/","stratum":"8H/unparsed","expected":[]}
-{"id":7630682,"timestamp":"2026-01-13 09:07:42.892","label":"8H","tail":"EI-SIX","text":"V08CA/CRGDRSCL/13/0907/","stratum":"8H/unparsed","expected":[]}
-{"id":7634119,"timestamp":"2026-01-13 09:13:40.997","label":"8H","tail":"SE-ROA","text":"V08CA/CRGDRSCL/13/0913/","stratum":"8H/unparsed","expected":[]}
-{"id":8766945,"timestamp":"2026-01-17 15:36:23.099","label":"8H","tail":"SE-RST","text":"V03HE/CRGDRSCL/17/1352/AFT/","stratum":"8H/unparsed","expected":[]}
-{"id":8789628,"timestamp":"2026-01-17 15:59:43.695","label":"8H","tail":"OY-KAS","text":"3SH3 LOADCF 4417/17 ENTC/ENGM .OY-KAS\r\n124501,140018,,140018,34005,A","stratum":"8H/unparsed","expected":[]}
-{"id":9404672,"timestamp":"2026-01-18 09:17:42.764","label":"8H","tail":"LN-RGM","text":"V08CA/CRGDRSCL/18/0917/","stratum":"8H/unparsed","expected":[]}
-{"id":9587950,"timestamp":"2026-01-18 14:12:05.754","label":"8H","tail":"EI-SIO","text":"V08CA/CRGDRSCL/18/1330/","stratum":"8H/unparsed","expected":[]}
-{"id":10032207,"timestamp":"2026-01-19 04:36:57.704","label":"8H","tail":"EI-SCF","text":"V08CA/CRGDRSCL/19/0351/","stratum":"8H/unparsed","expected":[]}
-{"id":10205660,"timestamp":"2026-01-19 09:14:25.873","label":"8H","tail":"EI-SCE","text":"V08CA/CRGDRSCL/19/0911/","stratum":"8H/unparsed","expected":[]}
-{"id":10304279,"timestamp":"2026-01-19 11:51:00.069","label":"8H","tail":"SE-RUD","text":"V08CA/CRGDRSCL/19/1138/","stratum":"8H/unparsed","expected":[]}
-{"id":10384396,"timestamp":"2026-01-19 14:11:01.078","label":"8H","tail":"EI-SID","text":"V08CA/CRGDRSCL/19/1358/","stratum":"8H/unparsed","expected":[]}
-{"id":10390113,"timestamp":"2026-01-19 14:18:43.684","label":"8H","tail":"EI-SIL","text":"V08CA/CRGDRSCL/19/1401/","stratum":"8H/unparsed","expected":[]}
-{"id":10814785,"timestamp":"2026-01-20 03:58:06.676","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/20/0341/","stratum":"8H/unparsed","expected":[]}
-{"id":11056125,"timestamp":"2026-01-20 09:25:26.217","label":"8H","tail":"EI-SIE","text":"V08CA/CRGDRSCL/20/0925/","stratum":"8H/unparsed","expected":[]}
-{"id":11056186,"timestamp":"2026-01-20 09:25:30.896","label":"8H","tail":"OY-KBR","text":"3SH3 LOADCF 1315/20 ENAL/ENGM .OY-KBR\r\n085501,092524,,092524,38405,A","stratum":"8H/unparsed","expected":[]}
+{"id":19755,"timestamp":"2025-12-31T18:13:18.085Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M26ASA0281S 33.992,E 98.132,0248,YPPH,FAOR,160200,  437750,32000,21840,  62","stratum":"8H/unparsed","expected":[]}
+{"id":38523,"timestamp":"2025-12-31T18:23:18.779Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M27ASA0281S 34.211,E 96.696,0249,YPPH,FAOR,157520,  435000,32000,22016,  66","stratum":"8H/unparsed","expected":[]}
+{"id":56779,"timestamp":"2025-12-31T18:33:19.084Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M29ASA0281S 34.413,E 95.272,0249,YPPH,FAOR,154600,  427875,31998,22791,  71","stratum":"8H/unparsed","expected":[]}
+{"id":74750,"timestamp":"2025-12-31T18:43:19.390Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M31ASA0281S 34.598,E 93.842,0249,YPPH,FAOR,151600,  435375,31998,22439,  66","stratum":"8H/unparsed","expected":[]}
+{"id":108366,"timestamp":"2025-12-31T19:01:02.677Z","label":"8H","tail":"ZS-SZJ","flight":"SA0058","text":"S 26.083,E 28.075,2225,FAOR,FZAA,38440,  331000,10868,24235,  16","stratum":"8H/unparsed","expected":[]}
+{"id":1211845,"timestamp":"2026-01-05T04:08:30.788Z","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/05/0357/","stratum":"8H/unparsed","expected":[]}
+{"id":2230478,"timestamp":"2026-01-06T10:05:24.007Z","label":"8H","tail":"OY-KAS","text":"3SH3 LOADCF 0347/06 ENVA/ENGM .OY-KAS\r\n084201,090700,,090700,38733,A","stratum":"8H/unparsed","expected":[]}
+{"id":2247133,"timestamp":"2026-01-06T10:29:35.516Z","label":"8H","tail":"LN-RGN","text":"V08CA/CRGDRSCL/06/0922/","stratum":"8H/unparsed","expected":[]}
+{"id":3154197,"timestamp":"2026-01-07T11:38:43.983Z","label":"8H","tail":"SE-ROT","text":"V08CA/CRGDRSCL/07/0920/","stratum":"8H/unparsed","expected":[]}
+{"id":3166044,"timestamp":"2026-01-07T11:52:42.774Z","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/07/0939/","stratum":"8H/unparsed","expected":[]}
+{"id":3523364,"timestamp":"2026-01-07T21:49:47.563Z","label":"8H","tail":"EI-SIA","text":"V08CA/CRGDRSCL/07/1915/","stratum":"8H/unparsed","expected":[]}
+{"id":3906212,"timestamp":"2026-01-08T09:10:13.875Z","label":"8H","tail":"EI-SIB","text":"V08CA/CRGDRSCL/08/0910/","stratum":"8H/unparsed","expected":[]}
+{"id":3911588,"timestamp":"2026-01-08T09:17:59.168Z","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/08/0917/","stratum":"8H/unparsed","expected":[]}
+{"id":4013774,"timestamp":"2026-01-08T11:49:49.984Z","label":"8H","tail":"EI-SIN","text":"V08CA/CRGDRSCL/08/1113/","stratum":"8H/unparsed","expected":[]}
+{"id":4729091,"timestamp":"2026-01-09T11:35:39.290Z","label":"8H","tail":"OY-KBT","text":"3SH3 LOADCF 1707/09 EFHK/EKCH .OY-KBT\r\n091501,091724,,091724,21682,A","stratum":"8H/unparsed","expected":[]}
+{"id":4999212,"timestamp":"2026-01-09T20:28:29.606Z","label":"8H","tail":"EI-SII","text":"V08CA/CRGDRSCL/09/1917/","stratum":"8H/unparsed","expected":[]}
+{"id":5436375,"timestamp":"2026-01-10T08:09:38.187Z","label":"8H","tail":"EI-SCE","text":"V08CA/CRGDRSCL/10/0733/","stratum":"8H/unparsed","expected":[]}
+{"id":5442804,"timestamp":"2026-01-10T08:25:09.928Z","label":"8H","tail":"EI-SCE","text":"V08CA/CRGDRSCL/10/0741/","stratum":"8H/unparsed","expected":[]}
+{"id":6203457,"timestamp":"2026-01-11T11:21:55.228Z","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/11/1118/","stratum":"8H/unparsed","expected":[]}
+{"id":6288551,"timestamp":"2026-01-11T12:58:47.341Z","label":"8H","tail":"SE-RUD","text":"V08CA/CRGDRSCL/11/1221/","stratum":"8H/unparsed","expected":[]}
+{"id":6488786,"timestamp":"2026-01-11T20:02:08.521Z","label":"8H","tail":"EI-SIL","text":"V08CA/CRGDRSCL/11/1933/","stratum":"8H/unparsed","expected":[]}
+{"id":6583227,"timestamp":"2026-01-12T03:53:25.685Z","label":"8H","tail":"EI-SIV","text":"V08CA/CRGDRSCL/12/0349/","stratum":"8H/unparsed","expected":[]}
+{"id":6826674,"timestamp":"2026-01-12T09:10:28.750Z","label":"8H","tail":"EI-SCF","text":"V08CA/CRGDRSCL/12/0910/","stratum":"8H/unparsed","expected":[]}
+{"id":6840986,"timestamp":"2026-01-12T09:32:12.124Z","label":"8H","tail":"OY-KBT","text":"3SH3 LOADCF 1707/12 EFHK/EKCH .OY-KBT\r\n093101,093148,,093148,26434,A","stratum":"8H/unparsed","expected":[]}
+{"id":6944932,"timestamp":"2026-01-12T12:03:43.964Z","label":"8H","tail":"SE-RUA","text":"V08CA/CRGDRSCL/12/1136/","stratum":"8H/unparsed","expected":[]}
+{"id":7146638,"timestamp":"2026-01-12T18:03:19.136Z","label":"8H","tail":"EI-SIS","text":"V08CA/CRGDRSCL/12/1754/","stratum":"8H/unparsed","expected":[]}
+{"id":7628950,"timestamp":"2026-01-13T09:04:24.240Z","label":"8H","tail":"EI-SIX","text":"V08CA/CRGDRSCL/13/0904/","stratum":"8H/unparsed","expected":[]}
+{"id":7630682,"timestamp":"2026-01-13T09:07:42.892Z","label":"8H","tail":"EI-SIX","text":"V08CA/CRGDRSCL/13/0907/","stratum":"8H/unparsed","expected":[]}
+{"id":7634119,"timestamp":"2026-01-13T09:13:40.997Z","label":"8H","tail":"SE-ROA","text":"V08CA/CRGDRSCL/13/0913/","stratum":"8H/unparsed","expected":[]}
+{"id":8766945,"timestamp":"2026-01-17T15:36:23.099Z","label":"8H","tail":"SE-RST","text":"V03HE/CRGDRSCL/17/1352/AFT/","stratum":"8H/unparsed","expected":[]}
+{"id":8789628,"timestamp":"2026-01-17T15:59:43.695Z","label":"8H","tail":"OY-KAS","text":"3SH3 LOADCF 4417/17 ENTC/ENGM .OY-KAS\r\n124501,140018,,140018,34005,A","stratum":"8H/unparsed","expected":[]}
+{"id":9404672,"timestamp":"2026-01-18T09:17:42.764Z","label":"8H","tail":"LN-RGM","text":"V08CA/CRGDRSCL/18/0917/","stratum":"8H/unparsed","expected":[]}
+{"id":9587950,"timestamp":"2026-01-18T14:12:05.754Z","label":"8H","tail":"EI-SIO","text":"V08CA/CRGDRSCL/18/1330/","stratum":"8H/unparsed","expected":[]}
+{"id":10032207,"timestamp":"2026-01-19T04:36:57.704Z","label":"8H","tail":"EI-SCF","text":"V08CA/CRGDRSCL/19/0351/","stratum":"8H/unparsed","expected":[]}
+{"id":10205660,"timestamp":"2026-01-19T09:14:25.873Z","label":"8H","tail":"EI-SCE","text":"V08CA/CRGDRSCL/19/0911/","stratum":"8H/unparsed","expected":[]}
+{"id":10304279,"timestamp":"2026-01-19T11:51:00.069Z","label":"8H","tail":"SE-RUD","text":"V08CA/CRGDRSCL/19/1138/","stratum":"8H/unparsed","expected":[]}
+{"id":10384396,"timestamp":"2026-01-19T14:11:01.078Z","label":"8H","tail":"EI-SID","text":"V08CA/CRGDRSCL/19/1358/","stratum":"8H/unparsed","expected":[]}
+{"id":10390113,"timestamp":"2026-01-19T14:18:43.684Z","label":"8H","tail":"EI-SIL","text":"V08CA/CRGDRSCL/19/1401/","stratum":"8H/unparsed","expected":[]}
+{"id":10814785,"timestamp":"2026-01-20T03:58:06.676Z","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/20/0341/","stratum":"8H/unparsed","expected":[]}
+{"id":11056125,"timestamp":"2026-01-20T09:25:26.217Z","label":"8H","tail":"EI-SIE","text":"V08CA/CRGDRSCL/20/0925/","stratum":"8H/unparsed","expected":[]}
+{"id":11056186,"timestamp":"2026-01-20T09:25:30.896Z","label":"8H","tail":"OY-KBR","text":"3SH3 LOADCF 1315/20 ENAL/ENGM .OY-KBR\r\n085501,092524,,092524,38405,A","stratum":"8H/unparsed","expected":[]}

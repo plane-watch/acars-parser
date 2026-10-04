@@ -1,100 +1,100 @@
-{"id":131310,"timestamp":"2026-01-03 04:44:32.798","label":"VA","tail":"HP9907","flight":"CM0481","text":"FS1D131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":325726,"timestamp":"2026-01-03 13:27:28.155","label":"VA","tail":"PPJJA","text":"FT1131550\r\n","stratum":"VA/unparsed","expected":[]}
-{"id":556527,"timestamp":"2026-01-04 00:51:00.188","label":"VA","tail":"N576UP","flight":"UP80","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":767193,"timestamp":"2026-01-04 12:47:47.849","label":"VA","tail":"N576UP","flight":"UP80","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":1126098,"timestamp":"2026-01-05 01:51:09.605","label":"VA","tail":"N608UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":1174111,"timestamp":"2026-01-05 03:16:10.437","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":1212655,"timestamp":"2026-01-05 04:17:46.031","label":"VA","tail":"HL8225","text":"FT1131450","stratum":"VA/unparsed","expected":[]}
-{"id":1535305,"timestamp":"2026-01-05 13:43:46.710","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":1562687,"timestamp":"2026-01-05 14:35:12.328","label":"VA","tail":"N633UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":1591275,"timestamp":"2026-01-05 15:28:51.649","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":1623604,"timestamp":"2026-01-05 16:37:15.104","label":"VA","tail":"N574UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":1843450,"timestamp":"2026-01-05 23:45:36.502","label":"VA","tail":"N628UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":1945351,"timestamp":"2026-01-06 02:44:12.978","label":"VA","tail":"N633UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":2432678,"timestamp":"2026-01-06 16:58:48.579","label":"VA","tail":"N629UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2457565,"timestamp":"2026-01-06 17:48:36.190","label":"VA","tail":"N628UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2460937,"timestamp":"2026-01-06 17:56:23.319","label":"VA","tail":"N606UP","flight":"UP33","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2477939,"timestamp":"2026-01-06 18:32:56.695","label":"VA","tail":"N629UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":2496578,"timestamp":"2026-01-06 19:13:53.246","label":"VA","tail":"N577UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":2518926,"timestamp":"2026-01-06 20:02:10.710","label":"VA","tail":"N612UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2573559,"timestamp":"2026-01-06 21:55:38.201","label":"VA","tail":"N330KC","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
-{"id":2597813,"timestamp":"2026-01-06 22:44:15.689","label":"VA","tail":"N633UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":2600279,"timestamp":"2026-01-06 22:49:42.263","label":"VA","tail":"B-LJG","text":"FT1131450\r\n","stratum":"VA/unparsed","expected":[]}
-{"id":2612395,"timestamp":"2026-01-06 23:17:26.268","label":"VA","tail":"N621UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2676933,"timestamp":"2026-01-07 01:16:47.364","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2696325,"timestamp":"2026-01-07 01:50:29.800","label":"VA","tail":"N627UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2714584,"timestamp":"2026-01-07 02:18:56.516","label":"VA","tail":"N574UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":2732852,"timestamp":"2026-01-07 02:46:59.356","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":2844949,"timestamp":"2026-01-07 05:18:59.982","label":"VA","tail":"N615UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":2946022,"timestamp":"2026-01-07 07:35:20.296","label":"VA","tail":"9HVJL","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
-{"id":3030897,"timestamp":"2026-01-07 09:31:41.304","label":"VA","tail":"N575UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":3153246,"timestamp":"2026-01-07 12:24:20.304","label":"VA","tail":"N621UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3186388,"timestamp":"2026-01-07 13:18:40.561","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":3232816,"timestamp":"2026-01-07 14:33:23.038","label":"VA","tail":"N626UP","text":"FS1E131725XS/D131550XS/E131450JD/D136850XS/D131825XA/D131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3241663,"timestamp":"2026-01-07 15:51:07.696","label":"VA","tail":"N575UP","text":"FS1E131550XS/E131450JD/E131725XS/D136850XS/D131825XA/E131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3241789,"timestamp":"2026-01-07 15:51:21.202","label":"VA","tail":"N613UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3299608,"timestamp":"2026-01-07 17:36:07.115","label":"VA","tail":"N613UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3438115,"timestamp":"2026-01-07 21:21:41.318","label":"VA","tail":"N610UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3613491,"timestamp":"2026-01-08 02:17:57.681","label":"VA","tail":"N577UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":3618789,"timestamp":"2026-01-08 02:25:51.977","label":"VA","tail":"N628UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3624140,"timestamp":"2026-01-08 02:34:47.111","label":"VA","tail":"N633UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":3753386,"timestamp":"2026-01-08 05:41:53.165","label":"VA","tail":"9HVTD","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
-{"id":4057147,"timestamp":"2026-01-08 15:41:29.326","label":"VA","tail":"N345UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":4178860,"timestamp":"2026-01-09 00:44:24.337","label":"VA","tail":"N620UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":4188752,"timestamp":"2026-01-09 00:59:22.658","label":"VA","tail":"N618UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":4188757,"timestamp":"2026-01-09 00:59:22.849","label":"VA","tail":"N618UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":4216545,"timestamp":"2026-01-09 01:36:07.693","label":"VA","tail":"N608UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":4267180,"timestamp":"2026-01-09 02:43:51.815","label":"VA","tail":"N607UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":4474164,"timestamp":"2026-01-09 06:46:44.716","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":4698273,"timestamp":"2026-01-09 11:56:46.393","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":4698279,"timestamp":"2026-01-09 11:56:46.810","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":4844733,"timestamp":"2026-01-09 17:18:50.145","label":"VA","tail":"B-LJD","flight":"CX2087","text":"FT1131450\r\n","stratum":"VA/unparsed","expected":[]}
-{"id":4870530,"timestamp":"2026-01-09 18:02:22.313","label":"VA","tail":"N633UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":5081708,"timestamp":"2026-01-09 23:52:01.986","label":"VA","tail":"N628UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":5124824,"timestamp":"2026-01-10 01:03:32.869","label":"VA","tail":"N101UD","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
-{"id":5127390,"timestamp":"2026-01-10 01:07:24.166","label":"VA","tail":"N574UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":5150674,"timestamp":"2026-01-10 01:44:46.278","label":"VA","tail":"9HVJI","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
-{"id":5553809,"timestamp":"2026-01-10 18:11:55.635","label":"VA","tail":"N605UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":5554764,"timestamp":"2026-01-10 18:21:12.112","label":"VA","tail":"N630UP","flight":"UPS290","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":5640452,"timestamp":"2026-01-10 23:42:35.267","label":"VA","tail":"N614UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":5714086,"timestamp":"2026-01-11 01:29:19.018","label":"VA","tail":"N605UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":5793639,"timestamp":"2026-01-11 03:14:22.712","label":"VA","tail":"N608UP","flight":"UP11","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":6151992,"timestamp":"2026-01-11 10:06:22.278","label":"VA","tail":"N578UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":6178751,"timestamp":"2026-01-11 10:49:46.335","label":"VA","tail":"N629UP","flight":"UP4","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":6604414,"timestamp":"2026-01-12 04:19:56.457","label":"VA","tail":"N617UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":6846892,"timestamp":"2026-01-12 09:41:06.330","label":"VA","tail":"N576UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":6846896,"timestamp":"2026-01-12 09:41:06.571","label":"VA","tail":"N576UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":7094638,"timestamp":"2026-01-12 16:27:47.501","label":"VA","tail":"N618UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7137279,"timestamp":"2026-01-12 17:52:37.501","label":"VA","tail":"N612UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7137280,"timestamp":"2026-01-12 17:52:37.534","label":"VA","tail":"N612UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7195260,"timestamp":"2026-01-12 19:45:16.414","label":"VA","tail":"HP9928","text":"FS1D131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7519643,"timestamp":"2026-01-13 05:48:00.470","label":"VA","tail":"N620UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7569144,"timestamp":"2026-01-13 07:17:20.691","label":"VA","tail":"N579UP","text":"FS1E131725XS/D131550XS/E131450JD/D136850XS/D131825XA/D131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7652940,"timestamp":"2026-01-13 09:44:32.964","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":7666801,"timestamp":"2026-01-13 10:06:52.736","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":7763434,"timestamp":"2026-01-13 12:52:19.056","label":"VA","tail":"N615UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7763900,"timestamp":"2026-01-13 12:53:19.995","label":"VA","tail":"N615UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":7763901,"timestamp":"2026-01-13 12:53:20.034","label":"VA","tail":"N615UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":7895806,"timestamp":"2026-01-13 16:41:05.184","label":"VA","tail":"N573UP","text":"FS1E131725XS/D131550XS/E131450JD/D136850XS/D131825XA/D131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7912131,"timestamp":"2026-01-13 17:10:13.055","label":"VA","tail":"N573UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":7918743,"timestamp":"2026-01-13 17:23:26.222","label":"VA","tail":"HL8225","flight":"KE249","text":"FT1131450","stratum":"VA/unparsed","expected":[]}
-{"id":8253594,"timestamp":"2026-01-14 03:50:08.898","label":"VA","tail":"N620UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":8726203,"timestamp":"2026-01-17 15:57:28.241","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":8740650,"timestamp":"2026-01-17 16:16:07.061","label":"VA","tail":"N343UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":8829286,"timestamp":"2026-01-17 18:41:55.032","label":"VA","tail":"N625UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":8834140,"timestamp":"2026-01-17 18:48:30.782","label":"VA","tail":"9HVJK","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
-{"id":8852409,"timestamp":"2026-01-17 17:21:14.344","label":"VA","tail":"N622UP","text":"FT1131725XS\r\n","stratum":"VA/unparsed","expected":[]}
-{"id":9427183,"timestamp":"2026-01-18 09:57:17.685","label":"VA","tail":"N573UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":9983020,"timestamp":"2026-01-19 03:56:07.769","label":"VA","tail":"N572UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":10451403,"timestamp":"2026-01-19 16:24:05.936","label":"VA","tail":"N579UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":10540635,"timestamp":"2026-01-19 19:18:36.778","label":"VA","tail":"N577UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":10593916,"timestamp":"2026-01-19 21:14:18.684","label":"VA","tail":"N475PJ","text":"FT1131550\r\n","stratum":"VA/unparsed","expected":[]}
-{"id":10733713,"timestamp":"2026-01-20 01:30:32.382","label":"VA","tail":"N616UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":11132979,"timestamp":"2026-01-20 11:28:03.850","label":"VA","tail":"N615UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":11351263,"timestamp":"2026-01-21 17:38:01.017","label":"VA","tail":"N628UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
-{"id":11436915,"timestamp":"2026-01-21 20:21:14.540","label":"VA","tail":"N613UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":11506130,"timestamp":"2026-01-21 22:48:56.420","label":"VA","tail":"N622UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":11545778,"timestamp":"2026-01-22 00:11:12.352","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
-{"id":11560281,"timestamp":"2026-01-22 00:43:56.721","label":"VA","tail":"N575UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
-{"id":11600964,"timestamp":"2026-01-22 01:57:46.526","label":"VA","tail":"N627UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
-{"id":11669358,"timestamp":"2026-01-22 04:21:28.172","label":"VA","tail":"N858GT","text":"FT1131450","stratum":"VA/unparsed","expected":[]}
+{"id":131310,"timestamp":"2026-01-03T04:44:32.798Z","label":"VA","tail":"HP9907","flight":"CM0481","text":"FS1D131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":325726,"timestamp":"2026-01-03T13:27:28.155Z","label":"VA","tail":"PPJJA","text":"FT1131550\r\n","stratum":"VA/unparsed","expected":[]}
+{"id":556527,"timestamp":"2026-01-04T00:51:00.188Z","label":"VA","tail":"N576UP","flight":"UP80","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":767193,"timestamp":"2026-01-04T12:47:47.849Z","label":"VA","tail":"N576UP","flight":"UP80","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":1126098,"timestamp":"2026-01-05T01:51:09.605Z","label":"VA","tail":"N608UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":1174111,"timestamp":"2026-01-05T03:16:10.437Z","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":1212655,"timestamp":"2026-01-05T04:17:46.031Z","label":"VA","tail":"HL8225","text":"FT1131450","stratum":"VA/unparsed","expected":[]}
+{"id":1535305,"timestamp":"2026-01-05T13:43:46.710Z","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":1562687,"timestamp":"2026-01-05T14:35:12.328Z","label":"VA","tail":"N633UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":1591275,"timestamp":"2026-01-05T15:28:51.649Z","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":1623604,"timestamp":"2026-01-05T16:37:15.104Z","label":"VA","tail":"N574UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":1843450,"timestamp":"2026-01-05T23:45:36.502Z","label":"VA","tail":"N628UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":1945351,"timestamp":"2026-01-06T02:44:12.978Z","label":"VA","tail":"N633UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":2432678,"timestamp":"2026-01-06T16:58:48.579Z","label":"VA","tail":"N629UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2457565,"timestamp":"2026-01-06T17:48:36.190Z","label":"VA","tail":"N628UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2460937,"timestamp":"2026-01-06T17:56:23.319Z","label":"VA","tail":"N606UP","flight":"UP33","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2477939,"timestamp":"2026-01-06T18:32:56.695Z","label":"VA","tail":"N629UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":2496578,"timestamp":"2026-01-06T19:13:53.246Z","label":"VA","tail":"N577UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":2518926,"timestamp":"2026-01-06T20:02:10.710Z","label":"VA","tail":"N612UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2573559,"timestamp":"2026-01-06T21:55:38.201Z","label":"VA","tail":"N330KC","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
+{"id":2597813,"timestamp":"2026-01-06T22:44:15.689Z","label":"VA","tail":"N633UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":2600279,"timestamp":"2026-01-06T22:49:42.263Z","label":"VA","tail":"B-LJG","text":"FT1131450\r\n","stratum":"VA/unparsed","expected":[]}
+{"id":2612395,"timestamp":"2026-01-06T23:17:26.268Z","label":"VA","tail":"N621UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2676933,"timestamp":"2026-01-07T01:16:47.364Z","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2696325,"timestamp":"2026-01-07T01:50:29.800Z","label":"VA","tail":"N627UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2714584,"timestamp":"2026-01-07T02:18:56.516Z","label":"VA","tail":"N574UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":2732852,"timestamp":"2026-01-07T02:46:59.356Z","label":"VA","tail":"N631UP","flight":"UP76","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":2844949,"timestamp":"2026-01-07T05:18:59.982Z","label":"VA","tail":"N615UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":2946022,"timestamp":"2026-01-07T07:35:20.296Z","label":"VA","tail":"9HVJL","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
+{"id":3030897,"timestamp":"2026-01-07T09:31:41.304Z","label":"VA","tail":"N575UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":3153246,"timestamp":"2026-01-07T12:24:20.304Z","label":"VA","tail":"N621UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3186388,"timestamp":"2026-01-07T13:18:40.561Z","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":3232816,"timestamp":"2026-01-07T14:33:23.038Z","label":"VA","tail":"N626UP","text":"FS1E131725XS/D131550XS/E131450JD/D136850XS/D131825XA/D131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3241663,"timestamp":"2026-01-07T15:51:07.696Z","label":"VA","tail":"N575UP","text":"FS1E131550XS/E131450JD/E131725XS/D136850XS/D131825XA/E131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3241789,"timestamp":"2026-01-07T15:51:21.202Z","label":"VA","tail":"N613UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3299608,"timestamp":"2026-01-07T17:36:07.115Z","label":"VA","tail":"N613UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3438115,"timestamp":"2026-01-07T21:21:41.318Z","label":"VA","tail":"N610UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3613491,"timestamp":"2026-01-08T02:17:57.681Z","label":"VA","tail":"N577UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":3618789,"timestamp":"2026-01-08T02:25:51.977Z","label":"VA","tail":"N628UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3624140,"timestamp":"2026-01-08T02:34:47.111Z","label":"VA","tail":"N633UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":3753386,"timestamp":"2026-01-08T05:41:53.165Z","label":"VA","tail":"9HVTD","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
+{"id":4057147,"timestamp":"2026-01-08T15:41:29.326Z","label":"VA","tail":"N345UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":4178860,"timestamp":"2026-01-09T00:44:24.337Z","label":"VA","tail":"N620UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":4188752,"timestamp":"2026-01-09T00:59:22.658Z","label":"VA","tail":"N618UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":4188757,"timestamp":"2026-01-09T00:59:22.849Z","label":"VA","tail":"N618UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":4216545,"timestamp":"2026-01-09T01:36:07.693Z","label":"VA","tail":"N608UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":4267180,"timestamp":"2026-01-09T02:43:51.815Z","label":"VA","tail":"N607UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":4474164,"timestamp":"2026-01-09T06:46:44.716Z","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":4698273,"timestamp":"2026-01-09T11:56:46.393Z","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":4698279,"timestamp":"2026-01-09T11:56:46.810Z","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":4844733,"timestamp":"2026-01-09T17:18:50.145Z","label":"VA","tail":"B-LJD","flight":"CX2087","text":"FT1131450\r\n","stratum":"VA/unparsed","expected":[]}
+{"id":4870530,"timestamp":"2026-01-09T18:02:22.313Z","label":"VA","tail":"N633UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":5081708,"timestamp":"2026-01-09T23:52:01.986Z","label":"VA","tail":"N628UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":5124824,"timestamp":"2026-01-10T01:03:32.869Z","label":"VA","tail":"N101UD","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
+{"id":5127390,"timestamp":"2026-01-10T01:07:24.166Z","label":"VA","tail":"N574UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":5150674,"timestamp":"2026-01-10T01:44:46.278Z","label":"VA","tail":"9HVJI","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
+{"id":5553809,"timestamp":"2026-01-10T18:11:55.635Z","label":"VA","tail":"N605UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":5554764,"timestamp":"2026-01-10T18:21:12.112Z","label":"VA","tail":"N630UP","flight":"UPS290","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":5640452,"timestamp":"2026-01-10T23:42:35.267Z","label":"VA","tail":"N614UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":5714086,"timestamp":"2026-01-11T01:29:19.018Z","label":"VA","tail":"N605UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":5793639,"timestamp":"2026-01-11T03:14:22.712Z","label":"VA","tail":"N608UP","flight":"UP11","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":6151992,"timestamp":"2026-01-11T10:06:22.278Z","label":"VA","tail":"N578UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":6178751,"timestamp":"2026-01-11T10:49:46.335Z","label":"VA","tail":"N629UP","flight":"UP4","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":6604414,"timestamp":"2026-01-12T04:19:56.457Z","label":"VA","tail":"N617UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":6846892,"timestamp":"2026-01-12T09:41:06.330Z","label":"VA","tail":"N576UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":6846896,"timestamp":"2026-01-12T09:41:06.571Z","label":"VA","tail":"N576UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":7094638,"timestamp":"2026-01-12T16:27:47.501Z","label":"VA","tail":"N618UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7137279,"timestamp":"2026-01-12T17:52:37.501Z","label":"VA","tail":"N612UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7137280,"timestamp":"2026-01-12T17:52:37.534Z","label":"VA","tail":"N612UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7195260,"timestamp":"2026-01-12T19:45:16.414Z","label":"VA","tail":"HP9928","text":"FS1D131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7519643,"timestamp":"2026-01-13T05:48:00.470Z","label":"VA","tail":"N620UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7569144,"timestamp":"2026-01-13T07:17:20.691Z","label":"VA","tail":"N579UP","text":"FS1E131725XS/D131550XS/E131450JD/D136850XS/D131825XA/D131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7652940,"timestamp":"2026-01-13T09:44:32.964Z","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":7666801,"timestamp":"2026-01-13T10:06:52.736Z","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":7763434,"timestamp":"2026-01-13T12:52:19.056Z","label":"VA","tail":"N615UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7763900,"timestamp":"2026-01-13T12:53:19.995Z","label":"VA","tail":"N615UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":7763901,"timestamp":"2026-01-13T12:53:20.034Z","label":"VA","tail":"N615UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":7895806,"timestamp":"2026-01-13T16:41:05.184Z","label":"VA","tail":"N573UP","text":"FS1E131725XS/D131550XS/E131450JD/D136850XS/D131825XA/D131550XA/E131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7912131,"timestamp":"2026-01-13T17:10:13.055Z","label":"VA","tail":"N573UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":7918743,"timestamp":"2026-01-13T17:23:26.222Z","label":"VA","tail":"HL8225","flight":"KE249","text":"FT1131450","stratum":"VA/unparsed","expected":[]}
+{"id":8253594,"timestamp":"2026-01-14T03:50:08.898Z","label":"VA","tail":"N620UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":8726203,"timestamp":"2026-01-17T15:57:28.241Z","label":"VA","tail":"N616UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":8740650,"timestamp":"2026-01-17T16:16:07.061Z","label":"VA","tail":"N343UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":8829286,"timestamp":"2026-01-17T18:41:55.032Z","label":"VA","tail":"N625UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":8834140,"timestamp":"2026-01-17T18:48:30.782Z","label":"VA","tail":"9HVJK","text":"FT1131550","stratum":"VA/unparsed","expected":[]}
+{"id":8852409,"timestamp":"2026-01-17T17:21:14.344Z","label":"VA","tail":"N622UP","text":"FT1131725XS\r\n","stratum":"VA/unparsed","expected":[]}
+{"id":9427183,"timestamp":"2026-01-18T09:57:17.685Z","label":"VA","tail":"N573UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":9983020,"timestamp":"2026-01-19T03:56:07.769Z","label":"VA","tail":"N572UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":10451403,"timestamp":"2026-01-19T16:24:05.936Z","label":"VA","tail":"N579UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":10540635,"timestamp":"2026-01-19T19:18:36.778Z","label":"VA","tail":"N577UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":10593916,"timestamp":"2026-01-19T21:14:18.684Z","label":"VA","tail":"N475PJ","text":"FT1131550\r\n","stratum":"VA/unparsed","expected":[]}
+{"id":10733713,"timestamp":"2026-01-20T01:30:32.382Z","label":"VA","tail":"N616UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":11132979,"timestamp":"2026-01-20T11:28:03.850Z","label":"VA","tail":"N615UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":11351263,"timestamp":"2026-01-21T17:38:01.017Z","label":"VA","tail":"N628UP","text":"FS1D131450JD/D131550XS/E131725XS/D136850XS/D131825XA/D131550XA/D131450XA/","stratum":"VA/unparsed","expected":[]}
+{"id":11436915,"timestamp":"2026-01-21T20:21:14.540Z","label":"VA","tail":"N613UP","text":"FS1E131725XS/E131550XS/D131450JD/D136850XS/D131825XA/D131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":11506130,"timestamp":"2026-01-21T22:48:56.420Z","label":"VA","tail":"N622UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":11545778,"timestamp":"2026-01-22T00:11:12.352Z","label":"VA","tail":"N579UP","text":"FT1131725XS","stratum":"VA/unparsed","expected":[]}
+{"id":11560281,"timestamp":"2026-01-22T00:43:56.721Z","label":"VA","tail":"N575UP","text":"FS1E131725XS/E131550XS/E131450JD/D136850XS/D131825XA/E131450XA/E131550XA/","stratum":"VA/unparsed","expected":[]}
+{"id":11600964,"timestamp":"2026-01-22T01:57:46.526Z","label":"VA","tail":"N627UP","text":"FT1131550XS","stratum":"VA/unparsed","expected":[]}
+{"id":11669358,"timestamp":"2026-01-22T04:21:28.172Z","label":"VA","tail":"N858GT","text":"FT1131450","stratum":"VA/unparsed","expected":[]}

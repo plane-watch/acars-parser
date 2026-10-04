@@ -1,4 +1,4 @@
-{"id":4149068,"timestamp":"2026-01-08 22:56:22.364","label":"8Y","tail":"G-UZHK","text":"EGAA,2325\r\nBRS OUT OF LIMITS ADVISE\r\nMPROVEMENT","stratum":"8Y/unparsed","expected":[]}
-{"id":4160207,"timestamp":"2026-01-08 23:12:44.576","label":"8Y","tail":"G-UZHU","text":"EGSS,2256\r\n\r\n","stratum":"8Y/unparsed","expected":[]}
-{"id":7634388,"timestamp":"2026-01-13 09:14:13.800","label":"8Y","tail":"G-EZOA","text":"LEMI,0945\r\n\r\nDUE ALC CLOSED","stratum":"8Y/unparsed","expected":[]}
-{"id":7639226,"timestamp":"2026-01-13 09:22:09.532","label":"8Y","tail":"G-EZFV","text":"LEMI,0945\r\nWILL CALL ON THE GND\r\n","stratum":"8Y/unparsed","expected":[]}
+{"id":4149068,"timestamp":"2026-01-08T22:56:22.364Z","label":"8Y","tail":"G-UZHK","text":"EGAA,2325\r\nBRS OUT OF LIMITS ADVISE\r\nMPROVEMENT","stratum":"8Y/unparsed","expected":[]}
+{"id":4160207,"timestamp":"2026-01-08T23:12:44.576Z","label":"8Y","tail":"G-UZHU","text":"EGSS,2256\r\n\r\n","stratum":"8Y/unparsed","expected":[]}
+{"id":7634388,"timestamp":"2026-01-13T09:14:13.800Z","label":"8Y","tail":"G-EZOA","text":"LEMI,0945\r\n\r\nDUE ALC CLOSED","stratum":"8Y/unparsed","expected":[]}
+{"id":7639226,"timestamp":"2026-01-13T09:22:09.532Z","label":"8Y","tail":"G-EZFV","text":"LEMI,0945\r\nWILL CALL ON THE GND\r\n","stratum":"8Y/unparsed","expected":[]}

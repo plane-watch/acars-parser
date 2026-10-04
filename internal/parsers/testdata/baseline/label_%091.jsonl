@@ -1,2 +1,2 @@
-{"id":3367282,"timestamp":"2026-01-07 18:03:42.448","label":"\t1","tail":"\u000eNp02AW","text":"f","stratum":"\t1/unparsed","expected":[]}
-{"id":9060155,"timestamp":"2026-01-18 00:53:56.225","label":"\t1","tail":"N12gUW","text":"#M1BPER/PR1213,266,330,122,,0,39(,M44,180,,,P42,P0,39090,,1091,271B34x","stratum":"\t1/unparsed","expected":[]}
+{"id":3367282,"timestamp":"2026-01-07T18:03:42.448Z","label":"\t1","tail":"\u000eNp02AW","text":"f","stratum":"\t1/unparsed","expected":[]}
+{"id":9060155,"timestamp":"2026-01-18T00:53:56.225Z","label":"\t1","tail":"N12gUW","text":"#M1BPER/PR1213,266,330,122,,0,39(,M44,180,,,P42,P0,39090,,1091,271B34x","stratum":"\t1/unparsed","expected":[]}

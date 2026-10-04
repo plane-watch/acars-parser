@@ -1,100 +1,100 @@
-{"id":23172,"timestamp":"2025-12-31 18:15:12.396","label":"","tail":"B-16731","flight":"BR18","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":37580,"timestamp":"2025-12-31 18:22:50.724","label":"","tail":"JA867J","flight":"JL726","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":48991,"timestamp":"2025-12-31 18:29:06.556","label":"","tail":"A6-BLU","flight":"EY473","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":92196,"timestamp":"2025-12-31 18:52:50.390","label":"","tail":"N508DN","flight":"DL196","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":116371,"timestamp":"2025-12-31 19:05:06.000","label":"","tail":"B-1566","flight":"MF801","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":294371,"timestamp":"2026-01-03 10:02:00.789","label":"","text":"1bffaa1e28f640033a85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":296101,"timestamp":"2026-01-03 10:08:07.167","label":"","text":"1bff001e28f640001d85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":789150,"timestamp":"2026-01-04 09:04:47.264","label":"","text":"1bffaa815101289c007d3b2b144700278183444b0001444b0101000045533031011447002741534153004ac9e100005341414200000100220000007a050100c301d6c50dc00606042b1b000004010f0110cd01082be10000003240c0010ac202636dc1010187020006c60100850203e8f20400057e40c302283708047618c055","stratum":"/unparsed","expected":[]}
-{"id":877822,"timestamp":"2026-01-04 11:41:46.799","label":"","text":"1bff0b80200065330d0180000fc9078c584141020093c106010100138000821e010004001e0000144700274142415700400d5b000053414142000000","stratum":"/unparsed","expected":[]}
-{"id":1003192,"timestamp":"2026-01-04 19:55:51.281","label":"","text":"1bff401e64c0400176850020030000000600000003040476f9bfe148448e2899c2e796991e52b40415","stratum":"/unparsed","expected":[]}
-{"id":1158581,"timestamp":"2026-01-04 23:43:27.543","label":"","text":"1bff421e28f640031585001e0400000007000000080304c2bdf95250e275b651330d1464d0eee7","stratum":"/unparsed","expected":[]}
-{"id":1537555,"timestamp":"2026-01-05 13:18:19.931","label":"","text":"1bffea1b28f64901e90af07051840804e499b33700a7264f31053c046a49800082743d9804","stratum":"/unparsed","expected":[]}
-{"id":1728821,"timestamp":"2026-01-05 17:45:04.119","label":"","text":"1bff6e1e28fe4001d785001e0400000007000000030304bca35510efa2ed06b8cc6e815a772c37","stratum":"/unparsed","expected":[]}
-{"id":2170747,"timestamp":"2026-01-06 08:41:31.785","label":"","text":"1bff061b28f64200bb0af06e95890804c407bc49002808d36004e4c9e6492780a8a5f800106a086b7880","stratum":"/unparsed","expected":[]}
-{"id":2220756,"timestamp":"2026-01-06 10:03:09.137","label":"","text":"21","stratum":"/unparsed","expected":[]}
-{"id":2227218,"timestamp":"2026-01-06 10:14:17.348","label":"","text":"1bfe641b64c00001f208f07e3f80c302c7c200a6c64d900f015471e06320ca9ea8e0","stratum":"/unparsed","expected":[]}
-{"id":2395498,"timestamp":"2026-01-06 14:30:04.307","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
-{"id":2725420,"timestamp":"2026-01-07 02:28:30.433","label":"","text":"1bff0b802122045513420a0a4304040180000fc9078c584141020093c106010000138000821e010004001e0000144700274141445a0045212d000000000000000100","stratum":"/unparsed","expected":[]}
-{"id":2965748,"timestamp":"2026-01-07 07:05:45.541","label":"","text":"1bff0b802170364013420a0a4304040180000fc9078c534954000001c106010000138000821e010004001e000014470027414e4158004787a0000100000000000100","stratum":"/unparsed","expected":[]}
-{"id":2979972,"timestamp":"2026-01-07 07:35:01.495","label":"","text":"1bfea81e64c040009385001e04000000030000000305041cd1cee5bd4ede87b7c6ef552e8e5504","stratum":"/unparsed","expected":[]}
-{"id":2984053,"timestamp":"2026-01-07 07:42:34.710","label":"","text":"1bff421b64c00000910863722304c3024aea","stratum":"/unparsed","expected":[]}
-{"id":3049630,"timestamp":"2026-01-07 09:03:31.385","label":"","text":"1bff641828f60000770a617264000804c6680240","stratum":"/unparsed","expected":[]}
-{"id":3270431,"timestamp":"2026-01-07 15:11:20.928","label":"","text":"1bffaa1e28f640003a85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":3330499,"timestamp":"2026-01-07 18:15:28.965","label":"","text":"1bff20815101289c007d4470144700278183534500014f530101000045533031011447002741544859004bb283000053414142000001011c0000007a050101c301d6c50dc00606042b1b000004010f0110cd01082be10000003a40c0010ac202636dc1010187020006c60100850203e8f20400057e40c3024aca08044675012a","stratum":"/unparsed","expected":[]}
-{"id":3874863,"timestamp":"2026-01-08 08:24:19.933","label":"","text":"1bff6c1b28f641009414616578008c08000000000000000f08047e610314","stratum":"/unparsed","expected":[]}
-{"id":3968170,"timestamp":"2026-01-08 10:31:39.523","label":"","text":"1bffc81b64c000002708f09b7a80c302cd4000a6c64d900f01d4f9e0632095e95737","stratum":"/unparsed","expected":[]}
-{"id":4007063,"timestamp":"2026-01-08 11:37:51.930","label":"","text":"1bff281b28f64200840af076ca850804e2495acc002808d36004e4c9e628a780eb95d800105f58660b80","stratum":"/unparsed","expected":[]}
-{"id":4052761,"timestamp":"2026-01-08 13:44:04.895","label":"","text":"1bff641b64c0000b9912659e8714c3022aab8c08000000130000000b","stratum":"/unparsed","expected":[]}
-{"id":4066203,"timestamp":"2026-01-08 15:01:39.149","label":"","text":"1bff61","stratum":"/unparsed","expected":[]}
-{"id":4090689,"timestamp":"2026-01-08 16:28:19.265","label":"","tail":"B-32F8","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":4583431,"timestamp":"2026-01-09 07:32:18.772","label":"","text":"1bff82821e010004ffff0eb714470027414b4c4d0048455d000000000000000100","stratum":"/unparsed","expected":[]}
-{"id":4674614,"timestamp":"2026-01-09 09:21:15.067","label":"","text":"1bff881e28f64001a985001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":4715899,"timestamp":"2026-01-09 10:16:20.500","label":"","text":"1bfecc1b64c041076908f0acf082c302039400a7864f30833c085209000080579f54ec00","stratum":"/unparsed","expected":[]}
-{"id":4741735,"timestamp":"2026-01-09 11:26:19.031","label":"","text":"1bffa41b28f642003714614149008c08000000000000000a080491cb0323","stratum":"/unparsed","expected":[]}
-{"id":4791199,"timestamp":"2026-01-09 15:35:20.422","label":"","text":"1bff401b28f641002c14629b1c028c08000000020000000f08048b06a070","stratum":"/unparsed","expected":[]}
-{"id":4802516,"timestamp":"2026-01-09 15:48:10.754","label":"","text":"1bfea41b64c041038108f09b3681c3023d6800a7164ee0423c087e0483210504178d00","stratum":"/unparsed","expected":[]}
-{"id":5158170,"timestamp":"2026-01-10 01:27:22.892","label":"","tail":"TC-GRZ","text":"0013","stratum":"/unparsed","expected":[]}
-{"id":5389964,"timestamp":"2026-01-10 06:42:33.972","label":"","text":"e1","stratum":"/unparsed","expected":[]}
-{"id":5391316,"timestamp":"2026-01-10 06:45:05.849","label":"","text":"1bff0b8022050442130180420707430707000fc9078c534954000001c106010000128000821e01000400b462da144700274154524100485122000000000000000100","stratum":"/unparsed","expected":[]}
-{"id":5457074,"timestamp":"2026-01-10 09:09:07.030","label":"","text":"1bfe201b64c04300b112627e8803c302070e8c08000000030000000f","stratum":"/unparsed","expected":[]}
-{"id":5464931,"timestamp":"2026-01-10 09:41:28.625","label":"","text":"1bfe681864c00000670a80be36000580c3023bf9","stratum":"/unparsed","expected":[]}
-{"id":5466851,"timestamp":"2026-01-10 09:48:20.941","label":"","text":"1bfe0b8022047555130180420707430707000fc9078c584141020093c106010000128000821e01000400b4d320144700274154524100484f6d000000000000000100","stratum":"/unparsed","expected":[]}
-{"id":5519909,"timestamp":"2026-01-10 15:14:34.119","label":"","text":"1bfe861b64c043013a08f0c4f583c3023ec000a7264f30c43c0979d0800081d34388c0","stratum":"/unparsed","expected":[]}
-{"id":5526828,"timestamp":"2026-01-10 16:30:43.482","label":"","text":"1bffe61b28f64100ab14638053048c08000000040000000f08048a52d0c2","stratum":"/unparsed","expected":[]}
-{"id":5531734,"timestamp":"2026-01-10 16:47:54.315","label":"","text":"1bff621b28f64102290a62806f010804a76629b1","stratum":"/unparsed","expected":[]}
-{"id":5545748,"timestamp":"2026-01-10 17:24:19.693","label":"","text":"1bfe281b64c00006871262c6e103c3025e1b8c08000000020000000a","stratum":"/unparsed","expected":[]}
-{"id":6116878,"timestamp":"2026-01-11 07:23:06.696","label":"","text":"1bffc21e64c04005d985001e04000000030000000305041cd1cee5bd4ede87b7c6ef552e8e5504","stratum":"/unparsed","expected":[]}
-{"id":6157915,"timestamp":"2026-01-11 08:08:57.274","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
-{"id":6351197,"timestamp":"2026-01-11 14:20:20.393","label":"","text":"1bfe441b64c04221c808f0837684c302045f00a7164ee1053c0a72898321059ca0f250","stratum":"/unparsed","expected":[]}
-{"id":6453500,"timestamp":"2026-01-11 16:25:36.541","label":"","text":"1bff0a1e28f640000d85001e04000000030000000320049c383e9d609334b3b34b4f6d825a9676","stratum":"/unparsed","expected":[]}
-{"id":6479939,"timestamp":"2026-01-11 17:24:08.790","label":"","text":"1bff001e28f64001b285001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":6506933,"timestamp":"2026-01-11 19:04:41.690","label":"","text":"1bff0b8021740375130180420707430707000fc9078c534954000001c106010000128000821e01000400b4ffe214470027414e4f5a0047c0fd000000000000000100","stratum":"/unparsed","expected":[]}
-{"id":6512863,"timestamp":"2026-01-11 19:35:55.706","label":"","text":"1bfe2e1b64c0410db01263db7e04c302cbf88c08000000030000000a","stratum":"/unparsed","expected":[]}
-{"id":6546062,"timestamp":"2026-01-11 20:46:23.404","label":"","tail":"MSUNY","text":"0013","stratum":"/unparsed","expected":[]}
-{"id":6723319,"timestamp":"2026-01-12 06:21:40.338","label":"","text":"1bffcc1e28f640001e85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":6846769,"timestamp":"2026-01-12 09:07:12.107","label":"","text":"1bff081b64c00100570862e2f801c3028d65","stratum":"/unparsed","expected":[]}
-{"id":7046159,"timestamp":"2026-01-12 13:58:52.759","label":"","text":"1bff201e28f640015885001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":7119607,"timestamp":"2026-01-12 15:39:27.840","label":"","text":"1bffce1e28f640017285001e040000000700000004030487ace59c09998efbd8f976bc28321b5f","stratum":"/unparsed","expected":[]}
-{"id":7164342,"timestamp":"2026-01-12 18:30:05.361","label":"","text":"1bfe0b8022042102130180420707430707000fc9078c534954000001c106010000128000821e01000400b454d814470027414b4c4d00484442000000000000000100","stratum":"/unparsed","expected":[]}
-{"id":7175729,"timestamp":"2026-01-12 18:43:12.342","label":"","tail":"N714SA","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":7226850,"timestamp":"2026-01-12 20:05:02.047","label":"","text":"1bff0e1e28f640009685001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":7800107,"timestamp":"2026-01-13 13:18:59.020","label":"","text":"1bfe201e64c040017f85001e0400000003000000020504c136050d7eaf040967fbfe12e16d9243","stratum":"/unparsed","expected":[]}
-{"id":7867313,"timestamp":"2026-01-13 14:52:00.020","label":"","text":"1bffc81e64c040074185001e04000000030000000305041cd1cee5bd4ede87b7c6ef552e8e5504","stratum":"/unparsed","expected":[]}
-{"id":8008039,"timestamp":"2026-01-13 18:03:34.596","label":"","text":"1bff281b28f64602761463fc1f088c08000000070000000a080441f51274","stratum":"/unparsed","expected":[]}
-{"id":8008397,"timestamp":"2026-01-13 18:04:18.137","label":"","text":"1bff661864c0010d7d1261753a00c302c5ad8c08000000000000000f","stratum":"/unparsed","expected":[]}
-{"id":8566978,"timestamp":"2026-01-17 11:47:09.317","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
-{"id":8618282,"timestamp":"2026-01-17 13:04:55.831","label":"","text":"1bff6a1b28f64401921461c46e008c08000000000000000f08043f154032","stratum":"/unparsed","expected":[]}
-{"id":8640261,"timestamp":"2026-01-17 13:30:52.348","label":"","text":"21","stratum":"/unparsed","expected":[]}
-{"id":8658508,"timestamp":"2026-01-17 13:51:28.645","label":"","text":"1bffe1","stratum":"/unparsed","expected":[]}
-{"id":8688904,"timestamp":"2026-01-17 14:31:25.264","label":"","text":"1bff441864c00001cc1261c4de00c302b2cc8c08000000000000000f","stratum":"/unparsed","expected":[]}
-{"id":8898011,"timestamp":"2026-01-17 18:56:08.194","label":"","text":"1bfe641b64c04109a208f09bca86c302587500a7164ee1873c10970303210569d3e2e0","stratum":"/unparsed","expected":[]}
-{"id":9193170,"timestamp":"2026-01-18 03:27:18.900","label":"","text":"0013","stratum":"/unparsed","expected":[]}
-{"id":9279654,"timestamp":"2026-01-18 05:18:42.382","label":"","text":"1bffc61e28f640002385001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":9289238,"timestamp":"2026-01-18 05:32:24.539","label":"","text":"1bffc01b28f64100280a624760020804aa0345a3","stratum":"/unparsed","expected":[]}
-{"id":9364038,"timestamp":"2026-01-18 07:17:57.878","label":"","text":"1bff0e1e28f640003f85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":9454360,"timestamp":"2026-01-18 09:35:57.454","label":"","text":"1bff201b28f64300680a624b9d030804abc4c83b0af04b9d820804b5e12b3500a7164ee0833c114c7c032100bd0e4fa8","stratum":"/unparsed","expected":[]}
-{"id":9586974,"timestamp":"2026-01-18 14:26:11.756","label":"","text":"1bffc41b28f64100210a62512a0208046719c4a0","stratum":"/unparsed","expected":[]}
-{"id":9594397,"timestamp":"2026-01-18 14:36:39.821","label":"","tail":"OE-IFM","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":9617447,"timestamp":"2026-01-18 15:05:47.816","label":"","text":"1bfea61b64c0421722086251c403c302f3c2","stratum":"/unparsed","expected":[]}
-{"id":9712729,"timestamp":"2026-01-18 17:32:48.668","label":"","text":"1bff401b28f64200a314635431048c08000000030000000a080459f55331","stratum":"/unparsed","expected":[]}
-{"id":9744667,"timestamp":"2026-01-18 18:23:09.867","label":"","text":"1bff4a1e28f600025885001e04000000030000000220041cf262b12f63fb5a15a15d4261014558","stratum":"/unparsed","expected":[]}
-{"id":9766190,"timestamp":"2026-01-18 19:05:08.623","label":"","text":"1bff0a815101289c007e5d751447002781836575000144590001000047473131011447002741524f54004a08e600010000000000010103230000007b050101c301d6c50dc00606042b1b000004010f0112cd01082ce10000799640c0010ac202636cc102434d87020006c60100850203e8f20400057e40c3021dcc0804d164660f","stratum":"/unparsed","expected":[]}
-{"id":9768768,"timestamp":"2026-01-18 19:10:15.124","label":"","text":"21","stratum":"/unparsed","expected":[]}
-{"id":10149773,"timestamp":"2026-01-19 06:54:36.530","label":"","text":"1bffa61e28f640000f85001e04000000030000000320049c383e9d609334b3b34b4f6d825a9676","stratum":"/unparsed","expected":[]}
-{"id":10164371,"timestamp":"2026-01-19 07:14:27.206","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
-{"id":10165427,"timestamp":"2026-01-19 07:16:01.598","label":"","text":"1bfe0b8021417030130180420707430707000fc9078c584141020093c106010000128000821e01000400b44548144700274146434d00461e18000000000000000100","stratum":"/unparsed","expected":[]}
-{"id":10188316,"timestamp":"2026-01-19 07:47:40.931","label":"","text":"1bff881e28f640002285001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":10249827,"timestamp":"2026-01-19 09:21:58.351","label":"","text":"1bff481828f60000360af0cdf1800804566422f6e80200229042b1b0301020ac6c060a7b2860000690008780890503762693a7da6acad20a720ac0051e9462000200000000000202869a002c00414e415800a3d28c400040000000000040458022ce8f3664ba1480","stratum":"/unparsed","expected":[]}
-{"id":10277771,"timestamp":"2026-01-19 10:04:09.480","label":"","text":"1bff881b28f642007627d1601e003640c0010ac20116c102656d87020003850203e8f20400057e40c601000804abf84ad4f0021001042b1b030100045cc107fb40caf0","stratum":"/unparsed","expected":[]}
-{"id":10466444,"timestamp":"2026-01-19 16:12:24.265","label":"","text":"1bfe4e1864c0011d941261d04e00c3023dc68c08000000000000000f","stratum":"/unparsed","expected":[]}
-{"id":10481958,"timestamp":"2026-01-19 16:36:42.803","label":"","text":"01","stratum":"/unparsed","expected":[]}
-{"id":10553082,"timestamp":"2026-01-19 18:28:23.061","label":"","text":"1bff001828f603028a0a6269f1010804e33cda77","stratum":"/unparsed","expected":[]}
-{"id":10941590,"timestamp":"2026-01-20 06:08:58.678","label":"","text":"1bff221e28f640001185001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
-{"id":10968469,"timestamp":"2026-01-20 06:42:28.525","label":"","text":"1bff201b28f64100451463a532048c08000000040000000f0804da15360e","stratum":"/unparsed","expected":[]}
-{"id":11112423,"timestamp":"2026-01-20 10:05:12.851","label":"","text":"1bffec1b28f64700c50a6472480b0804ddeac4d5","stratum":"/unparsed","expected":[]}
-{"id":11127721,"timestamp":"2026-01-20 10:26:40.455","label":"","text":"1bffe1","stratum":"/unparsed","expected":[]}
-{"id":11164575,"timestamp":"2026-01-20 11:19:02.839","label":"","text":"1bfe641b64c00100230862d3b902c3022020","stratum":"/unparsed","expected":[]}
-{"id":11303110,"timestamp":"2026-01-21 16:05:11.578","label":"","tail":"N708GT","flight":"5Y354","text":"0013","stratum":"/unparsed","expected":[]}
-{"id":11336424,"timestamp":"2026-01-21 16:45:52.612","label":"","text":"1bffac1864c00000930862d9cf01c3029193","stratum":"/unparsed","expected":[]}
-{"id":11350668,"timestamp":"2026-01-21 17:03:37.741","label":"","text":"1bff441e28f640010285001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":23172,"timestamp":"2025-12-31T18:15:12.396Z","label":"","tail":"B-16731","flight":"BR18","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":37580,"timestamp":"2025-12-31T18:22:50.724Z","label":"","tail":"JA867J","flight":"JL726","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":48991,"timestamp":"2025-12-31T18:29:06.556Z","label":"","tail":"A6-BLU","flight":"EY473","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":92196,"timestamp":"2025-12-31T18:52:50.390Z","label":"","tail":"N508DN","flight":"DL196","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":116371,"timestamp":"2025-12-31T19:05:06.000Z","label":"","tail":"B-1566","flight":"MF801","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":294371,"timestamp":"2026-01-03T10:02:00.789Z","label":"","text":"1bffaa1e28f640033a85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":296101,"timestamp":"2026-01-03T10:08:07.167Z","label":"","text":"1bff001e28f640001d85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":789150,"timestamp":"2026-01-04T09:04:47.264Z","label":"","text":"1bffaa815101289c007d3b2b144700278183444b0001444b0101000045533031011447002741534153004ac9e100005341414200000100220000007a050100c301d6c50dc00606042b1b000004010f0110cd01082be10000003240c0010ac202636dc1010187020006c60100850203e8f20400057e40c302283708047618c055","stratum":"/unparsed","expected":[]}
+{"id":877822,"timestamp":"2026-01-04T11:41:46.799Z","label":"","text":"1bff0b80200065330d0180000fc9078c584141020093c106010100138000821e010004001e0000144700274142415700400d5b000053414142000000","stratum":"/unparsed","expected":[]}
+{"id":1003192,"timestamp":"2026-01-04T19:55:51.281Z","label":"","text":"1bff401e64c0400176850020030000000600000003040476f9bfe148448e2899c2e796991e52b40415","stratum":"/unparsed","expected":[]}
+{"id":1158581,"timestamp":"2026-01-04T23:43:27.543Z","label":"","text":"1bff421e28f640031585001e0400000007000000080304c2bdf95250e275b651330d1464d0eee7","stratum":"/unparsed","expected":[]}
+{"id":1537555,"timestamp":"2026-01-05T13:18:19.931Z","label":"","text":"1bffea1b28f64901e90af07051840804e499b33700a7264f31053c046a49800082743d9804","stratum":"/unparsed","expected":[]}
+{"id":1728821,"timestamp":"2026-01-05T17:45:04.119Z","label":"","text":"1bff6e1e28fe4001d785001e0400000007000000030304bca35510efa2ed06b8cc6e815a772c37","stratum":"/unparsed","expected":[]}
+{"id":2170747,"timestamp":"2026-01-06T08:41:31.785Z","label":"","text":"1bff061b28f64200bb0af06e95890804c407bc49002808d36004e4c9e6492780a8a5f800106a086b7880","stratum":"/unparsed","expected":[]}
+{"id":2220756,"timestamp":"2026-01-06T10:03:09.137Z","label":"","text":"21","stratum":"/unparsed","expected":[]}
+{"id":2227218,"timestamp":"2026-01-06T10:14:17.348Z","label":"","text":"1bfe641b64c00001f208f07e3f80c302c7c200a6c64d900f015471e06320ca9ea8e0","stratum":"/unparsed","expected":[]}
+{"id":2395498,"timestamp":"2026-01-06T14:30:04.307Z","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
+{"id":2725420,"timestamp":"2026-01-07T02:28:30.433Z","label":"","text":"1bff0b802122045513420a0a4304040180000fc9078c584141020093c106010000138000821e010004001e0000144700274141445a0045212d000000000000000100","stratum":"/unparsed","expected":[]}
+{"id":2965748,"timestamp":"2026-01-07T07:05:45.541Z","label":"","text":"1bff0b802170364013420a0a4304040180000fc9078c534954000001c106010000138000821e010004001e000014470027414e4158004787a0000100000000000100","stratum":"/unparsed","expected":[]}
+{"id":2979972,"timestamp":"2026-01-07T07:35:01.495Z","label":"","text":"1bfea81e64c040009385001e04000000030000000305041cd1cee5bd4ede87b7c6ef552e8e5504","stratum":"/unparsed","expected":[]}
+{"id":2984053,"timestamp":"2026-01-07T07:42:34.710Z","label":"","text":"1bff421b64c00000910863722304c3024aea","stratum":"/unparsed","expected":[]}
+{"id":3049630,"timestamp":"2026-01-07T09:03:31.385Z","label":"","text":"1bff641828f60000770a617264000804c6680240","stratum":"/unparsed","expected":[]}
+{"id":3270431,"timestamp":"2026-01-07T15:11:20.928Z","label":"","text":"1bffaa1e28f640003a85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":3330499,"timestamp":"2026-01-07T18:15:28.965Z","label":"","text":"1bff20815101289c007d4470144700278183534500014f530101000045533031011447002741544859004bb283000053414142000001011c0000007a050101c301d6c50dc00606042b1b000004010f0110cd01082be10000003a40c0010ac202636dc1010187020006c60100850203e8f20400057e40c3024aca08044675012a","stratum":"/unparsed","expected":[]}
+{"id":3874863,"timestamp":"2026-01-08T08:24:19.933Z","label":"","text":"1bff6c1b28f641009414616578008c08000000000000000f08047e610314","stratum":"/unparsed","expected":[]}
+{"id":3968170,"timestamp":"2026-01-08T10:31:39.523Z","label":"","text":"1bffc81b64c000002708f09b7a80c302cd4000a6c64d900f01d4f9e0632095e95737","stratum":"/unparsed","expected":[]}
+{"id":4007063,"timestamp":"2026-01-08T11:37:51.930Z","label":"","text":"1bff281b28f64200840af076ca850804e2495acc002808d36004e4c9e628a780eb95d800105f58660b80","stratum":"/unparsed","expected":[]}
+{"id":4052761,"timestamp":"2026-01-08T13:44:04.895Z","label":"","text":"1bff641b64c0000b9912659e8714c3022aab8c08000000130000000b","stratum":"/unparsed","expected":[]}
+{"id":4066203,"timestamp":"2026-01-08T15:01:39.149Z","label":"","text":"1bff61","stratum":"/unparsed","expected":[]}
+{"id":4090689,"timestamp":"2026-01-08T16:28:19.265Z","label":"","tail":"B-32F8","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":4583431,"timestamp":"2026-01-09T07:32:18.772Z","label":"","text":"1bff82821e010004ffff0eb714470027414b4c4d0048455d000000000000000100","stratum":"/unparsed","expected":[]}
+{"id":4674614,"timestamp":"2026-01-09T09:21:15.067Z","label":"","text":"1bff881e28f64001a985001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":4715899,"timestamp":"2026-01-09T10:16:20.500Z","label":"","text":"1bfecc1b64c041076908f0acf082c302039400a7864f30833c085209000080579f54ec00","stratum":"/unparsed","expected":[]}
+{"id":4741735,"timestamp":"2026-01-09T11:26:19.031Z","label":"","text":"1bffa41b28f642003714614149008c08000000000000000a080491cb0323","stratum":"/unparsed","expected":[]}
+{"id":4791199,"timestamp":"2026-01-09T15:35:20.422Z","label":"","text":"1bff401b28f641002c14629b1c028c08000000020000000f08048b06a070","stratum":"/unparsed","expected":[]}
+{"id":4802516,"timestamp":"2026-01-09T15:48:10.754Z","label":"","text":"1bfea41b64c041038108f09b3681c3023d6800a7164ee0423c087e0483210504178d00","stratum":"/unparsed","expected":[]}
+{"id":5158170,"timestamp":"2026-01-10T01:27:22.892Z","label":"","tail":"TC-GRZ","text":"0013","stratum":"/unparsed","expected":[]}
+{"id":5389964,"timestamp":"2026-01-10T06:42:33.972Z","label":"","text":"e1","stratum":"/unparsed","expected":[]}
+{"id":5391316,"timestamp":"2026-01-10T06:45:05.849Z","label":"","text":"1bff0b8022050442130180420707430707000fc9078c534954000001c106010000128000821e01000400b462da144700274154524100485122000000000000000100","stratum":"/unparsed","expected":[]}
+{"id":5457074,"timestamp":"2026-01-10T09:09:07.030Z","label":"","text":"1bfe201b64c04300b112627e8803c302070e8c08000000030000000f","stratum":"/unparsed","expected":[]}
+{"id":5464931,"timestamp":"2026-01-10T09:41:28.625Z","label":"","text":"1bfe681864c00000670a80be36000580c3023bf9","stratum":"/unparsed","expected":[]}
+{"id":5466851,"timestamp":"2026-01-10T09:48:20.941Z","label":"","text":"1bfe0b8022047555130180420707430707000fc9078c584141020093c106010000128000821e01000400b4d320144700274154524100484f6d000000000000000100","stratum":"/unparsed","expected":[]}
+{"id":5519909,"timestamp":"2026-01-10T15:14:34.119Z","label":"","text":"1bfe861b64c043013a08f0c4f583c3023ec000a7264f30c43c0979d0800081d34388c0","stratum":"/unparsed","expected":[]}
+{"id":5526828,"timestamp":"2026-01-10T16:30:43.482Z","label":"","text":"1bffe61b28f64100ab14638053048c08000000040000000f08048a52d0c2","stratum":"/unparsed","expected":[]}
+{"id":5531734,"timestamp":"2026-01-10T16:47:54.315Z","label":"","text":"1bff621b28f64102290a62806f010804a76629b1","stratum":"/unparsed","expected":[]}
+{"id":5545748,"timestamp":"2026-01-10T17:24:19.693Z","label":"","text":"1bfe281b64c00006871262c6e103c3025e1b8c08000000020000000a","stratum":"/unparsed","expected":[]}
+{"id":6116878,"timestamp":"2026-01-11T07:23:06.696Z","label":"","text":"1bffc21e64c04005d985001e04000000030000000305041cd1cee5bd4ede87b7c6ef552e8e5504","stratum":"/unparsed","expected":[]}
+{"id":6157915,"timestamp":"2026-01-11T08:08:57.274Z","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
+{"id":6351197,"timestamp":"2026-01-11T14:20:20.393Z","label":"","text":"1bfe441b64c04221c808f0837684c302045f00a7164ee1053c0a72898321059ca0f250","stratum":"/unparsed","expected":[]}
+{"id":6453500,"timestamp":"2026-01-11T16:25:36.541Z","label":"","text":"1bff0a1e28f640000d85001e04000000030000000320049c383e9d609334b3b34b4f6d825a9676","stratum":"/unparsed","expected":[]}
+{"id":6479939,"timestamp":"2026-01-11T17:24:08.790Z","label":"","text":"1bff001e28f64001b285001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":6506933,"timestamp":"2026-01-11T19:04:41.690Z","label":"","text":"1bff0b8021740375130180420707430707000fc9078c534954000001c106010000128000821e01000400b4ffe214470027414e4f5a0047c0fd000000000000000100","stratum":"/unparsed","expected":[]}
+{"id":6512863,"timestamp":"2026-01-11T19:35:55.706Z","label":"","text":"1bfe2e1b64c0410db01263db7e04c302cbf88c08000000030000000a","stratum":"/unparsed","expected":[]}
+{"id":6546062,"timestamp":"2026-01-11T20:46:23.404Z","label":"","tail":"MSUNY","text":"0013","stratum":"/unparsed","expected":[]}
+{"id":6723319,"timestamp":"2026-01-12T06:21:40.338Z","label":"","text":"1bffcc1e28f640001e85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":6846769,"timestamp":"2026-01-12T09:07:12.107Z","label":"","text":"1bff081b64c00100570862e2f801c3028d65","stratum":"/unparsed","expected":[]}
+{"id":7046159,"timestamp":"2026-01-12T13:58:52.759Z","label":"","text":"1bff201e28f640015885001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":7119607,"timestamp":"2026-01-12T15:39:27.840Z","label":"","text":"1bffce1e28f640017285001e040000000700000004030487ace59c09998efbd8f976bc28321b5f","stratum":"/unparsed","expected":[]}
+{"id":7164342,"timestamp":"2026-01-12T18:30:05.361Z","label":"","text":"1bfe0b8022042102130180420707430707000fc9078c534954000001c106010000128000821e01000400b454d814470027414b4c4d00484442000000000000000100","stratum":"/unparsed","expected":[]}
+{"id":7175729,"timestamp":"2026-01-12T18:43:12.342Z","label":"","tail":"N714SA","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":7226850,"timestamp":"2026-01-12T20:05:02.047Z","label":"","text":"1bff0e1e28f640009685001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":7800107,"timestamp":"2026-01-13T13:18:59.020Z","label":"","text":"1bfe201e64c040017f85001e0400000003000000020504c136050d7eaf040967fbfe12e16d9243","stratum":"/unparsed","expected":[]}
+{"id":7867313,"timestamp":"2026-01-13T14:52:00.020Z","label":"","text":"1bffc81e64c040074185001e04000000030000000305041cd1cee5bd4ede87b7c6ef552e8e5504","stratum":"/unparsed","expected":[]}
+{"id":8008039,"timestamp":"2026-01-13T18:03:34.596Z","label":"","text":"1bff281b28f64602761463fc1f088c08000000070000000a080441f51274","stratum":"/unparsed","expected":[]}
+{"id":8008397,"timestamp":"2026-01-13T18:04:18.137Z","label":"","text":"1bff661864c0010d7d1261753a00c302c5ad8c08000000000000000f","stratum":"/unparsed","expected":[]}
+{"id":8566978,"timestamp":"2026-01-17T11:47:09.317Z","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
+{"id":8618282,"timestamp":"2026-01-17T13:04:55.831Z","label":"","text":"1bff6a1b28f64401921461c46e008c08000000000000000f08043f154032","stratum":"/unparsed","expected":[]}
+{"id":8640261,"timestamp":"2026-01-17T13:30:52.348Z","label":"","text":"21","stratum":"/unparsed","expected":[]}
+{"id":8658508,"timestamp":"2026-01-17T13:51:28.645Z","label":"","text":"1bffe1","stratum":"/unparsed","expected":[]}
+{"id":8688904,"timestamp":"2026-01-17T14:31:25.264Z","label":"","text":"1bff441864c00001cc1261c4de00c302b2cc8c08000000000000000f","stratum":"/unparsed","expected":[]}
+{"id":8898011,"timestamp":"2026-01-17T18:56:08.194Z","label":"","text":"1bfe641b64c04109a208f09bca86c302587500a7164ee1873c10970303210569d3e2e0","stratum":"/unparsed","expected":[]}
+{"id":9193170,"timestamp":"2026-01-18T03:27:18.900Z","label":"","text":"0013","stratum":"/unparsed","expected":[]}
+{"id":9279654,"timestamp":"2026-01-18T05:18:42.382Z","label":"","text":"1bffc61e28f640002385001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":9289238,"timestamp":"2026-01-18T05:32:24.539Z","label":"","text":"1bffc01b28f64100280a624760020804aa0345a3","stratum":"/unparsed","expected":[]}
+{"id":9364038,"timestamp":"2026-01-18T07:17:57.878Z","label":"","text":"1bff0e1e28f640003f85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":9454360,"timestamp":"2026-01-18T09:35:57.454Z","label":"","text":"1bff201b28f64300680a624b9d030804abc4c83b0af04b9d820804b5e12b3500a7164ee0833c114c7c032100bd0e4fa8","stratum":"/unparsed","expected":[]}
+{"id":9586974,"timestamp":"2026-01-18T14:26:11.756Z","label":"","text":"1bffc41b28f64100210a62512a0208046719c4a0","stratum":"/unparsed","expected":[]}
+{"id":9594397,"timestamp":"2026-01-18T14:36:39.821Z","label":"","tail":"OE-IFM","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":9617447,"timestamp":"2026-01-18T15:05:47.816Z","label":"","text":"1bfea61b64c0421722086251c403c302f3c2","stratum":"/unparsed","expected":[]}
+{"id":9712729,"timestamp":"2026-01-18T17:32:48.668Z","label":"","text":"1bff401b28f64200a314635431048c08000000030000000a080459f55331","stratum":"/unparsed","expected":[]}
+{"id":9744667,"timestamp":"2026-01-18T18:23:09.867Z","label":"","text":"1bff4a1e28f600025885001e04000000030000000220041cf262b12f63fb5a15a15d4261014558","stratum":"/unparsed","expected":[]}
+{"id":9766190,"timestamp":"2026-01-18T19:05:08.623Z","label":"","text":"1bff0a815101289c007e5d751447002781836575000144590001000047473131011447002741524f54004a08e600010000000000010103230000007b050101c301d6c50dc00606042b1b000004010f0112cd01082ce10000799640c0010ac202636cc102434d87020006c60100850203e8f20400057e40c3021dcc0804d164660f","stratum":"/unparsed","expected":[]}
+{"id":9768768,"timestamp":"2026-01-18T19:10:15.124Z","label":"","text":"21","stratum":"/unparsed","expected":[]}
+{"id":10149773,"timestamp":"2026-01-19T06:54:36.530Z","label":"","text":"1bffa61e28f640000f85001e04000000030000000320049c383e9d609334b3b34b4f6d825a9676","stratum":"/unparsed","expected":[]}
+{"id":10164371,"timestamp":"2026-01-19T07:14:27.206Z","label":"","text":"1bff21","stratum":"/unparsed","expected":[]}
+{"id":10165427,"timestamp":"2026-01-19T07:16:01.598Z","label":"","text":"1bfe0b8021417030130180420707430707000fc9078c584141020093c106010000128000821e01000400b44548144700274146434d00461e18000000000000000100","stratum":"/unparsed","expected":[]}
+{"id":10188316,"timestamp":"2026-01-19T07:47:40.931Z","label":"","text":"1bff881e28f640002285001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":10249827,"timestamp":"2026-01-19T09:21:58.351Z","label":"","text":"1bff481828f60000360af0cdf1800804566422f6e80200229042b1b0301020ac6c060a7b2860000690008780890503762693a7da6acad20a720ac0051e9462000200000000000202869a002c00414e415800a3d28c400040000000000040458022ce8f3664ba1480","stratum":"/unparsed","expected":[]}
+{"id":10277771,"timestamp":"2026-01-19T10:04:09.480Z","label":"","text":"1bff881b28f642007627d1601e003640c0010ac20116c102656d87020003850203e8f20400057e40c601000804abf84ad4f0021001042b1b030100045cc107fb40caf0","stratum":"/unparsed","expected":[]}
+{"id":10466444,"timestamp":"2026-01-19T16:12:24.265Z","label":"","text":"1bfe4e1864c0011d941261d04e00c3023dc68c08000000000000000f","stratum":"/unparsed","expected":[]}
+{"id":10481958,"timestamp":"2026-01-19T16:36:42.803Z","label":"","text":"01","stratum":"/unparsed","expected":[]}
+{"id":10553082,"timestamp":"2026-01-19T18:28:23.061Z","label":"","text":"1bff001828f603028a0a6269f1010804e33cda77","stratum":"/unparsed","expected":[]}
+{"id":10941590,"timestamp":"2026-01-20T06:08:58.678Z","label":"","text":"1bff221e28f640001185001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
+{"id":10968469,"timestamp":"2026-01-20T06:42:28.525Z","label":"","text":"1bff201b28f64100451463a532048c08000000040000000f0804da15360e","stratum":"/unparsed","expected":[]}
+{"id":11112423,"timestamp":"2026-01-20T10:05:12.851Z","label":"","text":"1bffec1b28f64700c50a6472480b0804ddeac4d5","stratum":"/unparsed","expected":[]}
+{"id":11127721,"timestamp":"2026-01-20T10:26:40.455Z","label":"","text":"1bffe1","stratum":"/unparsed","expected":[]}
+{"id":11164575,"timestamp":"2026-01-20T11:19:02.839Z","label":"","text":"1bfe641b64c00100230862d3b902c3022020","stratum":"/unparsed","expected":[]}
+{"id":11303110,"timestamp":"2026-01-21T16:05:11.578Z","label":"","tail":"N708GT","flight":"5Y354","text":"0013","stratum":"/unparsed","expected":[]}
+{"id":11336424,"timestamp":"2026-01-21T16:45:52.612Z","label":"","text":"1bffac1864c00000930862d9cf01c3029193","stratum":"/unparsed","expected":[]}
+{"id":11350668,"timestamp":"2026-01-21T17:03:37.741Z","label":"","text":"1bff441e28f640010285001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}

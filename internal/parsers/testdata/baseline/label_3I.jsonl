@@ -1,19 +1,19 @@
-{"id":18195,"timestamp":"2025-12-31 18:12:16.763","label":"3I","tail":"N633UP","flight":"UP0032","text":"311812 31SDF HNL 18120448","stratum":"3I/unparsed","expected":[]}
-{"id":1376234,"timestamp":"2026-01-05 07:19:22.459","label":"3I","tail":"N395UP","text":"050522 05BCN VLC 05220248","stratum":"3I/unparsed","expected":[]}
-{"id":2918740,"timestamp":"2026-01-07 05:55:11.649","label":"3I","tail":"N171UP","text":"070354 07BDL PHL 03540230","stratum":"3I/unparsed","expected":[]}
-{"id":3038565,"timestamp":"2026-01-07 08:39:03.498","label":"3I","tail":"N392UP","text":"070613 07BCN VLC 06120194","stratum":"3I/unparsed","expected":[]}
-{"id":3247445,"timestamp":"2026-01-07 14:23:44.109","label":"3I","tail":"N147UP","text":"071146 07SDF AUS 11460166","stratum":"3I/unparsed","expected":[]}
-{"id":3764360,"timestamp":"2026-01-08 05:57:20.508","label":"3I","tail":"N391UP","text":"080557 08BCN VLC 05570173","stratum":"3I/unparsed","expected":[]}
-{"id":3953682,"timestamp":"2026-01-08 10:20:43.157","label":"3I","tail":"N624UP","text":"081019 08SDF PHL 10190347","stratum":"3I/unparsed","expected":[]}
-{"id":4456704,"timestamp":"2026-01-09 05:34:46.976","label":"3I","tail":"N161UP","text":"090340 09MHT PHL 03400121","stratum":"3I/unparsed","expected":[]}
-{"id":4574889,"timestamp":"2026-01-09 07:56:20.982","label":"3I","tail":"N391UP","text":"090601 09BCN VLC 06010185","stratum":"3I/unparsed","expected":[]}
-{"id":4621277,"timestamp":"2026-01-09 09:05:55.781","label":"3I","tail":"N126UP","text":"090708 09SDF PHL 07070194","stratum":"3I/unparsed","expected":[]}
-{"id":6653491,"timestamp":"2026-01-12 05:14:27.952","label":"3I","tail":"N391UP","text":"120510 12BCN VLC 05100221","stratum":"3I/unparsed","expected":[]}
-{"id":7661611,"timestamp":"2026-01-13 09:58:28.212","label":"3I","tail":"N618UP","text":"130958 13SDF PHL 09580279","stratum":"3I/unparsed","expected":[]}
-{"id":7765467,"timestamp":"2026-01-13 12:31:54.437","label":"3I","tail":"N128UP","text":"131156 13SDF AUS 11560145","stratum":"3I/unparsed","expected":[]}
-{"id":8642938,"timestamp":"2026-01-17 13:29:24.417","label":"3I","tail":"N157UP","text":"171250 17SDF AUS 12500146","stratum":"3I/unparsed","expected":[]}
-{"id":10097174,"timestamp":"2026-01-19 06:08:47.922","label":"3I","tail":"N362UP","text":"190507 19BCN VLC 05070263","stratum":"3I/unparsed","expected":[]}
-{"id":10942669,"timestamp":"2026-01-20 06:39:21.592","label":"3I","tail":"N391UP","text":"200625 20BCN VLC 06250194","stratum":"3I/unparsed","expected":[]}
-{"id":11106876,"timestamp":"2026-01-20 10:47:41.738","label":"3I","tail":"N632UP","text":"201047 20SDF PHL 10470396","stratum":"3I/unparsed","expected":[]}
-{"id":11183528,"timestamp":"2026-01-20 12:32:01.448","label":"3I","tail":"N154UP","text":"201209 20SDF AUS 12090176","stratum":"3I/unparsed","expected":[]}
-{"id":11671986,"timestamp":"2026-01-22 04:25:10.499","label":"3I","tail":"N165UP","text":"220425 22MHT PHL 04240129","stratum":"3I/unparsed","expected":[]}
+{"id":18195,"timestamp":"2025-12-31T18:12:16.763Z","label":"3I","tail":"N633UP","flight":"UP0032","text":"311812 31SDF HNL 18120448","stratum":"3I/unparsed","expected":[]}
+{"id":1376234,"timestamp":"2026-01-05T07:19:22.459Z","label":"3I","tail":"N395UP","text":"050522 05BCN VLC 05220248","stratum":"3I/unparsed","expected":[]}
+{"id":2918740,"timestamp":"2026-01-07T05:55:11.649Z","label":"3I","tail":"N171UP","text":"070354 07BDL PHL 03540230","stratum":"3I/unparsed","expected":[]}
+{"id":3038565,"timestamp":"2026-01-07T08:39:03.498Z","label":"3I","tail":"N392UP","text":"070613 07BCN VLC 06120194","stratum":"3I/unparsed","expected":[]}
+{"id":3247445,"timestamp":"2026-01-07T14:23:44.109Z","label":"3I","tail":"N147UP","text":"071146 07SDF AUS 11460166","stratum":"3I/unparsed","expected":[]}
+{"id":3764360,"timestamp":"2026-01-08T05:57:20.508Z","label":"3I","tail":"N391UP","text":"080557 08BCN VLC 05570173","stratum":"3I/unparsed","expected":[]}
+{"id":3953682,"timestamp":"2026-01-08T10:20:43.157Z","label":"3I","tail":"N624UP","text":"081019 08SDF PHL 10190347","stratum":"3I/unparsed","expected":[]}
+{"id":4456704,"timestamp":"2026-01-09T05:34:46.976Z","label":"3I","tail":"N161UP","text":"090340 09MHT PHL 03400121","stratum":"3I/unparsed","expected":[]}
+{"id":4574889,"timestamp":"2026-01-09T07:56:20.982Z","label":"3I","tail":"N391UP","text":"090601 09BCN VLC 06010185","stratum":"3I/unparsed","expected":[]}
+{"id":4621277,"timestamp":"2026-01-09T09:05:55.781Z","label":"3I","tail":"N126UP","text":"090708 09SDF PHL 07070194","stratum":"3I/unparsed","expected":[]}
+{"id":6653491,"timestamp":"2026-01-12T05:14:27.952Z","label":"3I","tail":"N391UP","text":"120510 12BCN VLC 05100221","stratum":"3I/unparsed","expected":[]}
+{"id":7661611,"timestamp":"2026-01-13T09:58:28.212Z","label":"3I","tail":"N618UP","text":"130958 13SDF PHL 09580279","stratum":"3I/unparsed","expected":[]}
+{"id":7765467,"timestamp":"2026-01-13T12:31:54.437Z","label":"3I","tail":"N128UP","text":"131156 13SDF AUS 11560145","stratum":"3I/unparsed","expected":[]}
+{"id":8642938,"timestamp":"2026-01-17T13:29:24.417Z","label":"3I","tail":"N157UP","text":"171250 17SDF AUS 12500146","stratum":"3I/unparsed","expected":[]}
+{"id":10097174,"timestamp":"2026-01-19T06:08:47.922Z","label":"3I","tail":"N362UP","text":"190507 19BCN VLC 05070263","stratum":"3I/unparsed","expected":[]}
+{"id":10942669,"timestamp":"2026-01-20T06:39:21.592Z","label":"3I","tail":"N391UP","text":"200625 20BCN VLC 06250194","stratum":"3I/unparsed","expected":[]}
+{"id":11106876,"timestamp":"2026-01-20T10:47:41.738Z","label":"3I","tail":"N632UP","text":"201047 20SDF PHL 10470396","stratum":"3I/unparsed","expected":[]}
+{"id":11183528,"timestamp":"2026-01-20T12:32:01.448Z","label":"3I","tail":"N154UP","text":"201209 20SDF AUS 12090176","stratum":"3I/unparsed","expected":[]}
+{"id":11671986,"timestamp":"2026-01-22T04:25:10.499Z","label":"3I","tail":"N165UP","text":"220425 22MHT PHL 04240129","stratum":"3I/unparsed","expected":[]}

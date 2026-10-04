@@ -1,100 +1,100 @@
-{"id":28410,"timestamp":"2025-12-31 18:17:47.076","label":"85","tail":"EI-NSE","flight":"EI173","text":"\r\nMVA\r\nEIN173/31DEC25.EI-NSE.EIDW\r\nEA1954 ","stratum":"85/unparsed","expected":[]}
-{"id":102078,"timestamp":"2025-12-31 18:57:51.097","label":"85","tail":"EI-FNG","flight":"EI123","text":"\r\nMVA\r\nEIN123/31DEC25.EI-FNG.KORD\r\nEA1911 ","stratum":"85/unparsed","expected":[]}
-{"id":715067,"timestamp":"2026-01-04 05:54:55.609","label":"85","tail":"C-GOKG","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":1347353,"timestamp":"2026-01-05 06:47:14.067","label":"85","tail":"C-GOIO","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":1396059,"timestamp":"2026-01-05 07:39:53.204","label":"85","tail":"SE-RUO","text":"V08CA/OCCMSG/\r\nGOOD MORNING\r\nWE HAVE A 45MIN \r\nTURNAROUND WITH A/C SWAP\r\nANY CHANCE TO KEEP SAME\r\nA/C\r\nREGARDS SK1415","stratum":"85/unparsed","expected":[]}
-{"id":1491165,"timestamp":"2026-01-05 12:09:38.491","label":"85","tail":"C-GOIE","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":2205471,"timestamp":"2026-01-06 09:26:06.019","label":"85","tail":"TC-RBT","text":"PC879F/06JAN26 08:43:18,0913","stratum":"85/unparsed","expected":[]}
-{"id":2322331,"timestamp":"2026-01-06 13:07:48.978","label":"85","tail":"TC-RDI","text":"PC66MJ/06JAN26 12:39:06,1616","stratum":"85/unparsed","expected":[]}
-{"id":2360011,"timestamp":"2026-01-06 13:47:38.877","label":"85","tail":"TC-RFU","text":"PC378K/06JAN26 12:50:18,1325","stratum":"85/unparsed","expected":[]}
-{"id":2360262,"timestamp":"2026-01-06 13:47:56.340","label":"85","tail":"C-GOJQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":2373523,"timestamp":"2026-01-06 14:06:54.286","label":"85","tail":"TC-RBG","text":"PC78NY/06JAN26 12:55:30,1305","stratum":"85/unparsed","expected":[]}
-{"id":2377065,"timestamp":"2026-01-06 14:10:12.439","label":"85","tail":"TC-RFU","text":"PC378K/06JAN26 12:56:54,1314","stratum":"85/unparsed","expected":[]}
-{"id":2519222,"timestamp":"2026-01-06 16:30:53.438","label":"85","tail":"TC-RFD","text":"PC259F/06JAN26 13:32:48,1407","stratum":"85/unparsed","expected":[]}
-{"id":2872368,"timestamp":"2026-01-07 04:56:17.630","label":"85","tail":"N615NK","text":"KMCO,KCMH,HI\r\nLOWER BEACON LITE INOP\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":2977576,"timestamp":"2026-01-07 07:15:11.989","label":"85","tail":"N626NK","text":"KCLT,KLGA,SEAL BROKEN ON POB A\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":3143384,"timestamp":"2026-01-07 11:17:56.289","label":"85","tail":"C-GEZD","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":3236525,"timestamp":"2026-01-07 13:22:19.276","label":"85","tail":"TC-RDN","text":"PC697V/07JAN26 10:49:42,1058","stratum":"85/unparsed","expected":[]}
-{"id":3356769,"timestamp":"2026-01-07 18:36:49.294","label":"85","tail":"TC-RFU","text":"PC7251/07JAN26 17:59:48,1821","stratum":"85/unparsed","expected":[]}
-{"id":3438988,"timestamp":"2026-01-07 20:11:19.226","label":"85","tail":"TC-RFJ","text":"PC7375/07JAN26 18:37:30,1907","stratum":"85/unparsed","expected":[]}
-{"id":3494483,"timestamp":"2026-01-07 21:13:00.402","label":"85","tail":"C-FTXQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":3751465,"timestamp":"2026-01-08 05:39:19.704","label":"85","tail":"C-GOIR","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":3928398,"timestamp":"2026-01-08 09:43:26.597","label":"85","tail":"TC-NCU","text":"PC1196/08JAN26 09:43:18,1052","stratum":"85/unparsed","expected":[]}
-{"id":4017044,"timestamp":"2026-01-08 11:55:54.206","label":"85","tail":"C-GOJQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":4197120,"timestamp":"2026-01-09 01:01:54.509","label":"85","tail":"EI-GAJ","text":"\r\nMVA\r\nEIN1TV/09JAN26.EI-GAJ.KORD\r\nEA0052 ","stratum":"85/unparsed","expected":[]}
-{"id":4291500,"timestamp":"2026-01-09 02:39:51.925","label":"85","tail":"TC-RFH","text":"PC0391/09JAN26 01:48:00,0341","stratum":"85/unparsed","expected":[]}
-{"id":4489757,"timestamp":"2026-01-09 06:12:57.252","label":"85","tail":"C-GEXB","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":4668388,"timestamp":"2026-01-09 10:09:21.990","label":"85","tail":"EI-NSB","text":"\r\nMVA\r\nEIN151/09JAN26.EI-NSB.EIDW\r\nEA0913 ","stratum":"85/unparsed","expected":[]}
-{"id":4900593,"timestamp":"2026-01-09 18:43:58.439","label":"85","tail":"EI-NSF","text":"\r\nMVA\r\nEIN173/09JAN26.EI-NSF.EIDW\r\nEA1943 ","stratum":"85/unparsed","expected":[]}
-{"id":5323593,"timestamp":"2026-01-10 05:32:12.272","label":"85","tail":"C-GEXB","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":5358655,"timestamp":"2026-01-10 06:17:49.997","label":"85","tail":"C-GBZS","text":"O2 BOTTLE MID CABIN USED\r\n500 PSI REMAINING\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":5363690,"timestamp":"2026-01-10 06:23:53.605","label":"85","tail":"C-GBZS","text":"ROG\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":5478985,"timestamp":"2026-01-10 10:09:14.431","label":"85","tail":"C-FTXQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":5511279,"timestamp":"2026-01-10 11:52:32.280","label":"85","tail":"TC-NCP","text":"PC03XG/10JAN26 08:56:54,0939","stratum":"85/unparsed","expected":[]}
-{"id":5590530,"timestamp":"2026-01-10 22:04:11.910","label":"85","tail":"C-GOKH","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":5852111,"timestamp":"2026-01-11 02:58:32.475","label":"85","tail":"EI-EIL","text":"\r\nMVA\r\nEIN1TV/11JAN26.EI-EIL.KORD\r\nEA0116 ","stratum":"85/unparsed","expected":[]}
-{"id":5970759,"timestamp":"2026-01-11 05:07:12.930","label":"85","tail":"C-GOKF","text":"REQ ATIS,CYUL,ETA 0210","stratum":"85/unparsed","expected":[]}
-{"id":6135311,"timestamp":"2026-01-11 08:48:11.387","label":"85","tail":"C-GEZD","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":6174984,"timestamp":"2026-01-11 09:42:31.306","label":"85","tail":"C-FTXQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":6254140,"timestamp":"2026-01-11 12:24:30.760","label":"85","tail":"N991NK","text":"KORF,KMCO,HAVING COMM ISSUES WITH\r\nFO SPEAKER AND HEADSET J\r\nACKS\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":6599761,"timestamp":"2026-01-12 04:10:20.857","label":"85","tail":"C-GOKH","text":"REQ ATIS,CYUL,ETA 0503","stratum":"85/unparsed","expected":[]}
-{"id":6599764,"timestamp":"2026-01-12 04:10:20.857","label":"85","tail":"C-GOKH","text":"REQ ATIS,CYUL,ETA 0503","stratum":"85/unparsed","expected":[]}
-{"id":6900963,"timestamp":"2026-01-12 11:01:19.075","label":"85","tail":"TC-RDO","text":"PC697V/12JAN26 10:56:18,1105","stratum":"85/unparsed","expected":[]}
-{"id":6925420,"timestamp":"2026-01-12 11:36:05.850","label":"85","tail":"TC-RBS","text":"PC43FW/12JAN26 11:20:24,1142","stratum":"85/unparsed","expected":[]}
-{"id":7124061,"timestamp":"2026-01-12 15:17:43.489","label":"85","tail":"F-HTVL","text":"/ORYOOTO.LA MTO SE DEGRADE A KTT\r\nSI APRES 2 TENTATIVES\r\nON REMET ENCORE LES\r\nGAZ VOUS AVEZ UNE PREF\r\nPOUR LE DEGAGEMENT\r\nPEUT-ON AVOIR SNOTAW\r\nEFKT EFRO ESPA\r\n","stratum":"85/unparsed","expected":[]}
-{"id":7201087,"timestamp":"2026-01-12 19:08:55.117","label":"85","tail":"TC-RDT","text":"PC41HD/12JAN26 18:17:06,1825","stratum":"85/unparsed","expected":[]}
-{"id":7234284,"timestamp":"2026-01-12 19:53:47.227","label":"85","tail":"EI-NSG","text":"\r\nMVA\r\nEIN3YR/12JAN26.EI-NSG.EINN\r\nEA1904 ","stratum":"85/unparsed","expected":[]}
-{"id":7293413,"timestamp":"2026-01-12 21:16:57.899","label":"85","tail":"N623NK","text":"KEWR,KCLT,HI. THE AUTO THRUST\r\nON AP1 HAS FAILED\r\nIT WORKS ON AP2\r\nI WILL WRITE IT UP\r\nIN CLT\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":7427313,"timestamp":"2026-01-13 00:08:11.502","label":"85","tail":"TC-RDT","text":"PC46AY/12JAN26 20:02:06,2316","stratum":"85/unparsed","expected":[]}
-{"id":7441866,"timestamp":"2026-01-13 00:25:26.379","label":"85","tail":"C-GEZJ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":7651282,"timestamp":"2026-01-13 09:41:34.084","label":"85","tail":"TC-RBT","text":"PC1251/13JAN26 09:40:24,1014","stratum":"85/unparsed","expected":[]}
-{"id":7676317,"timestamp":"2026-01-13 10:23:47.450","label":"85","tail":"TC-RDA","text":"PC23JG/13JAN26 10:23:36,1144","stratum":"85/unparsed","expected":[]}
-{"id":7693169,"timestamp":"2026-01-13 10:52:40.189","label":"85","tail":"TC-NCE","text":"PC35JN/13JAN26 10:52:12,1104","stratum":"85/unparsed","expected":[]}
-{"id":7859455,"timestamp":"2026-01-13 15:12:25.922","label":"85","tail":"N683NK","text":"KFLL,KATL,AFT POT WATER SVC DOOR I\r\nNDICATED OPEN ON FA PANE\r\nL\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":7904210,"timestamp":"2026-01-13 16:05:55.614","label":"85","tail":"N664NK","text":"KLGA,KDTW,FAS SAY WE ARE\r\nMISSING WIFI STICKERS\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":8002122,"timestamp":"2026-01-13 18:06:58.005","label":"85","tail":"TC-RDU","text":"PC07CM/13JAN26 15:41:54,1900","stratum":"85/unparsed","expected":[]}
-{"id":8025764,"timestamp":"2026-01-13 20:25:01.527","label":"85","tail":"C-GOIM","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":8131727,"timestamp":"2026-01-14 00:03:31.849","label":"85","tail":"N620NK","text":"KCLT,KMCO,NKS1248 KCLT-KMCO WILL N\r\nEED MX AT GATE\r\nENG1 OIL ADV ECAM AFTER\r\nTAKEOFF...INDICATED 5QTS\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":8225762,"timestamp":"2026-01-14 02:00:09.746","label":"85","tail":"C-FBWS","text":"HI. 2 CAB SNAGS IN JL\r\n11DEF SEAT PWR U/S\r\n8E TRAY TABLE BROKEN\r\nTHX\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":8384178,"timestamp":"2026-01-17 07:02:06.928","label":"85","tail":"C-GEZX","text":"REQ ATIS,CYYZ,ETA 0651","stratum":"85/unparsed","expected":[]}
-{"id":8484123,"timestamp":"2026-01-17 09:28:44.785","label":"85","tail":"F-HXSR","text":"/ORYOOTO.BJR LA PISTE A RVN EST\r\nCONTAMINE AVEC DU ICE\r\nMAIS L AERODROME PUBLIE\r\nUN UPGRADE DU RCC 3/2/2\r\nPOUVEZ VS CONFIRMER AVEC\r\nRVN LA RAISON DE CET UPG\r\nRD PR SAVOIR SI ON PEUT\r\nPOSER\r\n","stratum":"85/unparsed","expected":[]}
-{"id":8491338,"timestamp":"2026-01-17 09:40:26.817","label":"85","tail":"F-HXSR","text":"/ORYOOTO.LA QUESTION N EST PAS LA\r\n FACILITE OU LA DIFFICUL\r\nTER A POSER MAIS DE SAVO\r\nIR SI REGLEMENTAIREMENT\r\nIL EST POSSIBLE D ATTERR\r\nIR SUR UNE PISTE CONTAMI\r\nNEE PAR DU ICE\r\n","stratum":"85/unparsed","expected":[]}
-{"id":8507516,"timestamp":"2026-01-17 10:05:46.465","label":"85","tail":"TC-RDC","text":"PC583G/17JAN26 09:44:06,0954","stratum":"85/unparsed","expected":[]}
-{"id":8739068,"timestamp":"2026-01-17 15:10:59.529","label":"85","tail":"N649NK","text":"KTPA,KDTW,GOOD MORNING. CAN WE\r\nGET MX IN DTW TO LOOK\r\nAT AN AFT GALLEY STICKY\r\nTHANKS.\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":8744703,"timestamp":"2026-01-17 15:15:57.250","label":"85","tail":"TC-NBD","text":"PC69AF/17JAN26 13:43:42,1707","stratum":"85/unparsed","expected":[]}
-{"id":8770131,"timestamp":"2026-01-17 15:38:38.865","label":"85","tail":"TC-RFD","text":"PC36JB/17JAN26 13:53:18,1404","stratum":"85/unparsed","expected":[]}
-{"id":8781509,"timestamp":"2026-01-17 15:49:20.312","label":"85","tail":"EI-NSA","text":"\r\nMVA\r\nEIN9AL/17JAN26.EI-NSA.EGLL\r\nEA1404 ","stratum":"85/unparsed","expected":[]}
-{"id":8834810,"timestamp":"2026-01-17 16:54:20.319","label":"85","tail":"C-GOCD","text":"AUTO A ENGAGED\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":8956431,"timestamp":"2026-01-17 19:15:41.078","label":"85","tail":"TC-RDK","text":"PC07CM/17JAN26 15:27:00,1824","stratum":"85/unparsed","expected":[]}
-{"id":9129217,"timestamp":"2026-01-18 02:41:51.475","label":"85","tail":"C-FXYK","text":"HEY BOTH AFT COFFEEARENT\r\nWORKING PROPERLY\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
-{"id":9262212,"timestamp":"2026-01-18 05:42:24.044","label":"85","tail":"C-GOIF","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":9365819,"timestamp":"2026-01-18 08:14:31.539","label":"85","tail":"C-GEZO","text":"REQ ATIS,CYOW,ETA 0850","stratum":"85/unparsed","expected":[]}
-{"id":9402780,"timestamp":"2026-01-18 09:14:52.942","label":"85","tail":"TC-RDP","text":"PC879F/18JAN26 09:13:36,0929","stratum":"85/unparsed","expected":[]}
-{"id":9422273,"timestamp":"2026-01-18 09:48:56.703","label":"85","tail":"EI-SIZ","text":"V08CA/OCCMSG/\r\nHELLO.CAN YOU PLEASE\r\nEMAIL US A 32H2 BALANCE\r\nTABLE...\r\nKR/12999+11313","stratum":"85/unparsed","expected":[]}
-{"id":9451838,"timestamp":"2026-01-18 10:37:13.973","label":"85","tail":"TC-NCZ","text":"PC1819/18JAN26 10:37:06,1117","stratum":"85/unparsed","expected":[]}
-{"id":9559254,"timestamp":"2026-01-18 13:40:22.538","label":"85","tail":"TC-RFS","text":"PC1253/18JAN26 13:17:54,1341","stratum":"85/unparsed","expected":[]}
-{"id":9600813,"timestamp":"2026-01-18 15:09:02.964","label":"85","tail":"EI-SIG","text":"V08CA/OCCMSG/\r\nCI50 FOR OTP. /SK689","stratum":"85/unparsed","expected":[]}
-{"id":9664639,"timestamp":"2026-01-18 16:28:44.985","label":"85","tail":"TC-NBU","text":"PC69AF/18JAN26 15:39:24,1850","stratum":"85/unparsed","expected":[]}
-{"id":9707353,"timestamp":"2026-01-18 17:25:17.271","label":"85","tail":"TC-CRF","text":"PC03DX/18JAN26 15:58:12,1653","stratum":"85/unparsed","expected":[]}
-{"id":9806752,"timestamp":"2026-01-18 19:38:19.166","label":"85","tail":"TC-RBD","text":"PC1259/18JAN26 16:43:00,1724","stratum":"85/unparsed","expected":[]}
-{"id":9813019,"timestamp":"2026-01-18 19:47:20.872","label":"85","tail":"EI-SIC","text":"V08CA/OCCMSG/\r\nHI. WE ARE FLYING CI50\r\nETA 5 MINUTES LATE AT\r\nGATE. PLS ADVISE IF YOU\r\nWANT US TO REDUCE.\r\n/TEAM 579","stratum":"85/unparsed","expected":[]}
-{"id":9814932,"timestamp":"2026-01-18 19:49:31.657","label":"85","tail":"EI-SIC","text":"V08CA/OCCMSG/\r\nHI. WE ARE FLYING CI50\r\nETA 5 MINUTES LATE AT\r\nGATE. PLS ADVISE IF YOU\r\nWANT US TO REDUCE.\r\n/TEAM 579","stratum":"85/unparsed","expected":[]}
-{"id":10055358,"timestamp":"2026-01-19 05:11:54.662","label":"85","tail":"C-GOIX","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":10056001,"timestamp":"2026-01-19 05:12:59.894","label":"85","tail":"C-GOIP","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":10096860,"timestamp":"2026-01-19 06:08:17.646","label":"85","tail":"C-GOIF","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":10169142,"timestamp":"2026-01-19 08:16:02.839","label":"85","tail":"TC-NCU","text":"PC1163/19JAN26 08:09:54,0902","stratum":"85/unparsed","expected":[]}
-{"id":10195929,"timestamp":"2026-01-19 08:58:08.931","label":"85","tail":"TC-NBH","text":"PC991H/19JAN26 08:54:30,0921","stratum":"85/unparsed","expected":[]}
-{"id":10388242,"timestamp":"2026-01-19 14:16:23.537","label":"85","tail":"TC-RFK","text":"PC259F/19JAN26 14:00:36,1411","stratum":"85/unparsed","expected":[]}
-{"id":10417672,"timestamp":"2026-01-19 15:20:33.469","label":"85","tail":"TC-RBV","text":"PC1253/19JAN26 15:16:36,1524","stratum":"85/unparsed","expected":[]}
-{"id":10532934,"timestamp":"2026-01-19 17:44:12.257","label":"85","tail":"TC-NBI","text":"PC03TD/19JAN26 16:12:00,1622","stratum":"85/unparsed","expected":[]}
-{"id":10644454,"timestamp":"2026-01-19 22:27:56.799","label":"85","tail":"C-GUBA","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":10758866,"timestamp":"2026-01-20 02:03:17.786","label":"85","tail":"C-GOIP","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":10860186,"timestamp":"2026-01-20 04:51:52.805","label":"85","tail":"C-GOIE","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
-{"id":10980568,"timestamp":"2026-01-20 07:30:17.908","label":"85","tail":"C-GOIF","text":"REQ ATIS,CYQB,ETA 0740","stratum":"85/unparsed","expected":[]}
-{"id":11020788,"timestamp":"2026-01-20 08:29:35.310","label":"85","tail":"EI-NSE","text":"\r\nMVA\r\nEIN151/20JAN26.EI-NSE.EIDW\r\nEA0853 ","stratum":"85/unparsed","expected":[]}
-{"id":11036795,"timestamp":"2026-01-20 08:54:51.360","label":"85","tail":"TC-RFL","text":"PC879F/20JAN26 08:51:06,0901","stratum":"85/unparsed","expected":[]}
-{"id":11080091,"timestamp":"2026-01-20 10:08:25.069","label":"85","tail":"TC-RFD","text":"PC917H/20JAN26 10:08:12,1032","stratum":"85/unparsed","expected":[]}
-{"id":11128848,"timestamp":"2026-01-20 11:19:38.713","label":"85","tail":"TC-NCB","text":"PC453L/20JAN26 11:16:18,1153","stratum":"85/unparsed","expected":[]}
-{"id":11133295,"timestamp":"2026-01-20 11:26:17.346","label":"85","tail":"TC-NCB","text":"PC453L/20JAN26 11:21:18,1158","stratum":"85/unparsed","expected":[]}
-{"id":11160383,"timestamp":"2026-01-20 12:03:30.193","label":"85","tail":"EI-NSD","text":"\r\nMVA\r\nEIN681/20JAN26.EI-NSD.EIDW\r\nEA1242 ","stratum":"85/unparsed","expected":[]}
-{"id":11471437,"timestamp":"2026-01-21 19:20:19.760","label":"85","tail":"TC-NCY","text":"PC1259/21JAN26 16:49:00,1705","stratum":"85/unparsed","expected":[]}
+{"id":28410,"timestamp":"2025-12-31T18:17:47.076Z","label":"85","tail":"EI-NSE","flight":"EI173","text":"\r\nMVA\r\nEIN173/31DEC25.EI-NSE.EIDW\r\nEA1954 ","stratum":"85/unparsed","expected":[]}
+{"id":102078,"timestamp":"2025-12-31T18:57:51.097Z","label":"85","tail":"EI-FNG","flight":"EI123","text":"\r\nMVA\r\nEIN123/31DEC25.EI-FNG.KORD\r\nEA1911 ","stratum":"85/unparsed","expected":[]}
+{"id":715067,"timestamp":"2026-01-04T05:54:55.609Z","label":"85","tail":"C-GOKG","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":1347353,"timestamp":"2026-01-05T06:47:14.067Z","label":"85","tail":"C-GOIO","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":1396059,"timestamp":"2026-01-05T07:39:53.204Z","label":"85","tail":"SE-RUO","text":"V08CA/OCCMSG/\r\nGOOD MORNING\r\nWE HAVE A 45MIN \r\nTURNAROUND WITH A/C SWAP\r\nANY CHANCE TO KEEP SAME\r\nA/C\r\nREGARDS SK1415","stratum":"85/unparsed","expected":[]}
+{"id":1491165,"timestamp":"2026-01-05T12:09:38.491Z","label":"85","tail":"C-GOIE","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":2205471,"timestamp":"2026-01-06T09:26:06.019Z","label":"85","tail":"TC-RBT","text":"PC879F/06JAN26 08:43:18,0913","stratum":"85/unparsed","expected":[]}
+{"id":2322331,"timestamp":"2026-01-06T13:07:48.978Z","label":"85","tail":"TC-RDI","text":"PC66MJ/06JAN26 12:39:06,1616","stratum":"85/unparsed","expected":[]}
+{"id":2360011,"timestamp":"2026-01-06T13:47:38.877Z","label":"85","tail":"TC-RFU","text":"PC378K/06JAN26 12:50:18,1325","stratum":"85/unparsed","expected":[]}
+{"id":2360262,"timestamp":"2026-01-06T13:47:56.340Z","label":"85","tail":"C-GOJQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":2373523,"timestamp":"2026-01-06T14:06:54.286Z","label":"85","tail":"TC-RBG","text":"PC78NY/06JAN26 12:55:30,1305","stratum":"85/unparsed","expected":[]}
+{"id":2377065,"timestamp":"2026-01-06T14:10:12.439Z","label":"85","tail":"TC-RFU","text":"PC378K/06JAN26 12:56:54,1314","stratum":"85/unparsed","expected":[]}
+{"id":2519222,"timestamp":"2026-01-06T16:30:53.438Z","label":"85","tail":"TC-RFD","text":"PC259F/06JAN26 13:32:48,1407","stratum":"85/unparsed","expected":[]}
+{"id":2872368,"timestamp":"2026-01-07T04:56:17.630Z","label":"85","tail":"N615NK","text":"KMCO,KCMH,HI\r\nLOWER BEACON LITE INOP\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":2977576,"timestamp":"2026-01-07T07:15:11.989Z","label":"85","tail":"N626NK","text":"KCLT,KLGA,SEAL BROKEN ON POB A\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":3143384,"timestamp":"2026-01-07T11:17:56.289Z","label":"85","tail":"C-GEZD","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":3236525,"timestamp":"2026-01-07T13:22:19.276Z","label":"85","tail":"TC-RDN","text":"PC697V/07JAN26 10:49:42,1058","stratum":"85/unparsed","expected":[]}
+{"id":3356769,"timestamp":"2026-01-07T18:36:49.294Z","label":"85","tail":"TC-RFU","text":"PC7251/07JAN26 17:59:48,1821","stratum":"85/unparsed","expected":[]}
+{"id":3438988,"timestamp":"2026-01-07T20:11:19.226Z","label":"85","tail":"TC-RFJ","text":"PC7375/07JAN26 18:37:30,1907","stratum":"85/unparsed","expected":[]}
+{"id":3494483,"timestamp":"2026-01-07T21:13:00.402Z","label":"85","tail":"C-FTXQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":3751465,"timestamp":"2026-01-08T05:39:19.704Z","label":"85","tail":"C-GOIR","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":3928398,"timestamp":"2026-01-08T09:43:26.597Z","label":"85","tail":"TC-NCU","text":"PC1196/08JAN26 09:43:18,1052","stratum":"85/unparsed","expected":[]}
+{"id":4017044,"timestamp":"2026-01-08T11:55:54.206Z","label":"85","tail":"C-GOJQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":4197120,"timestamp":"2026-01-09T01:01:54.509Z","label":"85","tail":"EI-GAJ","text":"\r\nMVA\r\nEIN1TV/09JAN26.EI-GAJ.KORD\r\nEA0052 ","stratum":"85/unparsed","expected":[]}
+{"id":4291500,"timestamp":"2026-01-09T02:39:51.925Z","label":"85","tail":"TC-RFH","text":"PC0391/09JAN26 01:48:00,0341","stratum":"85/unparsed","expected":[]}
+{"id":4489757,"timestamp":"2026-01-09T06:12:57.252Z","label":"85","tail":"C-GEXB","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":4668388,"timestamp":"2026-01-09T10:09:21.990Z","label":"85","tail":"EI-NSB","text":"\r\nMVA\r\nEIN151/09JAN26.EI-NSB.EIDW\r\nEA0913 ","stratum":"85/unparsed","expected":[]}
+{"id":4900593,"timestamp":"2026-01-09T18:43:58.439Z","label":"85","tail":"EI-NSF","text":"\r\nMVA\r\nEIN173/09JAN26.EI-NSF.EIDW\r\nEA1943 ","stratum":"85/unparsed","expected":[]}
+{"id":5323593,"timestamp":"2026-01-10T05:32:12.272Z","label":"85","tail":"C-GEXB","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":5358655,"timestamp":"2026-01-10T06:17:49.997Z","label":"85","tail":"C-GBZS","text":"O2 BOTTLE MID CABIN USED\r\n500 PSI REMAINING\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":5363690,"timestamp":"2026-01-10T06:23:53.605Z","label":"85","tail":"C-GBZS","text":"ROG\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":5478985,"timestamp":"2026-01-10T10:09:14.431Z","label":"85","tail":"C-FTXQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":5511279,"timestamp":"2026-01-10T11:52:32.280Z","label":"85","tail":"TC-NCP","text":"PC03XG/10JAN26 08:56:54,0939","stratum":"85/unparsed","expected":[]}
+{"id":5590530,"timestamp":"2026-01-10T22:04:11.910Z","label":"85","tail":"C-GOKH","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":5852111,"timestamp":"2026-01-11T02:58:32.475Z","label":"85","tail":"EI-EIL","text":"\r\nMVA\r\nEIN1TV/11JAN26.EI-EIL.KORD\r\nEA0116 ","stratum":"85/unparsed","expected":[]}
+{"id":5970759,"timestamp":"2026-01-11T05:07:12.930Z","label":"85","tail":"C-GOKF","text":"REQ ATIS,CYUL,ETA 0210","stratum":"85/unparsed","expected":[]}
+{"id":6135311,"timestamp":"2026-01-11T08:48:11.387Z","label":"85","tail":"C-GEZD","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":6174984,"timestamp":"2026-01-11T09:42:31.306Z","label":"85","tail":"C-FTXQ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":6254140,"timestamp":"2026-01-11T12:24:30.760Z","label":"85","tail":"N991NK","text":"KORF,KMCO,HAVING COMM ISSUES WITH\r\nFO SPEAKER AND HEADSET J\r\nACKS\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":6599761,"timestamp":"2026-01-12T04:10:20.857Z","label":"85","tail":"C-GOKH","text":"REQ ATIS,CYUL,ETA 0503","stratum":"85/unparsed","expected":[]}
+{"id":6599764,"timestamp":"2026-01-12T04:10:20.857Z","label":"85","tail":"C-GOKH","text":"REQ ATIS,CYUL,ETA 0503","stratum":"85/unparsed","expected":[]}
+{"id":6900963,"timestamp":"2026-01-12T11:01:19.075Z","label":"85","tail":"TC-RDO","text":"PC697V/12JAN26 10:56:18,1105","stratum":"85/unparsed","expected":[]}
+{"id":6925420,"timestamp":"2026-01-12T11:36:05.850Z","label":"85","tail":"TC-RBS","text":"PC43FW/12JAN26 11:20:24,1142","stratum":"85/unparsed","expected":[]}
+{"id":7124061,"timestamp":"2026-01-12T15:17:43.489Z","label":"85","tail":"F-HTVL","text":"/ORYOOTO.LA MTO SE DEGRADE A KTT\r\nSI APRES 2 TENTATIVES\r\nON REMET ENCORE LES\r\nGAZ VOUS AVEZ UNE PREF\r\nPOUR LE DEGAGEMENT\r\nPEUT-ON AVOIR SNOTAW\r\nEFKT EFRO ESPA\r\n","stratum":"85/unparsed","expected":[]}
+{"id":7201087,"timestamp":"2026-01-12T19:08:55.117Z","label":"85","tail":"TC-RDT","text":"PC41HD/12JAN26 18:17:06,1825","stratum":"85/unparsed","expected":[]}
+{"id":7234284,"timestamp":"2026-01-12T19:53:47.227Z","label":"85","tail":"EI-NSG","text":"\r\nMVA\r\nEIN3YR/12JAN26.EI-NSG.EINN\r\nEA1904 ","stratum":"85/unparsed","expected":[]}
+{"id":7293413,"timestamp":"2026-01-12T21:16:57.899Z","label":"85","tail":"N623NK","text":"KEWR,KCLT,HI. THE AUTO THRUST\r\nON AP1 HAS FAILED\r\nIT WORKS ON AP2\r\nI WILL WRITE IT UP\r\nIN CLT\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":7427313,"timestamp":"2026-01-13T00:08:11.502Z","label":"85","tail":"TC-RDT","text":"PC46AY/12JAN26 20:02:06,2316","stratum":"85/unparsed","expected":[]}
+{"id":7441866,"timestamp":"2026-01-13T00:25:26.379Z","label":"85","tail":"C-GEZJ","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":7651282,"timestamp":"2026-01-13T09:41:34.084Z","label":"85","tail":"TC-RBT","text":"PC1251/13JAN26 09:40:24,1014","stratum":"85/unparsed","expected":[]}
+{"id":7676317,"timestamp":"2026-01-13T10:23:47.450Z","label":"85","tail":"TC-RDA","text":"PC23JG/13JAN26 10:23:36,1144","stratum":"85/unparsed","expected":[]}
+{"id":7693169,"timestamp":"2026-01-13T10:52:40.189Z","label":"85","tail":"TC-NCE","text":"PC35JN/13JAN26 10:52:12,1104","stratum":"85/unparsed","expected":[]}
+{"id":7859455,"timestamp":"2026-01-13T15:12:25.922Z","label":"85","tail":"N683NK","text":"KFLL,KATL,AFT POT WATER SVC DOOR I\r\nNDICATED OPEN ON FA PANE\r\nL\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":7904210,"timestamp":"2026-01-13T16:05:55.614Z","label":"85","tail":"N664NK","text":"KLGA,KDTW,FAS SAY WE ARE\r\nMISSING WIFI STICKERS\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":8002122,"timestamp":"2026-01-13T18:06:58.005Z","label":"85","tail":"TC-RDU","text":"PC07CM/13JAN26 15:41:54,1900","stratum":"85/unparsed","expected":[]}
+{"id":8025764,"timestamp":"2026-01-13T20:25:01.527Z","label":"85","tail":"C-GOIM","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":8131727,"timestamp":"2026-01-14T00:03:31.849Z","label":"85","tail":"N620NK","text":"KCLT,KMCO,NKS1248 KCLT-KMCO WILL N\r\nEED MX AT GATE\r\nENG1 OIL ADV ECAM AFTER\r\nTAKEOFF...INDICATED 5QTS\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":8225762,"timestamp":"2026-01-14T02:00:09.746Z","label":"85","tail":"C-FBWS","text":"HI. 2 CAB SNAGS IN JL\r\n11DEF SEAT PWR U/S\r\n8E TRAY TABLE BROKEN\r\nTHX\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":8384178,"timestamp":"2026-01-17T07:02:06.928Z","label":"85","tail":"C-GEZX","text":"REQ ATIS,CYYZ,ETA 0651","stratum":"85/unparsed","expected":[]}
+{"id":8484123,"timestamp":"2026-01-17T09:28:44.785Z","label":"85","tail":"F-HXSR","text":"/ORYOOTO.BJR LA PISTE A RVN EST\r\nCONTAMINE AVEC DU ICE\r\nMAIS L AERODROME PUBLIE\r\nUN UPGRADE DU RCC 3/2/2\r\nPOUVEZ VS CONFIRMER AVEC\r\nRVN LA RAISON DE CET UPG\r\nRD PR SAVOIR SI ON PEUT\r\nPOSER\r\n","stratum":"85/unparsed","expected":[]}
+{"id":8491338,"timestamp":"2026-01-17T09:40:26.817Z","label":"85","tail":"F-HXSR","text":"/ORYOOTO.LA QUESTION N EST PAS LA\r\n FACILITE OU LA DIFFICUL\r\nTER A POSER MAIS DE SAVO\r\nIR SI REGLEMENTAIREMENT\r\nIL EST POSSIBLE D ATTERR\r\nIR SUR UNE PISTE CONTAMI\r\nNEE PAR DU ICE\r\n","stratum":"85/unparsed","expected":[]}
+{"id":8507516,"timestamp":"2026-01-17T10:05:46.465Z","label":"85","tail":"TC-RDC","text":"PC583G/17JAN26 09:44:06,0954","stratum":"85/unparsed","expected":[]}
+{"id":8739068,"timestamp":"2026-01-17T15:10:59.529Z","label":"85","tail":"N649NK","text":"KTPA,KDTW,GOOD MORNING. CAN WE\r\nGET MX IN DTW TO LOOK\r\nAT AN AFT GALLEY STICKY\r\nTHANKS.\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":8744703,"timestamp":"2026-01-17T15:15:57.250Z","label":"85","tail":"TC-NBD","text":"PC69AF/17JAN26 13:43:42,1707","stratum":"85/unparsed","expected":[]}
+{"id":8770131,"timestamp":"2026-01-17T15:38:38.865Z","label":"85","tail":"TC-RFD","text":"PC36JB/17JAN26 13:53:18,1404","stratum":"85/unparsed","expected":[]}
+{"id":8781509,"timestamp":"2026-01-17T15:49:20.312Z","label":"85","tail":"EI-NSA","text":"\r\nMVA\r\nEIN9AL/17JAN26.EI-NSA.EGLL\r\nEA1404 ","stratum":"85/unparsed","expected":[]}
+{"id":8834810,"timestamp":"2026-01-17T16:54:20.319Z","label":"85","tail":"C-GOCD","text":"AUTO A ENGAGED\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":8956431,"timestamp":"2026-01-17T19:15:41.078Z","label":"85","tail":"TC-RDK","text":"PC07CM/17JAN26 15:27:00,1824","stratum":"85/unparsed","expected":[]}
+{"id":9129217,"timestamp":"2026-01-18T02:41:51.475Z","label":"85","tail":"C-FXYK","text":"HEY BOTH AFT COFFEEARENT\r\nWORKING PROPERLY\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"85/unparsed","expected":[]}
+{"id":9262212,"timestamp":"2026-01-18T05:42:24.044Z","label":"85","tail":"C-GOIF","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":9365819,"timestamp":"2026-01-18T08:14:31.539Z","label":"85","tail":"C-GEZO","text":"REQ ATIS,CYOW,ETA 0850","stratum":"85/unparsed","expected":[]}
+{"id":9402780,"timestamp":"2026-01-18T09:14:52.942Z","label":"85","tail":"TC-RDP","text":"PC879F/18JAN26 09:13:36,0929","stratum":"85/unparsed","expected":[]}
+{"id":9422273,"timestamp":"2026-01-18T09:48:56.703Z","label":"85","tail":"EI-SIZ","text":"V08CA/OCCMSG/\r\nHELLO.CAN YOU PLEASE\r\nEMAIL US A 32H2 BALANCE\r\nTABLE...\r\nKR/12999+11313","stratum":"85/unparsed","expected":[]}
+{"id":9451838,"timestamp":"2026-01-18T10:37:13.973Z","label":"85","tail":"TC-NCZ","text":"PC1819/18JAN26 10:37:06,1117","stratum":"85/unparsed","expected":[]}
+{"id":9559254,"timestamp":"2026-01-18T13:40:22.538Z","label":"85","tail":"TC-RFS","text":"PC1253/18JAN26 13:17:54,1341","stratum":"85/unparsed","expected":[]}
+{"id":9600813,"timestamp":"2026-01-18T15:09:02.964Z","label":"85","tail":"EI-SIG","text":"V08CA/OCCMSG/\r\nCI50 FOR OTP. /SK689","stratum":"85/unparsed","expected":[]}
+{"id":9664639,"timestamp":"2026-01-18T16:28:44.985Z","label":"85","tail":"TC-NBU","text":"PC69AF/18JAN26 15:39:24,1850","stratum":"85/unparsed","expected":[]}
+{"id":9707353,"timestamp":"2026-01-18T17:25:17.271Z","label":"85","tail":"TC-CRF","text":"PC03DX/18JAN26 15:58:12,1653","stratum":"85/unparsed","expected":[]}
+{"id":9806752,"timestamp":"2026-01-18T19:38:19.166Z","label":"85","tail":"TC-RBD","text":"PC1259/18JAN26 16:43:00,1724","stratum":"85/unparsed","expected":[]}
+{"id":9813019,"timestamp":"2026-01-18T19:47:20.872Z","label":"85","tail":"EI-SIC","text":"V08CA/OCCMSG/\r\nHI. WE ARE FLYING CI50\r\nETA 5 MINUTES LATE AT\r\nGATE. PLS ADVISE IF YOU\r\nWANT US TO REDUCE.\r\n/TEAM 579","stratum":"85/unparsed","expected":[]}
+{"id":9814932,"timestamp":"2026-01-18T19:49:31.657Z","label":"85","tail":"EI-SIC","text":"V08CA/OCCMSG/\r\nHI. WE ARE FLYING CI50\r\nETA 5 MINUTES LATE AT\r\nGATE. PLS ADVISE IF YOU\r\nWANT US TO REDUCE.\r\n/TEAM 579","stratum":"85/unparsed","expected":[]}
+{"id":10055358,"timestamp":"2026-01-19T05:11:54.662Z","label":"85","tail":"C-GOIX","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":10056001,"timestamp":"2026-01-19T05:12:59.894Z","label":"85","tail":"C-GOIP","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":10096860,"timestamp":"2026-01-19T06:08:17.646Z","label":"85","tail":"C-GOIF","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":10169142,"timestamp":"2026-01-19T08:16:02.839Z","label":"85","tail":"TC-NCU","text":"PC1163/19JAN26 08:09:54,0902","stratum":"85/unparsed","expected":[]}
+{"id":10195929,"timestamp":"2026-01-19T08:58:08.931Z","label":"85","tail":"TC-NBH","text":"PC991H/19JAN26 08:54:30,0921","stratum":"85/unparsed","expected":[]}
+{"id":10388242,"timestamp":"2026-01-19T14:16:23.537Z","label":"85","tail":"TC-RFK","text":"PC259F/19JAN26 14:00:36,1411","stratum":"85/unparsed","expected":[]}
+{"id":10417672,"timestamp":"2026-01-19T15:20:33.469Z","label":"85","tail":"TC-RBV","text":"PC1253/19JAN26 15:16:36,1524","stratum":"85/unparsed","expected":[]}
+{"id":10532934,"timestamp":"2026-01-19T17:44:12.257Z","label":"85","tail":"TC-NBI","text":"PC03TD/19JAN26 16:12:00,1622","stratum":"85/unparsed","expected":[]}
+{"id":10644454,"timestamp":"2026-01-19T22:27:56.799Z","label":"85","tail":"C-GUBA","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":10758866,"timestamp":"2026-01-20T02:03:17.786Z","label":"85","tail":"C-GOIP","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":10860186,"timestamp":"2026-01-20T04:51:52.805Z","label":"85","tail":"C-GOIE","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
+{"id":10980568,"timestamp":"2026-01-20T07:30:17.908Z","label":"85","tail":"C-GOIF","text":"REQ ATIS,CYQB,ETA 0740","stratum":"85/unparsed","expected":[]}
+{"id":11020788,"timestamp":"2026-01-20T08:29:35.310Z","label":"85","tail":"EI-NSE","text":"\r\nMVA\r\nEIN151/20JAN26.EI-NSE.EIDW\r\nEA0853 ","stratum":"85/unparsed","expected":[]}
+{"id":11036795,"timestamp":"2026-01-20T08:54:51.360Z","label":"85","tail":"TC-RFL","text":"PC879F/20JAN26 08:51:06,0901","stratum":"85/unparsed","expected":[]}
+{"id":11080091,"timestamp":"2026-01-20T10:08:25.069Z","label":"85","tail":"TC-RFD","text":"PC917H/20JAN26 10:08:12,1032","stratum":"85/unparsed","expected":[]}
+{"id":11128848,"timestamp":"2026-01-20T11:19:38.713Z","label":"85","tail":"TC-NCB","text":"PC453L/20JAN26 11:16:18,1153","stratum":"85/unparsed","expected":[]}
+{"id":11133295,"timestamp":"2026-01-20T11:26:17.346Z","label":"85","tail":"TC-NCB","text":"PC453L/20JAN26 11:21:18,1158","stratum":"85/unparsed","expected":[]}
+{"id":11160383,"timestamp":"2026-01-20T12:03:30.193Z","label":"85","tail":"EI-NSD","text":"\r\nMVA\r\nEIN681/20JAN26.EI-NSD.EIDW\r\nEA1242 ","stratum":"85/unparsed","expected":[]}
+{"id":11471437,"timestamp":"2026-01-21T19:20:19.760Z","label":"85","tail":"TC-NCY","text":"PC1259/21JAN26 16:49:00,1705","stratum":"85/unparsed","expected":[]}

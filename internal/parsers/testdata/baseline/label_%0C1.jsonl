@@ -1,2 +1,2 @@
-{"id":6697854,"timestamp":"2026-01-12 05:32:19.033","label":"\f1","tail":"N546UW","flight":"AA2634","text":"- #MDREQPER,PRFE36","stratum":"\f1/unparsed","expected":[]}
-{"id":9712665,"timestamp":"2026-01-18 14:22:12.026","label":"\f1","tail":"N534UW","text":"#M1BSESPWI/AC,0858A2F","stratum":"\f1/unparsed","expected":[]}
+{"id":6697854,"timestamp":"2026-01-12T05:32:19.033Z","label":"\f1","tail":"N546UW","flight":"AA2634","text":"- #MDREQPER,PRFE36","stratum":"\f1/unparsed","expected":[]}
+{"id":9712665,"timestamp":"2026-01-18T14:22:12.026Z","label":"\f1","tail":"N534UW","text":"#M1BSESPWI/AC,0858A2F","stratum":"\f1/unparsed","expected":[]}

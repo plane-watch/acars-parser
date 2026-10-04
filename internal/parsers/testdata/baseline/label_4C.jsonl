@@ -1,100 +1,100 @@
-{"id":146439,"timestamp":"2026-01-03 05:06:41.500","label":"4C","tail":"C-FGEO","flight":"AC61","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":259744,"timestamp":"2026-01-03 09:36:30.516","label":"4C","tail":"C-GEGC","flight":"AC308","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":440525,"timestamp":"2026-01-03 19:50:35.240","label":"4C","tail":"C-FKSV","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":650860,"timestamp":"2026-01-04 06:15:11.710","label":"4C","tail":"C-FGEO","text":"-FLT CA01 0065/03/YVR/BKK/CYVR/VTBS/ACA65\n\t","stratum":"4C/unparsed","expected":[]}
-{"id":840300,"timestamp":"2026-01-04 15:01:55.615","label":"4C","tail":"C-FGEO","flight":"AC61","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1054102,"timestamp":"2026-01-04 23:22:26.548","label":"4C","tail":"C-FIUR","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1060604,"timestamp":"2026-01-04 23:36:21.800","label":"4C","tail":"C-GHQQ","text":"-FLT CA01 0878/04/YUL/TLS/CYUL/LFBO/ACA878\n\t","stratum":"4C/unparsed","expected":[]}
-{"id":1216423,"timestamp":"2026-01-05 04:23:37.644","label":"4C","tail":"C-FRSO","flight":"AC345","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1301520,"timestamp":"2026-01-05 06:39:57.449","label":"4C","tail":"C-FKAU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1415478,"timestamp":"2026-01-05 08:07:12.382","label":"4C","tail":"C-GEHQ","flight":"AC1317","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
-{"id":1418100,"timestamp":"2026-01-05 09:55:17.481","label":"4C","tail":"C-FNOI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1541052,"timestamp":"2026-01-05 13:54:41.318","label":"4C","tail":"C-FNNW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1578291,"timestamp":"2026-01-05 15:05:20.737","label":"4C","tail":"C-FNOH","flight":"AC92","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1640502,"timestamp":"2026-01-05 17:10:58.641","label":"4C","tail":"C-GHKW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1644238,"timestamp":"2026-01-05 17:18:46.736","label":"4C","tail":"C-FRSI","flight":"AC37","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1655093,"timestamp":"2026-01-05 17:39:40.417","label":"4C","tail":"C-FNND","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1752876,"timestamp":"2026-01-05 19:20:03.761","label":"4C","tail":"C-FDHU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1815976,"timestamp":"2026-01-05 22:51:45.898","label":"4C","tail":"C-FJZS","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1947268,"timestamp":"2026-01-06 02:47:32.083","label":"4C","tail":"C-FNOI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":1949056,"timestamp":"2026-01-06 02:50:55.914","label":"4C","tail":"C-FNOH","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2083151,"timestamp":"2026-01-06 06:16:54.178","label":"4C","tail":"C-GKUG","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2103837,"timestamp":"2026-01-06 06:54:17.356","label":"4C","tail":"C-GHPV","flight":"AC811","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2131301,"timestamp":"2026-01-06 07:42:07.274","label":"4C","tail":"C-FVLZ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2172590,"timestamp":"2026-01-06 08:52:54.171","label":"4C","tail":"C-FDHG","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2226872,"timestamp":"2026-01-06 10:31:21.034","label":"4C","tail":"C-FIVM","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2307501,"timestamp":"2026-01-06 13:04:30.182","label":"4C","tail":"C-GHQQ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2312917,"timestamp":"2026-01-06 13:14:45.284","label":"4C","tail":"C-FNNU","text":"-FLT CA01 0865/06/LHR/YUL/EGLL/CYUL/ACA865\n\t","stratum":"4C/unparsed","expected":[]}
-{"id":2350599,"timestamp":"2026-01-06 14:27:03.716","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2367189,"timestamp":"2026-01-06 14:58:25.529","label":"4C","tail":"C-GKUG","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2372459,"timestamp":"2026-01-06 15:07:37.479","label":"4C","tail":"C-GFAH","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2588249,"timestamp":"2026-01-06 22:23:56.248","label":"4C","tail":"C-FIUJ","flight":"AC43","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2740124,"timestamp":"2026-01-07 02:57:37.765","label":"4C","tail":"C-FRSA","flight":"AC114","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2761949,"timestamp":"2026-01-07 03:27:21.136","label":"4C","tail":"C-FIUR","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2784564,"timestamp":"2026-01-07 03:57:49.306","label":"4C","tail":"C-FVLU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2834936,"timestamp":"2026-01-07 05:05:21.937","label":"4C","tail":"C-FGDZ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":2985446,"timestamp":"2026-01-07 08:26:16.372","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3112676,"timestamp":"2026-01-07 11:27:25.744","label":"4C","tail":"C-FVND","flight":"AC0","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3257050,"timestamp":"2026-01-07 16:17:42.131","label":"4C","tail":"C-FNNH","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3482531,"timestamp":"2026-01-07 22:46:21.200","label":"4C","tail":"C-GMZR","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
-{"id":3633049,"timestamp":"2026-01-08 02:49:14.050","label":"4C","tail":"C-FRTG","flight":"ACA18","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3686004,"timestamp":"2026-01-08 04:06:19.666","label":"4C","tail":"C-GEFA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3758880,"timestamp":"2026-01-08 05:49:28.247","label":"4C","tail":"C-FNOI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3787622,"timestamp":"2026-01-08 06:26:24.487","label":"4C","tail":"C-FDUY","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
-{"id":3880734,"timestamp":"2026-01-08 08:32:43.367","label":"4C","tail":"C-GHPU","flight":"AC1348","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3924386,"timestamp":"2026-01-08 09:37:15.322","label":"4C","tail":"C-FSBV","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3963199,"timestamp":"2026-01-08 10:37:13.827","label":"4C","tail":"C-FIUA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":3984102,"timestamp":"2026-01-08 11:19:37.145","label":"4C","tail":"C-FRSO","flight":"AC345","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":4240980,"timestamp":"2026-01-09 02:07:49.273","label":"4C","tail":"C-GFAF","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":4425254,"timestamp":"2026-01-09 05:52:44.887","label":"4C","tail":"C-FRSR","flight":"AC56","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":4459911,"timestamp":"2026-01-09 06:32:02.505","label":"4C","tail":"C-GEGI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":4493825,"timestamp":"2026-01-09 07:08:36.588","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":4551619,"timestamp":"2026-01-09 07:31:29.177","label":"4C","tail":"C-FCYX","text":"-GTE C001  004 \r\n","stratum":"4C/unparsed","expected":[]}
-{"id":4697627,"timestamp":"2026-01-09 11:55:42.278","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5425765,"timestamp":"2026-01-10 08:03:24.954","label":"4C","tail":"C-FEGI","flight":"AC857","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5484137,"timestamp":"2026-01-10 11:24:37.358","label":"4C","tail":"C-FRSI","flight":"AC37","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5543730,"timestamp":"2026-01-10 17:02:57.052","label":"4C","tail":"C-FVLX","flight":"AC100","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5555511,"timestamp":"2026-01-10 18:25:36.985","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5570593,"timestamp":"2026-01-10 21:42:41.086","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5734030,"timestamp":"2026-01-11 01:56:01.370","label":"4C","tail":"C-FGEO","flight":"AC61","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5765050,"timestamp":"2026-01-11 02:37:36.826","label":"4C","tail":"C-FVLX","flight":"AC100","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5799701,"timestamp":"2026-01-11 03:21:58.344","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":5991225,"timestamp":"2026-01-11 07:09:46.115","label":"4C","tail":"C-FRAM","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":6183832,"timestamp":"2026-01-11 10:56:45.435","label":"4C","tail":"C-FVND","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":6211109,"timestamp":"2026-01-11 11:36:18.779","label":"4C","tail":"C-FRTG","flight":"ACA18","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":6276692,"timestamp":"2026-01-11 13:12:31.844","label":"4C","tail":"C-GEGP","flight":"AC877","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":6343278,"timestamp":"2026-01-11 14:51:09.029","label":"4C","tail":"C-FIVX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":6758818,"timestamp":"2026-01-12 07:32:18.677","label":"4C","tail":"C-FGDX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7022781,"timestamp":"2026-01-12 14:32:18.498","label":"4C","tail":"C-FIUF","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7122432,"timestamp":"2026-01-12 16:47:24.281","label":"4C","tail":"C-FDHU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7135898,"timestamp":"2026-01-12 17:49:52.390","label":"4C","tail":"C-FIUA","flight":"AC0034","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7454930,"timestamp":"2026-01-13 04:09:28.281","label":"4C","tail":"C-FKAU","flight":"AC304","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7743054,"timestamp":"2026-01-13 12:19:33.113","label":"4C","tail":"C-GFUR","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7849765,"timestamp":"2026-01-13 15:25:06.700","label":"4C","tail":"C-FKAU","flight":"AC304","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7896816,"timestamp":"2026-01-13 16:43:03.194","label":"4C","tail":"C-FGDX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":7915734,"timestamp":"2026-01-13 17:17:25.967","label":"4C","tail":"C-FRTW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":8036615,"timestamp":"2026-01-13 20:41:06.464","label":"4C","tail":"C-FDHG","flight":"AC956","text":"-GTE C001  052 \r\n","stratum":"4C/unparsed","expected":[]}
-{"id":8318735,"timestamp":"2026-01-17 06:07:01.595","label":"4C","tail":"C-FIUW","flight":"AC0855","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":8735392,"timestamp":"2026-01-17 16:09:32.504","label":"4C","tail":"C-FRSA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":8779208,"timestamp":"2026-01-17 17:19:54.625","label":"4C","tail":"C-FVNF","flight":"AC84","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":8873354,"timestamp":"2026-01-17 19:52:54.962","label":"4C","tail":"C-GHPT","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9102566,"timestamp":"2026-01-18 02:22:58.988","label":"4C","tail":"C-FRTU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9334058,"timestamp":"2026-01-18 07:27:50.956","label":"4C","tail":"C-GEFA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9339734,"timestamp":"2026-01-18 07:41:31.983","label":"4C","tail":"C-FNND","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9345515,"timestamp":"2026-01-18 07:44:10.268","label":"4C","tail":"C-FGJI","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
-{"id":9371823,"timestamp":"2026-01-18 08:27:59.345","label":"4C","tail":"C-FRSI","flight":"AC37","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9484386,"timestamp":"2026-01-18 11:32:08.122","label":"4C","tail":"C-FSBV","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9544023,"timestamp":"2026-01-18 13:29:39.983","label":"4C","tail":"C-FGEI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9643829,"timestamp":"2026-01-18 16:30:29.937","label":"4C","tail":"C-FIVX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":9720178,"timestamp":"2026-01-18 17:43:50.168","label":"4C","tail":"C-FSIL","flight":"AC0","text":"-FLT CA01 0552/18/YVR/LAX/CYVR/KLAX/ACA552\r\n\r\n","stratum":"4C/unparsed","expected":[]}
-{"id":10149848,"timestamp":"2026-01-19 07:51:13.313","label":"4C","tail":"C-GYJW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":10286604,"timestamp":"2026-01-19 11:27:48.745","label":"4C","tail":"C-FRSA","flight":"AC114","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":10366165,"timestamp":"2026-01-19 13:44:31.325","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":10805651,"timestamp":"2026-01-20 03:52:07.530","label":"4C","tail":"C-FNNQ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":10805655,"timestamp":"2026-01-20 03:52:07.677","label":"4C","tail":"C-FNNQ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":11049641,"timestamp":"2026-01-20 09:14:30.107","label":"4C","tail":"C-FIUW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":11153406,"timestamp":"2026-01-20 11:59:10.424","label":"4C","tail":"C-FKAU","flight":"AC304","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":11160087,"timestamp":"2026-01-20 03:40:04.851","label":"4C","tail":"C-FIVK","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
-{"id":11212095,"timestamp":"2026-01-20 13:31:20.874","label":"4C","tail":"C-FRSI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":11363027,"timestamp":"2026-01-21 17:59:14.216","label":"4C","tail":"C-GEGC","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
-{"id":11438321,"timestamp":"2026-01-21 20:24:11.191","label":"4C","tail":"C-FNNW","flight":"AC871","text":"-GTE C001  052 ","stratum":"4C/unparsed","expected":[]}
+{"id":146439,"timestamp":"2026-01-03T05:06:41.500Z","label":"4C","tail":"C-FGEO","flight":"AC61","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":259744,"timestamp":"2026-01-03T09:36:30.516Z","label":"4C","tail":"C-GEGC","flight":"AC308","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":440525,"timestamp":"2026-01-03T19:50:35.240Z","label":"4C","tail":"C-FKSV","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":650860,"timestamp":"2026-01-04T06:15:11.710Z","label":"4C","tail":"C-FGEO","text":"-FLT CA01 0065/03/YVR/BKK/CYVR/VTBS/ACA65\n\t","stratum":"4C/unparsed","expected":[]}
+{"id":840300,"timestamp":"2026-01-04T15:01:55.615Z","label":"4C","tail":"C-FGEO","flight":"AC61","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1054102,"timestamp":"2026-01-04T23:22:26.548Z","label":"4C","tail":"C-FIUR","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1060604,"timestamp":"2026-01-04T23:36:21.800Z","label":"4C","tail":"C-GHQQ","text":"-FLT CA01 0878/04/YUL/TLS/CYUL/LFBO/ACA878\n\t","stratum":"4C/unparsed","expected":[]}
+{"id":1216423,"timestamp":"2026-01-05T04:23:37.644Z","label":"4C","tail":"C-FRSO","flight":"AC345","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1301520,"timestamp":"2026-01-05T06:39:57.449Z","label":"4C","tail":"C-FKAU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1415478,"timestamp":"2026-01-05T08:07:12.382Z","label":"4C","tail":"C-GEHQ","flight":"AC1317","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
+{"id":1418100,"timestamp":"2026-01-05T09:55:17.481Z","label":"4C","tail":"C-FNOI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1541052,"timestamp":"2026-01-05T13:54:41.318Z","label":"4C","tail":"C-FNNW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1578291,"timestamp":"2026-01-05T15:05:20.737Z","label":"4C","tail":"C-FNOH","flight":"AC92","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1640502,"timestamp":"2026-01-05T17:10:58.641Z","label":"4C","tail":"C-GHKW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1644238,"timestamp":"2026-01-05T17:18:46.736Z","label":"4C","tail":"C-FRSI","flight":"AC37","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1655093,"timestamp":"2026-01-05T17:39:40.417Z","label":"4C","tail":"C-FNND","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1752876,"timestamp":"2026-01-05T19:20:03.761Z","label":"4C","tail":"C-FDHU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1815976,"timestamp":"2026-01-05T22:51:45.898Z","label":"4C","tail":"C-FJZS","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1947268,"timestamp":"2026-01-06T02:47:32.083Z","label":"4C","tail":"C-FNOI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":1949056,"timestamp":"2026-01-06T02:50:55.914Z","label":"4C","tail":"C-FNOH","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2083151,"timestamp":"2026-01-06T06:16:54.178Z","label":"4C","tail":"C-GKUG","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2103837,"timestamp":"2026-01-06T06:54:17.356Z","label":"4C","tail":"C-GHPV","flight":"AC811","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2131301,"timestamp":"2026-01-06T07:42:07.274Z","label":"4C","tail":"C-FVLZ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2172590,"timestamp":"2026-01-06T08:52:54.171Z","label":"4C","tail":"C-FDHG","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2226872,"timestamp":"2026-01-06T10:31:21.034Z","label":"4C","tail":"C-FIVM","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2307501,"timestamp":"2026-01-06T13:04:30.182Z","label":"4C","tail":"C-GHQQ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2312917,"timestamp":"2026-01-06T13:14:45.284Z","label":"4C","tail":"C-FNNU","text":"-FLT CA01 0865/06/LHR/YUL/EGLL/CYUL/ACA865\n\t","stratum":"4C/unparsed","expected":[]}
+{"id":2350599,"timestamp":"2026-01-06T14:27:03.716Z","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2367189,"timestamp":"2026-01-06T14:58:25.529Z","label":"4C","tail":"C-GKUG","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2372459,"timestamp":"2026-01-06T15:07:37.479Z","label":"4C","tail":"C-GFAH","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2588249,"timestamp":"2026-01-06T22:23:56.248Z","label":"4C","tail":"C-FIUJ","flight":"AC43","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2740124,"timestamp":"2026-01-07T02:57:37.765Z","label":"4C","tail":"C-FRSA","flight":"AC114","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2761949,"timestamp":"2026-01-07T03:27:21.136Z","label":"4C","tail":"C-FIUR","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2784564,"timestamp":"2026-01-07T03:57:49.306Z","label":"4C","tail":"C-FVLU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2834936,"timestamp":"2026-01-07T05:05:21.937Z","label":"4C","tail":"C-FGDZ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":2985446,"timestamp":"2026-01-07T08:26:16.372Z","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3112676,"timestamp":"2026-01-07T11:27:25.744Z","label":"4C","tail":"C-FVND","flight":"AC0","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3257050,"timestamp":"2026-01-07T16:17:42.131Z","label":"4C","tail":"C-FNNH","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3482531,"timestamp":"2026-01-07T22:46:21.200Z","label":"4C","tail":"C-GMZR","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
+{"id":3633049,"timestamp":"2026-01-08T02:49:14.050Z","label":"4C","tail":"C-FRTG","flight":"ACA18","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3686004,"timestamp":"2026-01-08T04:06:19.666Z","label":"4C","tail":"C-GEFA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3758880,"timestamp":"2026-01-08T05:49:28.247Z","label":"4C","tail":"C-FNOI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3787622,"timestamp":"2026-01-08T06:26:24.487Z","label":"4C","tail":"C-FDUY","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
+{"id":3880734,"timestamp":"2026-01-08T08:32:43.367Z","label":"4C","tail":"C-GHPU","flight":"AC1348","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3924386,"timestamp":"2026-01-08T09:37:15.322Z","label":"4C","tail":"C-FSBV","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3963199,"timestamp":"2026-01-08T10:37:13.827Z","label":"4C","tail":"C-FIUA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":3984102,"timestamp":"2026-01-08T11:19:37.145Z","label":"4C","tail":"C-FRSO","flight":"AC345","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":4240980,"timestamp":"2026-01-09T02:07:49.273Z","label":"4C","tail":"C-GFAF","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":4425254,"timestamp":"2026-01-09T05:52:44.887Z","label":"4C","tail":"C-FRSR","flight":"AC56","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":4459911,"timestamp":"2026-01-09T06:32:02.505Z","label":"4C","tail":"C-GEGI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":4493825,"timestamp":"2026-01-09T07:08:36.588Z","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":4551619,"timestamp":"2026-01-09T07:31:29.177Z","label":"4C","tail":"C-FCYX","text":"-GTE C001  004 \r\n","stratum":"4C/unparsed","expected":[]}
+{"id":4697627,"timestamp":"2026-01-09T11:55:42.278Z","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5425765,"timestamp":"2026-01-10T08:03:24.954Z","label":"4C","tail":"C-FEGI","flight":"AC857","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5484137,"timestamp":"2026-01-10T11:24:37.358Z","label":"4C","tail":"C-FRSI","flight":"AC37","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5543730,"timestamp":"2026-01-10T17:02:57.052Z","label":"4C","tail":"C-FVLX","flight":"AC100","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5555511,"timestamp":"2026-01-10T18:25:36.985Z","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5570593,"timestamp":"2026-01-10T21:42:41.086Z","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5734030,"timestamp":"2026-01-11T01:56:01.370Z","label":"4C","tail":"C-FGEO","flight":"AC61","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5765050,"timestamp":"2026-01-11T02:37:36.826Z","label":"4C","tail":"C-FVLX","flight":"AC100","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5799701,"timestamp":"2026-01-11T03:21:58.344Z","label":"4C","tail":"C-FITU","flight":"AC0864","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":5991225,"timestamp":"2026-01-11T07:09:46.115Z","label":"4C","tail":"C-FRAM","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":6183832,"timestamp":"2026-01-11T10:56:45.435Z","label":"4C","tail":"C-FVND","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":6211109,"timestamp":"2026-01-11T11:36:18.779Z","label":"4C","tail":"C-FRTG","flight":"ACA18","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":6276692,"timestamp":"2026-01-11T13:12:31.844Z","label":"4C","tail":"C-GEGP","flight":"AC877","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":6343278,"timestamp":"2026-01-11T14:51:09.029Z","label":"4C","tail":"C-FIVX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":6758818,"timestamp":"2026-01-12T07:32:18.677Z","label":"4C","tail":"C-FGDX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7022781,"timestamp":"2026-01-12T14:32:18.498Z","label":"4C","tail":"C-FIUF","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7122432,"timestamp":"2026-01-12T16:47:24.281Z","label":"4C","tail":"C-FDHU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7135898,"timestamp":"2026-01-12T17:49:52.390Z","label":"4C","tail":"C-FIUA","flight":"AC0034","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7454930,"timestamp":"2026-01-13T04:09:28.281Z","label":"4C","tail":"C-FKAU","flight":"AC304","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7743054,"timestamp":"2026-01-13T12:19:33.113Z","label":"4C","tail":"C-GFUR","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7849765,"timestamp":"2026-01-13T15:25:06.700Z","label":"4C","tail":"C-FKAU","flight":"AC304","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7896816,"timestamp":"2026-01-13T16:43:03.194Z","label":"4C","tail":"C-FGDX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":7915734,"timestamp":"2026-01-13T17:17:25.967Z","label":"4C","tail":"C-FRTW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":8036615,"timestamp":"2026-01-13T20:41:06.464Z","label":"4C","tail":"C-FDHG","flight":"AC956","text":"-GTE C001  052 \r\n","stratum":"4C/unparsed","expected":[]}
+{"id":8318735,"timestamp":"2026-01-17T06:07:01.595Z","label":"4C","tail":"C-FIUW","flight":"AC0855","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":8735392,"timestamp":"2026-01-17T16:09:32.504Z","label":"4C","tail":"C-FRSA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":8779208,"timestamp":"2026-01-17T17:19:54.625Z","label":"4C","tail":"C-FVNF","flight":"AC84","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":8873354,"timestamp":"2026-01-17T19:52:54.962Z","label":"4C","tail":"C-GHPT","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9102566,"timestamp":"2026-01-18T02:22:58.988Z","label":"4C","tail":"C-FRTU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9334058,"timestamp":"2026-01-18T07:27:50.956Z","label":"4C","tail":"C-GEFA","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9339734,"timestamp":"2026-01-18T07:41:31.983Z","label":"4C","tail":"C-FNND","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9345515,"timestamp":"2026-01-18T07:44:10.268Z","label":"4C","tail":"C-FGJI","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
+{"id":9371823,"timestamp":"2026-01-18T08:27:59.345Z","label":"4C","tail":"C-FRSI","flight":"AC37","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9484386,"timestamp":"2026-01-18T11:32:08.122Z","label":"4C","tail":"C-FSBV","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9544023,"timestamp":"2026-01-18T13:29:39.983Z","label":"4C","tail":"C-FGEI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9643829,"timestamp":"2026-01-18T16:30:29.937Z","label":"4C","tail":"C-FIVX","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":9720178,"timestamp":"2026-01-18T17:43:50.168Z","label":"4C","tail":"C-FSIL","flight":"AC0","text":"-FLT CA01 0552/18/YVR/LAX/CYVR/KLAX/ACA552\r\n\r\n","stratum":"4C/unparsed","expected":[]}
+{"id":10149848,"timestamp":"2026-01-19T07:51:13.313Z","label":"4C","tail":"C-GYJW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":10286604,"timestamp":"2026-01-19T11:27:48.745Z","label":"4C","tail":"C-FRSA","flight":"AC114","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":10366165,"timestamp":"2026-01-19T13:44:31.325Z","label":"4C","tail":"C-GWUU","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":10805651,"timestamp":"2026-01-20T03:52:07.530Z","label":"4C","tail":"C-FNNQ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":10805655,"timestamp":"2026-01-20T03:52:07.677Z","label":"4C","tail":"C-FNNQ","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":11049641,"timestamp":"2026-01-20T09:14:30.107Z","label":"4C","tail":"C-FIUW","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":11153406,"timestamp":"2026-01-20T11:59:10.424Z","label":"4C","tail":"C-FKAU","flight":"AC304","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":11160087,"timestamp":"2026-01-20T03:40:04.851Z","label":"4C","tail":"C-FIVK","text":"-FSQ CA01\r\n","stratum":"4C/unparsed","expected":[]}
+{"id":11212095,"timestamp":"2026-01-20T13:31:20.874Z","label":"4C","tail":"C-FRSI","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":11363027,"timestamp":"2026-01-21T17:59:14.216Z","label":"4C","tail":"C-GEGC","text":"-FSQ CA01","stratum":"4C/unparsed","expected":[]}
+{"id":11438321,"timestamp":"2026-01-21T20:24:11.191Z","label":"4C","tail":"C-FNNW","flight":"AC871","text":"-GTE C001  052 ","stratum":"4C/unparsed","expected":[]}

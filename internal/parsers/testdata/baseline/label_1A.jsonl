@@ -1,100 +1,100 @@
-{"id":23307,"timestamp":"2025-12-31 18:15:17.315","label":"1A","tail":"N491HA","flight":"HA1011","text":"AC491 ASA/ACK 1011 COPY \u0026 MAHALO FOR T","stratum":"1A/unparsed","expected":[]}
-{"id":480176,"timestamp":"2026-01-03 21:46:42.242","label":"1A","tail":"N920XJ","text":"03211A  GSO  LGA7\r\n/FN 5149\r\n/CAS: P1\r\n212750/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":513760,"timestamp":"2026-01-03 22:29:49.596","label":"1A","tail":"N925XJ","text":"03211A  CHS  MSP7\r\n/FN 4845\r\n/CAS: P1\r\n213827/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":657248,"timestamp":"2026-01-04 03:04:44.725","label":"1A","tail":"N390HA","text":"FLT 0841,SEA-HNL SKD ARV 0506,","stratum":"1A/unparsed","expected":[]}
-{"id":660750,"timestamp":"2026-01-04 03:07:49.413","label":"1A","tail":"D-AEUA","text":"00025207221MMHHPPLLUKKU5WMMHH8*844UUW5U","stratum":"1A/unparsed","expected":[]}
-{"id":718852,"timestamp":"2026-01-04 05:58:47.741","label":"1A","tail":"N381HA","text":"FLT 0812,HNL-SFO SKD ARV 0320,","stratum":"1A/unparsed","expected":[]}
-{"id":767273,"timestamp":"2026-01-04 07:00:29.419","label":"1A","tail":"N920XJ","text":"04001A  LGA  TYS7\r\n/FN 5003\r\n/CAS: P1\r\n002333/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":767283,"timestamp":"2026-01-04 07:00:22.557","label":"1A","tail":"N920XJ","text":"04001A  LGA  TYS7\r\n/FN 5003\r\n/CAS: P1\r\n002333/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":1361510,"timestamp":"2026-01-05 07:02:47.963","label":"1A","tail":"D-AIBN","text":"00004207225VBGIGF4QT+-4+5I0U(UWWQQ8II","stratum":"1A/unparsed","expected":[]}
-{"id":1886877,"timestamp":"2026-01-06 00:38:09.913","label":"1A","tail":"N930XJ","text":"06001A  LGA  DSM7\r\n/FN 4904\r\n/CAS: P1\r\n000940/GND SPLR DEPLOY (C)","stratum":"1A/unparsed","expected":[]}
-{"id":1890357,"timestamp":"2026-01-06 00:40:36.964","label":"1A","tail":"N915XJ","text":"05231A   TYS7\r\n/FN 5003\r\n/CAS: P1\r\n235938/PITCH FEEL FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":1890682,"timestamp":"2026-01-06 00:40:51.703","label":"1A","tail":"N915XJ","text":"05231A   TYS7\r\n/FN 5003\r\n/CAS: P1\r\n235938/PITCH FEEL FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":1900922,"timestamp":"2026-01-06 00:54:58.981","label":"1A","tail":"N915XJ","text":"05231A   TYS7\r\n/FN 5003\r\n/CAS: P1\r\n235938/PITCH FEEL FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":1901799,"timestamp":"2026-01-06 00:56:26.628","label":"1A","tail":"N920XJ","text":"06001A  GSP  LGA7\r\n/FN 5004\r\n/CAS: P1\r\n001544/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":1924370,"timestamp":"2026-01-06 01:23:38.414","label":"1A","tail":"N912XJ","text":"06001A   LGA7\r\n/FN 5102\r\n/CAS: P1\r\n002604/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":1924605,"timestamp":"2026-01-06 01:23:46.728","label":"1A","tail":"N920XJ","text":"06001A  GSP  LGA7\r\n/FN 5004\r\n/CAS: P1\r\n002613/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
-{"id":2398851,"timestamp":"2026-01-06 14:30:30.073","label":"1A","tail":"N903XJ","text":"06131A   MSP7\r\n/FN 5105\r\n/CAS: P1\r\n130329/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":2437948,"timestamp":"2026-01-06 14:58:22.400","label":"1A","tail":"N925XJ","text":"06131A   MSP7\r\n/FN 5248\r\n/CAS: P1\r\n131229/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":2441153,"timestamp":"2026-01-06 15:00:31.909","label":"1A","tail":"N925XJ","text":"06131A   MSP7\r\n/FN 5248\r\n/CAS: P1\r\n131229/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":2500060,"timestamp":"2026-01-06 19:22:16.676","label":"1A","tail":"N448KC","text":"AD 061729Z 0618/0724 VRB03KT P6SM BKN150 OVC200FM061900 16006KT P6SM OVC220FM070000 18005KT P6SM BKN060FM070600 22005KT P6SM SCT240FM071300 27006KT P6SM SCT170FM071600 30010G19KT P6SM SCT170FM072300 31006KT P6SM FEW200=|","stratum":"1A/unparsed","expected":[]}
-{"id":2500176,"timestamp":"2026-01-06 19:22:32.709","label":"1A","tail":"N448KC","text":"=TAF KTHV SMARTTAF 061610Z 0616/0716 00000KT 5SM HZ SCT045FM061800 00000KT P6SM OVC150FM070000 00000KT P6SM OVC012FM070100 00000KT P6SM OVC008 TEMPO 0701/0704 4SM -RA BR OVC006FM070400 00000KT P6SM OVC010FM070700 21004KT","stratum":"1A/unparsed","expected":[]}
-{"id":2572373,"timestamp":"2026-01-06 18:02:34.779","label":"1A","tail":"N901XJ","text":"06131A   MSP7\r\n/FN 5384\r\n/CAS: P1\r\n135519/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":2799646,"timestamp":"2026-01-07 03:37:17.239","label":"1A","tail":"N374HA","text":"METAR MET,AR KSFO 070156Z 22004KT,","stratum":"1A/unparsed","expected":[]}
-{"id":3188794,"timestamp":"2026-01-07 12:11:35.605","label":"1A","tail":"SPMXS","text":"0 BR OVC010 BECMG 0707/0710 7000 SCT015\r\n","stratum":"1A/unparsed","expected":[]}
-{"id":3355367,"timestamp":"2026-01-07 18:35:30.586","label":"1A","tail":"N936XJ","text":"07171A   JFK7\r\n/FN 5099\r\n/CAS: P1\r\n175859/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":3390819,"timestamp":"2026-01-07 19:10:29.798","label":"1A","tail":"N933XJ","text":"07181A  MSP  CID7\r\n/FN 4899\r\n/CAS: P1\r\n181413/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":3498966,"timestamp":"2026-01-07 21:18:11.746","label":"1A","tail":"G-VTEA","text":"KATL\r\nHI LANDING 2000Z. REQUEST STAND.","stratum":"1A/unparsed","expected":[]}
-{"id":3616841,"timestamp":"2026-01-07 23:36:14.963","label":"1A","tail":"N361HA","text":"AS813 //,CHECKING WITH MODS // WI,","stratum":"1A/unparsed","expected":[]}
-{"id":4146003,"timestamp":"2026-01-08 23:32:20.333","label":"1A","tail":"N15LV","text":"FM090000 32013KT P6SM FEW250FM090700 02008KT P6SM FEW250FM091300 05008KT P6SM SCT030\r\n","stratum":"1A/unparsed","expected":[]}
-{"id":4287550,"timestamp":"2026-01-09 02:36:46.975","label":"1A","tail":"N924XJ","text":"09011A  CLT  LGA7\r\n/FN 5047\r\n/CAS: P1\r\n014043/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":4296759,"timestamp":"2026-01-09 02:45:56.359","label":"1A","tail":"N924XJ","text":"09011A  CLT  LGA7\r\n/FN 5047\r\n/CAS: P1\r\n014623/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":4626003,"timestamp":"2026-01-09 09:10:44.473","label":"1A","tail":"EC-NAZ","text":"05B/GYES,YES/AYES,NO,NO,/","stratum":"1A/unparsed","expected":[]}
-{"id":5058180,"timestamp":"2026-01-09 21:45:45.383","label":"1A","tail":"N928XJ","text":"09191A  MOT  MSP7\r\n/FN 5204\r\n/CAS: P1\r\n194244/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":5069873,"timestamp":"2026-01-09 21:57:35.243","label":"1A","tail":"N928XJ","text":"09191A  MOT  MSP7\r\n/FN 5204\r\n/CAS: P1\r\n194804/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":5128845,"timestamp":"2026-01-09 22:55:12.945","label":"1A","tail":"N912XJ","text":"09201A  XNA  LGA7\r\n/FN 5482\r\n/CAS: P1\r\n201126/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":5191128,"timestamp":"2026-01-09 23:50:10.299","label":"1A","tail":"N937XJ","text":"09201A   SAV7\r\n/FN 5460\r\n/CAS: P1\r\n202950/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":5211286,"timestamp":"2026-01-10 00:09:14.679","label":"1A","tail":"N917XJ","text":"09201A  CVG  LGA7\r\n/FN 4682\r\n/CAS: P1\r\n204055/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":5211450,"timestamp":"2026-01-10 00:09:26.319","label":"1A","tail":"N917XJ","text":"09201A  CVG  LGA7\r\n/FN 4682\r\n/CAS: P1\r\n204055/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":5462346,"timestamp":"2026-01-10 10:18:20.639","label":"1A","tail":"9HJ4K","text":"TAF COR LEMD 100602Z 1006/1112 VRB03KT 9999 FEW040 TX10/1014Z TNM02/1106Z\r\n","stratum":"1A/unparsed","expected":[]}
-{"id":5503310,"timestamp":"2026-01-10 14:45:31.298","label":"1A","tail":"N812QS","text":"TAF KPDK 101143Z 1012/1112 19009G18KT 6SM -SHRA BKN007 OVC012  PROB30 1014/1019 2SM TSRA OVC006CB  FM101900 23010KT 5SM -SHRA OVC007  FM102300 27008KT 6SM -DZ BR BKN007 OVC012  FM110400 30010G20KT P6SM OVC015  FM111100 3","stratum":"1A/unparsed","expected":[]}
-{"id":5602241,"timestamp":"2026-01-10 22:19:31.191","label":"1A","tail":"N910XJ","text":"10211A  JFK  BNA7\r\n/FN 4909\r\n/CAS: P1\r\n215241/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":5740462,"timestamp":"2026-01-11 00:57:58.126","label":"1A","tail":"N220HA","text":"FLT 0892,HNL-SJC SKD ARV 0348,","stratum":"1A/unparsed","expected":[]}
-{"id":5872881,"timestamp":"2026-01-11 03:25:53.653","label":"1A","tail":"N914XJ","text":"11001A   CVG7\r\n/FN 5023\r\n/CAS: P1\r\n003205/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":5872944,"timestamp":"2026-01-11 03:25:53.650","label":"1A","tail":"N914XJ","text":"11001A   CVG7\r\n/FN 5023\r\n/CAS: P1\r\n003205/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":6003374,"timestamp":"2026-01-11 05:57:39.798","label":"1A","tail":"N925XJ","text":"11021A   JFK7\r\n/FN 5119\r\n/CAS: P1\r\n022225/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":6244678,"timestamp":"2026-01-11 12:23:31.511","label":"1A","tail":"DCAID","text":"TAF EDSB 111100Z 1112/1212 VRB03KT 8000 BKN020 TEMPO 1122/1124 1000 BCFG PROB30 TEMPO 1204/1205 4500 -SN BECMG 1204/1208 20009KT TEMPO 1204/1209 -FZRA PROB30 TEMPO 1207/1209 4000 FZRA BR BKN014 TEMPO 1209/1212 4000 RA BR","stratum":"1A/unparsed","expected":[]}
-{"id":6245467,"timestamp":"2026-01-11 12:24:41.071","label":"1A","tail":"DCAID","text":"TAF EDSB 111100Z 1112/1212 VRB03KT 8000 BKN020 TEMPO 1122/1124 1000 BCFG PROB30 TEMPO 1204/1205 4500 -SN BECMG 1204/1208 20009KT TEMPO 1204/1209 -FZRA PROB30 TEMPO 1207/1209 4000 FZRA BR BKN014 TEMPO 1209/1212 4000 RA BR","stratum":"1A/unparsed","expected":[]}
-{"id":6478476,"timestamp":"2026-01-11 19:38:00.208","label":"1A","tail":"EC-NDR","text":"561/GYES,YES/ANO,NO,NO,/F 186,","stratum":"1A/unparsed","expected":[]}
-{"id":6533333,"timestamp":"2026-01-11 21:47:06.416","label":"1A","tail":"N927XJ","text":"11191A  CLE  MSP7\r\n/FN 5118\r\n/CAS: P1\r\n194227/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":6709045,"timestamp":"2026-01-12 06:25:32.035","label":"1A","tail":"EC-NFZ","text":"C12/GYES,YES/AYES,YES,NO,/","stratum":"1A/unparsed","expected":[]}
-{"id":6801529,"timestamp":"2026-01-12 08:32:13.930","label":"1A","tail":"N4787K","text":"2604 ARR,GATE NOT AVAILABLEGND PW,","stratum":"1A/unparsed","expected":[]}
-{"id":6943088,"timestamp":"2026-01-12 12:18:27.608","label":"1A","tail":"N243PC","text":"TAF COR KAGC 121148Z 1212/1312 24014G22KT P6SM OVC020FM121700 23011G21KT P6SM SCT025FM130000 23008KT P6SM SKC=|=TAF KZER SMARTTAF 121010Z 1210/1310 28016KT P6SM SKCFM121900 25013G26KT P6SM BKN200FM130400 25010G25KT P6SM ","stratum":"1A/unparsed","expected":[]}
-{"id":7039160,"timestamp":"2026-01-12 13:55:19.190","label":"1A","tail":"N933XJ","text":"12121A   LGA7\r\n/FN 5107\r\n/CAS: P1\r\n123051/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":7264173,"timestamp":"2026-01-12 20:35:35.662","label":"1A","tail":"N389HA","text":"FLT 0813,PDX-HNL SKD ARV 0044,","stratum":"1A/unparsed","expected":[]}
-{"id":7603912,"timestamp":"2026-01-13 08:19:48.481","label":"1A","tail":"N4787K","text":"FLT 2605,IAH-CVG SKD ARV 1023,","stratum":"1A/unparsed","expected":[]}
-{"id":7860359,"timestamp":"2026-01-13 15:13:22.679","label":"1A","tail":"N901XJ","text":"13141A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n143321/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":7879514,"timestamp":"2026-01-13 15:32:22.505","label":"1A","tail":"N901XJ","text":"13141A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n144213/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":7895445,"timestamp":"2026-01-13 15:53:38.848","label":"1A","tail":"N901XJ","text":"13141A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n144923/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":7950442,"timestamp":"2026-01-13 16:53:14.759","label":"1A","tail":"N218HA","text":"FLT 0891,SJC-HNL SKD ARV 2046,","stratum":"1A/unparsed","expected":[]}
-{"id":7954536,"timestamp":"2026-01-13 16:56:41.897","label":"1A","tail":"N218HA","text":"METAR MET,AR PHNL 131453Z 33005KT,","stratum":"1A/unparsed","expected":[]}
-{"id":8025322,"timestamp":"2026-01-13 20:24:26.068","label":"1A","tail":"N901XJ","text":"13201A  MSP  SDF7\r\n/FN 5145\r\n/CAS: P1\r\n200958/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":8144220,"timestamp":"2026-01-14 00:19:11.677","label":"1A","tail":"N381HA","text":"FLT 0814,HNL-PDX SKD ARV 0450,","stratum":"1A/unparsed","expected":[]}
-{"id":8312337,"timestamp":"2026-01-14 04:24:46.512","label":"1A","tail":"N912XJ","text":"14021A  LGA  YYZ7\r\n/FN 5188\r\n/CAS: P1\r\n022315/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":8444526,"timestamp":"2026-01-17 08:27:48.620","label":"1A","tail":"N4663K","text":"IM HEADED, HOME IN 30 MINS. JUSTIN,","stratum":"1A/unparsed","expected":[]}
-{"id":8489182,"timestamp":"2026-01-17 09:37:11.302","label":"1A","tail":"D-AIIA","text":"00026207296QQPP((DDAS3BOABYYG,M,UUPP48F","stratum":"1A/unparsed","expected":[]}
-{"id":8489190,"timestamp":"2026-01-17 09:37:12.514","label":"1A","tail":"D-AIIA","text":"00026207296QQPP((DDAS3BOABYYG,M,UUPP48F","stratum":"1A/unparsed","expected":[]}
-{"id":8489198,"timestamp":"2026-01-17 09:37:13.982","label":"1A","tail":"D-AIIA","text":"00026207296QQPP((DDAS3BOABYYG,M,UUPP48F","stratum":"1A/unparsed","expected":[]}
-{"id":8637467,"timestamp":"2026-01-17 13:22:05.153","label":"1A","tail":"N914XJ","text":"17121A   EWR7\r\n/FN 5120\r\n/CAS: P1\r\n124550/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":8745613,"timestamp":"2026-01-17 15:16:47.764","label":"1A","tail":"N927XJ","text":"17131A   MSP7\r\n/FN 5270\r\n/CAS: P1\r\n134358/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":8761097,"timestamp":"2026-01-17 15:31:44.911","label":"1A","tail":"N927XJ","text":"17131A   MSP7\r\n/FN 5270\r\n/CAS: P1\r\n135010/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":8780139,"timestamp":"2026-01-17 15:47:54.436","label":"1A","tail":"D-AIRX","text":"00192207273198A81,1J4+YN,,W6 6EEBBL+EO","stratum":"1A/unparsed","expected":[]}
-{"id":8790441,"timestamp":"2026-01-17 16:00:43.645","label":"1A","tail":"N904XJ","text":"17141A   LGA7\r\n/FN 5164\r\n/CAS: P1\r\n140041/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":8931255,"timestamp":"2026-01-17 18:48:21.718","label":"1A","tail":"N218HA","text":"FLT 0891,SJC-HNL SKD ARV 2046,","stratum":"1A/unparsed","expected":[]}
-{"id":9009698,"timestamp":"2026-01-17 20:21:33.233","label":"1A","tail":"N927XJ","text":"17151A  MSP  FAR7\r\n/FN 5399\r\n/CAS: P1\r\n155113/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":9107701,"timestamp":"2026-01-18 02:17:27.651","label":"1A","tail":"N925XJ","text":"18011A  JFK  MSP7\r\n/FN 5030\r\n/CAS: P1\r\n015445/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":9110277,"timestamp":"2026-01-18 02:20:14.499","label":"1A","tail":"N925XJ","text":"18011A  JFK  MSP7\r\n/FN 5030\r\n/CAS: P1\r\n015715/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":9140892,"timestamp":"2026-01-18 02:53:24.930","label":"1A","tail":"N930XJ","text":"18021A  IAD  JFK7\r\n/FN 5358\r\n/CAS: P1\r\n022255/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":9141254,"timestamp":"2026-01-18 02:53:31.178","label":"1A","tail":"N930XJ","text":"18021A  IAD  JFK7\r\n/FN 5358\r\n/CAS: P1\r\n022255/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":9144883,"timestamp":"2026-01-18 02:57:57.382","label":"1A","tail":"N934XJ","text":"18021A  JFK  MKE7\r\n/FN 5022\r\n/CAS: P1\r\n022608/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":9151752,"timestamp":"2026-01-18 03:06:39.536","label":"1A","tail":"N930XJ","text":"18021A  IAD  JFK7\r\n/FN 5358\r\n/CAS: P1\r\n023249/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":9693310,"timestamp":"2026-01-18 17:05:00.558","label":"1A","tail":"D-AICS","text":"DE4310,1552,LSZH,M","stratum":"1A/unparsed","expected":[]}
-{"id":9715176,"timestamp":"2026-01-18 17:36:50.894","label":"1A","tail":"D-AILI","text":"00152207257N7+J+YUG12GYN,,CU4UYYUUY9K","stratum":"1A/unparsed","expected":[]}
-{"id":9785237,"timestamp":"2026-01-18 19:00:23.607","label":"1A","tail":"D-AIUE","text":"000782072212(0P4VEV(AO+1)X9+BLLYY11:+","stratum":"1A/unparsed","expected":[]}
-{"id":9849898,"timestamp":"2026-01-18 20:45:02.883","label":"1A","tail":"N927XJ","text":"18171A   IAD7\r\n/FN 5442\r\n/CAS: P1\r\n170132/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":9850180,"timestamp":"2026-01-18 20:45:33.830","label":"1A","tail":"N927XJ","text":"18171A   IAD7\r\n/FN 5442\r\n/CAS: P1\r\n170132/ICE (C)","stratum":"1A/unparsed","expected":[]}
-{"id":9982744,"timestamp":"2026-01-19 03:41:10.654","label":"1A","tail":"N909XJ","text":"19031A   CWA7\r\n/FN 4934\r\n/CAS: P1\r\n030537/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":9993216,"timestamp":"2026-01-19 03:51:54.324","label":"1A","tail":"N4649K","text":"JFK 01/47,8 JFK RWY 04L CLSD 26011,","stratum":"1A/unparsed","expected":[]}
-{"id":10011651,"timestamp":"2026-01-19 04:16:51.917","label":"1A","tail":"N4649K","text":"2618 ARR,GATE NOT AVAILABLEGND PW,","stratum":"1A/unparsed","expected":[]}
-{"id":10078798,"timestamp":"2026-01-19 05:40:55.358","label":"1A","tail":"N908XJ","text":"19041A  MSP  RST7\r\n/FN 4881\r\n/CAS: P1\r\n044126/L WING A-I (C)","stratum":"1A/unparsed","expected":[]}
-{"id":10234810,"timestamp":"2026-01-19 10:03:14.933","label":"1A","tail":"N392HA","text":"JFK RWY 3,1R APRCH IN USEJFK 01/48,","stratum":"1A/unparsed","expected":[]}
-{"id":10263887,"timestamp":"2026-01-19 10:50:55.165","label":"1A","tail":"N392HA","text":"830 ARR G,ATE 34GND PWR AVL - GND,","stratum":"1A/unparsed","expected":[]}
-{"id":10416152,"timestamp":"2026-01-19 15:18:29.804","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n151600/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":10418780,"timestamp":"2026-01-19 15:22:01.078","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n151724/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":10424252,"timestamp":"2026-01-19 15:28:42.479","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n152014/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":10436848,"timestamp":"2026-01-19 15:44:23.810","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n152640/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
-{"id":10506824,"timestamp":"2026-01-19 17:06:48.857","label":"1A","tail":"D-AIAS","text":"DE4310,1557,LSZH,M","stratum":"1A/unparsed","expected":[]}
-{"id":10983680,"timestamp":"2026-01-20 07:34:46.807","label":"1A","tail":"D-AIAG","text":"DE4312,0716,LSZH,M","stratum":"1A/unparsed","expected":[]}
-{"id":11027062,"timestamp":"2026-01-20 08:39:18.947","label":"1A","tail":"SPMXR","text":"TAF EPGD 200530Z 2006/2106 19004KT 3000 BR NSC BECMG 2006/2008 8000 TEMPO 2018/2106 2500 BR PROB40 2022/2106 0800 FZFG=|=TAF EPWA 200530Z 2006/2106 13005KT 6000 NSC PROB40 2006/2008 4500 BR TEMPO 2020/2106 3000 BR\r\n","stratum":"1A/unparsed","expected":[]}
-{"id":11472134,"timestamp":"2026-01-21 19:20:46.576","label":"1A","tail":"N926XJ","text":"21161A  MSP  FSD7\r\n/FN 5261\r\n/CAS: P1\r\n164916/L WING A-I (C)","stratum":"1A/unparsed","expected":[]}
-{"id":11690122,"timestamp":"2026-01-22 04:54:22.261","label":"1A","tail":"D-AIRW","text":"00147207299O:KK6OBT)O4YN5L2Y-TTLL66:Q","stratum":"1A/unparsed","expected":[]}
+{"id":23307,"timestamp":"2025-12-31T18:15:17.315Z","label":"1A","tail":"N491HA","flight":"HA1011","text":"AC491 ASA/ACK 1011 COPY \u0026 MAHALO FOR T","stratum":"1A/unparsed","expected":[]}
+{"id":480176,"timestamp":"2026-01-03T21:46:42.242Z","label":"1A","tail":"N920XJ","text":"03211A  GSO  LGA7\r\n/FN 5149\r\n/CAS: P1\r\n212750/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":513760,"timestamp":"2026-01-03T22:29:49.596Z","label":"1A","tail":"N925XJ","text":"03211A  CHS  MSP7\r\n/FN 4845\r\n/CAS: P1\r\n213827/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":657248,"timestamp":"2026-01-04T03:04:44.725Z","label":"1A","tail":"N390HA","text":"FLT 0841,SEA-HNL SKD ARV 0506,","stratum":"1A/unparsed","expected":[]}
+{"id":660750,"timestamp":"2026-01-04T03:07:49.413Z","label":"1A","tail":"D-AEUA","text":"00025207221MMHHPPLLUKKU5WMMHH8*844UUW5U","stratum":"1A/unparsed","expected":[]}
+{"id":718852,"timestamp":"2026-01-04T05:58:47.741Z","label":"1A","tail":"N381HA","text":"FLT 0812,HNL-SFO SKD ARV 0320,","stratum":"1A/unparsed","expected":[]}
+{"id":767273,"timestamp":"2026-01-04T07:00:29.419Z","label":"1A","tail":"N920XJ","text":"04001A  LGA  TYS7\r\n/FN 5003\r\n/CAS: P1\r\n002333/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":767283,"timestamp":"2026-01-04T07:00:22.557Z","label":"1A","tail":"N920XJ","text":"04001A  LGA  TYS7\r\n/FN 5003\r\n/CAS: P1\r\n002333/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":1361510,"timestamp":"2026-01-05T07:02:47.963Z","label":"1A","tail":"D-AIBN","text":"00004207225VBGIGF4QT+-4+5I0U(UWWQQ8II","stratum":"1A/unparsed","expected":[]}
+{"id":1886877,"timestamp":"2026-01-06T00:38:09.913Z","label":"1A","tail":"N930XJ","text":"06001A  LGA  DSM7\r\n/FN 4904\r\n/CAS: P1\r\n000940/GND SPLR DEPLOY (C)","stratum":"1A/unparsed","expected":[]}
+{"id":1890357,"timestamp":"2026-01-06T00:40:36.964Z","label":"1A","tail":"N915XJ","text":"05231A   TYS7\r\n/FN 5003\r\n/CAS: P1\r\n235938/PITCH FEEL FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":1890682,"timestamp":"2026-01-06T00:40:51.703Z","label":"1A","tail":"N915XJ","text":"05231A   TYS7\r\n/FN 5003\r\n/CAS: P1\r\n235938/PITCH FEEL FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":1900922,"timestamp":"2026-01-06T00:54:58.981Z","label":"1A","tail":"N915XJ","text":"05231A   TYS7\r\n/FN 5003\r\n/CAS: P1\r\n235938/PITCH FEEL FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":1901799,"timestamp":"2026-01-06T00:56:26.628Z","label":"1A","tail":"N920XJ","text":"06001A  GSP  LGA7\r\n/FN 5004\r\n/CAS: P1\r\n001544/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":1924370,"timestamp":"2026-01-06T01:23:38.414Z","label":"1A","tail":"N912XJ","text":"06001A   LGA7\r\n/FN 5102\r\n/CAS: P1\r\n002604/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":1924605,"timestamp":"2026-01-06T01:23:46.728Z","label":"1A","tail":"N920XJ","text":"06001A  GSP  LGA7\r\n/FN 5004\r\n/CAS: P1\r\n002613/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
+{"id":2398851,"timestamp":"2026-01-06T14:30:30.073Z","label":"1A","tail":"N903XJ","text":"06131A   MSP7\r\n/FN 5105\r\n/CAS: P1\r\n130329/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":2437948,"timestamp":"2026-01-06T14:58:22.400Z","label":"1A","tail":"N925XJ","text":"06131A   MSP7\r\n/FN 5248\r\n/CAS: P1\r\n131229/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":2441153,"timestamp":"2026-01-06T15:00:31.909Z","label":"1A","tail":"N925XJ","text":"06131A   MSP7\r\n/FN 5248\r\n/CAS: P1\r\n131229/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":2500060,"timestamp":"2026-01-06T19:22:16.676Z","label":"1A","tail":"N448KC","text":"AD 061729Z 0618/0724 VRB03KT P6SM BKN150 OVC200FM061900 16006KT P6SM OVC220FM070000 18005KT P6SM BKN060FM070600 22005KT P6SM SCT240FM071300 27006KT P6SM SCT170FM071600 30010G19KT P6SM SCT170FM072300 31006KT P6SM FEW200=|","stratum":"1A/unparsed","expected":[]}
+{"id":2500176,"timestamp":"2026-01-06T19:22:32.709Z","label":"1A","tail":"N448KC","text":"=TAF KTHV SMARTTAF 061610Z 0616/0716 00000KT 5SM HZ SCT045FM061800 00000KT P6SM OVC150FM070000 00000KT P6SM OVC012FM070100 00000KT P6SM OVC008 TEMPO 0701/0704 4SM -RA BR OVC006FM070400 00000KT P6SM OVC010FM070700 21004KT","stratum":"1A/unparsed","expected":[]}
+{"id":2572373,"timestamp":"2026-01-06T18:02:34.779Z","label":"1A","tail":"N901XJ","text":"06131A   MSP7\r\n/FN 5384\r\n/CAS: P1\r\n135519/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":2799646,"timestamp":"2026-01-07T03:37:17.239Z","label":"1A","tail":"N374HA","text":"METAR MET,AR KSFO 070156Z 22004KT,","stratum":"1A/unparsed","expected":[]}
+{"id":3188794,"timestamp":"2026-01-07T12:11:35.605Z","label":"1A","tail":"SPMXS","text":"0 BR OVC010 BECMG 0707/0710 7000 SCT015\r\n","stratum":"1A/unparsed","expected":[]}
+{"id":3355367,"timestamp":"2026-01-07T18:35:30.586Z","label":"1A","tail":"N936XJ","text":"07171A   JFK7\r\n/FN 5099\r\n/CAS: P1\r\n175859/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":3390819,"timestamp":"2026-01-07T19:10:29.798Z","label":"1A","tail":"N933XJ","text":"07181A  MSP  CID7\r\n/FN 4899\r\n/CAS: P1\r\n181413/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":3498966,"timestamp":"2026-01-07T21:18:11.746Z","label":"1A","tail":"G-VTEA","text":"KATL\r\nHI LANDING 2000Z. REQUEST STAND.","stratum":"1A/unparsed","expected":[]}
+{"id":3616841,"timestamp":"2026-01-07T23:36:14.963Z","label":"1A","tail":"N361HA","text":"AS813 //,CHECKING WITH MODS // WI,","stratum":"1A/unparsed","expected":[]}
+{"id":4146003,"timestamp":"2026-01-08T23:32:20.333Z","label":"1A","tail":"N15LV","text":"FM090000 32013KT P6SM FEW250FM090700 02008KT P6SM FEW250FM091300 05008KT P6SM SCT030\r\n","stratum":"1A/unparsed","expected":[]}
+{"id":4287550,"timestamp":"2026-01-09T02:36:46.975Z","label":"1A","tail":"N924XJ","text":"09011A  CLT  LGA7\r\n/FN 5047\r\n/CAS: P1\r\n014043/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":4296759,"timestamp":"2026-01-09T02:45:56.359Z","label":"1A","tail":"N924XJ","text":"09011A  CLT  LGA7\r\n/FN 5047\r\n/CAS: P1\r\n014623/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":4626003,"timestamp":"2026-01-09T09:10:44.473Z","label":"1A","tail":"EC-NAZ","text":"05B/GYES,YES/AYES,NO,NO,/","stratum":"1A/unparsed","expected":[]}
+{"id":5058180,"timestamp":"2026-01-09T21:45:45.383Z","label":"1A","tail":"N928XJ","text":"09191A  MOT  MSP7\r\n/FN 5204\r\n/CAS: P1\r\n194244/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":5069873,"timestamp":"2026-01-09T21:57:35.243Z","label":"1A","tail":"N928XJ","text":"09191A  MOT  MSP7\r\n/FN 5204\r\n/CAS: P1\r\n194804/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":5128845,"timestamp":"2026-01-09T22:55:12.945Z","label":"1A","tail":"N912XJ","text":"09201A  XNA  LGA7\r\n/FN 5482\r\n/CAS: P1\r\n201126/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":5191128,"timestamp":"2026-01-09T23:50:10.299Z","label":"1A","tail":"N937XJ","text":"09201A   SAV7\r\n/FN 5460\r\n/CAS: P1\r\n202950/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":5211286,"timestamp":"2026-01-10T00:09:14.679Z","label":"1A","tail":"N917XJ","text":"09201A  CVG  LGA7\r\n/FN 4682\r\n/CAS: P1\r\n204055/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":5211450,"timestamp":"2026-01-10T00:09:26.319Z","label":"1A","tail":"N917XJ","text":"09201A  CVG  LGA7\r\n/FN 4682\r\n/CAS: P1\r\n204055/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":5462346,"timestamp":"2026-01-10T10:18:20.639Z","label":"1A","tail":"9HJ4K","text":"TAF COR LEMD 100602Z 1006/1112 VRB03KT 9999 FEW040 TX10/1014Z TNM02/1106Z\r\n","stratum":"1A/unparsed","expected":[]}
+{"id":5503310,"timestamp":"2026-01-10T14:45:31.298Z","label":"1A","tail":"N812QS","text":"TAF KPDK 101143Z 1012/1112 19009G18KT 6SM -SHRA BKN007 OVC012  PROB30 1014/1019 2SM TSRA OVC006CB  FM101900 23010KT 5SM -SHRA OVC007  FM102300 27008KT 6SM -DZ BR BKN007 OVC012  FM110400 30010G20KT P6SM OVC015  FM111100 3","stratum":"1A/unparsed","expected":[]}
+{"id":5602241,"timestamp":"2026-01-10T22:19:31.191Z","label":"1A","tail":"N910XJ","text":"10211A  JFK  BNA7\r\n/FN 4909\r\n/CAS: P1\r\n215241/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":5740462,"timestamp":"2026-01-11T00:57:58.126Z","label":"1A","tail":"N220HA","text":"FLT 0892,HNL-SJC SKD ARV 0348,","stratum":"1A/unparsed","expected":[]}
+{"id":5872881,"timestamp":"2026-01-11T03:25:53.653Z","label":"1A","tail":"N914XJ","text":"11001A   CVG7\r\n/FN 5023\r\n/CAS: P1\r\n003205/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":5872944,"timestamp":"2026-01-11T03:25:53.650Z","label":"1A","tail":"N914XJ","text":"11001A   CVG7\r\n/FN 5023\r\n/CAS: P1\r\n003205/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":6003374,"timestamp":"2026-01-11T05:57:39.798Z","label":"1A","tail":"N925XJ","text":"11021A   JFK7\r\n/FN 5119\r\n/CAS: P1\r\n022225/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":6244678,"timestamp":"2026-01-11T12:23:31.511Z","label":"1A","tail":"DCAID","text":"TAF EDSB 111100Z 1112/1212 VRB03KT 8000 BKN020 TEMPO 1122/1124 1000 BCFG PROB30 TEMPO 1204/1205 4500 -SN BECMG 1204/1208 20009KT TEMPO 1204/1209 -FZRA PROB30 TEMPO 1207/1209 4000 FZRA BR BKN014 TEMPO 1209/1212 4000 RA BR","stratum":"1A/unparsed","expected":[]}
+{"id":6245467,"timestamp":"2026-01-11T12:24:41.071Z","label":"1A","tail":"DCAID","text":"TAF EDSB 111100Z 1112/1212 VRB03KT 8000 BKN020 TEMPO 1122/1124 1000 BCFG PROB30 TEMPO 1204/1205 4500 -SN BECMG 1204/1208 20009KT TEMPO 1204/1209 -FZRA PROB30 TEMPO 1207/1209 4000 FZRA BR BKN014 TEMPO 1209/1212 4000 RA BR","stratum":"1A/unparsed","expected":[]}
+{"id":6478476,"timestamp":"2026-01-11T19:38:00.208Z","label":"1A","tail":"EC-NDR","text":"561/GYES,YES/ANO,NO,NO,/F 186,","stratum":"1A/unparsed","expected":[]}
+{"id":6533333,"timestamp":"2026-01-11T21:47:06.416Z","label":"1A","tail":"N927XJ","text":"11191A  CLE  MSP7\r\n/FN 5118\r\n/CAS: P1\r\n194227/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":6709045,"timestamp":"2026-01-12T06:25:32.035Z","label":"1A","tail":"EC-NFZ","text":"C12/GYES,YES/AYES,YES,NO,/","stratum":"1A/unparsed","expected":[]}
+{"id":6801529,"timestamp":"2026-01-12T08:32:13.930Z","label":"1A","tail":"N4787K","text":"2604 ARR,GATE NOT AVAILABLEGND PW,","stratum":"1A/unparsed","expected":[]}
+{"id":6943088,"timestamp":"2026-01-12T12:18:27.608Z","label":"1A","tail":"N243PC","text":"TAF COR KAGC 121148Z 1212/1312 24014G22KT P6SM OVC020FM121700 23011G21KT P6SM SCT025FM130000 23008KT P6SM SKC=|=TAF KZER SMARTTAF 121010Z 1210/1310 28016KT P6SM SKCFM121900 25013G26KT P6SM BKN200FM130400 25010G25KT P6SM ","stratum":"1A/unparsed","expected":[]}
+{"id":7039160,"timestamp":"2026-01-12T13:55:19.190Z","label":"1A","tail":"N933XJ","text":"12121A   LGA7\r\n/FN 5107\r\n/CAS: P1\r\n123051/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":7264173,"timestamp":"2026-01-12T20:35:35.662Z","label":"1A","tail":"N389HA","text":"FLT 0813,PDX-HNL SKD ARV 0044,","stratum":"1A/unparsed","expected":[]}
+{"id":7603912,"timestamp":"2026-01-13T08:19:48.481Z","label":"1A","tail":"N4787K","text":"FLT 2605,IAH-CVG SKD ARV 1023,","stratum":"1A/unparsed","expected":[]}
+{"id":7860359,"timestamp":"2026-01-13T15:13:22.679Z","label":"1A","tail":"N901XJ","text":"13141A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n143321/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":7879514,"timestamp":"2026-01-13T15:32:22.505Z","label":"1A","tail":"N901XJ","text":"13141A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n144213/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":7895445,"timestamp":"2026-01-13T15:53:38.848Z","label":"1A","tail":"N901XJ","text":"13141A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n144923/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":7950442,"timestamp":"2026-01-13T16:53:14.759Z","label":"1A","tail":"N218HA","text":"FLT 0891,SJC-HNL SKD ARV 2046,","stratum":"1A/unparsed","expected":[]}
+{"id":7954536,"timestamp":"2026-01-13T16:56:41.897Z","label":"1A","tail":"N218HA","text":"METAR MET,AR PHNL 131453Z 33005KT,","stratum":"1A/unparsed","expected":[]}
+{"id":8025322,"timestamp":"2026-01-13T20:24:26.068Z","label":"1A","tail":"N901XJ","text":"13201A  MSP  SDF7\r\n/FN 5145\r\n/CAS: P1\r\n200958/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":8144220,"timestamp":"2026-01-14T00:19:11.677Z","label":"1A","tail":"N381HA","text":"FLT 0814,HNL-PDX SKD ARV 0450,","stratum":"1A/unparsed","expected":[]}
+{"id":8312337,"timestamp":"2026-01-14T04:24:46.512Z","label":"1A","tail":"N912XJ","text":"14021A  LGA  YYZ7\r\n/FN 5188\r\n/CAS: P1\r\n022315/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":8444526,"timestamp":"2026-01-17T08:27:48.620Z","label":"1A","tail":"N4663K","text":"IM HEADED, HOME IN 30 MINS. JUSTIN,","stratum":"1A/unparsed","expected":[]}
+{"id":8489182,"timestamp":"2026-01-17T09:37:11.302Z","label":"1A","tail":"D-AIIA","text":"00026207296QQPP((DDAS3BOABYYG,M,UUPP48F","stratum":"1A/unparsed","expected":[]}
+{"id":8489190,"timestamp":"2026-01-17T09:37:12.514Z","label":"1A","tail":"D-AIIA","text":"00026207296QQPP((DDAS3BOABYYG,M,UUPP48F","stratum":"1A/unparsed","expected":[]}
+{"id":8489198,"timestamp":"2026-01-17T09:37:13.982Z","label":"1A","tail":"D-AIIA","text":"00026207296QQPP((DDAS3BOABYYG,M,UUPP48F","stratum":"1A/unparsed","expected":[]}
+{"id":8637467,"timestamp":"2026-01-17T13:22:05.153Z","label":"1A","tail":"N914XJ","text":"17121A   EWR7\r\n/FN 5120\r\n/CAS: P1\r\n124550/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":8745613,"timestamp":"2026-01-17T15:16:47.764Z","label":"1A","tail":"N927XJ","text":"17131A   MSP7\r\n/FN 5270\r\n/CAS: P1\r\n134358/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":8761097,"timestamp":"2026-01-17T15:31:44.911Z","label":"1A","tail":"N927XJ","text":"17131A   MSP7\r\n/FN 5270\r\n/CAS: P1\r\n135010/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":8780139,"timestamp":"2026-01-17T15:47:54.436Z","label":"1A","tail":"D-AIRX","text":"00192207273198A81,1J4+YN,,W6 6EEBBL+EO","stratum":"1A/unparsed","expected":[]}
+{"id":8790441,"timestamp":"2026-01-17T16:00:43.645Z","label":"1A","tail":"N904XJ","text":"17141A   LGA7\r\n/FN 5164\r\n/CAS: P1\r\n140041/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":8931255,"timestamp":"2026-01-17T18:48:21.718Z","label":"1A","tail":"N218HA","text":"FLT 0891,SJC-HNL SKD ARV 2046,","stratum":"1A/unparsed","expected":[]}
+{"id":9009698,"timestamp":"2026-01-17T20:21:33.233Z","label":"1A","tail":"N927XJ","text":"17151A  MSP  FAR7\r\n/FN 5399\r\n/CAS: P1\r\n155113/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":9107701,"timestamp":"2026-01-18T02:17:27.651Z","label":"1A","tail":"N925XJ","text":"18011A  JFK  MSP7\r\n/FN 5030\r\n/CAS: P1\r\n015445/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":9110277,"timestamp":"2026-01-18T02:20:14.499Z","label":"1A","tail":"N925XJ","text":"18011A  JFK  MSP7\r\n/FN 5030\r\n/CAS: P1\r\n015715/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":9140892,"timestamp":"2026-01-18T02:53:24.930Z","label":"1A","tail":"N930XJ","text":"18021A  IAD  JFK7\r\n/FN 5358\r\n/CAS: P1\r\n022255/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":9141254,"timestamp":"2026-01-18T02:53:31.178Z","label":"1A","tail":"N930XJ","text":"18021A  IAD  JFK7\r\n/FN 5358\r\n/CAS: P1\r\n022255/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":9144883,"timestamp":"2026-01-18T02:57:57.382Z","label":"1A","tail":"N934XJ","text":"18021A  JFK  MKE7\r\n/FN 5022\r\n/CAS: P1\r\n022608/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":9151752,"timestamp":"2026-01-18T03:06:39.536Z","label":"1A","tail":"N930XJ","text":"18021A  IAD  JFK7\r\n/FN 5358\r\n/CAS: P1\r\n023249/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":9693310,"timestamp":"2026-01-18T17:05:00.558Z","label":"1A","tail":"D-AICS","text":"DE4310,1552,LSZH,M","stratum":"1A/unparsed","expected":[]}
+{"id":9715176,"timestamp":"2026-01-18T17:36:50.894Z","label":"1A","tail":"D-AILI","text":"00152207257N7+J+YUG12GYN,,CU4UYYUUY9K","stratum":"1A/unparsed","expected":[]}
+{"id":9785237,"timestamp":"2026-01-18T19:00:23.607Z","label":"1A","tail":"D-AIUE","text":"000782072212(0P4VEV(AO+1)X9+BLLYY11:+","stratum":"1A/unparsed","expected":[]}
+{"id":9849898,"timestamp":"2026-01-18T20:45:02.883Z","label":"1A","tail":"N927XJ","text":"18171A   IAD7\r\n/FN 5442\r\n/CAS: P1\r\n170132/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":9850180,"timestamp":"2026-01-18T20:45:33.830Z","label":"1A","tail":"N927XJ","text":"18171A   IAD7\r\n/FN 5442\r\n/CAS: P1\r\n170132/ICE (C)","stratum":"1A/unparsed","expected":[]}
+{"id":9982744,"timestamp":"2026-01-19T03:41:10.654Z","label":"1A","tail":"N909XJ","text":"19031A   CWA7\r\n/FN 4934\r\n/CAS: P1\r\n030537/R OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":9993216,"timestamp":"2026-01-19T03:51:54.324Z","label":"1A","tail":"N4649K","text":"JFK 01/47,8 JFK RWY 04L CLSD 26011,","stratum":"1A/unparsed","expected":[]}
+{"id":10011651,"timestamp":"2026-01-19T04:16:51.917Z","label":"1A","tail":"N4649K","text":"2618 ARR,GATE NOT AVAILABLEGND PW,","stratum":"1A/unparsed","expected":[]}
+{"id":10078798,"timestamp":"2026-01-19T05:40:55.358Z","label":"1A","tail":"N908XJ","text":"19041A  MSP  RST7\r\n/FN 4881\r\n/CAS: P1\r\n044126/L WING A-I (C)","stratum":"1A/unparsed","expected":[]}
+{"id":10234810,"timestamp":"2026-01-19T10:03:14.933Z","label":"1A","tail":"N392HA","text":"JFK RWY 3,1R APRCH IN USEJFK 01/48,","stratum":"1A/unparsed","expected":[]}
+{"id":10263887,"timestamp":"2026-01-19T10:50:55.165Z","label":"1A","tail":"N392HA","text":"830 ARR G,ATE 34GND PWR AVL - GND,","stratum":"1A/unparsed","expected":[]}
+{"id":10416152,"timestamp":"2026-01-19T15:18:29.804Z","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n151600/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":10418780,"timestamp":"2026-01-19T15:22:01.078Z","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n151724/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":10424252,"timestamp":"2026-01-19T15:28:42.479Z","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n152014/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":10436848,"timestamp":"2026-01-19T15:44:23.810Z","label":"1A","tail":"N926XJ","text":"19151A   MSP7\r\n/FN 5344\r\n/CAS: P1\r\n152640/L OIL LEVEL LO (S)","stratum":"1A/unparsed","expected":[]}
+{"id":10506824,"timestamp":"2026-01-19T17:06:48.857Z","label":"1A","tail":"D-AIAS","text":"DE4310,1557,LSZH,M","stratum":"1A/unparsed","expected":[]}
+{"id":10983680,"timestamp":"2026-01-20T07:34:46.807Z","label":"1A","tail":"D-AIAG","text":"DE4312,0716,LSZH,M","stratum":"1A/unparsed","expected":[]}
+{"id":11027062,"timestamp":"2026-01-20T08:39:18.947Z","label":"1A","tail":"SPMXR","text":"TAF EPGD 200530Z 2006/2106 19004KT 3000 BR NSC BECMG 2006/2008 8000 TEMPO 2018/2106 2500 BR PROB40 2022/2106 0800 FZFG=|=TAF EPWA 200530Z 2006/2106 13005KT 6000 NSC PROB40 2006/2008 4500 BR TEMPO 2020/2106 3000 BR\r\n","stratum":"1A/unparsed","expected":[]}
+{"id":11472134,"timestamp":"2026-01-21T19:20:46.576Z","label":"1A","tail":"N926XJ","text":"21161A  MSP  FSD7\r\n/FN 5261\r\n/CAS: P1\r\n164916/L WING A-I (C)","stratum":"1A/unparsed","expected":[]}
+{"id":11690122,"timestamp":"2026-01-22T04:54:22.261Z","label":"1A","tail":"D-AIRW","text":"00147207299O:KK6OBT)O4YN5L2Y-TTLL66:Q","stratum":"1A/unparsed","expected":[]}

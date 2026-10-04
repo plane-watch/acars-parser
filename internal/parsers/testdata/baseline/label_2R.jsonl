@@ -1,8 +1,8 @@
-{"id":75088,"timestamp":"2025-12-31 18:43:32.282","label":"2R","tail":"B-1112","flight":"FM737","text":"M49AFM0737RQST\n\tTN,1939,28.4,39534","stratum":"2R/unparsed","expected":[]}
-{"id":86203,"timestamp":"2025-12-31 18:49:45.608","label":"2R","tail":"B-1112","flight":"FM737","text":"M50AFM0737ACK1849","stratum":"2R/unparsed","expected":[]}
-{"id":104764,"timestamp":"2025-12-31 18:59:09.233","label":"2R","tail":"A6-BMJ","flight":"EY401","text":"M48AEY0401RWY01,    ETD401,31DEC25,VTBS,OMAA,02R,*, 21600,","stratum":"2R/unparsed","expected":[]}
-{"id":2117977,"timestamp":"2026-01-06 04:25:33.516","label":"2R","tail":"N17339","text":"/2R RESET          / CYVR KLAX 05 013422 0134/PHASE OTG/FLT 0387","stratum":"2R/unparsed","expected":[]}
-{"id":2197372,"timestamp":"2026-01-06 09:14:28.913","label":"2R","tail":"A6-BMD","text":"RWY01,    ETD9GL,*******,LSZH,OMAA,28,*,  7800,\r\n","stratum":"2R/unparsed","expected":[]}
-{"id":3131500,"timestamp":"2026-01-07 10:46:13.824","label":"2R","tail":"A6-BLI","text":"RWY01,    ETD144,07JAN26,LSZH,OMAA,28,*, 19000,\r\n","stratum":"2R/unparsed","expected":[]}
-{"id":6134500,"timestamp":"2026-01-11 08:47:03.663","label":"2R","tail":"N675UA","text":"/2R RESET          / LSZH KEWR 10 054356 0543/PHASE OTG/FLT 0135","stratum":"2R/unparsed","expected":[]}
-{"id":9381534,"timestamp":"2026-01-18 08:39:56.597","label":"2R","tail":"A6-BME","text":"RWY01,    ETD9GL,*******,LSZH,OMAA,28,*, 10800,\r\n","stratum":"2R/unparsed","expected":[]}
+{"id":75088,"timestamp":"2025-12-31T18:43:32.282Z","label":"2R","tail":"B-1112","flight":"FM737","text":"M49AFM0737RQST\n\tTN,1939,28.4,39534","stratum":"2R/unparsed","expected":[]}
+{"id":86203,"timestamp":"2025-12-31T18:49:45.608Z","label":"2R","tail":"B-1112","flight":"FM737","text":"M50AFM0737ACK1849","stratum":"2R/unparsed","expected":[]}
+{"id":104764,"timestamp":"2025-12-31T18:59:09.233Z","label":"2R","tail":"A6-BMJ","flight":"EY401","text":"M48AEY0401RWY01,    ETD401,31DEC25,VTBS,OMAA,02R,*, 21600,","stratum":"2R/unparsed","expected":[]}
+{"id":2117977,"timestamp":"2026-01-06T04:25:33.516Z","label":"2R","tail":"N17339","text":"/2R RESET          / CYVR KLAX 05 013422 0134/PHASE OTG/FLT 0387","stratum":"2R/unparsed","expected":[]}
+{"id":2197372,"timestamp":"2026-01-06T09:14:28.913Z","label":"2R","tail":"A6-BMD","text":"RWY01,    ETD9GL,*******,LSZH,OMAA,28,*,  7800,\r\n","stratum":"2R/unparsed","expected":[]}
+{"id":3131500,"timestamp":"2026-01-07T10:46:13.824Z","label":"2R","tail":"A6-BLI","text":"RWY01,    ETD144,07JAN26,LSZH,OMAA,28,*, 19000,\r\n","stratum":"2R/unparsed","expected":[]}
+{"id":6134500,"timestamp":"2026-01-11T08:47:03.663Z","label":"2R","tail":"N675UA","text":"/2R RESET          / LSZH KEWR 10 054356 0543/PHASE OTG/FLT 0135","stratum":"2R/unparsed","expected":[]}
+{"id":9381534,"timestamp":"2026-01-18T08:39:56.597Z","label":"2R","tail":"A6-BME","text":"RWY01,    ETD9GL,*******,LSZH,OMAA,28,*, 10800,\r\n","stratum":"2R/unparsed","expected":[]}

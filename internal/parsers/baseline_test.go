@@ -9,10 +9,13 @@ import (
 
 	"acars_parser/internal/baseline"
 	"acars_parser/internal/registry"
+	"acars_parser/internal/version"
 )
 
 // updateBaseline re-records the expectations from the current parsers. Use it
-// only after reviewing the differences the test reports:
+// only after reviewing the differences the test reports, and only with this
+// package's path: other packages do not define the flag, so
+// `go test ./... -update-baseline` fails them.
 //
 //	go test ./internal/parsers -run TestBaseline -update-baseline
 var updateBaseline = flag.Bool("update-baseline", false, "re-record the parser regression baseline")
@@ -26,7 +29,9 @@ const maxReportedCases = 25
 // TestBaseline is the parser regression gate. It re-parses every message in the
 // recorded sample and fails on any added, removed or changed result.
 func TestBaseline(t *testing.T) {
-	cases, err := baseline.Load(baselineDir)
+	// Load validates the files against the manifest, so a deleted or truncated
+	// file fails here rather than silently reducing coverage.
+	cases, manifest, err := baseline.Load(baselineDir)
 	if err != nil {
 		t.Fatalf("load baseline: %v", err)
 	}
@@ -62,7 +67,8 @@ func TestBaseline(t *testing.T) {
 	}
 
 	if *updateBaseline {
-		if err := baseline.Write(baselineDir, cases); err != nil {
+		manifest.RecordedBy = version.Parser()
+		if err := baseline.Save(baselineDir, cases, manifest); err != nil {
 			t.Fatalf("write baseline: %v", err)
 		}
 		t.Logf("re-recorded %d baseline cases", len(cases))

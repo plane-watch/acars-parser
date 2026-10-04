@@ -1,100 +1,100 @@
-{"id":57849,"timestamp":"2025-12-31 18:33:55.462","label":"QS","tail":"9H-WZQ","flight":"W6734","text":"LRCLLEVC1831  29  0,,,/DO 1833,/FN W60734","stratum":"QS/unparsed","expected":[]}
-{"id":93793,"timestamp":"2025-12-31 18:53:47.581","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR     221--OS MWCR/OPN----","stratum":"QS/unparsed","expected":[]}
-{"id":93794,"timestamp":"2025-12-31 18:53:47.581","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR     221--OS MWCR/OPN----","stratum":"QS/unparsed","expected":[]}
-{"id":96643,"timestamp":"2025-12-31 18:55:10.904","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR1852 218--OS MWCR /OPN0130/DO 1854/PB 1852/CO 1854/PO ----/MS 1852","stratum":"QS/unparsed","expected":[]}
-{"id":96645,"timestamp":"2025-12-31 18:55:10.905","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR1852 218--OS MWCR /OPN0130/DO 1854/PB 1852/CO 1854/PO ----/MS 1852","stratum":"QS/unparsed","expected":[]}
-{"id":248101,"timestamp":"2026-01-03 08:22:49.843","label":"QS","tail":"OE-LKV","text":"LIRFLSZH0629  61   127, 123,  62,  61,EC75VE,119280","stratum":"QS/unparsed","expected":[]}
-{"id":298060,"timestamp":"2026-01-03 09:22:01.041","label":"QS","tail":"HB-JXN","text":"LSGGEGHI0651  76   163, 159,  81,  76,DS1583,128520","stratum":"QS/unparsed","expected":[]}
-{"id":342253,"timestamp":"2026-01-03 11:01:33.646","label":"QS","tail":"9H-VUH","text":"LIRFLMML0724  82  ","stratum":"QS/unparsed","expected":[]}
-{"id":372443,"timestamp":"2026-01-03 17:00:24.045","label":"QS","tail":"EI-EVL","text":"LBSFLMML1614 118  ","stratum":"QS/unparsed","expected":[]}
-{"id":853697,"timestamp":"2026-01-04 15:37:56.666","label":"QS","tail":"C-GQWJ","text":"CYLWCYVR1521  60  /L1 152136","stratum":"QS/unparsed","expected":[]}
-{"id":1052684,"timestamp":"2026-01-04 20:05:33.432","label":"QS","tail":"SU-BUR","text":"HEGNLSZH1745  44  ","stratum":"QS/unparsed","expected":[]}
-{"id":1150077,"timestamp":"2026-01-04 22:00:48.867","label":"QS","tail":"EI-DCW","text":"LPFREDJA1717  79  ","stratum":"QS/unparsed","expected":[]}
-{"id":1381480,"timestamp":"2026-01-05 07:24:16.090","label":"QS","tail":"A7-ALT","text":"OTHHLSZH06030186  ","stratum":"QS/unparsed","expected":[]}
-{"id":1447668,"timestamp":"2026-01-05 08:56:16.342","label":"QS","tail":"9H-QCE","text":"EGSSEGNX0043  85  ","stratum":"QS/unparsed","expected":[]}
-{"id":1447669,"timestamp":"2026-01-05 08:56:16.606","label":"QS","tail":"9H-QCE","text":"EGSSEGNX0043  85  ","stratum":"QS/unparsed","expected":[]}
-{"id":1522252,"timestamp":"2026-01-05 12:45:13.263","label":"QS","tail":"TC-LUE","text":"LTFJLSZH121200003  /260501/1214/06ER/-/03229/ON 1205/1212/","stratum":"QS/unparsed","expected":[]}
-{"id":1661449,"timestamp":"2026-01-05 15:06:56.326","label":"QS","tail":"A7-ALN","text":"OTHHLSZH12490351  ","stratum":"QS/unparsed","expected":[]}
-{"id":1764584,"timestamp":"2026-01-05 17:09:45.026","label":"QS","tail":"EI-DCY","text":"LGAVEPMO1137  67  ","stratum":"QS/unparsed","expected":[]}
-{"id":1874007,"timestamp":"2026-01-06 00:26:14.466","label":"QS","tail":"9H-VUF","text":"EGSSLEVC0004  84  ","stratum":"QS/unparsed","expected":[]}
-{"id":2153806,"timestamp":"2026-01-06 08:10:28.124","label":"QS","tail":"9H-QBW","text":"LIRAEPMO2301 136  ","stratum":"QS/unparsed","expected":[]}
-{"id":2164022,"timestamp":"2026-01-06 08:25:59.561","label":"QS","tail":"OE-IXA","text":"EDDFLMML0801  41  ","stratum":"QS/unparsed","expected":[]}
-{"id":2224138,"timestamp":"2026-01-06 09:55:30.676","label":"QS","tail":"9H-QFA","text":"LEALEGNX0750  76  ","stratum":"QS/unparsed","expected":[]}
-{"id":2953031,"timestamp":"2026-01-07 06:30:22.793","label":"QS","tail":"A7-BCA","text":"OTHHHKJK04140432   0","stratum":"QS/unparsed","expected":[]}
-{"id":3049252,"timestamp":"2026-01-07 08:57:27.531","label":"QS","tail":"ET-AWM","text":"LIMCLSZH0626      DD07/FOB008616","stratum":"QS/unparsed","expected":[]}
-{"id":3089080,"timestamp":"2026-01-07 09:52:36.155","label":"QS","tail":"C-FLEJ","text":"CYYZCYXX0642  50  ","stratum":"QS/unparsed","expected":[]}
-{"id":3109400,"timestamp":"2026-01-07 10:13:35.903","label":"QS","tail":"TC-LST","text":"LTFMLMML0801   4  /260701/0803/03FR/666/40/ON 0756/0801/LMML31//","stratum":"QS/unparsed","expected":[]}
-{"id":3169722,"timestamp":"2026-01-07 11:56:33.261","label":"QS","tail":"HB-JOK","text":"BKPRLSZH0941  78  CSW1PR","stratum":"QS/unparsed","expected":[]}
-{"id":3200461,"timestamp":"2026-01-07 12:19:35.921","label":"QS","tail":"9H-QEB","text":"EGPHLMML1003 103  ","stratum":"QS/unparsed","expected":[]}
-{"id":3212157,"timestamp":"2026-01-07 12:34:44.178","label":"QS","tail":"G-EZTB","text":"EGKKLMML1016  78   230, 224,  79,  78,U274JC,124120","stratum":"QS/unparsed","expected":[]}
-{"id":3621273,"timestamp":"2026-01-07 23:40:21.652","label":"QS","tail":"EC-MMH","text":"LEBLLSZH1958 128  \r\nVY05SV07PD 1959\r\nCD 1722\r\n","stratum":"QS/unparsed","expected":[]}
-{"id":3717380,"timestamp":"2026-01-08 04:52:16.986","label":"QS","tail":"SP-RKW","text":"LGAVEPMO1910  90  ","stratum":"QS/unparsed","expected":[]}
-{"id":3768765,"timestamp":"2026-01-08 06:02:51.708","label":"QS","tail":"TC-GCB","text":"LTFMLSZH0601 104  ","stratum":"QS/unparsed","expected":[]}
-{"id":3825320,"timestamp":"2026-01-08 07:15:28.523","label":"QS","tail":"EC-OOC","text":"LEASLEVC0715  7311 ","stratum":"QS/unparsed","expected":[]}
-{"id":3891310,"timestamp":"2026-01-08 08:48:49.383","label":"QS","tail":"EI-HAW","text":"EGGWLMML0847  74  ","stratum":"QS/unparsed","expected":[]}
-{"id":3894522,"timestamp":"2026-01-08 08:54:05.661","label":"QS","tail":"EI-HES","text":"LICCLMML0852  90  ","stratum":"QS/unparsed","expected":[]}
-{"id":4010419,"timestamp":"2026-01-08 11:43:27.363","label":"QS","tail":"A7-ALG","text":"OTHHHKJK11060363  ","stratum":"QS/unparsed","expected":[]}
-{"id":4421194,"timestamp":"2026-01-09 04:46:32.783","label":"QS","tail":"N620QX","text":"KSEACYVR03030063  /PB  030355/E1  030402/E2  025518","stratum":"QS/unparsed","expected":[]}
-{"id":4563649,"timestamp":"2026-01-09 07:42:53.192","label":"QS","tail":"9H-QAG","text":"GMMXEDLV2133  67  ","stratum":"QS/unparsed","expected":[]}
-{"id":4635174,"timestamp":"2026-01-09 09:18:45.831","label":"QS","tail":"OO-IWD","text":"LIRFLMML0726  38  ","stratum":"QS/unparsed","expected":[]}
-{"id":4637225,"timestamp":"2026-01-09 09:20:28.494","label":"QS","tail":"PH-EXY","text":"EHAMLSZH0728  32  ADO0729","stratum":"QS/unparsed","expected":[]}
-{"id":4721196,"timestamp":"2026-01-09 11:22:52.149","label":"QS","tail":"TC-RFH","text":"LTFJLSZH0907  88  PC05ZR/09JAN26 09:09:54,----,2   ","stratum":"QS/unparsed","expected":[]}
-{"id":4930983,"timestamp":"2026-01-09 18:58:06.002","label":"QS","tail":"F-HMRI","text":"M41A2C0056LFPGZWWW1637  12  ","stratum":"QS/unparsed","expected":[]}
-{"id":5280051,"timestamp":"2026-01-10 01:30:22.854","label":"QS","tail":"C-GVEN","text":"CYXSCYVR21082600..09JAN26","stratum":"QS/unparsed","expected":[]}
-{"id":5285940,"timestamp":"2026-01-10 04:43:46.212","label":"QS","tail":"SP-RKM","text":"LCPHEPMO2342 104  ","stratum":"QS/unparsed","expected":[]}
-{"id":5313131,"timestamp":"2026-01-10 05:18:59.315","label":"QS","tail":"N646QX","text":"KSEACYVR05170057  /PB  051749/E1  051755/E2  051756","stratum":"QS/unparsed","expected":[]}
-{"id":5358048,"timestamp":"2026-01-10 06:16:56.295","label":"QS","tail":"EI-HAW","text":"EPLBEGGW2331  77  ","stratum":"QS/unparsed","expected":[]}
-{"id":5363462,"timestamp":"2026-01-10 06:23:41.744","label":"QS","tail":"EI-ENM","text":"GCTSEGGP2339  59  ","stratum":"QS/unparsed","expected":[]}
-{"id":5392754,"timestamp":"2026-01-10 07:01:01.195","label":"QS","tail":"N661QX","text":"KPDXKMFR06580063  /PB  065807/E1  065813/E2  065812","stratum":"QS/unparsed","expected":[]}
-{"id":5446479,"timestamp":"2026-01-10 08:30:30.139","label":"QS","tail":"EI-DPH","text":"EIDWEGNX2148  68  ","stratum":"QS/unparsed","expected":[]}
-{"id":5510839,"timestamp":"2026-01-10 11:51:36.395","label":"QS","tail":"PH-YHE","text":"EHAMLEVC0854  29  ADO0856","stratum":"QS/unparsed","expected":[]}
-{"id":5526669,"timestamp":"2026-01-10 12:56:33.259","label":"QS","tail":"OE-LSP","text":"LPPRLSZH0908  76   188, 186,  78,  76,EC37AL,134480","stratum":"QS/unparsed","expected":[]}
-{"id":5548846,"timestamp":"2026-01-10 20:02:08.060","label":"QS","tail":"9H-QAI","text":"LEBLGMMW1836  70  ","stratum":"QS/unparsed","expected":[]}
-{"id":5601876,"timestamp":"2026-01-10 22:18:54.842","label":"QS","tail":"F-HPNY","text":"LFPGLSZH21520030  215208","stratum":"QS/unparsed","expected":[]}
-{"id":5678099,"timestamp":"2026-01-10 23:50:05.761","label":"QS","tail":"EI-EBG","text":"EGPFLMML2236  85  ","stratum":"QS/unparsed","expected":[]}
-{"id":6055952,"timestamp":"2026-01-11 07:07:36.401","label":"QS","tail":"C-FXMS","text":"MMMZCYVR0332  60  /L1 033629","stratum":"QS/unparsed","expected":[]}
-{"id":6060520,"timestamp":"2026-01-11 07:13:02.263","label":"QS","tail":"5Y-FFB","text":"FAORHKJK0342  26  FB 2597","stratum":"QS/unparsed","expected":[]}
-{"id":6119845,"timestamp":"2026-01-11 08:27:22.527","label":"QS","tail":"N991NN","text":"KDFWCYVR05120104--OS CYVR /OPN0145/DO 0513/PB 0512/CO 0513/PO 0514/MS 0511/APH 0000000","stratum":"QS/unparsed","expected":[]}
-{"id":6135603,"timestamp":"2026-01-11 08:48:39.856","label":"QS","tail":"EI-EML","text":"LEVCEDJA2014  89  ","stratum":"QS/unparsed","expected":[]}
-{"id":6284499,"timestamp":"2026-01-11 12:55:34.556","label":"QS","tail":"EC-KLT","text":"GCXOLEVC1218  71  \r\nVY26PB11PD 0921\r\nCD 1219\r\n","stratum":"QS/unparsed","expected":[]}
-{"id":6377082,"timestamp":"2026-01-11 14:24:27.972","label":"QS","tail":"EC-KDH","text":"LFPOLEVC1256  70  \r\nVY18WV11PD 1006\r\nCD 1256\r\n","stratum":"QS/unparsed","expected":[]}
-{"id":6689292,"timestamp":"2026-01-12 06:00:03.588","label":"QS","tail":"CGJZN","text":"KSEACYVR055902920..","stratum":"QS/unparsed","expected":[]}
-{"id":6691294,"timestamp":"2026-01-12 06:02:34.687","label":"QS","tail":"N623QX","text":"KSEACYVR06010063  /PB  060141/E1  060148/E2  060145","stratum":"QS/unparsed","expected":[]}
-{"id":6722891,"timestamp":"2026-01-12 06:43:53.622","label":"QS","tail":"9H-QDE","text":"LIRFLEVC0642  74  ","stratum":"QS/unparsed","expected":[]}
-{"id":6751135,"timestamp":"2026-01-12 07:20:51.953","label":"QS","tail":"EI-DCM","text":"LICCLMML0719  83  ","stratum":"QS/unparsed","expected":[]}
-{"id":6826033,"timestamp":"2026-01-12 09:09:16.742","label":"QS","tail":"EI-EVK","text":"LIRFLMML0906  81  ","stratum":"QS/unparsed","expected":[]}
-{"id":6922483,"timestamp":"2026-01-12 11:32:36.301","label":"QS","tail":"9H-QDF","text":"EBCIEPMO2247 122  ","stratum":"QS/unparsed","expected":[]}
-{"id":7140402,"timestamp":"2026-01-12 17:55:30.443","label":"QS","tail":"N585QS","text":"KBTVKMQS1644003300/-----/","stratum":"QS/unparsed","expected":[]}
-{"id":7601198,"timestamp":"2026-01-13 08:14:56.797","label":"QS","tail":"5Y-KZC","text":"KJFKHKJK0809  8521/FB  8500","stratum":"QS/unparsed","expected":[]}
-{"id":7667583,"timestamp":"2026-01-13 10:07:56.750","label":"QS","tail":"N162FE","text":"KMEMKAUS10070165  /INRPT /131426","stratum":"QS/unparsed","expected":[]}
-{"id":7951498,"timestamp":"2026-01-13 16:54:29.325","label":"QS","tail":"EC-JTR","text":"LEBBLEVC1516  75  \r\nVY37NX13PD 1121\r\nCD 1518\r\n","stratum":"QS/unparsed","expected":[]}
-{"id":8261339,"timestamp":"2026-01-14 03:04:40.681","label":"QS","tail":"TC-LJK","text":"LTFMCYVR012705---- /261301/0129/075D/14100/0115/75/0127","stratum":"QS/unparsed","expected":[]}
-{"id":8332433,"timestamp":"2026-01-17 05:55:54.808","label":"QS","tail":"SP-RSW","text":"LIMEEPMO2228  65  ","stratum":"QS/unparsed","expected":[]}
-{"id":8359007,"timestamp":"2026-01-17 06:28:35.987","label":"QS","tail":"EI-IHN","text":"GMFOEDLV1938  60  ","stratum":"QS/unparsed","expected":[]}
-{"id":8384576,"timestamp":"2026-01-17 07:02:49.162","label":"QS","tail":"ET-AWP","text":"LIMCLSZH0630      DD17/FOB011811","stratum":"QS/unparsed","expected":[]}
-{"id":8386362,"timestamp":"2026-01-17 07:05:56.395","label":"QS","tail":"A7-ALI","text":"OTHHLSZH06020188  ","stratum":"QS/unparsed","expected":[]}
-{"id":8412105,"timestamp":"2026-01-17 07:40:11.105","label":"QS","tail":"HB-AYQ","text":"LSGGEGHI0645  43    98,  95,  46,  43,DS1583,102080","stratum":"QS/unparsed","expected":[]}
-{"id":8439910,"timestamp":"2026-01-17 08:21:17.799","label":"QS","tail":"N637QX","text":"KSEAKMFR07240073  /PB  072415/E1  072418/E2  072418","stratum":"QS/unparsed","expected":[]}
-{"id":8441235,"timestamp":"2026-01-17 08:23:34.080","label":"QS","tail":"EI-HES","text":"EIDWEGBB0633  88  ","stratum":"QS/unparsed","expected":[]}
-{"id":8454980,"timestamp":"2026-01-17 08:44:12.105","label":"QS","tail":"SP-RZD","text":"EPPOLMML0752  85  ","stratum":"QS/unparsed","expected":[]}
-{"id":8520641,"timestamp":"2026-01-17 10:26:04.807","label":"QS","tail":"N413FR","text":"TJSJKPHL1009  73 NO","stratum":"QS/unparsed","expected":[]}
-{"id":8540159,"timestamp":"2026-01-17 10:55:09.036","label":"QS","tail":"G-EZOA","text":"EGAAEDNY0912  89   199, 196,  91,  89,U25907,129640","stratum":"QS/unparsed","expected":[]}
-{"id":9239705,"timestamp":"2026-01-18 05:11:10.639","label":"QS","tail":"EI-EKD","text":"GMMXEDFH0007  83  ","stratum":"QS/unparsed","expected":[]}
-{"id":9269708,"timestamp":"2026-01-18 05:53:27.484","label":"QS","tail":"EI-HGH","text":"LEASEDLV2109  54  ","stratum":"QS/unparsed","expected":[]}
-{"id":9285159,"timestamp":"2026-01-18 06:16:20.974","label":"QS","tail":"PH-HBK","text":"LEALEHRD2125  31  ADO2127","stratum":"QS/unparsed","expected":[]}
-{"id":9302509,"timestamp":"2026-01-18 06:42:53.283","label":"QS","tail":"9H-QCN","text":"LIMCLEVC0640  64  ","stratum":"QS/unparsed","expected":[]}
-{"id":9506103,"timestamp":"2026-01-18 11:59:15.232","label":"QS","tail":"SP-RKV","text":"LGTSEDSB1011  81  ","stratum":"QS/unparsed","expected":[]}
-{"id":9542509,"timestamp":"2026-01-18 13:19:16.514","label":"QS","tail":"HZ-A4","text":"OERKLMML1309  47  ","stratum":"QS/unparsed","expected":[]}
-{"id":9673222,"timestamp":"2026-01-18 16:38:54.441","label":"QS","tail":"C-GRAX","text":"PHNLCYVR1542 124  /L1 154302","stratum":"QS/unparsed","expected":[]}
-{"id":10104437,"timestamp":"2026-01-19 06:16:52.764","label":"QS","tail":"CGGNW","text":"KSEACYVR050704160..","stratum":"QS/unparsed","expected":[]}
-{"id":10132808,"timestamp":"2026-01-19 07:25:10.542","label":"QS","tail":"EI-ENV","text":"GCTSEGHH2247  94  ","stratum":"QS/unparsed","expected":[]}
-{"id":10137868,"timestamp":"2026-01-19 07:32:07.120","label":"QS","tail":"EC-NNY","text":"LEBBLEVC0729  6911 ","stratum":"QS/unparsed","expected":[]}
-{"id":10197420,"timestamp":"2026-01-19 09:00:34.640","label":"QS","tail":"PH-EXZ","text":"EHAMEGHI0855  25  ADO0857","stratum":"QS/unparsed","expected":[]}
-{"id":10253878,"timestamp":"2026-01-19 10:34:25.028","label":"QS","tail":"G-EZWZ","text":"EGKKLMML1033  73   231, 226,  76,  73,U274JC,122800","stratum":"QS/unparsed","expected":[]}
-{"id":10297979,"timestamp":"2026-01-19 11:42:11.509","label":"QS","tail":"EI-EVR","text":"EIKNEGBB1035  71  ","stratum":"QS/unparsed","expected":[]}
-{"id":10350328,"timestamp":"2026-01-19 12:48:02.233","label":"QS","tail":"SP-RKT","text":"LMMLEPMO1040  77  ","stratum":"QS/unparsed","expected":[]}
-{"id":10707803,"timestamp":"2026-01-19 23:48:40.894","label":"QS","tail":"EI-HEZ","text":"LIPHLEVC2222  78  ","stratum":"QS/unparsed","expected":[]}
-{"id":10885165,"timestamp":"2026-01-20 05:23:01.097","label":"QS","tail":"EI-HGW","text":"LEZLEDLV1307  56  ","stratum":"QS/unparsed","expected":[]}
-{"id":11003039,"timestamp":"2026-01-20 08:02:55.058","label":"QS","tail":"PH-EZN","text":"EHAMLSZH0746  33  ADO0747","stratum":"QS/unparsed","expected":[]}
-{"id":11588141,"timestamp":"2026-01-21 22:07:11.709","label":"QS","tail":"HA-LXO","text":"EPWALMML1741  47  0,,,/DO 1746,/FN W68399","stratum":"QS/unparsed","expected":[]}
-{"id":11614257,"timestamp":"2026-01-21 22:37:05.118","label":"QS","tail":"C-FFBC","text":"CYYZCYVR1755 106  ","stratum":"QS/unparsed","expected":[]}
+{"id":57849,"timestamp":"2025-12-31T18:33:55.462Z","label":"QS","tail":"9H-WZQ","flight":"W6734","text":"LRCLLEVC1831  29  0,,,/DO 1833,/FN W60734","stratum":"QS/unparsed","expected":[]}
+{"id":93793,"timestamp":"2025-12-31T18:53:47.581Z","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR     221--OS MWCR/OPN----","stratum":"QS/unparsed","expected":[]}
+{"id":93794,"timestamp":"2025-12-31T18:53:47.581Z","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR     221--OS MWCR/OPN----","stratum":"QS/unparsed","expected":[]}
+{"id":96643,"timestamp":"2025-12-31T18:55:10.904Z","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR1852 218--OS MWCR /OPN0130/DO 1854/PB 1852/CO 1854/PO ----/MS 1852","stratum":"QS/unparsed","expected":[]}
+{"id":96645,"timestamp":"2025-12-31T18:55:10.905Z","label":"QS","tail":"N107US","flight":"AA0350","text":"KCLTMWCR1852 218--OS MWCR /OPN0130/DO 1854/PB 1852/CO 1854/PO ----/MS 1852","stratum":"QS/unparsed","expected":[]}
+{"id":248101,"timestamp":"2026-01-03T08:22:49.843Z","label":"QS","tail":"OE-LKV","text":"LIRFLSZH0629  61   127, 123,  62,  61,EC75VE,119280","stratum":"QS/unparsed","expected":[]}
+{"id":298060,"timestamp":"2026-01-03T09:22:01.041Z","label":"QS","tail":"HB-JXN","text":"LSGGEGHI0651  76   163, 159,  81,  76,DS1583,128520","stratum":"QS/unparsed","expected":[]}
+{"id":342253,"timestamp":"2026-01-03T11:01:33.646Z","label":"QS","tail":"9H-VUH","text":"LIRFLMML0724  82  ","stratum":"QS/unparsed","expected":[]}
+{"id":372443,"timestamp":"2026-01-03T17:00:24.045Z","label":"QS","tail":"EI-EVL","text":"LBSFLMML1614 118  ","stratum":"QS/unparsed","expected":[]}
+{"id":853697,"timestamp":"2026-01-04T15:37:56.666Z","label":"QS","tail":"C-GQWJ","text":"CYLWCYVR1521  60  /L1 152136","stratum":"QS/unparsed","expected":[]}
+{"id":1052684,"timestamp":"2026-01-04T20:05:33.432Z","label":"QS","tail":"SU-BUR","text":"HEGNLSZH1745  44  ","stratum":"QS/unparsed","expected":[]}
+{"id":1150077,"timestamp":"2026-01-04T22:00:48.867Z","label":"QS","tail":"EI-DCW","text":"LPFREDJA1717  79  ","stratum":"QS/unparsed","expected":[]}
+{"id":1381480,"timestamp":"2026-01-05T07:24:16.090Z","label":"QS","tail":"A7-ALT","text":"OTHHLSZH06030186  ","stratum":"QS/unparsed","expected":[]}
+{"id":1447668,"timestamp":"2026-01-05T08:56:16.342Z","label":"QS","tail":"9H-QCE","text":"EGSSEGNX0043  85  ","stratum":"QS/unparsed","expected":[]}
+{"id":1447669,"timestamp":"2026-01-05T08:56:16.606Z","label":"QS","tail":"9H-QCE","text":"EGSSEGNX0043  85  ","stratum":"QS/unparsed","expected":[]}
+{"id":1522252,"timestamp":"2026-01-05T12:45:13.263Z","label":"QS","tail":"TC-LUE","text":"LTFJLSZH121200003  /260501/1214/06ER/-/03229/ON 1205/1212/","stratum":"QS/unparsed","expected":[]}
+{"id":1661449,"timestamp":"2026-01-05T15:06:56.326Z","label":"QS","tail":"A7-ALN","text":"OTHHLSZH12490351  ","stratum":"QS/unparsed","expected":[]}
+{"id":1764584,"timestamp":"2026-01-05T17:09:45.026Z","label":"QS","tail":"EI-DCY","text":"LGAVEPMO1137  67  ","stratum":"QS/unparsed","expected":[]}
+{"id":1874007,"timestamp":"2026-01-06T00:26:14.466Z","label":"QS","tail":"9H-VUF","text":"EGSSLEVC0004  84  ","stratum":"QS/unparsed","expected":[]}
+{"id":2153806,"timestamp":"2026-01-06T08:10:28.124Z","label":"QS","tail":"9H-QBW","text":"LIRAEPMO2301 136  ","stratum":"QS/unparsed","expected":[]}
+{"id":2164022,"timestamp":"2026-01-06T08:25:59.561Z","label":"QS","tail":"OE-IXA","text":"EDDFLMML0801  41  ","stratum":"QS/unparsed","expected":[]}
+{"id":2224138,"timestamp":"2026-01-06T09:55:30.676Z","label":"QS","tail":"9H-QFA","text":"LEALEGNX0750  76  ","stratum":"QS/unparsed","expected":[]}
+{"id":2953031,"timestamp":"2026-01-07T06:30:22.793Z","label":"QS","tail":"A7-BCA","text":"OTHHHKJK04140432   0","stratum":"QS/unparsed","expected":[]}
+{"id":3049252,"timestamp":"2026-01-07T08:57:27.531Z","label":"QS","tail":"ET-AWM","text":"LIMCLSZH0626      DD07/FOB008616","stratum":"QS/unparsed","expected":[]}
+{"id":3089080,"timestamp":"2026-01-07T09:52:36.155Z","label":"QS","tail":"C-FLEJ","text":"CYYZCYXX0642  50  ","stratum":"QS/unparsed","expected":[]}
+{"id":3109400,"timestamp":"2026-01-07T10:13:35.903Z","label":"QS","tail":"TC-LST","text":"LTFMLMML0801   4  /260701/0803/03FR/666/40/ON 0756/0801/LMML31//","stratum":"QS/unparsed","expected":[]}
+{"id":3169722,"timestamp":"2026-01-07T11:56:33.261Z","label":"QS","tail":"HB-JOK","text":"BKPRLSZH0941  78  CSW1PR","stratum":"QS/unparsed","expected":[]}
+{"id":3200461,"timestamp":"2026-01-07T12:19:35.921Z","label":"QS","tail":"9H-QEB","text":"EGPHLMML1003 103  ","stratum":"QS/unparsed","expected":[]}
+{"id":3212157,"timestamp":"2026-01-07T12:34:44.178Z","label":"QS","tail":"G-EZTB","text":"EGKKLMML1016  78   230, 224,  79,  78,U274JC,124120","stratum":"QS/unparsed","expected":[]}
+{"id":3621273,"timestamp":"2026-01-07T23:40:21.652Z","label":"QS","tail":"EC-MMH","text":"LEBLLSZH1958 128  \r\nVY05SV07PD 1959\r\nCD 1722\r\n","stratum":"QS/unparsed","expected":[]}
+{"id":3717380,"timestamp":"2026-01-08T04:52:16.986Z","label":"QS","tail":"SP-RKW","text":"LGAVEPMO1910  90  ","stratum":"QS/unparsed","expected":[]}
+{"id":3768765,"timestamp":"2026-01-08T06:02:51.708Z","label":"QS","tail":"TC-GCB","text":"LTFMLSZH0601 104  ","stratum":"QS/unparsed","expected":[]}
+{"id":3825320,"timestamp":"2026-01-08T07:15:28.523Z","label":"QS","tail":"EC-OOC","text":"LEASLEVC0715  7311 ","stratum":"QS/unparsed","expected":[]}
+{"id":3891310,"timestamp":"2026-01-08T08:48:49.383Z","label":"QS","tail":"EI-HAW","text":"EGGWLMML0847  74  ","stratum":"QS/unparsed","expected":[]}
+{"id":3894522,"timestamp":"2026-01-08T08:54:05.661Z","label":"QS","tail":"EI-HES","text":"LICCLMML0852  90  ","stratum":"QS/unparsed","expected":[]}
+{"id":4010419,"timestamp":"2026-01-08T11:43:27.363Z","label":"QS","tail":"A7-ALG","text":"OTHHHKJK11060363  ","stratum":"QS/unparsed","expected":[]}
+{"id":4421194,"timestamp":"2026-01-09T04:46:32.783Z","label":"QS","tail":"N620QX","text":"KSEACYVR03030063  /PB  030355/E1  030402/E2  025518","stratum":"QS/unparsed","expected":[]}
+{"id":4563649,"timestamp":"2026-01-09T07:42:53.192Z","label":"QS","tail":"9H-QAG","text":"GMMXEDLV2133  67  ","stratum":"QS/unparsed","expected":[]}
+{"id":4635174,"timestamp":"2026-01-09T09:18:45.831Z","label":"QS","tail":"OO-IWD","text":"LIRFLMML0726  38  ","stratum":"QS/unparsed","expected":[]}
+{"id":4637225,"timestamp":"2026-01-09T09:20:28.494Z","label":"QS","tail":"PH-EXY","text":"EHAMLSZH0728  32  ADO0729","stratum":"QS/unparsed","expected":[]}
+{"id":4721196,"timestamp":"2026-01-09T11:22:52.149Z","label":"QS","tail":"TC-RFH","text":"LTFJLSZH0907  88  PC05ZR/09JAN26 09:09:54,----,2   ","stratum":"QS/unparsed","expected":[]}
+{"id":4930983,"timestamp":"2026-01-09T18:58:06.002Z","label":"QS","tail":"F-HMRI","text":"M41A2C0056LFPGZWWW1637  12  ","stratum":"QS/unparsed","expected":[]}
+{"id":5280051,"timestamp":"2026-01-10T01:30:22.854Z","label":"QS","tail":"C-GVEN","text":"CYXSCYVR21082600..09JAN26","stratum":"QS/unparsed","expected":[]}
+{"id":5285940,"timestamp":"2026-01-10T04:43:46.212Z","label":"QS","tail":"SP-RKM","text":"LCPHEPMO2342 104  ","stratum":"QS/unparsed","expected":[]}
+{"id":5313131,"timestamp":"2026-01-10T05:18:59.315Z","label":"QS","tail":"N646QX","text":"KSEACYVR05170057  /PB  051749/E1  051755/E2  051756","stratum":"QS/unparsed","expected":[]}
+{"id":5358048,"timestamp":"2026-01-10T06:16:56.295Z","label":"QS","tail":"EI-HAW","text":"EPLBEGGW2331  77  ","stratum":"QS/unparsed","expected":[]}
+{"id":5363462,"timestamp":"2026-01-10T06:23:41.744Z","label":"QS","tail":"EI-ENM","text":"GCTSEGGP2339  59  ","stratum":"QS/unparsed","expected":[]}
+{"id":5392754,"timestamp":"2026-01-10T07:01:01.195Z","label":"QS","tail":"N661QX","text":"KPDXKMFR06580063  /PB  065807/E1  065813/E2  065812","stratum":"QS/unparsed","expected":[]}
+{"id":5446479,"timestamp":"2026-01-10T08:30:30.139Z","label":"QS","tail":"EI-DPH","text":"EIDWEGNX2148  68  ","stratum":"QS/unparsed","expected":[]}
+{"id":5510839,"timestamp":"2026-01-10T11:51:36.395Z","label":"QS","tail":"PH-YHE","text":"EHAMLEVC0854  29  ADO0856","stratum":"QS/unparsed","expected":[]}
+{"id":5526669,"timestamp":"2026-01-10T12:56:33.259Z","label":"QS","tail":"OE-LSP","text":"LPPRLSZH0908  76   188, 186,  78,  76,EC37AL,134480","stratum":"QS/unparsed","expected":[]}
+{"id":5548846,"timestamp":"2026-01-10T20:02:08.060Z","label":"QS","tail":"9H-QAI","text":"LEBLGMMW1836  70  ","stratum":"QS/unparsed","expected":[]}
+{"id":5601876,"timestamp":"2026-01-10T22:18:54.842Z","label":"QS","tail":"F-HPNY","text":"LFPGLSZH21520030  215208","stratum":"QS/unparsed","expected":[]}
+{"id":5678099,"timestamp":"2026-01-10T23:50:05.761Z","label":"QS","tail":"EI-EBG","text":"EGPFLMML2236  85  ","stratum":"QS/unparsed","expected":[]}
+{"id":6055952,"timestamp":"2026-01-11T07:07:36.401Z","label":"QS","tail":"C-FXMS","text":"MMMZCYVR0332  60  /L1 033629","stratum":"QS/unparsed","expected":[]}
+{"id":6060520,"timestamp":"2026-01-11T07:13:02.263Z","label":"QS","tail":"5Y-FFB","text":"FAORHKJK0342  26  FB 2597","stratum":"QS/unparsed","expected":[]}
+{"id":6119845,"timestamp":"2026-01-11T08:27:22.527Z","label":"QS","tail":"N991NN","text":"KDFWCYVR05120104--OS CYVR /OPN0145/DO 0513/PB 0512/CO 0513/PO 0514/MS 0511/APH 0000000","stratum":"QS/unparsed","expected":[]}
+{"id":6135603,"timestamp":"2026-01-11T08:48:39.856Z","label":"QS","tail":"EI-EML","text":"LEVCEDJA2014  89  ","stratum":"QS/unparsed","expected":[]}
+{"id":6284499,"timestamp":"2026-01-11T12:55:34.556Z","label":"QS","tail":"EC-KLT","text":"GCXOLEVC1218  71  \r\nVY26PB11PD 0921\r\nCD 1219\r\n","stratum":"QS/unparsed","expected":[]}
+{"id":6377082,"timestamp":"2026-01-11T14:24:27.972Z","label":"QS","tail":"EC-KDH","text":"LFPOLEVC1256  70  \r\nVY18WV11PD 1006\r\nCD 1256\r\n","stratum":"QS/unparsed","expected":[]}
+{"id":6689292,"timestamp":"2026-01-12T06:00:03.588Z","label":"QS","tail":"CGJZN","text":"KSEACYVR055902920..","stratum":"QS/unparsed","expected":[]}
+{"id":6691294,"timestamp":"2026-01-12T06:02:34.687Z","label":"QS","tail":"N623QX","text":"KSEACYVR06010063  /PB  060141/E1  060148/E2  060145","stratum":"QS/unparsed","expected":[]}
+{"id":6722891,"timestamp":"2026-01-12T06:43:53.622Z","label":"QS","tail":"9H-QDE","text":"LIRFLEVC0642  74  ","stratum":"QS/unparsed","expected":[]}
+{"id":6751135,"timestamp":"2026-01-12T07:20:51.953Z","label":"QS","tail":"EI-DCM","text":"LICCLMML0719  83  ","stratum":"QS/unparsed","expected":[]}
+{"id":6826033,"timestamp":"2026-01-12T09:09:16.742Z","label":"QS","tail":"EI-EVK","text":"LIRFLMML0906  81  ","stratum":"QS/unparsed","expected":[]}
+{"id":6922483,"timestamp":"2026-01-12T11:32:36.301Z","label":"QS","tail":"9H-QDF","text":"EBCIEPMO2247 122  ","stratum":"QS/unparsed","expected":[]}
+{"id":7140402,"timestamp":"2026-01-12T17:55:30.443Z","label":"QS","tail":"N585QS","text":"KBTVKMQS1644003300/-----/","stratum":"QS/unparsed","expected":[]}
+{"id":7601198,"timestamp":"2026-01-13T08:14:56.797Z","label":"QS","tail":"5Y-KZC","text":"KJFKHKJK0809  8521/FB  8500","stratum":"QS/unparsed","expected":[]}
+{"id":7667583,"timestamp":"2026-01-13T10:07:56.750Z","label":"QS","tail":"N162FE","text":"KMEMKAUS10070165  /INRPT /131426","stratum":"QS/unparsed","expected":[]}
+{"id":7951498,"timestamp":"2026-01-13T16:54:29.325Z","label":"QS","tail":"EC-JTR","text":"LEBBLEVC1516  75  \r\nVY37NX13PD 1121\r\nCD 1518\r\n","stratum":"QS/unparsed","expected":[]}
+{"id":8261339,"timestamp":"2026-01-14T03:04:40.681Z","label":"QS","tail":"TC-LJK","text":"LTFMCYVR012705---- /261301/0129/075D/14100/0115/75/0127","stratum":"QS/unparsed","expected":[]}
+{"id":8332433,"timestamp":"2026-01-17T05:55:54.808Z","label":"QS","tail":"SP-RSW","text":"LIMEEPMO2228  65  ","stratum":"QS/unparsed","expected":[]}
+{"id":8359007,"timestamp":"2026-01-17T06:28:35.987Z","label":"QS","tail":"EI-IHN","text":"GMFOEDLV1938  60  ","stratum":"QS/unparsed","expected":[]}
+{"id":8384576,"timestamp":"2026-01-17T07:02:49.162Z","label":"QS","tail":"ET-AWP","text":"LIMCLSZH0630      DD17/FOB011811","stratum":"QS/unparsed","expected":[]}
+{"id":8386362,"timestamp":"2026-01-17T07:05:56.395Z","label":"QS","tail":"A7-ALI","text":"OTHHLSZH06020188  ","stratum":"QS/unparsed","expected":[]}
+{"id":8412105,"timestamp":"2026-01-17T07:40:11.105Z","label":"QS","tail":"HB-AYQ","text":"LSGGEGHI0645  43    98,  95,  46,  43,DS1583,102080","stratum":"QS/unparsed","expected":[]}
+{"id":8439910,"timestamp":"2026-01-17T08:21:17.799Z","label":"QS","tail":"N637QX","text":"KSEAKMFR07240073  /PB  072415/E1  072418/E2  072418","stratum":"QS/unparsed","expected":[]}
+{"id":8441235,"timestamp":"2026-01-17T08:23:34.080Z","label":"QS","tail":"EI-HES","text":"EIDWEGBB0633  88  ","stratum":"QS/unparsed","expected":[]}
+{"id":8454980,"timestamp":"2026-01-17T08:44:12.105Z","label":"QS","tail":"SP-RZD","text":"EPPOLMML0752  85  ","stratum":"QS/unparsed","expected":[]}
+{"id":8520641,"timestamp":"2026-01-17T10:26:04.807Z","label":"QS","tail":"N413FR","text":"TJSJKPHL1009  73 NO","stratum":"QS/unparsed","expected":[]}
+{"id":8540159,"timestamp":"2026-01-17T10:55:09.036Z","label":"QS","tail":"G-EZOA","text":"EGAAEDNY0912  89   199, 196,  91,  89,U25907,129640","stratum":"QS/unparsed","expected":[]}
+{"id":9239705,"timestamp":"2026-01-18T05:11:10.639Z","label":"QS","tail":"EI-EKD","text":"GMMXEDFH0007  83  ","stratum":"QS/unparsed","expected":[]}
+{"id":9269708,"timestamp":"2026-01-18T05:53:27.484Z","label":"QS","tail":"EI-HGH","text":"LEASEDLV2109  54  ","stratum":"QS/unparsed","expected":[]}
+{"id":9285159,"timestamp":"2026-01-18T06:16:20.974Z","label":"QS","tail":"PH-HBK","text":"LEALEHRD2125  31  ADO2127","stratum":"QS/unparsed","expected":[]}
+{"id":9302509,"timestamp":"2026-01-18T06:42:53.283Z","label":"QS","tail":"9H-QCN","text":"LIMCLEVC0640  64  ","stratum":"QS/unparsed","expected":[]}
+{"id":9506103,"timestamp":"2026-01-18T11:59:15.232Z","label":"QS","tail":"SP-RKV","text":"LGTSEDSB1011  81  ","stratum":"QS/unparsed","expected":[]}
+{"id":9542509,"timestamp":"2026-01-18T13:19:16.514Z","label":"QS","tail":"HZ-A4","text":"OERKLMML1309  47  ","stratum":"QS/unparsed","expected":[]}
+{"id":9673222,"timestamp":"2026-01-18T16:38:54.441Z","label":"QS","tail":"C-GRAX","text":"PHNLCYVR1542 124  /L1 154302","stratum":"QS/unparsed","expected":[]}
+{"id":10104437,"timestamp":"2026-01-19T06:16:52.764Z","label":"QS","tail":"CGGNW","text":"KSEACYVR050704160..","stratum":"QS/unparsed","expected":[]}
+{"id":10132808,"timestamp":"2026-01-19T07:25:10.542Z","label":"QS","tail":"EI-ENV","text":"GCTSEGHH2247  94  ","stratum":"QS/unparsed","expected":[]}
+{"id":10137868,"timestamp":"2026-01-19T07:32:07.120Z","label":"QS","tail":"EC-NNY","text":"LEBBLEVC0729  6911 ","stratum":"QS/unparsed","expected":[]}
+{"id":10197420,"timestamp":"2026-01-19T09:00:34.640Z","label":"QS","tail":"PH-EXZ","text":"EHAMEGHI0855  25  ADO0857","stratum":"QS/unparsed","expected":[]}
+{"id":10253878,"timestamp":"2026-01-19T10:34:25.028Z","label":"QS","tail":"G-EZWZ","text":"EGKKLMML1033  73   231, 226,  76,  73,U274JC,122800","stratum":"QS/unparsed","expected":[]}
+{"id":10297979,"timestamp":"2026-01-19T11:42:11.509Z","label":"QS","tail":"EI-EVR","text":"EIKNEGBB1035  71  ","stratum":"QS/unparsed","expected":[]}
+{"id":10350328,"timestamp":"2026-01-19T12:48:02.233Z","label":"QS","tail":"SP-RKT","text":"LMMLEPMO1040  77  ","stratum":"QS/unparsed","expected":[]}
+{"id":10707803,"timestamp":"2026-01-19T23:48:40.894Z","label":"QS","tail":"EI-HEZ","text":"LIPHLEVC2222  78  ","stratum":"QS/unparsed","expected":[]}
+{"id":10885165,"timestamp":"2026-01-20T05:23:01.097Z","label":"QS","tail":"EI-HGW","text":"LEZLEDLV1307  56  ","stratum":"QS/unparsed","expected":[]}
+{"id":11003039,"timestamp":"2026-01-20T08:02:55.058Z","label":"QS","tail":"PH-EZN","text":"EHAMLSZH0746  33  ADO0747","stratum":"QS/unparsed","expected":[]}
+{"id":11588141,"timestamp":"2026-01-21T22:07:11.709Z","label":"QS","tail":"HA-LXO","text":"EPWALMML1741  47  0,,,/DO 1746,/FN W68399","stratum":"QS/unparsed","expected":[]}
+{"id":11614257,"timestamp":"2026-01-21T22:37:05.118Z","label":"QS","tail":"C-FFBC","text":"CYYZCYVR1755 106  ","stratum":"QS/unparsed","expected":[]}

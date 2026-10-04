@@ -5,7 +5,9 @@
 //
 // A baseline is a directory of JSON Lines files, one per ACARS label
 // (label_<label>.jsonl), each line holding one Case, plus a manifest.json that
-// records how the sample was drawn.
+// records how the sample was drawn and how many cases each file holds. Load
+// rejects a baseline whose files do not match its manifest, so a deleted or
+// truncated file cannot make the gate pass with less coverage.
 package baseline
 
 import (
@@ -46,15 +48,20 @@ type Case struct {
 	Expected []Expectation `json:"expected"`
 }
 
-// Manifest records how a baseline sample was drawn, so that it can be reproduced.
+// Manifest records how a baseline sample was drawn, so that it can be
+// reproduced, and what it contains, so that it can be validated.
 type Manifest struct {
-	Source        string `json:"source"`         // The table the sample was drawn from.
-	Cutoff        string `json:"cutoff"`         // Only messages at or before this timestamp were sampled.
-	PerStratum    int    `json:"per_stratum"`    // The maximum number of cases per stratum.
-	Ordering      string `json:"ordering"`       // The deterministic ordering used within a stratum.
-	Strata        int    `json:"strata"`         // The number of strata sampled.
-	Cases         int    `json:"cases"`          // The number of cases written.
-	ParserVersion string `json:"parser_version"` // The build that recorded the expectations.
+	Source     string `json:"source"`      // The table the sample was drawn from.
+	Cutoff     string `json:"cutoff"`      // Only messages at or before this UTC time were sampled.
+	PerStratum int    `json:"per_stratum"` // The maximum number of cases per stratum.
+	Ordering   string `json:"ordering"`    // The deterministic ordering used within a stratum.
+	Strata     int    `json:"strata"`      // The number of strata sampled.
+	SampledBy  string `json:"sampled_by"`  // The build that drew the sample (it defines the strata).
+	RecordedBy string `json:"recorded_by"` // The build that recorded the current expectations.
+
+	// Set by Save.
+	Cases int            `json:"cases"` // The total number of cases.
+	Files map[string]int `json:"files"` // The number of cases in each label file.
 }
 
 // Message converts the case into the ACARS message that the parsers receive.
@@ -124,9 +131,9 @@ func byParser(es []Expectation) map[string]Expectation {
 	return m
 }
 
-// compareJSON flattens two JSON documents into dotted field paths and reports
-// the fields that were added, removed or changed. Arrays are compared as whole
-// values.
+// compareJSON flattens two JSON documents into JSON Pointer paths (RFC 6901)
+// and reports the fields that were added, removed or changed. Arrays are
+// compared as whole values.
 func compareJSON(want, got json.RawMessage) []string {
 	w := flatten(want)
 	g := flatten(got)
@@ -150,8 +157,9 @@ func compareJSON(want, got json.RawMessage) []string {
 }
 
 // flatten decodes a JSON document and returns its leaf values as compact JSON,
-// keyed by dotted path. A document that is not an object is returned under the
-// empty path.
+// keyed by JSON Pointer path. Escaping "~" and "/" in keys keeps every path
+// unambiguous, so {"a/b":1} and {"a":{"b":1}} never collide. A document that is
+// not an object is returned under the empty path.
 func flatten(doc json.RawMessage) map[string]string {
 	out := make(map[string]string)
 	dec := json.NewDecoder(bytes.NewReader(doc))
@@ -165,14 +173,13 @@ func flatten(doc json.RawMessage) map[string]string {
 	return out
 }
 
+// pointerEscaper escapes a key as a JSON Pointer reference token.
+var pointerEscaper = strings.NewReplacer("~", "~0", "/", "~1")
+
 func flattenValue(prefix string, v interface{}, out map[string]string) {
 	if obj, ok := v.(map[string]interface{}); ok && len(obj) > 0 {
 		for k, child := range obj {
-			path := k
-			if prefix != "" {
-				path = prefix + "." + k
-			}
-			flattenValue(path, child, out)
+			flattenValue(prefix+"/"+pointerEscaper.Replace(k), child, out)
 		}
 		return
 	}
@@ -204,23 +211,63 @@ func labelFileName(label string) string {
 	return "label_" + b.String() + ".jsonl"
 }
 
-// Write replaces the baseline cases in dir: existing label files are removed,
-// and the cases are written one file per label, ordered by ID then stratum.
-// Output is deterministic for a given set of cases.
-func Write(dir string, cases []Case) error {
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return fmt.Errorf("create %s: %w", dir, err)
+// Save replaces the baseline in dir with the given cases and manifest. The new
+// baseline is written in full to a staging directory next to dir and then
+// swapped in, so a failure part-way through leaves the previous baseline
+// intact. The manifest's case and file counts are set from the cases. Output is
+// deterministic for a given set of cases and manifest.
+func Save(dir string, cases []Case, m Manifest) error {
+	dir = filepath.Clean(dir)
+	staging := dir + ".staging"
+	previous := dir + ".previous"
+	if err := os.RemoveAll(staging); err != nil {
+		return fmt.Errorf("clear %s: %w", staging, err)
 	}
-	old, err := filepath.Glob(filepath.Join(dir, "label_*.jsonl"))
-	if err != nil {
-		return err
-	}
-	for _, f := range old {
-		if err := os.Remove(f); err != nil {
-			return fmt.Errorf("remove stale %s: %w", f, err)
-		}
+	if err := os.MkdirAll(staging, 0o755); err != nil {
+		return fmt.Errorf("create %s: %w", staging, err)
 	}
 
+	files, err := writeCases(staging, cases)
+	if err != nil {
+		_ = os.RemoveAll(staging)
+		return err
+	}
+	m.Cases = len(cases)
+	m.Files = files
+	if err := writeManifest(staging, m); err != nil {
+		_ = os.RemoveAll(staging)
+		return err
+	}
+
+	// Swap the staging directory into place, keeping the previous baseline
+	// until the new one is in position.
+	if err := os.RemoveAll(previous); err != nil {
+		return fmt.Errorf("clear %s: %w", previous, err)
+	}
+	hadPrevious := false
+	if _, err := os.Stat(dir); err == nil {
+		if err := os.Rename(dir, previous); err != nil {
+			return fmt.Errorf("move aside %s: %w", dir, err)
+		}
+		hadPrevious = true
+	}
+	if err := os.Rename(staging, dir); err != nil {
+		if hadPrevious {
+			_ = os.Rename(previous, dir)
+		}
+		return fmt.Errorf("install %s: %w", dir, err)
+	}
+	if hadPrevious {
+		if err := os.RemoveAll(previous); err != nil {
+			return fmt.Errorf("remove %s: %w", previous, err)
+		}
+	}
+	return nil
+}
+
+// writeCases writes the cases one file per label, ordered by ID then stratum,
+// and returns the number of cases in each file.
+func writeCases(dir string, cases []Case) (map[string]int, error) {
 	byFile := make(map[string][]Case)
 	for _, c := range cases {
 		if c.Expected == nil {
@@ -230,6 +277,7 @@ func Write(dir string, cases []Case) error {
 		byFile[name] = append(byFile[name], c)
 	}
 
+	counts := make(map[string]int, len(byFile))
 	for name, fileCases := range byFile {
 		sort.Slice(fileCases, func(i, j int) bool {
 			if fileCases[i].ID != fileCases[j].ID {
@@ -242,36 +290,74 @@ func Write(dir string, cases []Case) error {
 		for _, c := range fileCases {
 			b, err := json.Marshal(c)
 			if err != nil {
-				return fmt.Errorf("marshal case %d: %w", c.ID, err)
+				return nil, fmt.Errorf("marshal case %d: %w", c.ID, err)
 			}
 			buf.Write(b)
 			buf.WriteByte('\n')
 		}
 		if err := os.WriteFile(filepath.Join(dir, name), buf.Bytes(), 0o644); err != nil {
-			return fmt.Errorf("write %s: %w", name, err)
+			return nil, fmt.Errorf("write %s: %w", name, err)
 		}
+		counts[name] = len(fileCases)
 	}
-	return nil
+	return counts, nil
 }
 
-// Load reads every baseline case in dir, ordered by label file name and then
-// by the order within each file.
-func Load(dir string) ([]Case, error) {
+func writeManifest(dir string, m Manifest) error {
+	b, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(dir, ManifestFile), append(b, '\n'), 0o644)
+}
+
+// Load reads and validates the baseline in dir. Cases are ordered by label file
+// name and then by their order within each file. It fails if the manifest is
+// missing, or if the label files present, or the number of cases in any of
+// them, differ from the manifest.
+func Load(dir string) ([]Case, Manifest, error) {
+	var m Manifest
+	b, err := os.ReadFile(filepath.Join(dir, ManifestFile))
+	if err != nil {
+		return nil, m, fmt.Errorf("read manifest: %w", err)
+	}
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, m, fmt.Errorf("parse manifest: %w", err)
+	}
+
 	files, err := filepath.Glob(filepath.Join(dir, "label_*.jsonl"))
 	if err != nil {
-		return nil, err
+		return nil, m, err
 	}
 	sort.Strings(files)
 
 	var cases []Case
+	seen := make(map[string]bool, len(files))
 	for _, f := range files {
+		name := filepath.Base(f)
+		want, listed := m.Files[name]
+		if !listed {
+			return nil, m, fmt.Errorf("%s is not listed in the manifest", name)
+		}
 		fileCases, err := loadFile(f)
 		if err != nil {
-			return nil, err
+			return nil, m, err
 		}
+		if len(fileCases) != want {
+			return nil, m, fmt.Errorf("%s holds %d cases, the manifest records %d", name, len(fileCases), want)
+		}
+		seen[name] = true
 		cases = append(cases, fileCases...)
 	}
-	return cases, nil
+	for name := range m.Files {
+		if !seen[name] {
+			return nil, m, fmt.Errorf("%s is listed in the manifest but missing", name)
+		}
+	}
+	if len(cases) != m.Cases {
+		return nil, m, fmt.Errorf("baseline holds %d cases, the manifest records %d", len(cases), m.Cases)
+	}
+	return cases, m, nil
 }
 
 func loadFile(path string) ([]Case, error) {
@@ -301,13 +387,4 @@ func loadFile(path string) ([]Case, error) {
 		return nil, fmt.Errorf("read %s: %w", path, err)
 	}
 	return cases, nil
-}
-
-// WriteManifest writes the manifest describing how the baseline was drawn.
-func WriteManifest(dir string, m Manifest) error {
-	b, err := json.MarshalIndent(m, "", "  ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(filepath.Join(dir, ManifestFile), append(b, '\n'), 0o644)
 }

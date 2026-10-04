@@ -1,100 +1,100 @@
-{"id":207076,"timestamp":"2026-01-03 05:02:58.967","label":"3C","tail":"N929EV","flight":"OO4715","text":" 25,  1,  6,   0,   0,UA 05:03,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":404119,"timestamp":"2026-01-03 19:27:20.387","label":"3C","tail":"TC-LGR","flight":"TK57","text":"054762,TOY ,094470,TOPA,,,,,","stratum":"3C/unparsed","expected":[]}
-{"id":451293,"timestamp":"2026-01-03 19:59:14.074","label":"3C","tail":"PH-BQI","text":"NOTAMSKKKL031254\n\tNOTOC EDN1 FINAL\n\tAMSKL743   03JAN26PHBQI","stratum":"3C/unparsed","expected":[]}
-{"id":490987,"timestamp":"2026-01-03 21:25:15.658","label":"3C","tail":"N171SY","flight":"OO3457","text":"56,0,5,0,0,28,1,0,0,0,AC 21:05,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":571794,"timestamp":"2026-01-04 01:16:04.080","label":"3C","tail":"PH-BQD","text":"NOTAMSKKKL040114\n\tNOTOC EDN1 FINAL\n\tDELKL872   04JAN26PHBQD","stratum":"3C/unparsed","expected":[]}
-{"id":679177,"timestamp":"2026-01-04 09:25:41.193","label":"3C","tail":"PH-BQI","text":"NOTAMSKKKL040925\n\tNOTOC EDN1 FINAL\n\tAMSKL661   04JAN26PHBQI","stratum":"3C/unparsed","expected":[]}
-{"id":703490,"timestamp":"2026-01-04 10:15:54.126","label":"3C","tail":"PH-BVR","text":"NOTAMSKKKL041015\n\tNOTOC EDN1 FINAL\n\tAMSKL735   04JAN26PHBVR","stratum":"3C/unparsed","expected":[]}
-{"id":861469,"timestamp":"2026-01-04 16:15:40.241","label":"3C","tail":"PH-BVW","text":"NOTAMSKKKL041615\n\tNOTOC EDN1 FINAL\n\tAMSKL617   04JAN26PHBVW","stratum":"3C/unparsed","expected":[]}
-{"id":874509,"timestamp":"2026-01-04 16:40:37.063","label":"3C","tail":"PH-BHE","text":"NOTAMSKKKL041640\n\tNOTOC EDN1 FINAL\n\tAMSKL759   04JAN26PHBHE","stratum":"3C/unparsed","expected":[]}
-{"id":1083125,"timestamp":"2026-01-05 00:29:56.874","label":"3C","tail":"TC-JOA","flight":"TK5DV","text":"054392YUKS106763GUL ","stratum":"3C/unparsed","expected":[]}
-{"id":1093280,"timestamp":"2026-01-04 20:51:02.633","label":"3C","tail":"N131SY","flight":"OO5248","text":"36,2,0,0,35,0,0,0,0,0,UA 18:43,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":1210349,"timestamp":"2026-01-05 04:14:28.392","label":"3C","tail":"TC-LHG","text":"058537,SAYI,094089,COSK,095343,KOSE,,,","stratum":"3C/unparsed","expected":[]}
-{"id":1316550,"timestamp":"2026-01-05 06:04:05.395","label":"3C","tail":"PH-BVW","flight":"KL792   ","text":"NOTAMSKKKL050512\r\nNOTOC EDN1 FINAL\r\nBOSKL618   04JAN26PHBVW","stratum":"3C/unparsed","expected":[]}
-{"id":1571680,"timestamp":"2026-01-05 12:28:10.924","label":"3C","tail":"N982SW","flight":"OO5031","text":" 28,  0, 18,   0,   7,UA 12:28,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":1616750,"timestamp":"2026-01-05 12:40:21.840","label":"3C","tail":"N928EV","flight":"OO5510","text":" 50,  0, 16,   0,   0,UA 12:40,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":1741309,"timestamp":"2026-01-05 16:37:21.469","label":"3C","tail":"N604SK","flight":"OO6410","text":"0,0,0,0,0,16,4,12,0,0,0,0,0,0,0,AA 14:08,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":1973232,"timestamp":"2026-01-05 14:09:54.714","label":"3C","tail":"N786SK","flight":"OO5812","text":"0,0,3,0,0,56,3,17,0,0,0,0,0,0,0,UA 14:10,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":1973614,"timestamp":"2026-01-05 14:09:54.714","label":"3C","tail":"N786SK","flight":"OO5812","text":"0,0,3,0,0,56,3,17,0,0,0,0,0,0,0,UA 14:10,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":2141607,"timestamp":"2026-01-06 07:59:17.525","label":"3C","tail":"PH-BVU","text":"NOTAMSKKKL060759\n\tNOTOC EDN1 FINAL\n\tAMSKL713   06JAN26PHBVU","stratum":"3C/unparsed","expected":[]}
-{"id":2341743,"timestamp":"2026-01-06 14:09:17.458","label":"3C","tail":"PH-BVS","text":"NOTAMSKKKL061409\n\tNOTOC EDN1 FINAL\n\tAMSKL589   06JAN26PHBVS","stratum":"3C/unparsed","expected":[]}
-{"id":2498833,"timestamp":"2026-01-06 19:19:13.807","label":"3C","tail":"PH-BHG","text":"NOTAMSKKKL061919\n\tNOTOC EDN1 FINAL\n\tAMSKL809   06JAN26PHBHG","stratum":"3C/unparsed","expected":[]}
-{"id":2498837,"timestamp":"2026-01-06 19:19:13.856","label":"3C","tail":"PH-BHG","text":"NOTAMSKKKL061919\n\tNOTOC EDN1 FINAL\n\tAMSKL809   06JAN26PHBHG","stratum":"3C/unparsed","expected":[]}
-{"id":2909472,"timestamp":"2026-01-07 06:46:20.217","label":"3C","tail":"TC-LGK","text":"055928,ANBA,064782,GUZE,093120,COLA,,,","stratum":"3C/unparsed","expected":[]}
-{"id":3177311,"timestamp":"2026-01-07 13:01:33.280","label":"3C","tail":"PH-BQD","text":"NOTAMSKKKL071301\n\tNOTOC EDN1 FINAL\n\tAMSKL895   07JAN26PHBQD","stratum":"3C/unparsed","expected":[]}
-{"id":3185595,"timestamp":"2026-01-07 13:17:02.606","label":"3C","tail":"PH-AOA","text":"NOTAMSKKKL071316\n\tNOTOC EDN1 FINAL\n\tAMSKL733   07JAN26PHAOA","stratum":"3C/unparsed","expected":[]}
-{"id":3185607,"timestamp":"2026-01-07 13:17:03.217","label":"3C","tail":"PH-AOA","text":"NOTAMSKKKL071316\n\tNOTOC EDN1 FINAL\n\tAMSKL733   07JAN26PHAOA","stratum":"3C/unparsed","expected":[]}
-{"id":3249397,"timestamp":"2026-01-07 16:03:22.921","label":"3C","tail":"PH-BVV","text":"NOTAMSKKKL071603\n\tNOTOC EDN1 FINAL\n\tAMSKL617   07JAN26PHBVV","stratum":"3C/unparsed","expected":[]}
-{"id":3249404,"timestamp":"2026-01-07 16:03:24.002","label":"3C","tail":"PH-BVV","text":"NOTAMSKKKL071603\n\tNOTOC EDN1 FINAL\n\tAMSKL617   07JAN26PHBVV","stratum":"3C/unparsed","expected":[]}
-{"id":3249409,"timestamp":"2026-01-07 14:25:09.731","label":"3C","tail":"N740SK","flight":"OO6325","text":"0,0,27,0,0,25,1,0,0,0,0,0,0,0,0,AA 11:48,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":3310578,"timestamp":"2026-01-07 17:54:37.834","label":"3C","tail":"TC-LHE","text":"059171,ULGE,059252,DEMI,094470,TOPA,,,","stratum":"3C/unparsed","expected":[]}
-{"id":3474853,"timestamp":"2026-01-07 20:53:45.967","label":"3C","tail":"N601UX","flight":"OO4700","text":"38,1,0,0,0,0,0,0,0,0,UA 19:29,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":3536467,"timestamp":"2026-01-07 22:09:51.887","label":"3C","tail":"N143SY","flight":"OO5617","text":"24,1,10,0,0,0,0,0,0,0,UA 20:17,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":4110962,"timestamp":"2026-01-08 19:45:50.170","label":"3C","tail":"TC-JOD","flight":"TK7CG","text":"070435AKYA068600KAYA094650UZUN","stratum":"3C/unparsed","expected":[]}
-{"id":4127898,"timestamp":"2026-01-08 21:57:57.446","label":"3C","tail":"PH-BHO","text":"NOTAMSKKKL081359\n\tNOTOC EDN1 FINAL\n\tAMSKL685   08JAN26PHBHO","stratum":"3C/unparsed","expected":[]}
-{"id":4183406,"timestamp":"2026-01-09 00:46:50.754","label":"3C","tail":"N256SY","text":"48,2,0,0,24,0,0,0,0,0,DL 00:36,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":4303764,"timestamp":"2026-01-09 02:51:47.712","label":"3C","tail":"N794SK","flight":"OO5706","text":"0,0,0,0,0,19,4,6,0,0,0,0,0,0,0,UA 01:19,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":4800300,"timestamp":"2026-01-09 15:37:29.224","label":"3C","tail":"N207SY","text":"28,3,0,0,5,0,0,0,0,0,UA 14:55,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":4919761,"timestamp":"2026-01-09 14:54:54.850","label":"3C","tail":"N946SW","text":" 30,  2, 14,   0,   0,UA 14:55,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":4967646,"timestamp":"2026-01-09 19:58:28.114","label":"3C","tail":"N751SK","text":"0,0,0,0,0,28,2,0,0,0,0,0,0,0,0,AA 18:49,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":5004448,"timestamp":"2026-01-09 20:34:23.608","label":"3C","tail":"N274SY","flight":"OO4052","text":"49,2,0,0,0,0,0,0,0,0,DL 19:33,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":5073358,"timestamp":"2026-01-09 22:01:42.081","label":"3C","tail":"N751SK","flight":"OO6431","text":"1,0,17,0,0,40,2,0,0,0,0,0,0,0,0,AA 20:27,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":5191006,"timestamp":"2026-01-10 02:45:11.343","label":"3C","tail":"TC-LHH","text":"043884,AKDE,066857,IACO,088406,KALE,,,","stratum":"3C/unparsed","expected":[]}
-{"id":5490613,"timestamp":"2026-01-10 11:44:32.709","label":"3C","tail":"TC-LGZ","flight":"TK209","text":"050204,GUND,071116,KAYN,093398,KILI,,,","stratum":"3C/unparsed","expected":[]}
-{"id":5546307,"timestamp":"2026-01-10 19:55:32.833","label":"3C","tail":"N788SK","text":"8,0,1,0,0,6,0,0,0,0,0,0,0,0,0,UA 19:30,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":5588246,"timestamp":"2026-01-10 22:13:26.648","label":"3C","tail":"TC-JNN","text":"069415ERSA103801SEN ","stratum":"3C/unparsed","expected":[]}
-{"id":5725056,"timestamp":"2026-01-11 01:43:17.454","label":"3C","tail":"TC-LGP","text":"013385,OZMU,058186,KIVR,095343,KOSE,,,","stratum":"3C/unparsed","expected":[]}
-{"id":5780849,"timestamp":"2026-01-11 01:36:55.865","label":"3C","tail":"N85376","flight":"OO5957","text":"51,7,6,0,0,0,0,0,0,0,UA 00:16,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":5891646,"timestamp":"2026-01-11 03:46:05.363","label":"3C","tail":"N165SY","flight":"OO5596","text":"38,1,4,0,0,0,0,0,0,0,UA 01:52,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":6173836,"timestamp":"2026-01-11 10:42:48.989","label":"3C","tail":"TC-JOI","text":"054836TOY 094401KESA054351CELI","stratum":"3C/unparsed","expected":[]}
-{"id":6238983,"timestamp":"2026-01-11 12:15:18.940","label":"3C","tail":"TC-LGV","text":"063231,AKPI,062500,OZTO,097057,AYAZ,,,","stratum":"3C/unparsed","expected":[]}
-{"id":6238986,"timestamp":"2026-01-11 12:15:19.030","label":"3C","tail":"TC-LGV","text":"063231,AKPI,062500,OZTO,097057,AYAZ,,,","stratum":"3C/unparsed","expected":[]}
-{"id":6238995,"timestamp":"2026-01-11 12:15:19.883","label":"3C","tail":"TC-LGV","text":"063231,AKPI,062500,OZTO,097057,AYAZ,,,","stratum":"3C/unparsed","expected":[]}
-{"id":6321583,"timestamp":"2026-01-11 13:33:34.127","label":"3C","tail":"N307SY","flight":"OO4080","text":"34,5,0,0,0,0,0,0,0,0,DL 12:48,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":6880544,"timestamp":"2026-01-12 03:58:25.129","label":"3C","tail":"N699BR","text":" 24,  0, 20, 600,   0,UA 03:58,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":6980777,"timestamp":"2026-01-12 13:19:08.488","label":"3C","tail":"TC-LGY","text":"040148,SOYG,046300,TOPU,094644,KARA,,,","stratum":"3C/unparsed","expected":[]}
-{"id":7177394,"timestamp":"2026-01-12 18:38:58.692","label":"3C","tail":"N748EV","flight":"OO4972","text":"0,0,32,0,0,25,3,0,0,0,0,0,0,0,0,AA 18:12,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":7383064,"timestamp":"2026-01-13 02:10:57.993","label":"3C","tail":"TC-JOH","text":"070435AKYA107959KAYA","stratum":"3C/unparsed","expected":[]}
-{"id":7383066,"timestamp":"2026-01-13 02:10:58.110","label":"3C","tail":"TC-JOH","text":"070435AKYA107959KAYA","stratum":"3C/unparsed","expected":[]}
-{"id":7383067,"timestamp":"2026-01-13 02:10:58.116","label":"3C","tail":"TC-JOH","text":"070435AKYA107959KAYA","stratum":"3C/unparsed","expected":[]}
-{"id":7422272,"timestamp":"2026-01-13 03:16:27.919","label":"3C","tail":"TC-LGO","text":"057097,VURG,058834,GURE,097093,CERI,,,","stratum":"3C/unparsed","expected":[]}
-{"id":7521170,"timestamp":"2026-01-13 02:03:50.063","label":"3C","tail":"N601UX","flight":"OO4700","text":"35,0,16,0,0,0,0,0,0,0,UA 21:44,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":7521510,"timestamp":"2026-01-13 05:51:27.496","label":"3C","tail":"TC-LGP","text":"053662,TANE,054346,AKDE,095360,KANT,,,","stratum":"3C/unparsed","expected":[]}
-{"id":7623060,"timestamp":"2026-01-13 08:54:15.466","label":"3C","tail":"PH-BQN","text":"NOTAMSKKKL130854\n\tNOTOC EDN1 FINAL\n\tKULKL809   13JAN26PHBQN","stratum":"3C/unparsed","expected":[]}
-{"id":7623061,"timestamp":"2026-01-13 08:54:15.508","label":"3C","tail":"PH-BQN","text":"NOTAMSKKKL130854\n\tNOTOC EDN1 FINAL\n\tKULKL809   13JAN26PHBQN","stratum":"3C/unparsed","expected":[]}
-{"id":7640496,"timestamp":"2026-01-13 09:24:25.190","label":"3C","tail":"TC-LGP","text":"053662,TANE,054346,AKDE,095360,KANT,,,","stratum":"3C/unparsed","expected":[]}
-{"id":7749109,"timestamp":"2026-01-13 12:13:19.307","label":"3C","tail":"N140SY","flight":"OO5381","text":"36,1,1,0,0,0,0,0,0,0,UA 11:46,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":7751400,"timestamp":"2026-01-13 12:31:51.177","label":"3C","tail":"TC-LGY","text":"079547,VAN ,067163,AVCI,097509,ERDO,,,","stratum":"3C/unparsed","expected":[]}
-{"id":7751407,"timestamp":"2026-01-13 12:31:51.533","label":"3C","tail":"TC-LGY","text":"079547,VAN ,067163,AVCI,097509,ERDO,,,","stratum":"3C/unparsed","expected":[]}
-{"id":7760761,"timestamp":"2026-01-13 12:25:52.272","label":"3C","tail":"TC-JVY","text":"089085,KESI,067126,SUER,,,,,","stratum":"3C/unparsed","expected":[]}
-{"id":7878543,"timestamp":"2026-01-13 16:11:38.146","label":"3C","tail":"TC-LNC","text":"058881DINC098819VAKH103676DUMA","stratum":"3C/unparsed","expected":[]}
-{"id":7934144,"timestamp":"2026-01-13 17:52:15.891","label":"3C","tail":"TC-LHI","text":"058874,ACAR,053374,ORHA,094401,KESA,,,","stratum":"3C/unparsed","expected":[]}
-{"id":8283136,"timestamp":"2026-01-14 03:31:34.630","label":"3C","tail":"N85374","flight":"OO5894","text":"28,2,5,0,94,0,0,0,0,0,UA 02:34,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":8376091,"timestamp":"2026-01-17 06:53:29.818","label":"3C","tail":"N221PS","text":"25,1,12,0,0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,UA 04:59,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":8795556,"timestamp":"2026-01-17 16:06:25.578","label":"3C","tail":"N204SY","flight":"OO5646","text":"39,1,0,0,1,0,0,0,0,0,UA 14:49,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":9031906,"timestamp":"2026-01-18 00:50:42.397","label":"3C","tail":"N797SK","flight":"OO5519","text":"0,0,0,0,0,36,0,10,0,0,0,0,0,0,0,UA 00:49,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":9082084,"timestamp":"2026-01-18 01:57:18.174","label":"3C","tail":"TC-LHD","flight":"TK09WC","text":"080663,KARA,093455,TOMR,093405,TAME,,,","stratum":"3C/unparsed","expected":[]}
-{"id":9129814,"timestamp":"2026-01-18 02:42:23.086","label":"3C","tail":"N203SY","text":"57,1,1,0,0,0,0,0,0,0,UA 01:57,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":9701098,"timestamp":"2026-01-18 17:17:15.073","label":"3C","tail":"N797SK","flight":"OO5519","text":"0,0,0,0,0,16,4,14,0,0,0,0,0,0,0,UA 16:19,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":9791624,"timestamp":"2026-01-18 19:11:49.409","label":"3C","tail":"N85363","flight":"OO5892","text":"32,0,0,0,0,0,0,0,0,0,UA 17:24,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":10119662,"timestamp":"2026-01-19 06:36:09.857","label":"3C","tail":"N221PS","text":"26,1,17,0,7,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,UA 04:50,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":10324696,"timestamp":"2026-01-19 12:33:16.447","label":"3C","tail":"TC-LGE","text":"079560,URFA,093241,KABO,094118,ARSE,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10324703,"timestamp":"2026-01-19 12:33:16.914","label":"3C","tail":"TC-LGE","text":"079560,URFA,093241,KABO,094118,ARSE,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10383202,"timestamp":"2026-01-19 14:19:55.962","label":"3C","tail":"TC-LHF","flight":"TK8DE","text":"074604,OZDE,092808,TOPC,093106,YAVU,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10391868,"timestamp":"2026-01-19 14:21:50.070","label":"3C","tail":"N705SK","flight":"OO4975","text":"0,0,0,0,0,20,0,12,0,0,0,0,0,0,0,AA 14:02,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":10443327,"timestamp":"2026-01-19 16:08:32.940","label":"3C","tail":"TC-LGP","text":"055540,OZ  ,093289,AYAN,097525,YESI,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10512162,"timestamp":"2026-01-19 17:16:20.992","label":"3C","tail":"N78361","flight":"OO4756","text":"13,2,4,0,0,0,0,0,0,0,UA 15:52,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":10594849,"timestamp":"2026-01-19 19:01:24.977","label":"3C","tail":"N85363","flight":"OO5892","text":"6,0,1,0,0,0,0,0,0,0,UA 17:25,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":10704123,"timestamp":"2026-01-20 00:43:02.371","label":"3C","tail":"TC-LGF","text":"054355,ERDO,067172,KURT,097199,CELI,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10771232,"timestamp":"2026-01-19 14:19:04.868","label":"3C","tail":"N924SW","text":" 18,  2, 15,   0,   0,UA 14:19,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":10793313,"timestamp":"2026-01-20 03:34:12.812","label":"3C","tail":"TC-LGE","text":"064781,IGDI,094452,AYKE,094467,PEHL,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10819803,"timestamp":"2026-01-20 04:11:39.457","label":"3C","tail":"TC-LHI","text":"055930,ILIK,058184,GULB,071840,CIL ,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10881269,"timestamp":"2026-01-20 05:29:42.849","label":"3C","tail":"TC-LGI","text":"055556,VARG,090024,GURC,097076,DOGA,,,","stratum":"3C/unparsed","expected":[]}
-{"id":10957512,"timestamp":"2026-01-20 06:58:17.638","label":"3C","tail":"N84378","flight":"OO5382","text":"25,0,3,0,125,0,0,0,0,0,UA 06:34,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":11012136,"timestamp":"2026-01-20 08:16:21.927","label":"3C","tail":"PH-EZN","text":"FUEOCCOVKL200753004744","stratum":"3C/unparsed","expected":[]}
-{"id":11042651,"timestamp":"2026-01-20 09:04:18.787","label":"3C","tail":"PH-BQN","text":"NOTAMSKKKL200904\n\tNOTOC EDN1 FINAL\n\tAMSKL751   20JAN26PHBQN","stratum":"3C/unparsed","expected":[]}
-{"id":11210639,"timestamp":"2026-01-20 13:29:16.104","label":"3C","tail":"PH-BVG","text":"NOTAMSKKKL201329\n\tNOTOC EDN1 FINAL\n\tAMSKL589   20JAN26PHBVG","stratum":"3C/unparsed","expected":[]}
-{"id":11210645,"timestamp":"2026-01-20 13:29:16.302","label":"3C","tail":"PH-BVG","text":"NOTAMSKKKL201329\n\tNOTOC EDN1 FINAL\n\tAMSKL589   20JAN26PHBVG","stratum":"3C/unparsed","expected":[]}
-{"id":11363003,"timestamp":"2026-01-21 17:59:11.220","label":"3C","tail":"TC-LNE","flight":"TK735","text":"068891MUKA097859OZTU","stratum":"3C/unparsed","expected":[]}
-{"id":11432964,"timestamp":"2026-01-21 18:27:26.578","label":"3C","tail":"N317SY","flight":"OO4104","text":"36,14,1,0,0,0,0,0,0,0,DL 17:08,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
-{"id":11623652,"timestamp":"2026-01-21 22:48:18.235","label":"3C","tail":"N114SY","text":"15,0,0,0,0,0,0,0,0,0,UA 16:39,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":207076,"timestamp":"2026-01-03T05:02:58.967Z","label":"3C","tail":"N929EV","flight":"OO4715","text":" 25,  1,  6,   0,   0,UA 05:03,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":404119,"timestamp":"2026-01-03T19:27:20.387Z","label":"3C","tail":"TC-LGR","flight":"TK57","text":"054762,TOY ,094470,TOPA,,,,,","stratum":"3C/unparsed","expected":[]}
+{"id":451293,"timestamp":"2026-01-03T19:59:14.074Z","label":"3C","tail":"PH-BQI","text":"NOTAMSKKKL031254\n\tNOTOC EDN1 FINAL\n\tAMSKL743   03JAN26PHBQI","stratum":"3C/unparsed","expected":[]}
+{"id":490987,"timestamp":"2026-01-03T21:25:15.658Z","label":"3C","tail":"N171SY","flight":"OO3457","text":"56,0,5,0,0,28,1,0,0,0,AC 21:05,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":571794,"timestamp":"2026-01-04T01:16:04.080Z","label":"3C","tail":"PH-BQD","text":"NOTAMSKKKL040114\n\tNOTOC EDN1 FINAL\n\tDELKL872   04JAN26PHBQD","stratum":"3C/unparsed","expected":[]}
+{"id":679177,"timestamp":"2026-01-04T09:25:41.193Z","label":"3C","tail":"PH-BQI","text":"NOTAMSKKKL040925\n\tNOTOC EDN1 FINAL\n\tAMSKL661   04JAN26PHBQI","stratum":"3C/unparsed","expected":[]}
+{"id":703490,"timestamp":"2026-01-04T10:15:54.126Z","label":"3C","tail":"PH-BVR","text":"NOTAMSKKKL041015\n\tNOTOC EDN1 FINAL\n\tAMSKL735   04JAN26PHBVR","stratum":"3C/unparsed","expected":[]}
+{"id":861469,"timestamp":"2026-01-04T16:15:40.241Z","label":"3C","tail":"PH-BVW","text":"NOTAMSKKKL041615\n\tNOTOC EDN1 FINAL\n\tAMSKL617   04JAN26PHBVW","stratum":"3C/unparsed","expected":[]}
+{"id":874509,"timestamp":"2026-01-04T16:40:37.063Z","label":"3C","tail":"PH-BHE","text":"NOTAMSKKKL041640\n\tNOTOC EDN1 FINAL\n\tAMSKL759   04JAN26PHBHE","stratum":"3C/unparsed","expected":[]}
+{"id":1083125,"timestamp":"2026-01-05T00:29:56.874Z","label":"3C","tail":"TC-JOA","flight":"TK5DV","text":"054392YUKS106763GUL ","stratum":"3C/unparsed","expected":[]}
+{"id":1093280,"timestamp":"2026-01-04T20:51:02.633Z","label":"3C","tail":"N131SY","flight":"OO5248","text":"36,2,0,0,35,0,0,0,0,0,UA 18:43,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":1210349,"timestamp":"2026-01-05T04:14:28.392Z","label":"3C","tail":"TC-LHG","text":"058537,SAYI,094089,COSK,095343,KOSE,,,","stratum":"3C/unparsed","expected":[]}
+{"id":1316550,"timestamp":"2026-01-05T06:04:05.395Z","label":"3C","tail":"PH-BVW","flight":"KL792   ","text":"NOTAMSKKKL050512\r\nNOTOC EDN1 FINAL\r\nBOSKL618   04JAN26PHBVW","stratum":"3C/unparsed","expected":[]}
+{"id":1571680,"timestamp":"2026-01-05T12:28:10.924Z","label":"3C","tail":"N982SW","flight":"OO5031","text":" 28,  0, 18,   0,   7,UA 12:28,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":1616750,"timestamp":"2026-01-05T12:40:21.840Z","label":"3C","tail":"N928EV","flight":"OO5510","text":" 50,  0, 16,   0,   0,UA 12:40,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":1741309,"timestamp":"2026-01-05T16:37:21.469Z","label":"3C","tail":"N604SK","flight":"OO6410","text":"0,0,0,0,0,16,4,12,0,0,0,0,0,0,0,AA 14:08,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":1973232,"timestamp":"2026-01-05T14:09:54.714Z","label":"3C","tail":"N786SK","flight":"OO5812","text":"0,0,3,0,0,56,3,17,0,0,0,0,0,0,0,UA 14:10,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":1973614,"timestamp":"2026-01-05T14:09:54.714Z","label":"3C","tail":"N786SK","flight":"OO5812","text":"0,0,3,0,0,56,3,17,0,0,0,0,0,0,0,UA 14:10,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":2141607,"timestamp":"2026-01-06T07:59:17.525Z","label":"3C","tail":"PH-BVU","text":"NOTAMSKKKL060759\n\tNOTOC EDN1 FINAL\n\tAMSKL713   06JAN26PHBVU","stratum":"3C/unparsed","expected":[]}
+{"id":2341743,"timestamp":"2026-01-06T14:09:17.458Z","label":"3C","tail":"PH-BVS","text":"NOTAMSKKKL061409\n\tNOTOC EDN1 FINAL\n\tAMSKL589   06JAN26PHBVS","stratum":"3C/unparsed","expected":[]}
+{"id":2498833,"timestamp":"2026-01-06T19:19:13.807Z","label":"3C","tail":"PH-BHG","text":"NOTAMSKKKL061919\n\tNOTOC EDN1 FINAL\n\tAMSKL809   06JAN26PHBHG","stratum":"3C/unparsed","expected":[]}
+{"id":2498837,"timestamp":"2026-01-06T19:19:13.856Z","label":"3C","tail":"PH-BHG","text":"NOTAMSKKKL061919\n\tNOTOC EDN1 FINAL\n\tAMSKL809   06JAN26PHBHG","stratum":"3C/unparsed","expected":[]}
+{"id":2909472,"timestamp":"2026-01-07T06:46:20.217Z","label":"3C","tail":"TC-LGK","text":"055928,ANBA,064782,GUZE,093120,COLA,,,","stratum":"3C/unparsed","expected":[]}
+{"id":3177311,"timestamp":"2026-01-07T13:01:33.280Z","label":"3C","tail":"PH-BQD","text":"NOTAMSKKKL071301\n\tNOTOC EDN1 FINAL\n\tAMSKL895   07JAN26PHBQD","stratum":"3C/unparsed","expected":[]}
+{"id":3185595,"timestamp":"2026-01-07T13:17:02.606Z","label":"3C","tail":"PH-AOA","text":"NOTAMSKKKL071316\n\tNOTOC EDN1 FINAL\n\tAMSKL733   07JAN26PHAOA","stratum":"3C/unparsed","expected":[]}
+{"id":3185607,"timestamp":"2026-01-07T13:17:03.217Z","label":"3C","tail":"PH-AOA","text":"NOTAMSKKKL071316\n\tNOTOC EDN1 FINAL\n\tAMSKL733   07JAN26PHAOA","stratum":"3C/unparsed","expected":[]}
+{"id":3249397,"timestamp":"2026-01-07T16:03:22.921Z","label":"3C","tail":"PH-BVV","text":"NOTAMSKKKL071603\n\tNOTOC EDN1 FINAL\n\tAMSKL617   07JAN26PHBVV","stratum":"3C/unparsed","expected":[]}
+{"id":3249404,"timestamp":"2026-01-07T16:03:24.002Z","label":"3C","tail":"PH-BVV","text":"NOTAMSKKKL071603\n\tNOTOC EDN1 FINAL\n\tAMSKL617   07JAN26PHBVV","stratum":"3C/unparsed","expected":[]}
+{"id":3249409,"timestamp":"2026-01-07T14:25:09.731Z","label":"3C","tail":"N740SK","flight":"OO6325","text":"0,0,27,0,0,25,1,0,0,0,0,0,0,0,0,AA 11:48,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":3310578,"timestamp":"2026-01-07T17:54:37.834Z","label":"3C","tail":"TC-LHE","text":"059171,ULGE,059252,DEMI,094470,TOPA,,,","stratum":"3C/unparsed","expected":[]}
+{"id":3474853,"timestamp":"2026-01-07T20:53:45.967Z","label":"3C","tail":"N601UX","flight":"OO4700","text":"38,1,0,0,0,0,0,0,0,0,UA 19:29,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":3536467,"timestamp":"2026-01-07T22:09:51.887Z","label":"3C","tail":"N143SY","flight":"OO5617","text":"24,1,10,0,0,0,0,0,0,0,UA 20:17,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":4110962,"timestamp":"2026-01-08T19:45:50.170Z","label":"3C","tail":"TC-JOD","flight":"TK7CG","text":"070435AKYA068600KAYA094650UZUN","stratum":"3C/unparsed","expected":[]}
+{"id":4127898,"timestamp":"2026-01-08T21:57:57.446Z","label":"3C","tail":"PH-BHO","text":"NOTAMSKKKL081359\n\tNOTOC EDN1 FINAL\n\tAMSKL685   08JAN26PHBHO","stratum":"3C/unparsed","expected":[]}
+{"id":4183406,"timestamp":"2026-01-09T00:46:50.754Z","label":"3C","tail":"N256SY","text":"48,2,0,0,24,0,0,0,0,0,DL 00:36,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":4303764,"timestamp":"2026-01-09T02:51:47.712Z","label":"3C","tail":"N794SK","flight":"OO5706","text":"0,0,0,0,0,19,4,6,0,0,0,0,0,0,0,UA 01:19,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":4800300,"timestamp":"2026-01-09T15:37:29.224Z","label":"3C","tail":"N207SY","text":"28,3,0,0,5,0,0,0,0,0,UA 14:55,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":4919761,"timestamp":"2026-01-09T14:54:54.850Z","label":"3C","tail":"N946SW","text":" 30,  2, 14,   0,   0,UA 14:55,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":4967646,"timestamp":"2026-01-09T19:58:28.114Z","label":"3C","tail":"N751SK","text":"0,0,0,0,0,28,2,0,0,0,0,0,0,0,0,AA 18:49,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":5004448,"timestamp":"2026-01-09T20:34:23.608Z","label":"3C","tail":"N274SY","flight":"OO4052","text":"49,2,0,0,0,0,0,0,0,0,DL 19:33,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":5073358,"timestamp":"2026-01-09T22:01:42.081Z","label":"3C","tail":"N751SK","flight":"OO6431","text":"1,0,17,0,0,40,2,0,0,0,0,0,0,0,0,AA 20:27,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":5191006,"timestamp":"2026-01-10T02:45:11.343Z","label":"3C","tail":"TC-LHH","text":"043884,AKDE,066857,IACO,088406,KALE,,,","stratum":"3C/unparsed","expected":[]}
+{"id":5490613,"timestamp":"2026-01-10T11:44:32.709Z","label":"3C","tail":"TC-LGZ","flight":"TK209","text":"050204,GUND,071116,KAYN,093398,KILI,,,","stratum":"3C/unparsed","expected":[]}
+{"id":5546307,"timestamp":"2026-01-10T19:55:32.833Z","label":"3C","tail":"N788SK","text":"8,0,1,0,0,6,0,0,0,0,0,0,0,0,0,UA 19:30,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":5588246,"timestamp":"2026-01-10T22:13:26.648Z","label":"3C","tail":"TC-JNN","text":"069415ERSA103801SEN ","stratum":"3C/unparsed","expected":[]}
+{"id":5725056,"timestamp":"2026-01-11T01:43:17.454Z","label":"3C","tail":"TC-LGP","text":"013385,OZMU,058186,KIVR,095343,KOSE,,,","stratum":"3C/unparsed","expected":[]}
+{"id":5780849,"timestamp":"2026-01-11T01:36:55.865Z","label":"3C","tail":"N85376","flight":"OO5957","text":"51,7,6,0,0,0,0,0,0,0,UA 00:16,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":5891646,"timestamp":"2026-01-11T03:46:05.363Z","label":"3C","tail":"N165SY","flight":"OO5596","text":"38,1,4,0,0,0,0,0,0,0,UA 01:52,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":6173836,"timestamp":"2026-01-11T10:42:48.989Z","label":"3C","tail":"TC-JOI","text":"054836TOY 094401KESA054351CELI","stratum":"3C/unparsed","expected":[]}
+{"id":6238983,"timestamp":"2026-01-11T12:15:18.940Z","label":"3C","tail":"TC-LGV","text":"063231,AKPI,062500,OZTO,097057,AYAZ,,,","stratum":"3C/unparsed","expected":[]}
+{"id":6238986,"timestamp":"2026-01-11T12:15:19.030Z","label":"3C","tail":"TC-LGV","text":"063231,AKPI,062500,OZTO,097057,AYAZ,,,","stratum":"3C/unparsed","expected":[]}
+{"id":6238995,"timestamp":"2026-01-11T12:15:19.883Z","label":"3C","tail":"TC-LGV","text":"063231,AKPI,062500,OZTO,097057,AYAZ,,,","stratum":"3C/unparsed","expected":[]}
+{"id":6321583,"timestamp":"2026-01-11T13:33:34.127Z","label":"3C","tail":"N307SY","flight":"OO4080","text":"34,5,0,0,0,0,0,0,0,0,DL 12:48,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":6880544,"timestamp":"2026-01-12T03:58:25.129Z","label":"3C","tail":"N699BR","text":" 24,  0, 20, 600,   0,UA 03:58,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":6980777,"timestamp":"2026-01-12T13:19:08.488Z","label":"3C","tail":"TC-LGY","text":"040148,SOYG,046300,TOPU,094644,KARA,,,","stratum":"3C/unparsed","expected":[]}
+{"id":7177394,"timestamp":"2026-01-12T18:38:58.692Z","label":"3C","tail":"N748EV","flight":"OO4972","text":"0,0,32,0,0,25,3,0,0,0,0,0,0,0,0,AA 18:12,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":7383064,"timestamp":"2026-01-13T02:10:57.993Z","label":"3C","tail":"TC-JOH","text":"070435AKYA107959KAYA","stratum":"3C/unparsed","expected":[]}
+{"id":7383066,"timestamp":"2026-01-13T02:10:58.110Z","label":"3C","tail":"TC-JOH","text":"070435AKYA107959KAYA","stratum":"3C/unparsed","expected":[]}
+{"id":7383067,"timestamp":"2026-01-13T02:10:58.116Z","label":"3C","tail":"TC-JOH","text":"070435AKYA107959KAYA","stratum":"3C/unparsed","expected":[]}
+{"id":7422272,"timestamp":"2026-01-13T03:16:27.919Z","label":"3C","tail":"TC-LGO","text":"057097,VURG,058834,GURE,097093,CERI,,,","stratum":"3C/unparsed","expected":[]}
+{"id":7521170,"timestamp":"2026-01-13T02:03:50.063Z","label":"3C","tail":"N601UX","flight":"OO4700","text":"35,0,16,0,0,0,0,0,0,0,UA 21:44,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":7521510,"timestamp":"2026-01-13T05:51:27.496Z","label":"3C","tail":"TC-LGP","text":"053662,TANE,054346,AKDE,095360,KANT,,,","stratum":"3C/unparsed","expected":[]}
+{"id":7623060,"timestamp":"2026-01-13T08:54:15.466Z","label":"3C","tail":"PH-BQN","text":"NOTAMSKKKL130854\n\tNOTOC EDN1 FINAL\n\tKULKL809   13JAN26PHBQN","stratum":"3C/unparsed","expected":[]}
+{"id":7623061,"timestamp":"2026-01-13T08:54:15.508Z","label":"3C","tail":"PH-BQN","text":"NOTAMSKKKL130854\n\tNOTOC EDN1 FINAL\n\tKULKL809   13JAN26PHBQN","stratum":"3C/unparsed","expected":[]}
+{"id":7640496,"timestamp":"2026-01-13T09:24:25.190Z","label":"3C","tail":"TC-LGP","text":"053662,TANE,054346,AKDE,095360,KANT,,,","stratum":"3C/unparsed","expected":[]}
+{"id":7749109,"timestamp":"2026-01-13T12:13:19.307Z","label":"3C","tail":"N140SY","flight":"OO5381","text":"36,1,1,0,0,0,0,0,0,0,UA 11:46,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":7751400,"timestamp":"2026-01-13T12:31:51.177Z","label":"3C","tail":"TC-LGY","text":"079547,VAN ,067163,AVCI,097509,ERDO,,,","stratum":"3C/unparsed","expected":[]}
+{"id":7751407,"timestamp":"2026-01-13T12:31:51.533Z","label":"3C","tail":"TC-LGY","text":"079547,VAN ,067163,AVCI,097509,ERDO,,,","stratum":"3C/unparsed","expected":[]}
+{"id":7760761,"timestamp":"2026-01-13T12:25:52.272Z","label":"3C","tail":"TC-JVY","text":"089085,KESI,067126,SUER,,,,,","stratum":"3C/unparsed","expected":[]}
+{"id":7878543,"timestamp":"2026-01-13T16:11:38.146Z","label":"3C","tail":"TC-LNC","text":"058881DINC098819VAKH103676DUMA","stratum":"3C/unparsed","expected":[]}
+{"id":7934144,"timestamp":"2026-01-13T17:52:15.891Z","label":"3C","tail":"TC-LHI","text":"058874,ACAR,053374,ORHA,094401,KESA,,,","stratum":"3C/unparsed","expected":[]}
+{"id":8283136,"timestamp":"2026-01-14T03:31:34.630Z","label":"3C","tail":"N85374","flight":"OO5894","text":"28,2,5,0,94,0,0,0,0,0,UA 02:34,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":8376091,"timestamp":"2026-01-17T06:53:29.818Z","label":"3C","tail":"N221PS","text":"25,1,12,0,0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,UA 04:59,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":8795556,"timestamp":"2026-01-17T16:06:25.578Z","label":"3C","tail":"N204SY","flight":"OO5646","text":"39,1,0,0,1,0,0,0,0,0,UA 14:49,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":9031906,"timestamp":"2026-01-18T00:50:42.397Z","label":"3C","tail":"N797SK","flight":"OO5519","text":"0,0,0,0,0,36,0,10,0,0,0,0,0,0,0,UA 00:49,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":9082084,"timestamp":"2026-01-18T01:57:18.174Z","label":"3C","tail":"TC-LHD","flight":"TK09WC","text":"080663,KARA,093455,TOMR,093405,TAME,,,","stratum":"3C/unparsed","expected":[]}
+{"id":9129814,"timestamp":"2026-01-18T02:42:23.086Z","label":"3C","tail":"N203SY","text":"57,1,1,0,0,0,0,0,0,0,UA 01:57,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":9701098,"timestamp":"2026-01-18T17:17:15.073Z","label":"3C","tail":"N797SK","flight":"OO5519","text":"0,0,0,0,0,16,4,14,0,0,0,0,0,0,0,UA 16:19,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":9791624,"timestamp":"2026-01-18T19:11:49.409Z","label":"3C","tail":"N85363","flight":"OO5892","text":"32,0,0,0,0,0,0,0,0,0,UA 17:24,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":10119662,"timestamp":"2026-01-19T06:36:09.857Z","label":"3C","tail":"N221PS","text":"26,1,17,0,7,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,UA 04:50,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":10324696,"timestamp":"2026-01-19T12:33:16.447Z","label":"3C","tail":"TC-LGE","text":"079560,URFA,093241,KABO,094118,ARSE,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10324703,"timestamp":"2026-01-19T12:33:16.914Z","label":"3C","tail":"TC-LGE","text":"079560,URFA,093241,KABO,094118,ARSE,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10383202,"timestamp":"2026-01-19T14:19:55.962Z","label":"3C","tail":"TC-LHF","flight":"TK8DE","text":"074604,OZDE,092808,TOPC,093106,YAVU,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10391868,"timestamp":"2026-01-19T14:21:50.070Z","label":"3C","tail":"N705SK","flight":"OO4975","text":"0,0,0,0,0,20,0,12,0,0,0,0,0,0,0,AA 14:02,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":10443327,"timestamp":"2026-01-19T16:08:32.940Z","label":"3C","tail":"TC-LGP","text":"055540,OZ  ,093289,AYAN,097525,YESI,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10512162,"timestamp":"2026-01-19T17:16:20.992Z","label":"3C","tail":"N78361","flight":"OO4756","text":"13,2,4,0,0,0,0,0,0,0,UA 15:52,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":10594849,"timestamp":"2026-01-19T19:01:24.977Z","label":"3C","tail":"N85363","flight":"OO5892","text":"6,0,1,0,0,0,0,0,0,0,UA 17:25,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":10704123,"timestamp":"2026-01-20T00:43:02.371Z","label":"3C","tail":"TC-LGF","text":"054355,ERDO,067172,KURT,097199,CELI,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10771232,"timestamp":"2026-01-19T14:19:04.868Z","label":"3C","tail":"N924SW","text":" 18,  2, 15,   0,   0,UA 14:19,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":10793313,"timestamp":"2026-01-20T03:34:12.812Z","label":"3C","tail":"TC-LGE","text":"064781,IGDI,094452,AYKE,094467,PEHL,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10819803,"timestamp":"2026-01-20T04:11:39.457Z","label":"3C","tail":"TC-LHI","text":"055930,ILIK,058184,GULB,071840,CIL ,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10881269,"timestamp":"2026-01-20T05:29:42.849Z","label":"3C","tail":"TC-LGI","text":"055556,VARG,090024,GURC,097076,DOGA,,,","stratum":"3C/unparsed","expected":[]}
+{"id":10957512,"timestamp":"2026-01-20T06:58:17.638Z","label":"3C","tail":"N84378","flight":"OO5382","text":"25,0,3,0,125,0,0,0,0,0,UA 06:34,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":11012136,"timestamp":"2026-01-20T08:16:21.927Z","label":"3C","tail":"PH-EZN","text":"FUEOCCOVKL200753004744","stratum":"3C/unparsed","expected":[]}
+{"id":11042651,"timestamp":"2026-01-20T09:04:18.787Z","label":"3C","tail":"PH-BQN","text":"NOTAMSKKKL200904\n\tNOTOC EDN1 FINAL\n\tAMSKL751   20JAN26PHBQN","stratum":"3C/unparsed","expected":[]}
+{"id":11210639,"timestamp":"2026-01-20T13:29:16.104Z","label":"3C","tail":"PH-BVG","text":"NOTAMSKKKL201329\n\tNOTOC EDN1 FINAL\n\tAMSKL589   20JAN26PHBVG","stratum":"3C/unparsed","expected":[]}
+{"id":11210645,"timestamp":"2026-01-20T13:29:16.302Z","label":"3C","tail":"PH-BVG","text":"NOTAMSKKKL201329\n\tNOTOC EDN1 FINAL\n\tAMSKL589   20JAN26PHBVG","stratum":"3C/unparsed","expected":[]}
+{"id":11363003,"timestamp":"2026-01-21T17:59:11.220Z","label":"3C","tail":"TC-LNE","flight":"TK735","text":"068891MUKA097859OZTU","stratum":"3C/unparsed","expected":[]}
+{"id":11432964,"timestamp":"2026-01-21T18:27:26.578Z","label":"3C","tail":"N317SY","flight":"OO4104","text":"36,14,1,0,0,0,0,0,0,0,DL 17:08,\r\n\r\n","stratum":"3C/unparsed","expected":[]}
+{"id":11623652,"timestamp":"2026-01-21T22:48:18.235Z","label":"3C","tail":"N114SY","text":"15,0,0,0,0,0,0,0,0,0,UA 16:39,\r\n\r\n","stratum":"3C/unparsed","expected":[]}

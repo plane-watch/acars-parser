@@ -101,3 +101,15 @@ func TestResultsReturnsResultsInMatchOrder(t *testing.T) {
 		t.Errorf("Results() = %v, want [a_type b_type]", results)
 	}
 }
+
+func TestRegisterRejectsDuplicateNames(t *testing.T) {
+	r := New()
+	r.Register(&fakeParser{name: "same", labels: []string{"H1"}, priority: 10})
+
+	defer func() {
+		if recover() == nil {
+			t.Error("Register did not panic on a duplicate parser name")
+		}
+	}()
+	r.Register(&fakeParser{name: "same", labels: []string{"RA"}, priority: 20})
+}

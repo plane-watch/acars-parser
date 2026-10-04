@@ -1,100 +1,100 @@
-{"id":36598,"timestamp":"2025-12-31 18:22:14.961","label":"B0","tail":"HB-JHI","flight":"LX52","text":"/SOUCAYA.AFN/FMHSWR52,.HB-JHI,,182214/FRP0FF5C","stratum":"B0/unparsed","expected":[]}
-{"id":93245,"timestamp":"2025-12-31 18:53:30.199","label":"B0","tail":"C-FDHG","flight":"AC956","text":"/USADCXA.AFN/FMHACA956,.C-FDHG,,185318/FCPYYZE2YA,03CBC","stratum":"B0/unparsed","expected":[]}
-{"id":137240,"timestamp":"2026-01-03 04:51:03.359","label":"B0","tail":"HL8285","text":"/YWGE2YA.AFN/FMHKAL8231,.HL8285,71C285,044805/FPON52150W112468,0/FCOADS,01/FCOATC,015110","stratum":"B0/unparsed","expected":[]}
-{"id":192613,"timestamp":"2026-01-03 06:38:58.088","label":"B0","tail":"G-XWBK","text":"/CZVR.AFN/FMHBAW88C,.G-XWBK,407AF4,055417/FPON49115W123124,1/FCOADS,01/FCOATC,01DA60","stratum":"B0/unparsed","expected":[]}
-{"id":647843,"timestamp":"2026-01-04 02:51:24.969","label":"B0","tail":"F-OVAA","text":"/YYZE2YA.AFN/FMHTHT8,.F-OVAA,3A5400,225028/FPON43135W085187,0/FCOATC,01/FCOADS,016184","stratum":"B0/unparsed","expected":[]}
-{"id":767240,"timestamp":"2026-01-04 07:00:26.398","label":"B0","tail":"JA879A","text":"/USADCXA.AFN/FMHANA117,.JA879A,86E888,002344/FCPYVRE2YA,007B1","stratum":"B0/unparsed","expected":[]}
-{"id":913373,"timestamp":"2026-01-04 17:40:36.902","label":"B0","tail":"G-ZBLB","text":"/SNNCPXA.AFN/FMHBAW22B,.G-ZBLB,4078DE,171705/FPON53217W002277,0/FCOATC,01/FCOADS,014AA8","stratum":"B0/unparsed","expected":[]}
-{"id":1468324,"timestamp":"2026-01-05 09:33:55.919","label":"B0","tail":"HB-JNA","text":"/YWGE2YA.AFN/FMHSWR41G,.HB-JNA,4B1916,062523/FPON46482W092127,0/FCOADS,01/FCOATC,019118","stratum":"B0/unparsed","expected":[]}
-{"id":1468515,"timestamp":"2026-01-05 09:34:06.551","label":"B0","tail":"HB-JNA","text":"/USADCXA.AFN/FMHSWR41G,.HB-JNA,4B1916,062528/FCPYWGE2YA,0DC67","stratum":"B0/unparsed","expected":[]}
-{"id":1731804,"timestamp":"2026-01-05 16:29:05.580","label":"B0","tail":"N872QS","text":"/USADCXA.AFN/FMHN872QS,.N872QS,ABFF33,132521/FRP0E4D6","stratum":"B0/unparsed","expected":[]}
-{"id":1831168,"timestamp":"2026-01-05 18:29:42.333","label":"B0","tail":"OKJRL","text":"/SOUCAYA.AFN/FMHTVS65J,..OKJRL,49D63B,140030/FPON55105W002041,1/FCOADS,01/FCOATC,01299F","stratum":"B0/unparsed","expected":[]}
-{"id":1971840,"timestamp":"2026-01-06 02:05:54.869","label":"B0","tail":"N78008","text":"/USADCXA.AFN/FMHUAL803,.N78008,AA92FF,004109/FCPYYZE2YA,0D49F","stratum":"B0/unparsed","expected":[]}
-{"id":1999568,"timestamp":"2026-01-06 02:44:45.463","label":"B0","tail":"N633JB","text":"/KUSA.AFN/FMHJBU56,.N633JB,A849AB,005425/FPON34334W077309,1/FCOADS,01/FCOATC,01FADE","stratum":"B0/unparsed","expected":[]}
-{"id":2312055,"timestamp":"2026-01-06 12:53:37.876","label":"B0","tail":"C-GKUG","text":"/SOUCAYA.AFN/FMHACA809,.C-GKUG,,124050/FRP05184","stratum":"B0/unparsed","expected":[]}
-{"id":2312134,"timestamp":"2026-01-06 12:53:44.904","label":"B0","tail":"C-GKUG","text":"/SOUCAYA.AFN/FMHACA809,.C-GKUG,,124050/FRP05184","stratum":"B0/unparsed","expected":[]}
-{"id":2318008,"timestamp":"2026-01-06 13:01:46.782","label":"B0","tail":"G-VBZZ","text":"/PIKCAYA.AFN/FMHVIR19Z,.G-VBZZ,406E0F,123726/FPON52523W001310,0/FCOATC,01/FCOADS,017E67","stratum":"B0/unparsed","expected":[]}
-{"id":2805698,"timestamp":"2026-01-07 03:45:17.218","label":"B0","tail":"HB-JHA","text":"/CZQM.AFN/FMHSWR2K,.HB-JHA,4B187A,024439/FPON39106W076004,1/FCOADS,01/FCOATC,0160DD","stratum":"B0/unparsed","expected":[]}
-{"id":2964523,"timestamp":"2026-01-07 06:54:30.243","label":"B0","tail":"N774CK","text":"/YYZE2YA.AFN/FMHCKS264,.N774CK,AA781F,043317/FCPUSADCXA,0EC3D","stratum":"B0/unparsed","expected":[]}
-{"id":3025023,"timestamp":"2026-01-07 08:20:53.519","label":"B0","tail":"A6-EQF","text":"/USADCXA.AFN/FMHUAE3TK,.A6-EQF,896455,055152/FRP0102A","stratum":"B0/unparsed","expected":[]}
-{"id":3129751,"timestamp":"2026-01-07 10:43:22.139","label":"B0","tail":"D-AALC","text":"/USADCXA.AFN/FMHBOX465,.D-AALC,3C4583,083444/FRP0ED3D","stratum":"B0/unparsed","expected":[]}
-{"id":3360598,"timestamp":"2026-01-07 18:40:40.883","label":"B0","tail":"OH-LWR","text":"/ENOB.AFN/FMHFIN15,.OH-LWR,461F59,180132/FPON65008E009534,1/FCOADS,01/FCOATC,01C18F","stratum":"B0/unparsed","expected":[]}
-{"id":3522922,"timestamp":"2026-01-07 21:49:20.275","label":"B0","tail":"B-7880","text":"/YULE2YA.AFN/FMHCHH729,.B-7880,780FF1,191456/FRP0CF8C","stratum":"B0/unparsed","expected":[]}
-{"id":4062136,"timestamp":"2026-01-08 15:42:43.212","label":"B0","tail":"B-32F8","text":"J45A3U3812/UPGCAYA.AFN/FMHCSC3812,.B-32F8,781FBE,142500/FPOS10533E140059,0/FCOADS,01/FCOATC,0149FD","stratum":"B0/unparsed","expected":[]}
-{"id":4409810,"timestamp":"2026-01-09 04:35:02.482","label":"B0","tail":"N128DN","text":"/USADCXA.AFN/FMHDAL2614,.N128DN,,025950/FRP0B31E","stratum":"B0/unparsed","expected":[]}
-{"id":4518353,"timestamp":"2026-01-09 06:44:33.464","label":"B0","tail":"G-STBN","text":"/EGTT.AFN/FMHBAW12,.G-STBN,407993,043805/FPON51014E005065,1/FCOADS,01/FCOATC,01C788","stratum":"B0/unparsed","expected":[]}
-{"id":4527097,"timestamp":"2026-01-09 06:56:45.337","label":"B0","tail":"N774CK","text":"/YYZE2YA.AFN/FMHCKS264,.N774CK,AA781F,044829/FRP016F2","stratum":"B0/unparsed","expected":[]}
-{"id":4549250,"timestamp":"2026-01-09 07:28:06.039","label":"B0","tail":"C-FEGI","text":"/YEGE2YA.AFN/FMHACA7093,.C-FEGI,C00B35,052053/FCPYVRE2YA,0F847","stratum":"B0/unparsed","expected":[]}
-{"id":4688209,"timestamp":"2026-01-09 10:38:10.841","label":"B0","tail":"C-FGDT","text":"/USADCXA.AFN/FMHACA90,.C-FGDT,C0103A,083153/FCPNYCODYA,08D35","stratum":"B0/unparsed","expected":[]}
-{"id":4726404,"timestamp":"2026-01-09 11:31:50.407","label":"B0","tail":"N4064J","text":"/USADCXA.AFN/FMHJBU9002,.N4064J,,091424/FRP029A1","stratum":"B0/unparsed","expected":[]}
-{"id":4977086,"timestamp":"2026-01-09 20:07:36.570","label":"B0","tail":"A7-BFR","text":"/EDYY.AFN/FMHQTR8L,.A7-BFR,06A2DF,190850/FPON51031E004323,1/FCOADS,01/FCOATC,018F2F","stratum":"B0/unparsed","expected":[]}
-{"id":5084209,"timestamp":"2026-01-09 22:13:00.076","label":"B0","tail":"G-ZBLA","text":"/SNNCPXA.AFN/FMHBAW239,.G-ZBLA,407898,195535/FPON51580W003095,0/FCOATC,01/FCOADS,017DDF","stratum":"B0/unparsed","expected":[]}
-{"id":5106526,"timestamp":"2026-01-09 22:36:55.503","label":"B0","tail":"SE-RSG","text":"/YEGE2YA.AFN/FMHSAS935,.SE-RSG,,200440/FCPYVRE2YA,065A0","stratum":"B0/unparsed","expected":[]}
-{"id":5270347,"timestamp":"2026-01-10 01:17:38.534","label":"B0","tail":"G-VOOH","text":"/SOUCAYA.AFN/FMHVIR25B,.G-VOOH,406B4A,210432/FCPSNNCPXA,09DF9","stratum":"B0/unparsed","expected":[]}
-{"id":5284344,"timestamp":"2026-01-10 04:41:24.125","label":"B0","tail":"G-ZBJC","text":"/YULE2YA.AFN/FMHBAW98T,.G-ZBJC,406890,044120/FRP05E46","stratum":"B0/unparsed","expected":[]}
-{"id":5474880,"timestamp":"2026-01-10 09:55:12.957","label":"B0","tail":"B-18772","text":"/CZVR.AFN/FMHCAL5381,B-18772,8990A4,082040/FPON47318W122460,1/FCOADS,01/FCOATC,019674","stratum":"B0/unparsed","expected":[]}
-{"id":5946405,"timestamp":"2026-01-11 04:39:58.284","label":"B0","tail":"N375HA","text":"/KZAK.AFN/FMHASA802,.N375HA,A4470E,012530/FPON21190W157238,1/FCOADS,01/FCOATC,011872","stratum":"B0/unparsed","expected":[]}
-{"id":6232018,"timestamp":"2026-01-11 12:00:39.714","label":"B0","tail":"N78017","text":"/SOUCAYA.AFN/FMHUAL951,.N78017,AA9321,115232/FCPSNNCPXA,00B9D","stratum":"B0/unparsed","expected":[]}
-{"id":6271725,"timestamp":"2026-01-11 12:43:11.291","label":"B0","tail":"N772CK","text":"/USADCXA.AFN/FMHCKS220,.N772CK,AA70B1,121446/FCPOAKODYA,05521","stratum":"B0/unparsed","expected":[]}
-{"id":6336061,"timestamp":"2026-01-11 13:45:33.458","label":"B0","tail":"OO-JDL","text":"/EGTT.AFN/FMHTFL757,.OO-JDL,44A88C,124220/FPON52126E004294,1/FCOATC,01/FCOADS,011E94","stratum":"B0/unparsed","expected":[]}
-{"id":6553802,"timestamp":"2026-01-11 22:23:14.919","label":"B0","tail":"B-2075","text":"/YEGE2YA.AFN/FMHCSG2651,.B-2075,7805AA,194641/FRP031B5","stratum":"B0/unparsed","expected":[]}
-{"id":6657832,"timestamp":"2026-01-12 05:19:43.779","label":"B0","tail":"TC-LJE","text":"/USADCXA.AFN/FMHTHY2AY,.TC-LJE,4BB145,051722/FCPYYZE2YA,00786","stratum":"B0/unparsed","expected":[]}
-{"id":6738433,"timestamp":"2026-01-12 07:03:44.784","label":"B0","tail":"G-ZBKK","text":"/USADCXA.AFN/FMHBAW196E,.G-ZBKK,406F77,070323/FRP093E7","stratum":"B0/unparsed","expected":[]}
-{"id":6788428,"timestamp":"2026-01-12 08:12:23.980","label":"B0","tail":"B-LXA","text":"/USADCXA.AFN/FMHCPA843,..B-LXA,,081220/FRP06F03","stratum":"B0/unparsed","expected":[]}
-{"id":6859659,"timestamp":"2026-01-12 10:00:14.832","label":"B0","tail":"D-AALV","text":"/YYZE2YA.AFN/FMHBOX443,.D-AALV,3C4596,095952/FPON42206W084581,0/FCOADS,01/FCOATC,01301E","stratum":"B0/unparsed","expected":[]}
-{"id":6904796,"timestamp":"2026-01-12 11:07:04.530","label":"B0","tail":"C-FVLX","text":"/KUSA.AFN/FMHACA39,.C-FVLX,C038AA,110152/FPON48535W123149,1/FCOATC,01/FCOADS,015EC9","stratum":"B0/unparsed","expected":[]}
-{"id":6935816,"timestamp":"2026-01-12 11:51:36.427","label":"B0","tail":"HL8210","text":"/YEGE2YA.AFN/FMHKAL037,.HL8210,71C210,112912/FRP0A1C0","stratum":"B0/unparsed","expected":[]}
-{"id":6946621,"timestamp":"2026-01-12 12:06:41.501","label":"B0","tail":"G-ZBLC","text":"/EGTT.AFN/FMHBAW2PD,.G-ZBLC,407979,113718/FPON52203W000408,1/FCOATC,01/FCOADS,012FB6","stratum":"B0/unparsed","expected":[]}
-{"id":6947386,"timestamp":"2026-01-12 12:08:02.036","label":"B0","tail":"C-GEGP","text":"/EGTT.AFN/FMHACA809,.C-GEGP,C04FE4,113755/FPON52209E004257,1/FCOADS,01/FCOATC,01B823","stratum":"B0/unparsed","expected":[]}
-{"id":7020584,"timestamp":"2026-01-12 13:30:59.102","label":"B0","tail":"G-XLED","text":"/SOUCAYA.AFN/FMHBAW5L,.G-XLED,,122013/FCPPIKCAYA,05AF1","stratum":"B0/unparsed","expected":[]}
-{"id":7234985,"timestamp":"2026-01-12 19:54:37.811","label":"B0","tail":"C-GHPQ","text":"/USADCXA.AFN/FMHACA588,.C-GHPQ,C058BB,183253/FCPYYZE2YA,04B74","stratum":"B0/unparsed","expected":[]}
-{"id":7313227,"timestamp":"2026-01-12 21:44:45.623","label":"B0","tail":"N856QS","text":"/KUSA.AFN/FMHEJA856,.N856QS,ABBF11,192510/FPON42099W087579,1/FCOADS,01/FCOATC,0162EC","stratum":"B0/unparsed","expected":[]}
-{"id":7593042,"timestamp":"2026-01-13 08:00:45.930","label":"B0","tail":"N2639U","text":"/OAKODYA.AFN/FMHUAL189,.N2639U,A28DC8,080026/FPON37378W122241,0/FCOADS,01/FCOATC,014DEB","stratum":"B0/unparsed","expected":[]}
-{"id":7684591,"timestamp":"2026-01-13 10:38:25.056","label":"B0","tail":"N225UA","text":"/SOUCAYA.AFN/FMHUAL879,.N225UA,A1F557,103805/FCPPIKCAYA,050B1","stratum":"B0/unparsed","expected":[]}
-{"id":7705117,"timestamp":"2026-01-13 11:10:50.421","label":"B0","tail":"D-AIHY","text":"/EGTT.AFN/FMHDLH430,.D-AIHY,3C6519,110806/FPON52504E003389,1/FCOADS,01/FCOATC,01811F","stratum":"B0/unparsed","expected":[]}
-{"id":7711258,"timestamp":"2026-01-13 11:19:42.523","label":"B0","tail":"N78017","text":"/EGTT.AFN/FMHUAL988,.N78017,AA9321,111424/FPON51216E005567,1/FCOADS,01/FCOATC,01962C","stratum":"B0/unparsed","expected":[]}
-{"id":7783933,"timestamp":"2026-01-13 12:57:21.000","label":"B0","tail":"TC-LMD","text":"/EGTT.AFN/FMHTHY4PF,.TC-LMD,4BB1A4,121201/FPON51192E000208,1/FCOATC,01/FCOADS,01E5D1","stratum":"B0/unparsed","expected":[]}
-{"id":7850730,"timestamp":"2026-01-13 15:02:08.468","label":"B0","tail":"G-ZBLL","text":"/SNNCPXA.AFN/FMHBAW225Y,.G-ZBLL,4080C0,142810/FPON51484W003006,0/FCOATC,01/FCOADS,01F33A","stratum":"B0/unparsed","expected":[]}
-{"id":7851036,"timestamp":"2026-01-13 15:02:35.272","label":"B0","tail":"G-ZBLL","text":"/SOUCAYA.AFN/FMHBAW225Y,.G-ZBLL,4080C0,142816/FCPSNNCPXA,044A1","stratum":"B0/unparsed","expected":[]}
-{"id":7940999,"timestamp":"2026-01-13 16:42:40.162","label":"B0","tail":"A7-BFV","text":"/NYCODYA.AFN/FMHQTR32P,.A7-BFV,06A2E3,151352/FPON41490W073016,0/FCOADS,01/FCOATC,019586","stratum":"B0/unparsed","expected":[]}
-{"id":7979267,"timestamp":"2026-01-13 17:31:33.155","label":"B0","tail":"C-GUDO","text":"/SOUCAYA.AFN/FMHWJA1,.C-GUDO,C079D5,153025/FRP06AC5","stratum":"B0/unparsed","expected":[]}
-{"id":8053672,"timestamp":"2026-01-13 21:01:25.219","label":"B0","tail":"B-LXR","text":"/ANCXFXA.AFN/FMHCPA812,..B-LXR,,202526/FRP025CC","stratum":"B0/unparsed","expected":[]}
-{"id":8162106,"timestamp":"2026-01-14 00:42:59.246","label":"B0","tail":"N377DN","text":"/USADCXA.AFN/FMHDAL1098,.N377DN,,000554/FCPYYZE2YA,0C9A3","stratum":"B0/unparsed","expected":[]}
-{"id":8274468,"timestamp":"2026-01-14 03:19:24.492","label":"B0","tail":"A6-EVL","text":"/USADCXA.AFN/FMHUAE216,.A6-EVL,,014044/FCPYVRE2YA,07358","stratum":"B0/unparsed","expected":[]}
-{"id":8275008,"timestamp":"2026-01-14 03:20:19.874","label":"B0","tail":"CS-TUF","text":"/MUFH.AFN/FMHTAP278,.CS-TUF,4952A6,014112/FPON21110W086314,1/FCOADS,01/FCOATC,0141C2","stratum":"B0/unparsed","expected":[]}
-{"id":8342421,"timestamp":"2026-01-17 06:05:23.673","label":"B0","tail":"B-18773","text":"/ANCXFXA.AFN/FMHCAL5322,B-18773,8990A5,045701/FRP0BD94","stratum":"B0/unparsed","expected":[]}
-{"id":8369942,"timestamp":"2026-01-17 06:44:52.694","label":"B0","tail":"40135E","text":"/KUSA.AFN/FMHSPAR945,.40135E,,053852/FPON30389W098130,1/FCOADS,01/FCOATC,013C71","stratum":"B0/unparsed","expected":[]}
-{"id":8488041,"timestamp":"2026-01-17 09:34:57.920","label":"B0","tail":"N596DT","text":"/YEGE2YA.AFN/FMHDAL377,.N596DT,,090235/FCPYWGE2YA,0B155","stratum":"B0/unparsed","expected":[]}
-{"id":8582334,"timestamp":"2026-01-17 12:21:38.659","label":"B0","tail":"N722AN","text":"/EGTT.AFN/FMHAAL733,.N722AN,A9AB07,121834/FPON51308W001123,1/FCOADS,01/FCOATC,016249","stratum":"B0/unparsed","expected":[]}
-{"id":8696330,"timestamp":"2026-01-17 14:23:50.003","label":"B0","tail":"PH-BKR","text":"/SOUCAYA.AFN/FMHKLM641,.PH-BKR,486073,131849/FRP0D290","stratum":"B0/unparsed","expected":[]}
-{"id":8855748,"timestamp":"2026-01-17 17:25:40.495","label":"B0","tail":"N719AN","text":"/SOUCAYA.AFN/FMHAAL735,.N719AN,A99D89,153008/FCPSNNCPXA,0C9BF","stratum":"B0/unparsed","expected":[]}
-{"id":8885847,"timestamp":"2026-01-17 17:54:12.327","label":"B0","tail":"C-FVND","text":"/NYCODYA.AFN/FMHACA944,.C-FVND,C038CA,145331/FPON41126W073042,0/FCOATC,01/FCOADS,016C45","stratum":"B0/unparsed","expected":[]}
-{"id":8979313,"timestamp":"2026-01-17 19:45:10.753","label":"B0","tail":"G-ZBLH","text":"/SOUCAYA.AFN/FMHBAW49,.G-ZBLH,408092,153644/FRP0F311","stratum":"B0/unparsed","expected":[]}
-{"id":9028197,"timestamp":"2026-01-18 00:46:27.054","label":"B0","tail":"N729JB","text":"/KUSA.AFN/FMHJBU2119,.N729JB,A9C5C5,004454/FPON40138W073283,1/FCOADS,01/FCOATC,01CD7A","stratum":"B0/unparsed","expected":[]}
-{"id":9248955,"timestamp":"2026-01-18 05:23:22.708","label":"B0","tail":"A9C-FC","text":"/EDUU.AFN/FMHGFA007,.A9C-FC,89408D,052317/FPON49441E009360,1/FCOATC,01/FCOADS,01D36A","stratum":"B0/unparsed","expected":[]}
-{"id":9330170,"timestamp":"2026-01-18 07:22:37.152","label":"B0","tail":"TC-LGA","text":"/USADCXA.AFN/FMHTHY4YT,.TC-LGA,,071311/FRP043D8","stratum":"B0/unparsed","expected":[]}
-{"id":9333447,"timestamp":"2026-01-18 07:27:06.529","label":"B0","tail":"B-18780","text":"/ANCXFXA.AFN/FMHCAL5312,B-18780,899017,071634/FCPYEGE2YA,058A6","stratum":"B0/unparsed","expected":[]}
-{"id":9409976,"timestamp":"2026-01-18 09:26:21.399","label":"B0","tail":"N78017","text":"/EGTT.AFN/FMHUAL56,.N78017,AA9321,092616/FPON53440W003040,1/FCOADS,01/FCOATC,01EAC1","stratum":"B0/unparsed","expected":[]}
-{"id":9685170,"timestamp":"2026-01-18 16:53:56.425","label":"B0","tail":"N12021","text":"/ANCXFXA.AFN/FMHUAL882,.N12021,A0566A,160850/FCPYEGE2YA,0B996","stratum":"B0/unparsed","expected":[]}
-{"id":9784093,"timestamp":"2026-01-18 18:59:03.949","label":"B0","tail":"N881QS","text":"/KUSA.AFN/FMHEJA881,.N881QS,AC22FB,164406/FPON38020W097509,1/FCOADS,01/FCOATC,01369D","stratum":"B0/unparsed","expected":[]}
-{"id":9810714,"timestamp":"2026-01-18 19:44:24.284","label":"B0","tail":"B-LXB","text":"/ANCXFXA.AFN/FMHCPA840,..B-LXB,,174151/FCPYEGE2YA,0FD3A","stratum":"B0/unparsed","expected":[]}
-{"id":9838787,"timestamp":"2026-01-18 20:29:21.535","label":"B0","tail":"A6-EET","text":"/USADCXA.AFN/FMHUAE232,.A6-EET,,165730/FRP03442","stratum":"B0/unparsed","expected":[]}
-{"id":9933202,"timestamp":"2026-01-19 02:33:18.605","label":"B0","tail":"B-18780","text":"/PAZA.AFN/FMHCAL5311,B-18780,899017,021852/FPON61161W155056,1/FCOADS,01/FCOATC,011684","stratum":"B0/unparsed","expected":[]}
-{"id":10006356,"timestamp":"2026-01-19 04:06:22.658","label":"B0","tail":"N4074J","text":"/USADCXA.AFN/FMHJBU33,.N4074J,,032636/FCPYQME2YA,097B8","stratum":"B0/unparsed","expected":[]}
-{"id":10010895,"timestamp":"2026-01-19 04:15:19.148","label":"B0","tail":"HL8076","text":"/YEGE2YA.AFN/FMHKAL9232,.HL8076,71C076,033047/FCPYVRE2YA,01473","stratum":"B0/unparsed","expected":[]}
-{"id":10296087,"timestamp":"2026-01-19 11:39:40.745","label":"B0","tail":"G-ZBLK","text":"/SOUCAYA.AFN/FMHBAW185,.G-ZBLK,4080BF,113123/FRP05EE9","stratum":"B0/unparsed","expected":[]}
-{"id":10410093,"timestamp":"2026-01-19 14:39:28.998","label":"B0","tail":"N74007","text":"/USADCXA.AFN/FMHUAL2143,.N74007,A9F502,140934/FRP09CA1","stratum":"B0/unparsed","expected":[]}
-{"id":10523455,"timestamp":"2026-01-19 18:06:17.312","label":"B0","tail":"9H-ALC","text":"J50A3L0596/ZWWW.AFN/FMHAIZ596,.9H-ALC,4D206E,162722/FPON40333E094271,1/FCOADS,01/FCOATC,01D09D","stratum":"B0/unparsed","expected":[]}
-{"id":10536964,"timestamp":"2026-01-19 17:49:34.551","label":"B0","tail":"G-ZBJE","text":"/SOUCAYA.AFN/FMHBAW97A,.G-ZBJE,406A9C,161339/FRP0E9A0","stratum":"B0/unparsed","expected":[]}
-{"id":10697624,"timestamp":"2026-01-19 23:35:46.736","label":"B0","tail":"C-FVLX","text":"/YVRE2YA.AFN/FMHACA114,.C-FVLX,C038AA,221640/FRP0897B","stratum":"B0/unparsed","expected":[]}
-{"id":10884483,"timestamp":"2026-01-20 05:21:42.516","label":"B0","tail":"N217UA","text":"/OAKODYA.AFN/FMHUAL829,.N217UA,A1D546,045608/FPON37386W122377,0/FCOADS,01/FCOATC,01C069","stratum":"B0/unparsed","expected":[]}
-{"id":10996275,"timestamp":"2026-01-20 07:53:14.588","label":"B0","tail":"B-58502","text":"/KZAK.AFN/FMHSJX011,B-58502,8991E5,073602/FPON38175W123089,1/FCOADS,01/FCOATC,011FEB","stratum":"B0/unparsed","expected":[]}
-{"id":11021438,"timestamp":"2026-01-20 08:30:26.355","label":"B0","tail":"N38950","text":"/USADCXA.AFN/FMHUAL1,.N38950,A47FD9,082012/FRP0F93B","stratum":"B0/unparsed","expected":[]}
-{"id":11084226,"timestamp":"2026-01-20 10:14:10.808","label":"B0","tail":"N78009","text":"/SOUCAYA.AFN/FMHUAL18,.N78009,AA9300,101407/FRP056EE","stratum":"B0/unparsed","expected":[]}
-{"id":11133811,"timestamp":"2026-01-20 11:26:58.328","label":"B0","tail":"G-ZBLJ","text":"/SOUCAYA.AFN/FMHBAW185,.G-ZBLJ,4080BB,112157/FRP09A31","stratum":"B0/unparsed","expected":[]}
-{"id":11252985,"timestamp":"2026-01-20 13:56:14.571","label":"B0","tail":"N543DE","text":"/KUSA.AFN/FMHDAL394,.N543DE,,125424/FPON46050W125028,1/FCOADS,01/FCOATC,017DB1","stratum":"B0/unparsed","expected":[]}
-{"id":11593095,"timestamp":"2026-01-21 22:11:14.963","label":"B0","tail":"N215HA","text":"/USADCXA.AFN/FMHASA959,.N215HA,,174850/FCPOAKODYA,0A84C","stratum":"B0/unparsed","expected":[]}
-{"id":11625707,"timestamp":"2026-01-21 22:50:37.775","label":"B0","tail":"A7-BFK","text":"/EDYY.AFN/FMHQTR8101,.A7-BFK,06A1E8,191547/FPON52318E003584,1/FCOADS,01/FCOATC,012C51","stratum":"B0/unparsed","expected":[]}
-{"id":11683794,"timestamp":"2026-01-22 04:43:46.783","label":"B0","tail":"B-18771","text":"/PAZA.AFN/FMHCAL5322,B-18771,8990A0,044344/FPON61156W149346,1/FCOADS,01/FCOATC,011F39","stratum":"B0/unparsed","expected":[]}
-{"id":11688252,"timestamp":"2026-01-22 04:51:15.650","label":"B0","tail":"VH-ZNC","text":"/CZVR.AFN/FMHQFA76,.VH-ZNC,7C8066,045114/FPON49064W124010,1/FCOATC,01/FCOADS,01F4A9","stratum":"B0/unparsed","expected":[]}
-{"id":11700339,"timestamp":"2026-01-22 05:08:25.033","label":"B0","tail":"TC-JJM","text":"/NYCODYA.AFN/FMHTHY6,.TC-JJM,4BA94D,050819/FPON41318W073347,0/FCOADS,01/FCOATC,01B914","stratum":"B0/unparsed","expected":[]}
+{"id":36598,"timestamp":"2025-12-31T18:22:14.961Z","label":"B0","tail":"HB-JHI","flight":"LX52","text":"/SOUCAYA.AFN/FMHSWR52,.HB-JHI,,182214/FRP0FF5C","stratum":"B0/unparsed","expected":[]}
+{"id":93245,"timestamp":"2025-12-31T18:53:30.199Z","label":"B0","tail":"C-FDHG","flight":"AC956","text":"/USADCXA.AFN/FMHACA956,.C-FDHG,,185318/FCPYYZE2YA,03CBC","stratum":"B0/unparsed","expected":[]}
+{"id":137240,"timestamp":"2026-01-03T04:51:03.359Z","label":"B0","tail":"HL8285","text":"/YWGE2YA.AFN/FMHKAL8231,.HL8285,71C285,044805/FPON52150W112468,0/FCOADS,01/FCOATC,015110","stratum":"B0/unparsed","expected":[]}
+{"id":192613,"timestamp":"2026-01-03T06:38:58.088Z","label":"B0","tail":"G-XWBK","text":"/CZVR.AFN/FMHBAW88C,.G-XWBK,407AF4,055417/FPON49115W123124,1/FCOADS,01/FCOATC,01DA60","stratum":"B0/unparsed","expected":[]}
+{"id":647843,"timestamp":"2026-01-04T02:51:24.969Z","label":"B0","tail":"F-OVAA","text":"/YYZE2YA.AFN/FMHTHT8,.F-OVAA,3A5400,225028/FPON43135W085187,0/FCOATC,01/FCOADS,016184","stratum":"B0/unparsed","expected":[]}
+{"id":767240,"timestamp":"2026-01-04T07:00:26.398Z","label":"B0","tail":"JA879A","text":"/USADCXA.AFN/FMHANA117,.JA879A,86E888,002344/FCPYVRE2YA,007B1","stratum":"B0/unparsed","expected":[]}
+{"id":913373,"timestamp":"2026-01-04T17:40:36.902Z","label":"B0","tail":"G-ZBLB","text":"/SNNCPXA.AFN/FMHBAW22B,.G-ZBLB,4078DE,171705/FPON53217W002277,0/FCOATC,01/FCOADS,014AA8","stratum":"B0/unparsed","expected":[]}
+{"id":1468324,"timestamp":"2026-01-05T09:33:55.919Z","label":"B0","tail":"HB-JNA","text":"/YWGE2YA.AFN/FMHSWR41G,.HB-JNA,4B1916,062523/FPON46482W092127,0/FCOADS,01/FCOATC,019118","stratum":"B0/unparsed","expected":[]}
+{"id":1468515,"timestamp":"2026-01-05T09:34:06.551Z","label":"B0","tail":"HB-JNA","text":"/USADCXA.AFN/FMHSWR41G,.HB-JNA,4B1916,062528/FCPYWGE2YA,0DC67","stratum":"B0/unparsed","expected":[]}
+{"id":1731804,"timestamp":"2026-01-05T16:29:05.580Z","label":"B0","tail":"N872QS","text":"/USADCXA.AFN/FMHN872QS,.N872QS,ABFF33,132521/FRP0E4D6","stratum":"B0/unparsed","expected":[]}
+{"id":1831168,"timestamp":"2026-01-05T18:29:42.333Z","label":"B0","tail":"OKJRL","text":"/SOUCAYA.AFN/FMHTVS65J,..OKJRL,49D63B,140030/FPON55105W002041,1/FCOADS,01/FCOATC,01299F","stratum":"B0/unparsed","expected":[]}
+{"id":1971840,"timestamp":"2026-01-06T02:05:54.869Z","label":"B0","tail":"N78008","text":"/USADCXA.AFN/FMHUAL803,.N78008,AA92FF,004109/FCPYYZE2YA,0D49F","stratum":"B0/unparsed","expected":[]}
+{"id":1999568,"timestamp":"2026-01-06T02:44:45.463Z","label":"B0","tail":"N633JB","text":"/KUSA.AFN/FMHJBU56,.N633JB,A849AB,005425/FPON34334W077309,1/FCOADS,01/FCOATC,01FADE","stratum":"B0/unparsed","expected":[]}
+{"id":2312055,"timestamp":"2026-01-06T12:53:37.876Z","label":"B0","tail":"C-GKUG","text":"/SOUCAYA.AFN/FMHACA809,.C-GKUG,,124050/FRP05184","stratum":"B0/unparsed","expected":[]}
+{"id":2312134,"timestamp":"2026-01-06T12:53:44.904Z","label":"B0","tail":"C-GKUG","text":"/SOUCAYA.AFN/FMHACA809,.C-GKUG,,124050/FRP05184","stratum":"B0/unparsed","expected":[]}
+{"id":2318008,"timestamp":"2026-01-06T13:01:46.782Z","label":"B0","tail":"G-VBZZ","text":"/PIKCAYA.AFN/FMHVIR19Z,.G-VBZZ,406E0F,123726/FPON52523W001310,0/FCOATC,01/FCOADS,017E67","stratum":"B0/unparsed","expected":[]}
+{"id":2805698,"timestamp":"2026-01-07T03:45:17.218Z","label":"B0","tail":"HB-JHA","text":"/CZQM.AFN/FMHSWR2K,.HB-JHA,4B187A,024439/FPON39106W076004,1/FCOADS,01/FCOATC,0160DD","stratum":"B0/unparsed","expected":[]}
+{"id":2964523,"timestamp":"2026-01-07T06:54:30.243Z","label":"B0","tail":"N774CK","text":"/YYZE2YA.AFN/FMHCKS264,.N774CK,AA781F,043317/FCPUSADCXA,0EC3D","stratum":"B0/unparsed","expected":[]}
+{"id":3025023,"timestamp":"2026-01-07T08:20:53.519Z","label":"B0","tail":"A6-EQF","text":"/USADCXA.AFN/FMHUAE3TK,.A6-EQF,896455,055152/FRP0102A","stratum":"B0/unparsed","expected":[]}
+{"id":3129751,"timestamp":"2026-01-07T10:43:22.139Z","label":"B0","tail":"D-AALC","text":"/USADCXA.AFN/FMHBOX465,.D-AALC,3C4583,083444/FRP0ED3D","stratum":"B0/unparsed","expected":[]}
+{"id":3360598,"timestamp":"2026-01-07T18:40:40.883Z","label":"B0","tail":"OH-LWR","text":"/ENOB.AFN/FMHFIN15,.OH-LWR,461F59,180132/FPON65008E009534,1/FCOADS,01/FCOATC,01C18F","stratum":"B0/unparsed","expected":[]}
+{"id":3522922,"timestamp":"2026-01-07T21:49:20.275Z","label":"B0","tail":"B-7880","text":"/YULE2YA.AFN/FMHCHH729,.B-7880,780FF1,191456/FRP0CF8C","stratum":"B0/unparsed","expected":[]}
+{"id":4062136,"timestamp":"2026-01-08T15:42:43.212Z","label":"B0","tail":"B-32F8","text":"J45A3U3812/UPGCAYA.AFN/FMHCSC3812,.B-32F8,781FBE,142500/FPOS10533E140059,0/FCOADS,01/FCOATC,0149FD","stratum":"B0/unparsed","expected":[]}
+{"id":4409810,"timestamp":"2026-01-09T04:35:02.482Z","label":"B0","tail":"N128DN","text":"/USADCXA.AFN/FMHDAL2614,.N128DN,,025950/FRP0B31E","stratum":"B0/unparsed","expected":[]}
+{"id":4518353,"timestamp":"2026-01-09T06:44:33.464Z","label":"B0","tail":"G-STBN","text":"/EGTT.AFN/FMHBAW12,.G-STBN,407993,043805/FPON51014E005065,1/FCOADS,01/FCOATC,01C788","stratum":"B0/unparsed","expected":[]}
+{"id":4527097,"timestamp":"2026-01-09T06:56:45.337Z","label":"B0","tail":"N774CK","text":"/YYZE2YA.AFN/FMHCKS264,.N774CK,AA781F,044829/FRP016F2","stratum":"B0/unparsed","expected":[]}
+{"id":4549250,"timestamp":"2026-01-09T07:28:06.039Z","label":"B0","tail":"C-FEGI","text":"/YEGE2YA.AFN/FMHACA7093,.C-FEGI,C00B35,052053/FCPYVRE2YA,0F847","stratum":"B0/unparsed","expected":[]}
+{"id":4688209,"timestamp":"2026-01-09T10:38:10.841Z","label":"B0","tail":"C-FGDT","text":"/USADCXA.AFN/FMHACA90,.C-FGDT,C0103A,083153/FCPNYCODYA,08D35","stratum":"B0/unparsed","expected":[]}
+{"id":4726404,"timestamp":"2026-01-09T11:31:50.407Z","label":"B0","tail":"N4064J","text":"/USADCXA.AFN/FMHJBU9002,.N4064J,,091424/FRP029A1","stratum":"B0/unparsed","expected":[]}
+{"id":4977086,"timestamp":"2026-01-09T20:07:36.570Z","label":"B0","tail":"A7-BFR","text":"/EDYY.AFN/FMHQTR8L,.A7-BFR,06A2DF,190850/FPON51031E004323,1/FCOADS,01/FCOATC,018F2F","stratum":"B0/unparsed","expected":[]}
+{"id":5084209,"timestamp":"2026-01-09T22:13:00.076Z","label":"B0","tail":"G-ZBLA","text":"/SNNCPXA.AFN/FMHBAW239,.G-ZBLA,407898,195535/FPON51580W003095,0/FCOATC,01/FCOADS,017DDF","stratum":"B0/unparsed","expected":[]}
+{"id":5106526,"timestamp":"2026-01-09T22:36:55.503Z","label":"B0","tail":"SE-RSG","text":"/YEGE2YA.AFN/FMHSAS935,.SE-RSG,,200440/FCPYVRE2YA,065A0","stratum":"B0/unparsed","expected":[]}
+{"id":5270347,"timestamp":"2026-01-10T01:17:38.534Z","label":"B0","tail":"G-VOOH","text":"/SOUCAYA.AFN/FMHVIR25B,.G-VOOH,406B4A,210432/FCPSNNCPXA,09DF9","stratum":"B0/unparsed","expected":[]}
+{"id":5284344,"timestamp":"2026-01-10T04:41:24.125Z","label":"B0","tail":"G-ZBJC","text":"/YULE2YA.AFN/FMHBAW98T,.G-ZBJC,406890,044120/FRP05E46","stratum":"B0/unparsed","expected":[]}
+{"id":5474880,"timestamp":"2026-01-10T09:55:12.957Z","label":"B0","tail":"B-18772","text":"/CZVR.AFN/FMHCAL5381,B-18772,8990A4,082040/FPON47318W122460,1/FCOADS,01/FCOATC,019674","stratum":"B0/unparsed","expected":[]}
+{"id":5946405,"timestamp":"2026-01-11T04:39:58.284Z","label":"B0","tail":"N375HA","text":"/KZAK.AFN/FMHASA802,.N375HA,A4470E,012530/FPON21190W157238,1/FCOADS,01/FCOATC,011872","stratum":"B0/unparsed","expected":[]}
+{"id":6232018,"timestamp":"2026-01-11T12:00:39.714Z","label":"B0","tail":"N78017","text":"/SOUCAYA.AFN/FMHUAL951,.N78017,AA9321,115232/FCPSNNCPXA,00B9D","stratum":"B0/unparsed","expected":[]}
+{"id":6271725,"timestamp":"2026-01-11T12:43:11.291Z","label":"B0","tail":"N772CK","text":"/USADCXA.AFN/FMHCKS220,.N772CK,AA70B1,121446/FCPOAKODYA,05521","stratum":"B0/unparsed","expected":[]}
+{"id":6336061,"timestamp":"2026-01-11T13:45:33.458Z","label":"B0","tail":"OO-JDL","text":"/EGTT.AFN/FMHTFL757,.OO-JDL,44A88C,124220/FPON52126E004294,1/FCOATC,01/FCOADS,011E94","stratum":"B0/unparsed","expected":[]}
+{"id":6553802,"timestamp":"2026-01-11T22:23:14.919Z","label":"B0","tail":"B-2075","text":"/YEGE2YA.AFN/FMHCSG2651,.B-2075,7805AA,194641/FRP031B5","stratum":"B0/unparsed","expected":[]}
+{"id":6657832,"timestamp":"2026-01-12T05:19:43.779Z","label":"B0","tail":"TC-LJE","text":"/USADCXA.AFN/FMHTHY2AY,.TC-LJE,4BB145,051722/FCPYYZE2YA,00786","stratum":"B0/unparsed","expected":[]}
+{"id":6738433,"timestamp":"2026-01-12T07:03:44.784Z","label":"B0","tail":"G-ZBKK","text":"/USADCXA.AFN/FMHBAW196E,.G-ZBKK,406F77,070323/FRP093E7","stratum":"B0/unparsed","expected":[]}
+{"id":6788428,"timestamp":"2026-01-12T08:12:23.980Z","label":"B0","tail":"B-LXA","text":"/USADCXA.AFN/FMHCPA843,..B-LXA,,081220/FRP06F03","stratum":"B0/unparsed","expected":[]}
+{"id":6859659,"timestamp":"2026-01-12T10:00:14.832Z","label":"B0","tail":"D-AALV","text":"/YYZE2YA.AFN/FMHBOX443,.D-AALV,3C4596,095952/FPON42206W084581,0/FCOADS,01/FCOATC,01301E","stratum":"B0/unparsed","expected":[]}
+{"id":6904796,"timestamp":"2026-01-12T11:07:04.530Z","label":"B0","tail":"C-FVLX","text":"/KUSA.AFN/FMHACA39,.C-FVLX,C038AA,110152/FPON48535W123149,1/FCOATC,01/FCOADS,015EC9","stratum":"B0/unparsed","expected":[]}
+{"id":6935816,"timestamp":"2026-01-12T11:51:36.427Z","label":"B0","tail":"HL8210","text":"/YEGE2YA.AFN/FMHKAL037,.HL8210,71C210,112912/FRP0A1C0","stratum":"B0/unparsed","expected":[]}
+{"id":6946621,"timestamp":"2026-01-12T12:06:41.501Z","label":"B0","tail":"G-ZBLC","text":"/EGTT.AFN/FMHBAW2PD,.G-ZBLC,407979,113718/FPON52203W000408,1/FCOATC,01/FCOADS,012FB6","stratum":"B0/unparsed","expected":[]}
+{"id":6947386,"timestamp":"2026-01-12T12:08:02.036Z","label":"B0","tail":"C-GEGP","text":"/EGTT.AFN/FMHACA809,.C-GEGP,C04FE4,113755/FPON52209E004257,1/FCOADS,01/FCOATC,01B823","stratum":"B0/unparsed","expected":[]}
+{"id":7020584,"timestamp":"2026-01-12T13:30:59.102Z","label":"B0","tail":"G-XLED","text":"/SOUCAYA.AFN/FMHBAW5L,.G-XLED,,122013/FCPPIKCAYA,05AF1","stratum":"B0/unparsed","expected":[]}
+{"id":7234985,"timestamp":"2026-01-12T19:54:37.811Z","label":"B0","tail":"C-GHPQ","text":"/USADCXA.AFN/FMHACA588,.C-GHPQ,C058BB,183253/FCPYYZE2YA,04B74","stratum":"B0/unparsed","expected":[]}
+{"id":7313227,"timestamp":"2026-01-12T21:44:45.623Z","label":"B0","tail":"N856QS","text":"/KUSA.AFN/FMHEJA856,.N856QS,ABBF11,192510/FPON42099W087579,1/FCOADS,01/FCOATC,0162EC","stratum":"B0/unparsed","expected":[]}
+{"id":7593042,"timestamp":"2026-01-13T08:00:45.930Z","label":"B0","tail":"N2639U","text":"/OAKODYA.AFN/FMHUAL189,.N2639U,A28DC8,080026/FPON37378W122241,0/FCOADS,01/FCOATC,014DEB","stratum":"B0/unparsed","expected":[]}
+{"id":7684591,"timestamp":"2026-01-13T10:38:25.056Z","label":"B0","tail":"N225UA","text":"/SOUCAYA.AFN/FMHUAL879,.N225UA,A1F557,103805/FCPPIKCAYA,050B1","stratum":"B0/unparsed","expected":[]}
+{"id":7705117,"timestamp":"2026-01-13T11:10:50.421Z","label":"B0","tail":"D-AIHY","text":"/EGTT.AFN/FMHDLH430,.D-AIHY,3C6519,110806/FPON52504E003389,1/FCOADS,01/FCOATC,01811F","stratum":"B0/unparsed","expected":[]}
+{"id":7711258,"timestamp":"2026-01-13T11:19:42.523Z","label":"B0","tail":"N78017","text":"/EGTT.AFN/FMHUAL988,.N78017,AA9321,111424/FPON51216E005567,1/FCOADS,01/FCOATC,01962C","stratum":"B0/unparsed","expected":[]}
+{"id":7783933,"timestamp":"2026-01-13T12:57:21.000Z","label":"B0","tail":"TC-LMD","text":"/EGTT.AFN/FMHTHY4PF,.TC-LMD,4BB1A4,121201/FPON51192E000208,1/FCOATC,01/FCOADS,01E5D1","stratum":"B0/unparsed","expected":[]}
+{"id":7850730,"timestamp":"2026-01-13T15:02:08.468Z","label":"B0","tail":"G-ZBLL","text":"/SNNCPXA.AFN/FMHBAW225Y,.G-ZBLL,4080C0,142810/FPON51484W003006,0/FCOATC,01/FCOADS,01F33A","stratum":"B0/unparsed","expected":[]}
+{"id":7851036,"timestamp":"2026-01-13T15:02:35.272Z","label":"B0","tail":"G-ZBLL","text":"/SOUCAYA.AFN/FMHBAW225Y,.G-ZBLL,4080C0,142816/FCPSNNCPXA,044A1","stratum":"B0/unparsed","expected":[]}
+{"id":7940999,"timestamp":"2026-01-13T16:42:40.162Z","label":"B0","tail":"A7-BFV","text":"/NYCODYA.AFN/FMHQTR32P,.A7-BFV,06A2E3,151352/FPON41490W073016,0/FCOADS,01/FCOATC,019586","stratum":"B0/unparsed","expected":[]}
+{"id":7979267,"timestamp":"2026-01-13T17:31:33.155Z","label":"B0","tail":"C-GUDO","text":"/SOUCAYA.AFN/FMHWJA1,.C-GUDO,C079D5,153025/FRP06AC5","stratum":"B0/unparsed","expected":[]}
+{"id":8053672,"timestamp":"2026-01-13T21:01:25.219Z","label":"B0","tail":"B-LXR","text":"/ANCXFXA.AFN/FMHCPA812,..B-LXR,,202526/FRP025CC","stratum":"B0/unparsed","expected":[]}
+{"id":8162106,"timestamp":"2026-01-14T00:42:59.246Z","label":"B0","tail":"N377DN","text":"/USADCXA.AFN/FMHDAL1098,.N377DN,,000554/FCPYYZE2YA,0C9A3","stratum":"B0/unparsed","expected":[]}
+{"id":8274468,"timestamp":"2026-01-14T03:19:24.492Z","label":"B0","tail":"A6-EVL","text":"/USADCXA.AFN/FMHUAE216,.A6-EVL,,014044/FCPYVRE2YA,07358","stratum":"B0/unparsed","expected":[]}
+{"id":8275008,"timestamp":"2026-01-14T03:20:19.874Z","label":"B0","tail":"CS-TUF","text":"/MUFH.AFN/FMHTAP278,.CS-TUF,4952A6,014112/FPON21110W086314,1/FCOADS,01/FCOATC,0141C2","stratum":"B0/unparsed","expected":[]}
+{"id":8342421,"timestamp":"2026-01-17T06:05:23.673Z","label":"B0","tail":"B-18773","text":"/ANCXFXA.AFN/FMHCAL5322,B-18773,8990A5,045701/FRP0BD94","stratum":"B0/unparsed","expected":[]}
+{"id":8369942,"timestamp":"2026-01-17T06:44:52.694Z","label":"B0","tail":"40135E","text":"/KUSA.AFN/FMHSPAR945,.40135E,,053852/FPON30389W098130,1/FCOADS,01/FCOATC,013C71","stratum":"B0/unparsed","expected":[]}
+{"id":8488041,"timestamp":"2026-01-17T09:34:57.920Z","label":"B0","tail":"N596DT","text":"/YEGE2YA.AFN/FMHDAL377,.N596DT,,090235/FCPYWGE2YA,0B155","stratum":"B0/unparsed","expected":[]}
+{"id":8582334,"timestamp":"2026-01-17T12:21:38.659Z","label":"B0","tail":"N722AN","text":"/EGTT.AFN/FMHAAL733,.N722AN,A9AB07,121834/FPON51308W001123,1/FCOADS,01/FCOATC,016249","stratum":"B0/unparsed","expected":[]}
+{"id":8696330,"timestamp":"2026-01-17T14:23:50.003Z","label":"B0","tail":"PH-BKR","text":"/SOUCAYA.AFN/FMHKLM641,.PH-BKR,486073,131849/FRP0D290","stratum":"B0/unparsed","expected":[]}
+{"id":8855748,"timestamp":"2026-01-17T17:25:40.495Z","label":"B0","tail":"N719AN","text":"/SOUCAYA.AFN/FMHAAL735,.N719AN,A99D89,153008/FCPSNNCPXA,0C9BF","stratum":"B0/unparsed","expected":[]}
+{"id":8885847,"timestamp":"2026-01-17T17:54:12.327Z","label":"B0","tail":"C-FVND","text":"/NYCODYA.AFN/FMHACA944,.C-FVND,C038CA,145331/FPON41126W073042,0/FCOATC,01/FCOADS,016C45","stratum":"B0/unparsed","expected":[]}
+{"id":8979313,"timestamp":"2026-01-17T19:45:10.753Z","label":"B0","tail":"G-ZBLH","text":"/SOUCAYA.AFN/FMHBAW49,.G-ZBLH,408092,153644/FRP0F311","stratum":"B0/unparsed","expected":[]}
+{"id":9028197,"timestamp":"2026-01-18T00:46:27.054Z","label":"B0","tail":"N729JB","text":"/KUSA.AFN/FMHJBU2119,.N729JB,A9C5C5,004454/FPON40138W073283,1/FCOADS,01/FCOATC,01CD7A","stratum":"B0/unparsed","expected":[]}
+{"id":9248955,"timestamp":"2026-01-18T05:23:22.708Z","label":"B0","tail":"A9C-FC","text":"/EDUU.AFN/FMHGFA007,.A9C-FC,89408D,052317/FPON49441E009360,1/FCOATC,01/FCOADS,01D36A","stratum":"B0/unparsed","expected":[]}
+{"id":9330170,"timestamp":"2026-01-18T07:22:37.152Z","label":"B0","tail":"TC-LGA","text":"/USADCXA.AFN/FMHTHY4YT,.TC-LGA,,071311/FRP043D8","stratum":"B0/unparsed","expected":[]}
+{"id":9333447,"timestamp":"2026-01-18T07:27:06.529Z","label":"B0","tail":"B-18780","text":"/ANCXFXA.AFN/FMHCAL5312,B-18780,899017,071634/FCPYEGE2YA,058A6","stratum":"B0/unparsed","expected":[]}
+{"id":9409976,"timestamp":"2026-01-18T09:26:21.399Z","label":"B0","tail":"N78017","text":"/EGTT.AFN/FMHUAL56,.N78017,AA9321,092616/FPON53440W003040,1/FCOADS,01/FCOATC,01EAC1","stratum":"B0/unparsed","expected":[]}
+{"id":9685170,"timestamp":"2026-01-18T16:53:56.425Z","label":"B0","tail":"N12021","text":"/ANCXFXA.AFN/FMHUAL882,.N12021,A0566A,160850/FCPYEGE2YA,0B996","stratum":"B0/unparsed","expected":[]}
+{"id":9784093,"timestamp":"2026-01-18T18:59:03.949Z","label":"B0","tail":"N881QS","text":"/KUSA.AFN/FMHEJA881,.N881QS,AC22FB,164406/FPON38020W097509,1/FCOADS,01/FCOATC,01369D","stratum":"B0/unparsed","expected":[]}
+{"id":9810714,"timestamp":"2026-01-18T19:44:24.284Z","label":"B0","tail":"B-LXB","text":"/ANCXFXA.AFN/FMHCPA840,..B-LXB,,174151/FCPYEGE2YA,0FD3A","stratum":"B0/unparsed","expected":[]}
+{"id":9838787,"timestamp":"2026-01-18T20:29:21.535Z","label":"B0","tail":"A6-EET","text":"/USADCXA.AFN/FMHUAE232,.A6-EET,,165730/FRP03442","stratum":"B0/unparsed","expected":[]}
+{"id":9933202,"timestamp":"2026-01-19T02:33:18.605Z","label":"B0","tail":"B-18780","text":"/PAZA.AFN/FMHCAL5311,B-18780,899017,021852/FPON61161W155056,1/FCOADS,01/FCOATC,011684","stratum":"B0/unparsed","expected":[]}
+{"id":10006356,"timestamp":"2026-01-19T04:06:22.658Z","label":"B0","tail":"N4074J","text":"/USADCXA.AFN/FMHJBU33,.N4074J,,032636/FCPYQME2YA,097B8","stratum":"B0/unparsed","expected":[]}
+{"id":10010895,"timestamp":"2026-01-19T04:15:19.148Z","label":"B0","tail":"HL8076","text":"/YEGE2YA.AFN/FMHKAL9232,.HL8076,71C076,033047/FCPYVRE2YA,01473","stratum":"B0/unparsed","expected":[]}
+{"id":10296087,"timestamp":"2026-01-19T11:39:40.745Z","label":"B0","tail":"G-ZBLK","text":"/SOUCAYA.AFN/FMHBAW185,.G-ZBLK,4080BF,113123/FRP05EE9","stratum":"B0/unparsed","expected":[]}
+{"id":10410093,"timestamp":"2026-01-19T14:39:28.998Z","label":"B0","tail":"N74007","text":"/USADCXA.AFN/FMHUAL2143,.N74007,A9F502,140934/FRP09CA1","stratum":"B0/unparsed","expected":[]}
+{"id":10523455,"timestamp":"2026-01-19T18:06:17.312Z","label":"B0","tail":"9H-ALC","text":"J50A3L0596/ZWWW.AFN/FMHAIZ596,.9H-ALC,4D206E,162722/FPON40333E094271,1/FCOADS,01/FCOATC,01D09D","stratum":"B0/unparsed","expected":[]}
+{"id":10536964,"timestamp":"2026-01-19T17:49:34.551Z","label":"B0","tail":"G-ZBJE","text":"/SOUCAYA.AFN/FMHBAW97A,.G-ZBJE,406A9C,161339/FRP0E9A0","stratum":"B0/unparsed","expected":[]}
+{"id":10697624,"timestamp":"2026-01-19T23:35:46.736Z","label":"B0","tail":"C-FVLX","text":"/YVRE2YA.AFN/FMHACA114,.C-FVLX,C038AA,221640/FRP0897B","stratum":"B0/unparsed","expected":[]}
+{"id":10884483,"timestamp":"2026-01-20T05:21:42.516Z","label":"B0","tail":"N217UA","text":"/OAKODYA.AFN/FMHUAL829,.N217UA,A1D546,045608/FPON37386W122377,0/FCOADS,01/FCOATC,01C069","stratum":"B0/unparsed","expected":[]}
+{"id":10996275,"timestamp":"2026-01-20T07:53:14.588Z","label":"B0","tail":"B-58502","text":"/KZAK.AFN/FMHSJX011,B-58502,8991E5,073602/FPON38175W123089,1/FCOADS,01/FCOATC,011FEB","stratum":"B0/unparsed","expected":[]}
+{"id":11021438,"timestamp":"2026-01-20T08:30:26.355Z","label":"B0","tail":"N38950","text":"/USADCXA.AFN/FMHUAL1,.N38950,A47FD9,082012/FRP0F93B","stratum":"B0/unparsed","expected":[]}
+{"id":11084226,"timestamp":"2026-01-20T10:14:10.808Z","label":"B0","tail":"N78009","text":"/SOUCAYA.AFN/FMHUAL18,.N78009,AA9300,101407/FRP056EE","stratum":"B0/unparsed","expected":[]}
+{"id":11133811,"timestamp":"2026-01-20T11:26:58.328Z","label":"B0","tail":"G-ZBLJ","text":"/SOUCAYA.AFN/FMHBAW185,.G-ZBLJ,4080BB,112157/FRP09A31","stratum":"B0/unparsed","expected":[]}
+{"id":11252985,"timestamp":"2026-01-20T13:56:14.571Z","label":"B0","tail":"N543DE","text":"/KUSA.AFN/FMHDAL394,.N543DE,,125424/FPON46050W125028,1/FCOADS,01/FCOATC,017DB1","stratum":"B0/unparsed","expected":[]}
+{"id":11593095,"timestamp":"2026-01-21T22:11:14.963Z","label":"B0","tail":"N215HA","text":"/USADCXA.AFN/FMHASA959,.N215HA,,174850/FCPOAKODYA,0A84C","stratum":"B0/unparsed","expected":[]}
+{"id":11625707,"timestamp":"2026-01-21T22:50:37.775Z","label":"B0","tail":"A7-BFK","text":"/EDYY.AFN/FMHQTR8101,.A7-BFK,06A1E8,191547/FPON52318E003584,1/FCOADS,01/FCOATC,012C51","stratum":"B0/unparsed","expected":[]}
+{"id":11683794,"timestamp":"2026-01-22T04:43:46.783Z","label":"B0","tail":"B-18771","text":"/PAZA.AFN/FMHCAL5322,B-18771,8990A0,044344/FPON61156W149346,1/FCOADS,01/FCOATC,011F39","stratum":"B0/unparsed","expected":[]}
+{"id":11688252,"timestamp":"2026-01-22T04:51:15.650Z","label":"B0","tail":"VH-ZNC","text":"/CZVR.AFN/FMHQFA76,.VH-ZNC,7C8066,045114/FPON49064W124010,1/FCOATC,01/FCOADS,01F4A9","stratum":"B0/unparsed","expected":[]}
+{"id":11700339,"timestamp":"2026-01-22T05:08:25.033Z","label":"B0","tail":"TC-JJM","text":"/NYCODYA.AFN/FMHTHY6,.TC-JJM,4BA94D,050819/FPON41318W073347,0/FCOADS,01/FCOATC,01B914","stratum":"B0/unparsed","expected":[]}

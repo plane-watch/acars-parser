@@ -1,4 +1,4 @@
-{"id":3674833,"timestamp":"2026-01-07 19:59:59.872","label":"S1","tail":"76036S","text":"AMCZA45KIABKIAB1844        1850404910497000700090000000048000400100000","stratum":"S1/unparsed","expected":[]}
-{"id":4172133,"timestamp":"2026-01-09 00:33:37.824","label":"S1","text":"00XW","stratum":"S1/unparsed","expected":[]}
-{"id":4265540,"timestamp":"2026-01-09 02:02:56.229","label":"S1","tail":"06076S","text":"AMCZA55KIABKIAB0034        0038404720472004300600000000046300100000000","stratum":"S1/unparsed","expected":[]}
-{"id":9769695,"timestamp":"2026-01-18 19:54:43.124","label":"S1","tail":"16086S","text":"L00AMC0000AMCCA70PHNLPHNL0259        0305401120160001500210010013008900800000000","stratum":"S1/unparsed","expected":[]}
+{"id":3674833,"timestamp":"2026-01-07T19:59:59.872Z","label":"S1","tail":"76036S","text":"AMCZA45KIABKIAB1844        1850404910497000700090000000048000400100000","stratum":"S1/unparsed","expected":[]}
+{"id":4172133,"timestamp":"2026-01-09T00:33:37.824Z","label":"S1","text":"00XW","stratum":"S1/unparsed","expected":[]}
+{"id":4265540,"timestamp":"2026-01-09T02:02:56.229Z","label":"S1","tail":"06076S","text":"AMCZA55KIABKIAB0034        0038404720472004300600000000046300100000000","stratum":"S1/unparsed","expected":[]}
+{"id":9769695,"timestamp":"2026-01-18T19:54:43.124Z","label":"S1","tail":"16086S","text":"L00AMC0000AMCCA70PHNLPHNL0259        0305401120160001500210010013008900800000000","stratum":"S1/unparsed","expected":[]}

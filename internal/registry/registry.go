@@ -3,6 +3,7 @@
 package registry
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 
@@ -68,12 +69,16 @@ type Registry struct {
 
 	// sorted tracks whether parsers have been sorted
 	sorted bool
+
+	// names holds every registered parser name, which must be unique.
+	names map[string]bool
 }
 
 // New creates a new Registry instance.
 func New() *Registry {
 	return &Registry{
 		byLabel: make(map[string][]Parser),
+		names:   make(map[string]bool),
 	}
 }
 
@@ -96,10 +101,13 @@ func RegisterCatchAll(p Parser) {
 	defaultRegistry.RegisterCatchAll(p)
 }
 
-// Register adds a parser to the registry.
+// Register adds a parser to the registry. It panics if a parser with the same
+// name is already registered: names identify results and break ordering ties,
+// so a duplicate is a programming error that must surface at start-up.
 func (r *Registry) Register(p Parser) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	r.claimName(p.Name())
 
 	labels := p.Labels()
 	if len(labels) == 0 {
@@ -113,12 +121,23 @@ func (r *Registry) Register(p Parser) {
 	r.sorted = false
 }
 
-// RegisterCatchAll adds a catch-all parser.
+// RegisterCatchAll adds a catch-all parser. Like Register, it panics on a
+// duplicate parser name.
 func (r *Registry) RegisterCatchAll(p Parser) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	r.claimName(p.Name())
 	r.catchAll = append(r.catchAll, p)
 	r.sorted = false
+}
+
+// claimName records a parser name, panicking if it is already taken.
+// The caller must hold r.mu.
+func (r *Registry) claimName(name string) {
+	if r.names[name] {
+		panic(fmt.Sprintf("registry: parser %q registered twice", name))
+	}
+	r.names[name] = true
 }
 
 // sortParsers orders parsers by ascending priority, breaking ties by name so

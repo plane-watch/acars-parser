@@ -363,14 +363,22 @@ Draws a deterministic sample of stored messages and records what the current par
 | Flag | Default | Description |
 |---|---|---|
 | `-cutoff` | *(required)* | Only sample messages at or before this UTC time (`YYYY-MM-DD HH:MM:SS`), so that the sample is reproducible |
-| `-per-stratum` | `100` | Maximum messages per (label, parser type) group |
+| `-per-stratum` | `100` | Maximum messages per stratum (label plus current result types) |
 | `-out` | `internal/parsers/testdata/baseline` | Output directory |
 
 How the sample is drawn:
 
-- Messages are deduplicated by ID.
-- Each (label, stored parser type) group contributes up to `-per-stratum` messages, chosen by `cityHash64(id)` with the ID as a tie-breaker. The same data therefore always produces the same sample.
-- One file is written per label, plus a `manifest.json` that records the cutoff, the sampling and the commit that recorded the expectations.
+1. Every message up to the cutoff is parsed with the current parsers.
+2. Each message's stratum is its label plus the sorted result types it produces, for example `RA/takeoff_data+weather` or `H1/unparsed`. Grouping by current output, rather than by the stored parser type, gives every registered parser its own share of the sample.
+3. Each stratum keeps up to `-per-stratum` messages, those with the lowest `cityHash64(id)`, with the ID as a tie-breaker. The same data therefore always produces the same sample.
+4. Duplicates are handled per ID. An ID stored more than once is used once if its copies agree, and is excluded (and counted) if they conflict.
+
+The output is one file per label, plus a `manifest.json` that records:
+- the cutoff and the sampling rules
+- the commit that drew the sample and the commit that recorded the expectations
+- the number of cases in each file
+
+The new baseline is written to a staging directory and swapped in, so a failed run leaves the previous baseline intact. A full scan of the 11.7M-message corpus takes a few minutes.
 
 ### unparse
 
@@ -615,12 +623,19 @@ The PostgreSQL integration tests in `internal/storage` are skipped when no datab
 
 ### Parser regression baseline
 
-`go test` includes `TestBaseline` in `internal/parsers`. It re-parses every message in the recorded sample (`internal/parsers/testdata/baseline/`) and fails on **any** added, removed or changed result, reporting each difference by parser and field. New results count as changes, so a parser that starts matching messages it should not match is caught too.
+`go test` includes `TestBaseline` in `internal/parsers`.
+
+- It re-parses every message in the recorded sample (`internal/parsers/testdata/baseline/`).
+- It fails on **any** added, removed or changed result, and reports each difference by parser and field (as a JSON Pointer path).
+- New results count as changes, so a parser that starts matching messages it should not match is caught too.
+- It also fails if the fixture files do not match the manifest's per-file case counts, so a deleted or truncated file cannot quietly reduce coverage.
 
 When every reported difference is intended, re-record the expectations and commit them with the parser change, so that the diff shows the effect of the change:
 
 ```bash
 go test ./internal/parsers -run TestBaseline -update-baseline
 ```
+
+Pass the package path as shown. Other packages do not define the flag, so `go test ./... -update-baseline` fails them.
 
 Use `acars_parser baseline` to draw a new sample, for example after the stored corpus has grown.

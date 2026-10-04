@@ -1,13 +1,13 @@
-{"id":65814,"timestamp":"2025-12-31 18:38:21.368","label":"4D","tail":"C-FENO","flight":"WR3570","text":"MNT01,311838,WEN3570,IRS 3 DIFFERENCE\r\nWARNING IN CRUISE\r\n","stratum":"4D/unparsed","expected":[]}
-{"id":2279774,"timestamp":"2026-01-06 11:17:31.407","label":"4D","tail":"EI-DER","text":"\r\nEIN34J/06JAN26/EI-DER/EIDW/EIDW/ANY-0930,LFT-0931,CAR-0930","stratum":"4D/unparsed","expected":[]}
-{"id":2686899,"timestamp":"2026-01-06 20:01:55.100","label":"4D","tail":"JY-REA","text":"** 4D LSZH OJAI\r\n/FN 154 \r\n/R ENG START 142409","stratum":"4D/unparsed","expected":[]}
-{"id":3931580,"timestamp":"2026-01-08 09:48:24.741","label":"4D","tail":"EI-DEJ","text":"\r\nEIN4GM/08JAN26/EI-DEJ/EIDW/EIDW/ANY-0933,LFT-0933,CAR-0934","stratum":"4D/unparsed","expected":[]}
-{"id":4737805,"timestamp":"2026-01-09 11:53:00.759","label":"4D","tail":"EI-DEO","text":"\r\nEIN34J/09JAN26/EI-DEO/EIDW/EIDW/ANY-0912,LFT-0912,CAR-0912","stratum":"4D/unparsed","expected":[]}
-{"id":6327701,"timestamp":"2026-01-11 13:38:37.371","label":"4D","tail":"JY-REF","text":"** 4D LSZH ****\r\n/FN 153 \r\n/L ENG STOP  123909","stratum":"4D/unparsed","expected":[]}
-{"id":6327818,"timestamp":"2026-01-11 13:38:41.304","label":"4D","tail":"JY-REF","text":"** 4D LSZH ****\r\n/FN 153 \r\n/R ENG STOP  123910","stratum":"4D/unparsed","expected":[]}
-{"id":6848762,"timestamp":"2026-01-12 09:43:33.010","label":"4D","tail":"EI-DVN","text":"\r\nEIN34J/12JAN26/EI-DVN/EIDW/EIDW/ANY-0927,LFT-0927,CAR-0928","stratum":"4D/unparsed","expected":[]}
-{"id":8504488,"timestamp":"2026-01-17 10:00:58.140","label":"4D","tail":"EI-DVL","text":"\r\nEIN34J/17JAN26/EI-DVL/EIDW/EIDW/ANY-0923,LFT-0923,CAR-0923","stratum":"4D/unparsed","expected":[]}
-{"id":10228305,"timestamp":"2026-01-19 09:52:49.027","label":"4D","tail":"EI-DVH","text":"\r\nEIN34J/19JAN26/EI-DVH/EIDW/EIDW/ANY-0937,LFT-0938,CAR-0937","stratum":"4D/unparsed","expected":[]}
-{"id":10242226,"timestamp":"2026-01-19 10:15:22.014","label":"4D","tail":"EC-NAY","text":"IB06DT.19JAN26.LEMD.LSZH.14.Y.C3.N.....000/002.900.","stratum":"4D/unparsed","expected":[]}
-{"id":10607802,"timestamp":"2026-01-19 21:36:52.376","label":"4D","tail":"C-GENU","text":"MNT01,192126,WEN3403,LPV UNAVAILABLE\r\nMESSAGE ON FMS CAME\r\nUP","stratum":"4D/unparsed","expected":[]}
-{"id":11093151,"timestamp":"2026-01-20 10:27:09.301","label":"4D","tail":"EI-DVK","text":"\r\nEIN4GM/20JAN26/EI-DVK/EIDW/EIDW/ANY-1012,LFT-1013,CAR-1012","stratum":"4D/unparsed","expected":[]}
+{"id":65814,"timestamp":"2025-12-31T18:38:21.368Z","label":"4D","tail":"C-FENO","flight":"WR3570","text":"MNT01,311838,WEN3570,IRS 3 DIFFERENCE\r\nWARNING IN CRUISE\r\n","stratum":"4D/unparsed","expected":[]}
+{"id":2279774,"timestamp":"2026-01-06T11:17:31.407Z","label":"4D","tail":"EI-DER","text":"\r\nEIN34J/06JAN26/EI-DER/EIDW/EIDW/ANY-0930,LFT-0931,CAR-0930","stratum":"4D/unparsed","expected":[]}
+{"id":2686899,"timestamp":"2026-01-06T20:01:55.100Z","label":"4D","tail":"JY-REA","text":"** 4D LSZH OJAI\r\n/FN 154 \r\n/R ENG START 142409","stratum":"4D/unparsed","expected":[]}
+{"id":3931580,"timestamp":"2026-01-08T09:48:24.741Z","label":"4D","tail":"EI-DEJ","text":"\r\nEIN4GM/08JAN26/EI-DEJ/EIDW/EIDW/ANY-0933,LFT-0933,CAR-0934","stratum":"4D/unparsed","expected":[]}
+{"id":4737805,"timestamp":"2026-01-09T11:53:00.759Z","label":"4D","tail":"EI-DEO","text":"\r\nEIN34J/09JAN26/EI-DEO/EIDW/EIDW/ANY-0912,LFT-0912,CAR-0912","stratum":"4D/unparsed","expected":[]}
+{"id":6327701,"timestamp":"2026-01-11T13:38:37.371Z","label":"4D","tail":"JY-REF","text":"** 4D LSZH ****\r\n/FN 153 \r\n/L ENG STOP  123909","stratum":"4D/unparsed","expected":[]}
+{"id":6327818,"timestamp":"2026-01-11T13:38:41.304Z","label":"4D","tail":"JY-REF","text":"** 4D LSZH ****\r\n/FN 153 \r\n/R ENG STOP  123910","stratum":"4D/unparsed","expected":[]}
+{"id":6848762,"timestamp":"2026-01-12T09:43:33.010Z","label":"4D","tail":"EI-DVN","text":"\r\nEIN34J/12JAN26/EI-DVN/EIDW/EIDW/ANY-0927,LFT-0927,CAR-0928","stratum":"4D/unparsed","expected":[]}
+{"id":8504488,"timestamp":"2026-01-17T10:00:58.140Z","label":"4D","tail":"EI-DVL","text":"\r\nEIN34J/17JAN26/EI-DVL/EIDW/EIDW/ANY-0923,LFT-0923,CAR-0923","stratum":"4D/unparsed","expected":[]}
+{"id":10228305,"timestamp":"2026-01-19T09:52:49.027Z","label":"4D","tail":"EI-DVH","text":"\r\nEIN34J/19JAN26/EI-DVH/EIDW/EIDW/ANY-0937,LFT-0938,CAR-0937","stratum":"4D/unparsed","expected":[]}
+{"id":10242226,"timestamp":"2026-01-19T10:15:22.014Z","label":"4D","tail":"EC-NAY","text":"IB06DT.19JAN26.LEMD.LSZH.14.Y.C3.N.....000/002.900.","stratum":"4D/unparsed","expected":[]}
+{"id":10607802,"timestamp":"2026-01-19T21:36:52.376Z","label":"4D","tail":"C-GENU","text":"MNT01,192126,WEN3403,LPV UNAVAILABLE\r\nMESSAGE ON FMS CAME\r\nUP","stratum":"4D/unparsed","expected":[]}
+{"id":11093151,"timestamp":"2026-01-20T10:27:09.301Z","label":"4D","tail":"EI-DVK","text":"\r\nEIN4GM/20JAN26/EI-DVK/EIDW/EIDW/ANY-1012,LFT-1013,CAR-1012","stratum":"4D/unparsed","expected":[]}
