@@ -266,13 +266,17 @@ Re-runs the current parsers over stored messages and compares each new result wi
 | `-json` | `false` | Output as JSON |
 | `-dump` | none | Write regressed messages, with raw text, to a file |
 | `-update` | `false` | Insert the new results into ClickHouse |
-| `-batch` | `10000` | ClickHouse query page size |
+| `-batch` | `10000` | ClickHouse query page size (with `-rebuild`, the insert batch size) |
+| `-rebuild` | `false` | Reparse every message into a new archive table and swap it in (see below) |
+| `-drop-flight-before` | none | With `-rebuild`: blank the stored flight of messages before this date (`YYYY-MM-DD`) |
 
 Behaviour to be aware of:
 
 - Each stored row is compared with the new result of the same type. If that type is no longer produced, the row is compared with the first match, so the change of type is reported.
 - Without `-update`, nothing is written to ClickHouse.
 - `-update` inserts new rows and does not remove the old ones, because `messages` is a plain `MergeTree`. It creates duplicate rows (see [docs/storage.md](docs/storage.md)).
+- `-rebuild` reparses the whole archive without duplicates: it reads each distinct message once, writes its rows (as `live` would) into `messages_rebuild`, and, if the number of messages matches, exchanges the tables and keeps the old archive as `messages_previous`. It refuses to run while `messages_previous` exists; drop that table (`DROP TABLE acars.messages_previous`) once the rebuilt archive is checked. Stop `live` first: messages it stores during the rebuild are lost at the swap. The link-layer fields (direction, block ID, addresses) are not stored, so the reparse runs without them.
+- Code before the transmitted flight was kept stored Airframes' flight record in `flight`. `-drop-flight-before 2026-02-01` blanks it for the January 2026 corpus, so that the extractor and `backfill` do not treat it as transmitted.
 
 ### debug
 

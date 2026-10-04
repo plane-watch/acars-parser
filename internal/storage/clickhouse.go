@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -66,9 +67,23 @@ func (d *ClickHouseDB) Close() error {
 }
 
 // CreateSchema creates the ClickHouse tables.
-func (d *ClickHouseDB) CreateSchema(ctx context.Context) error {
-	queries := []string{
-		`CREATE TABLE IF NOT EXISTS messages (
+// MessagesTable is the message archive table.
+const MessagesTable = "messages"
+
+// tableNameRe matches the table names the message-table functions accept.
+// They are interpolated into SQL, so only plain identifiers are allowed.
+var tableNameRe = regexp.MustCompile(`^[a-z][a-z0-9_]{0,63}$`)
+
+func checkTableName(name string) error {
+	if !tableNameRe.MatchString(name) {
+		return fmt.Errorf("invalid table name %q", name)
+	}
+	return nil
+}
+
+// messagesDDL returns the CREATE TABLE statement of a messages table.
+func messagesDDL(name string) string {
+	return `CREATE TABLE IF NOT EXISTS ` + name + ` (
 			id              UInt64,
 			timestamp       DateTime64(3),
 			label           LowCardinality(String),
@@ -86,7 +101,12 @@ func (d *ClickHouseDB) CreateSchema(ctx context.Context) error {
 		ENGINE = MergeTree()
 		PARTITION BY toYYYYMM(timestamp)
 		ORDER BY (parser_type, label, timestamp, id)
-		SETTINGS index_granularity = 8192`,
+		SETTINGS index_granularity = 8192`
+}
+
+func (d *ClickHouseDB) CreateSchema(ctx context.Context) error {
+	queries := []string{
+		messagesDDL(MessagesTable),
 
 		`CREATE TABLE IF NOT EXISTS atis_history (
 			id              UInt64,
@@ -178,12 +198,20 @@ func (d *ClickHouseDB) Insert(ctx context.Context, p CHInsertParams) error {
 
 // InsertBatch stores multiple messages in ClickHouse efficiently.
 func (d *ClickHouseDB) InsertBatch(ctx context.Context, messages []CHInsertParams) error {
+	return d.InsertBatchInto(ctx, MessagesTable, messages)
+}
+
+// InsertBatchInto stores multiple messages in the named messages table.
+func (d *ClickHouseDB) InsertBatchInto(ctx context.Context, table string, messages []CHInsertParams) error {
 	if len(messages) == 0 {
 		return nil
 	}
+	if err := checkTableName(table); err != nil {
+		return err
+	}
 
 	batch, err := d.conn.PrepareBatch(ctx, `
-		INSERT INTO messages (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence)
+		INSERT INTO `+table+` (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence)
 	`)
 	if err != nil {
 		return fmt.Errorf("prepare batch: %w", err)
@@ -466,4 +494,99 @@ func (d *ClickHouseDB) MaxID(ctx context.Context) (uint64, error) {
 		return 0, err
 	}
 	return maxID, nil
+}
+
+// CreateMessagesTable creates an empty messages table with the given name,
+// laid out as the message archive.
+func (d *ClickHouseDB) CreateMessagesTable(ctx context.Context, name string) error {
+	if err := checkTableName(name); err != nil {
+		return err
+	}
+	return d.conn.Exec(ctx, messagesDDL(name))
+}
+
+// TableExists reports whether a table exists in the connection's database.
+func (d *ClickHouseDB) TableExists(ctx context.Context, name string) (bool, error) {
+	var n uint64
+	err := d.conn.QueryRow(ctx, `SELECT count() FROM system.tables WHERE database = currentDatabase() AND name = ?`, name).Scan(&n)
+	return n > 0, err
+}
+
+// DropTable drops a table if it exists.
+func (d *ClickHouseDB) DropTable(ctx context.Context, name string) error {
+	if err := checkTableName(name); err != nil {
+		return err
+	}
+	return d.conn.Exec(ctx, `DROP TABLE IF EXISTS `+name)
+}
+
+// ExchangeTables atomically swaps the names of two tables.
+func (d *ClickHouseDB) ExchangeTables(ctx context.Context, a, b string) error {
+	if err := checkTableName(a); err != nil {
+		return err
+	}
+	if err := checkTableName(b); err != nil {
+		return err
+	}
+	return d.conn.Exec(ctx, `EXCHANGE TABLES `+a+` AND `+b)
+}
+
+// RenameTable renames a table.
+func (d *ClickHouseDB) RenameTable(ctx context.Context, from, to string) error {
+	if err := checkTableName(from); err != nil {
+		return err
+	}
+	if err := checkTableName(to); err != nil {
+		return err
+	}
+	return d.conn.Exec(ctx, `RENAME TABLE `+from+` TO `+to)
+}
+
+// CountDistinctIDs returns the number of distinct message IDs in a messages
+// table (a message has one row per parse result).
+func (d *ClickHouseDB) CountDistinctIDs(ctx context.Context, table string) (uint64, error) {
+	if err := checkTableName(table); err != nil {
+		return 0, err
+	}
+	var n uint64
+	err := d.conn.QueryRow(clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0})),
+		`SELECT uniqExact(id) FROM `+table).Scan(&n)
+	return n, err
+}
+
+// RawMessage is a stored message's transmitted content, without its parse
+// results.
+type RawMessage struct {
+	ID        uint64
+	Timestamp time.Time
+	Label     string
+	Tail      string
+	Flight    string
+	RawText   string
+}
+
+// StreamRawMessages calls fn once for each distinct message ID in a
+// messages table, with the message's transmitted content (taken from one
+// of its rows; they hold the same content). The query has no time limit.
+// fn's error stops the stream and is returned.
+func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, fn func(RawMessage) error) error {
+	if err := checkTableName(table); err != nil {
+		return err
+	}
+	rows, err := d.conn.Query(clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0})),
+		`SELECT id, timestamp, label, tail, flight, raw_text FROM `+table+` LIMIT 1 BY id`)
+	if err != nil {
+		return fmt.Errorf("query messages: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+	for rows.Next() {
+		var m RawMessage
+		if err := rows.Scan(&m.ID, &m.Timestamp, &m.Label, &m.Tail, &m.Flight, &m.RawText); err != nil {
+			return fmt.Errorf("scan message: %w", err)
+		}
+		if err := fn(m); err != nil {
+			return err
+		}
+	}
+	return rows.Err()
 }

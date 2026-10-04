@@ -144,6 +144,9 @@ Reparse Options:
   -limit N              Limit number of messages to process
   -update               Update ClickHouse with new parse results
   -batch N              Batch size for updates (default: 10000)
+  -rebuild              Reparse every message into a new table and swap it in
+                        (stop live first; the old archive is kept as messages_previous)
+  -drop-flight-before D With -rebuild: blank the stored flight before date D (YYYY-MM-DD)
   -json                 Output as JSON
 
 Debug Options:

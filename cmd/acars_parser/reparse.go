@@ -9,6 +9,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"acars_parser/internal/acars"
 	"acars_parser/internal/registry"
@@ -48,6 +49,8 @@ func runReparseCmd(args []string) {
 	dumpFile := fs.String("dump", "", "Dump regressed messages to file (includes raw text)")
 	updateDB := fs.Bool("update", false, "Update ClickHouse with new parse results")
 	batchSize := fs.Int("batch", 10000, "Batch size for updates")
+	rebuild := fs.Bool("rebuild", false, "Reparse every message into a new archive table and swap it in (stop live first); the old archive is kept as "+previousTable)
+	dropFlightBefore := fs.String("drop-flight-before", "", "With -rebuild: blank the stored flight of messages before this date (YYYY-MM-DD), stored by code that used Airframes' flight record")
 
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing flags: %v\n", err)
@@ -69,6 +72,25 @@ func runReparseCmd(args []string) {
 		os.Exit(1)
 	}
 	defer func() { _ = chDB.Close() }()
+
+	if *rebuild {
+		var cutoff time.Time
+		if *dropFlightBefore != "" {
+			if cutoff, err = time.Parse("2006-01-02", *dropFlightBefore); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: -drop-flight-before: %v\n", err)
+				os.Exit(1)
+			}
+		}
+		fmt.Println("Rebuilding the message archive (live must be stopped)...")
+		stats, err := rebuildArchive(ctx, chDB, registry.Default(), cutoff, *batchSize)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Rebuilt: %d messages, %d rows (%d messages without text skipped). The previous archive is in %s.\n",
+			stats.Messages, stats.Rows, stats.Empty, previousTable)
+		return
+	}
 
 	// Handle single message reparse.
 	if *msgID != 0 {

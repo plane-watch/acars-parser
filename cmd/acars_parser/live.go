@@ -579,28 +579,7 @@ func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry,
 
 			// Store in ClickHouse.
 			if msgBuffer != nil {
-				missingFields := getMissingFields(result)
-				origin, dest := extractRouteFromResult(result)
-				confidence := extractConfidenceFromResult(result)
-
-				flight := msg.FlightNumber
-
-				ts := parseTimestamp(msg.Timestamp)
-
-				msgBuffer.add(storage.CHInsertParams{
-					ID:            uint64(msg.ID),
-					Timestamp:     ts,
-					Label:         msg.Label,
-					ParserType:    typeName,
-					Flight:        flight,
-					Tail:          msg.Tail,
-					Origin:        origin,
-					Destination:   dest,
-					RawText:       msg.Text,
-					ParsedData:    result,
-					MissingFields: missingFields,
-					Confidence:    float32(confidence),
-				})
+				msgBuffer.add(resultRow(msg, result))
 			}
 		}
 	} else {
@@ -616,20 +595,7 @@ func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry,
 
 		// Store unparsed messages too.
 		if msgBuffer != nil && msg.Text != "" {
-			flight := msg.FlightNumber
-
-			ts := parseTimestamp(msg.Timestamp)
-
-			msgBuffer.add(storage.CHInsertParams{
-				ID:         uint64(msg.ID),
-				Timestamp:  ts,
-				Label:      msg.Label,
-				ParserType: "unparsed",
-				Flight:     flight,
-				Tail:       msg.Tail,
-				RawText:    msg.Text,
-				ParsedData: map[string]string{"label": msg.Label},
-			})
+			msgBuffer.add(unparsedRow(msg))
 		}
 	}
 }
