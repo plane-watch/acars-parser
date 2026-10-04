@@ -44,7 +44,7 @@ func init() {
 }
 
 func (p *Parser) Name() string     { return "cpdlc" }
-func (p *Parser) Labels() []string { return []string{"AA", "BA"} }
+func (p *Parser) Labels() []string { return []string{"AA", "BA", "H1"} }
 func (p *Parser) Priority() int    { return 50 } // Higher priority than generic parsers.
 
 // QuickCheck checks if the message contains CPDLC markers.
@@ -61,7 +61,16 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
-	text := msg.Text
+	// Label H1 carries CPDLC relayed with its original label ("- #MD/AA
+	// ...") or without the leading "/"; the original label, when given,
+	// stands in for the message's label in the direction fallback.
+	text, label := msg.Text, msg.Label
+	if inner, relayed, ok := arinc.Unwrap(text); ok {
+		text = inner
+		if relayed != "" {
+			label = relayed
+		}
+	}
 
 	result := &Result{
 		MsgID:     int64(msg.ID),
@@ -72,7 +81,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// 1. LinkDirection - explicit direction from feed (most reliable).
 	// 2. BlockID - ACARS block ID: '0'-'9' = downlink, letters = uplink.
 	// 3. Label - fallback: AA = downlink, BA = uplink (least reliable for CPDLC).
-	result.Direction = determineDirection(msg)
+	result.Direction = determineDirection(msg, label)
 
 	// Parse through ARINC layer (validates CRC, extracts payload).
 	arincResult, err := arinc.Parse(text)
@@ -119,17 +128,36 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return result
 	}
 
-	direction := DirectionDownlink
-	if result.Direction == "uplink" {
+	direction := DirectionUnknown
+	switch result.Direction {
+	case "uplink":
 		direction = DirectionUplink
+	case "downlink":
+		direction = DirectionDownlink
 	}
 
 	cpdlcMsg, err := DecodeWithUPER(arincResult.Payload, direction)
-	if err != nil {
+	switch {
+	case errors.Is(err, ErrAmbiguousDirection):
+		result.Error = "direction_unknown"
+		return result
+	case errors.Is(err, ErrNoValidElements):
+		result.Error = "no_valid_elements"
+		return result
+	case err != nil:
 		result.Error = "decode_failed: " + err.Error()
 		return result
 	}
 
+	// The decoder corrects the direction when only the other message set
+	// gives valid elements; report the direction it decoded with, which the
+	// element labels belong to.
+	switch cpdlcMsg.Direction {
+	case DirectionUplink:
+		result.Direction = "uplink"
+	case DirectionDownlink:
+		result.Direction = "downlink"
+	}
 	result.Header = &cpdlcMsg.Header
 	result.Elements = cpdlcMsg.Elements
 
@@ -139,9 +167,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	return result
 }
 
-// determineDirection determines the message direction using available indicators.
-// Priority: LinkDirection > BlockID > Label.
-func determineDirection(msg *acars.Message) string {
+// determineDirection returns the direction of a message whose label (or,
+// for a relayed message, original label) is label, or "" if it is not
+// known. Priority: LinkDirection > BlockID > Label.
+func determineDirection(msg *acars.Message, label string) string {
 	// 1. Use explicit link_direction if available (most reliable).
 	if msg.LinkDirection != "" {
 		switch msg.LinkDirection {
@@ -164,12 +193,18 @@ func determineDirection(msg *acars.Message) string {
 		}
 	}
 
-	// 3. Fallback to label-based heuristic (least reliable for CPDLC).
-	// AA is typically downlink, BA is typically uplink.
-	if msg.Label == "AA" {
+	// 3. Fall back to the label: AA carries uplinks and BA downlinks (as
+	// A6 and B6 do for ADS-C). In ten minutes of live traffic (October
+	// 2026), all 118 AA messages were uplinks and all 77 BA messages
+	// downlinks. Label H1 carries both directions (100 downlinks and 12
+	// uplinks in the same traffic), so it gives none.
+	switch label {
+	case "AA":
+		return "uplink"
+	case "BA":
 		return "downlink"
 	}
-	return "uplink"
+	return ""
 }
 
 // formatMessage creates a human-readable summary of the CPDLC message.

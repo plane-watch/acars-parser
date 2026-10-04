@@ -65,7 +65,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), weather (50), trajectory (50), takeoff_data (55), hazard_alert (60), loadsheet (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), cmcreport (60), hazard_alert (60), loadsheet (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
@@ -97,7 +97,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [agfsr](#agfsr) | agfsr | 4T | 100 | `agfsr` | Grok | No |
 | [atis](#atis) | atis | A9 | 100 | `atis` | Hand-written regex | Yes |
 | [cmcreport](#cmcreport) | cmcreport | H1 | 60 | `cmc_report` | Grok | Yes |
-| [cpdlc](#cpdlc) | cpdlc | AA, BA | 50 | `cpdlc` | ARINC layer + ASN.1 UPER decoding | Yes |
+| [cpdlc](#cpdlc) | cpdlc | AA, BA, H1 | 50 | `cpdlc` | ARINC layer + ASN.1 UPER decoding | Yes |
 | [crew_list](#crew_list) | crew | RA | 55 | `crew_list` | Hand-written regex | Yes |
 | [delay_summary](#delay_summary) | delay | 3E, RA | 50 | `delay_summary` | Hand-written regex | Yes |
 | [dispatcher](#dispatcher) | dispatch | RA, 25, H1 | 45 | `dispatcher` | Hand-written regex | Yes |
@@ -137,7 +137,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [turbulence](#turbulence) | turbulence | C1 | 65 | `turbulence` | Hand-written regex | No |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 43 parsers in 38 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 44 parsers in 40 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
 
 ---
 
@@ -249,18 +249,28 @@ RTE 1 04OCT26 0930 TG HS-TWC THA482 YPPH/VTBS BCG4F-45LD-0077 C L 0915 04OCT26
 
 ### cpdlc
 
-**Package:** `internal/parsers/cpdlc` · **Labels:** AA, BA · **Priority:** 50 · **Type:** `cpdlc`
+**Package:** `internal/parsers/cpdlc` · **Labels:** AA, BA, H1 · **Priority:** 50 · **Type:** `cpdlc`
 
 **Technique:** The ARINC layer (`internal/parsers/arinc`) validates the envelope and CRC and extracts the payload. The payload is then decoded as FANS-1/A ASN.1 unaligned PER with `github.com/shaneshort/go-asn/uper`, using the type definitions in `fans_uper_types.go`.
 
 **Description:** Parses FANS-1/A CPDLC (Controller-Pilot Data Link Communications) messages. The quick check looks for the `.AT1.`, `.CR1.`, `.CC1.` and `.DR1.` IMI markers.
 
-The result type is always `cpdlc`. The kind of message is recorded in the `message_type` field: `cpdlc`, `connect_request`, `connect_confirm` or `disconnect`. Connection messages carry no CPDLC payload. The direction (uplink or downlink) is taken from the feed's link direction, then the ACARS block ID, then the label. If decoding in that direction produces invalid elements, the decoder tries the other direction.
+Label H1 carries CPDLC in two further forms, which `arinc.Unwrap` converts to the envelope form: relayed with its original label (`- #MD/AA PIKCPYA.AT1.N657UA...`) and without the leading `/` (`USADCXA.AT1.N200WN...`).
+
+The result type is always `cpdlc`. The kind of message is recorded in the `message_type` field: `cpdlc`, `connect_request`, `connect_confirm` or `disconnect`. Connection messages carry no CPDLC payload.
+
+**Direction:** The uplink and downlink message sets give different meanings to the same element numbers (element 0 is dM0 WILCO as a downlink and uM0 UNABLE as an uplink), so the direction decides what a message says. It is taken from the feed's link direction, then the ACARS block ID, then the label: AA is an uplink and BA a downlink (for a relayed H1 message, its original label). In ten minutes of live traffic (October 2026), all 118 AA messages were uplinks and all 77 BA messages downlinks. Label H1 carries both directions, so it does not give one.
+
+The payload is decoded with both message sets, and a decode is valid when every element is defined:
+- If only one message set gives valid elements, it is used, and the result reports that direction, whatever the feed indicated.
+- If both do, the known direction decides. If the direction is not known, the elements are not reported and the error is `direction_unknown`.
+- If neither does, the elements are not reported and the error is `no_valid_elements`.
 
 **Extracted fields:** message type, direction, ground station, registration, header (message ID, optional reference number and optional timestamp), every message element (the primary element and any additional elements) with its label and formatted text, the formatted text of the whole message, the raw hex and any error (for example `crc_failed`).
 
 **Limitations:**
 - Route clearance data is not converted. For the elements that carry a `[routeclearance]` (UM79, UM80, UM83, UM85 and UM86), the payload is decoded into the UPER types, but the result contains only the element ID and label template. It carries no route data and no formatted text.
+- Some element templates are not filled in from the decoded data: for example, dM6 `REQUEST [altitude]` keeps its placeholder in the formatted text, although the element's data holds the level. Some uplink elements, such as uM153 `ALTIMETER [altimeter]` and uM61, are decoded without their data.
 - The `holdAtWaypoint` route information type and the RNP requirements field are defined in simplified form in `fans_uper_types.go`, not in full.
 
 ---

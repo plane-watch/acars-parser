@@ -192,3 +192,30 @@ func TestIsCPDLC(t *testing.T) {
 		t.Error("ADS should not be CPDLC")
 	}
 }
+
+// The inputs are real label H1 messages from the January 2026 corpus,
+// truncated after the registration.
+func TestUnwrap(t *testing.T) {
+	tests := []struct {
+		text, want, wantLabel string
+	}{
+		// Relayed with the original label.
+		{"- #MD/AA PIKCPYA.AT1.N657UA21B75B", "/PIKCPYA.AT1.N657UA21B75B", "AA"},
+		{"- #MD/A6 YQXE2YA.ADS.N830MH07010B", "/YQXE2YA.ADS.N830MH07010B", "A6"},
+		// Without the leading "/".
+		{"USADCXA.AT1.N200WN679F2093004DAA", "/USADCXA.AT1.N200WN679F2093004DAA", ""},
+		// Already in the form Parse reads.
+		{"/SOUCAYA.AT1.HL8251ABCD", "/SOUCAYA.AT1.HL8251ABCD", ""},
+	}
+	for _, tt := range tests {
+		got, label, ok := Unwrap(tt.text)
+		if !ok || got != tt.want || label != tt.wantLabel {
+			t.Errorf("Unwrap(%q) = %q, %q, %v; want %q, %q, true", tt.text, got, label, ok, tt.want, tt.wantLabel)
+		}
+	}
+	for _, text := range []string{"- #MDREQPOS037B", "REQPOS", "- #MD/AA free text"} {
+		if got, _, ok := Unwrap(text); ok {
+			t.Errorf("Unwrap(%q) = %q, true; want false", text, got)
+		}
+	}
+}

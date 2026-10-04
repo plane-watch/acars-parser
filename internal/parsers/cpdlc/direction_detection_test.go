@@ -2,6 +2,7 @@ package cpdlc
 
 import (
 	"encoding/hex"
+	"errors"
 	"testing"
 )
 
@@ -146,4 +147,49 @@ func TestDirectionValidation(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestDecodeWithUnknownDirection checks decoding when the direction is not
+// known from the link layer, block ID or label: the message set that gives
+// valid elements decides it, and a message both decode validly is ambiguous.
+func TestDecodeWithUnknownDirection(t *testing.T) {
+	// uM160 NEXT DATA AUTHORITY: valid only as an uplink.
+	data, _ := hex.DecodeString("232d8c2829509124")
+	msg, err := DecodeWithUPER(data, DirectionUnknown)
+	if err != nil || msg.Direction != DirectionUplink {
+		t.Errorf("uM160: direction %v, error %v; want uplink", msgDirection(msg), err)
+	}
+
+	// Element 0 is dM0 WILCO as a downlink and uM0 UNABLE as an uplink:
+	// the two meanings are opposite, so neither is reported.
+	data, _ = hex.DecodeString("6310A9940038D2")
+	if msg, err := DecodeWithUPER(data, DirectionUnknown); !errors.Is(err, ErrAmbiguousDirection) {
+		t.Errorf("element 0: direction %v, error %v; want ErrAmbiguousDirection", msgDirection(msg), err)
+	}
+	// With the direction known, it is decoded.
+	if msg, err := DecodeWithUPER(data, DirectionDownlink); err != nil || msg.Elements[0].Label != "WILCO" {
+		t.Errorf("element 0 as a downlink: %v, %v; want WILCO", msg, err)
+	}
+}
+
+// TestDecodeRejectsInvalidElements checks that a message neither message set
+// decodes to valid elements is an error, rather than a result with reserved
+// elements. The payload is a real label H1 message from the January 2026
+// corpus (N8830Q): the uplink decode fails and the downlink decode gives
+// the reserved dM117.
+func TestDecodeRejectsInvalidElements(t *testing.T) {
+	data, _ := hex.DecodeString("22B432DD6F1A7D2A882BCFA5524062218018D4")
+	data = data[:len(data)-2] // Strip the CRC.
+	for _, dir := range []MessageDirection{DirectionUplink, DirectionDownlink, DirectionUnknown} {
+		if msg, err := DecodeWithUPER(data, dir); !errors.Is(err, ErrNoValidElements) {
+			t.Errorf("direction %v: got %+v, %v; want ErrNoValidElements", dir, msg, err)
+		}
+	}
+}
+
+func msgDirection(msg *Message) MessageDirection {
+	if msg == nil {
+		return DirectionUnknown
+	}
+	return msg.Direction
 }

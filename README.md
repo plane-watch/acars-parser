@@ -462,7 +462,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `agfsr` | AGFSR flight status | 4T |
 | `atis` | D-ATIS | A9 |
 | `cmc_report` | Boeing CMC report headers (RTE, PLF, CFG): registration, airline code, callsign and route | H1 |
-| `cpdlc` | FANS-1/A CPDLC (ASN.1 PER), including connection management | AA, BA |
+| `cpdlc` | FANS-1/A CPDLC (ASN.1 PER), including connection management | AA, BA, H1 |
 | `crew_list` | Crew lists | RA |
 | `delay_summary` | IATA delay codes | 3E, RA |
 | `dispatcher` | Dispatcher and MEL messages | RA, 25, H1 |

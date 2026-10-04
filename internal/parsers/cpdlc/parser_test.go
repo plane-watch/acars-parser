@@ -76,11 +76,14 @@ func TestParse(t *testing.T) {
 		{
 			// Message with valid CRC - decodes successfully.
 			// Direction is determined by semantic validation of decoded elements.
-			name:         "Valid CRC decodes successfully",
-			label:        "AA",
-			text:         "/ANCATYA.AT1.N514DN220012E8294A952882D8",
-			wantType:     "cpdlc",
-			wantDir:      "downlink",
+			name:     "Valid CRC decodes successfully",
+			label:    "AA",
+			text:     "/ANCATYA.AT1.N514DN220012E8294A952882D8",
+			wantType: "cpdlc",
+			// The payload is uM160 NEXT DATA AUTHORITY RJJJ, which only the
+			// uplink message set decodes; the label alone does not decide
+			// the direction.
+			wantDir:      "uplink",
 			wantElements: 1,
 		},
 		{
@@ -188,4 +191,63 @@ func TestDecodeElementID(t *testing.T) {
 	}
 
 	t.Logf("Decoded element: ID=%d, Label=%s, Text=%s", elem.ID, elem.Label, elem.Text)
+}
+
+// TestParseRelayedH1 checks the forms in which label H1 carries CPDLC, using
+// real messages from the January 2026 corpus.
+func TestParseRelayedH1(t *testing.T) {
+	tests := []struct {
+		name, text, link, wantStation, wantReg, wantDir, wantText string
+	}{
+		{
+			// Relayed with its original label, AA. Only the uplink message
+			// set gives a valid element, so the decoder corrects the
+			// direction, and the result reports the corrected one.
+			name: "relayed with the original label", text: "- #MD/AA YQME2YA.AT1..N17RX22CE87E840CCD8",
+			wantStation: "YQME2YA", wantReg: ".N17RX", wantDir: "uplink", wantText: "END SERVICE",
+		},
+		{
+			// Without the leading "/", from live traffic (October 2026). The
+			// payload is dM0 WILCO as a downlink and uM0 UNABLE as an
+			// uplink; the link layer gave the direction.
+			name: "bare, with the link direction", text: "USADCXA.AT1.N7857B618691D300B734", link: "downlink",
+			wantStation: "USADCXA", wantReg: "N7857B", wantDir: "downlink", wantText: "WILCO",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "H1", Text: tt.text, LinkDirection: tt.link}).(*Result)
+			if !ok {
+				t.Fatal("Parse returned no result")
+			}
+			if r.Error != "" || r.GroundStation != tt.wantStation || r.Registration != tt.wantReg ||
+				r.Direction != tt.wantDir || r.FormattedText != tt.wantText {
+				t.Errorf("got error %q, station %q, reg %q, direction %q, text %q", r.Error, r.GroundStation, r.Registration, r.Direction, r.FormattedText)
+			}
+		})
+	}
+}
+
+// TestParseDirectionFallback checks the direction of a message whose
+// payload decodes validly both ways (dM0 WILCO, uM0 UNABLE) when the link
+// layer and block ID do not give it. Label BA is a downlink and AA an
+// uplink; label H1 carries both, so the message is not decoded.
+func TestParseDirectionFallback(t *testing.T) {
+	tests := []struct {
+		label, text, wantDir, wantText, wantError string
+	}{
+		{"BA", "/USADCXA.AT1.N7857B618691D300B734", "downlink", "WILCO", ""},
+		{"AA", "/USADCXA.AT1.N7857B618691D300B734", "uplink", "UNABLE", ""},
+		{"H1", "USADCXA.AT1.N7857B618691D300B734", "", "", "direction_unknown"},
+	}
+	for _, tt := range tests {
+		r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: tt.label, Text: tt.text}).(*Result)
+		if !ok {
+			t.Fatalf("label %s: Parse returned no result", tt.label)
+		}
+		if r.Direction != tt.wantDir || r.FormattedText != tt.wantText || r.Error != tt.wantError || (tt.wantError != "" && len(r.Elements) != 0) {
+			t.Errorf("label %s: direction %q, text %q, error %q, %d elements; want %q, %q, %q",
+				tt.label, r.Direction, r.FormattedText, r.Error, len(r.Elements), tt.wantDir, tt.wantText, tt.wantError)
+		}
+	}
 }

@@ -1,85 +1,63 @@
 package cpdlc
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/shaneshort/go-asn/uper"
 )
 
+// Errors returned by DecodeWithUPER when the direction cannot be settled.
+var (
+	// ErrAmbiguousDirection means that both message sets decode the message
+	// to valid elements and the direction is not known, e.g. element 0 is
+	// dM0 WILCO as a downlink and uM0 UNABLE as an uplink.
+	ErrAmbiguousDirection = errors.New("decodes validly as both an uplink and a downlink")
+
+	// ErrNoValidElements means that the message decodes, but neither message
+	// set gives valid (non-reserved) elements.
+	ErrNoValidElements = errors.New("no valid elements as an uplink or a downlink")
+)
+
 // DecodeWithUPER decodes a CPDLC message using the go-asn UPER library.
 // This is the correct decoder for FANS-1/A which uses Unaligned PER.
 //
-// Direction detection strategy:
-// 1. Try the provided direction first
-// 2. Validate decoded elements are semantically valid (not "(reserved)" or unknown)
-// 3. If validation fails, try the opposite direction
-// 4. Return whichever direction produces valid elements
-//
-// This approach is necessary because ACARS metadata (BlockID, Label, link_direction)
-// is often unreliable for determining CPDLC direction. The ASN.1 schemas for uplink
-// and downlink differ, but some messages can decode without error in both schemas.
-// Semantic validation (checking element labels) resolves the ambiguity.
+// The message is decoded with both the uplink and the downlink message set,
+// and a decode is valid when all its elements are defined (not reserved).
+// The ASN.1 schemas differ, but some messages decode without error in both,
+// so the content alone does not always decide the direction:
+//   - If one message set gives valid elements, it is used, whatever the
+//     given direction (the content proves the direction).
+//   - If both do, the given direction decides; with DirectionUnknown,
+//     ErrAmbiguousDirection is returned rather than a guess.
+//   - If neither does, ErrNoValidElements is returned (or the decode error,
+//     if neither decodes at all), rather than reserved elements.
 func DecodeWithUPER(data []byte, direction MessageDirection) (*Message, error) {
-	// Try primary direction first.
-	primaryMsg := &Message{Direction: direction}
-	var primaryResult *Message
-	var primaryErr error
-	var primaryValid bool
+	up, upErr := decodeUplinkUPER(data, &Message{Direction: DirectionUplink})
+	upValid := upErr == nil && validateUplinkElements(up)
+	down, downErr := decodeDownlinkUPER(data, &Message{Direction: DirectionDownlink})
+	downValid := downErr == nil && validateDownlinkElements(down)
 
-	if direction == DirectionUplink {
-		primaryResult, primaryErr = decodeUplinkUPER(data, primaryMsg)
-		if primaryErr == nil {
-			primaryValid = validateUplinkElements(primaryResult)
+	switch {
+	case upValid && downValid:
+		switch direction {
+		case DirectionUplink:
+			return up, nil
+		case DirectionDownlink:
+			return down, nil
 		}
-	} else {
-		primaryResult, primaryErr = decodeDownlinkUPER(data, primaryMsg)
-		if primaryErr == nil {
-			primaryValid = validateDownlinkElements(primaryResult)
+		return nil, ErrAmbiguousDirection
+	case upValid:
+		return up, nil
+	case downValid:
+		return down, nil
+	case upErr != nil && downErr != nil:
+		if direction == DirectionUplink {
+			return nil, upErr
 		}
+		return nil, downErr
 	}
-
-	// If primary direction decoded and validated successfully, return it.
-	if primaryErr == nil && primaryValid {
-		return primaryResult, nil
-	}
-
-	// Try opposite direction as fallback.
-	fallbackMsg := &Message{}
-	var fallbackResult *Message
-	var fallbackErr error
-	var fallbackValid bool
-
-	if direction == DirectionUplink {
-		fallbackMsg.Direction = DirectionDownlink
-		fallbackResult, fallbackErr = decodeDownlinkUPER(data, fallbackMsg)
-		if fallbackErr == nil {
-			fallbackValid = validateDownlinkElements(fallbackResult)
-		}
-	} else {
-		fallbackMsg.Direction = DirectionUplink
-		fallbackResult, fallbackErr = decodeUplinkUPER(data, fallbackMsg)
-		if fallbackErr == nil {
-			fallbackValid = validateUplinkElements(fallbackResult)
-		}
-	}
-
-	// If fallback decoded and validated successfully, return it.
-	if fallbackErr == nil && fallbackValid {
-		return fallbackResult, nil
-	}
-
-	// Neither direction validated successfully.
-	// Prefer returning a decoded result over an error, even if not validated.
-	// This allows partial decodes to still provide some information.
-	if primaryErr == nil {
-		return primaryResult, nil
-	}
-	if fallbackErr == nil {
-		return fallbackResult, nil
-	}
-
-	// Both failed to decode - return primary error.
-	return nil, primaryErr
+	return nil, ErrNoValidElements
 }
 
 // validateUplinkElements checks if all decoded uplink elements are semantically valid.
