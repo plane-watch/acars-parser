@@ -186,7 +186,7 @@ A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0T
 
 **Extracted fields:** the ground station, the registration, and each request in the message (a message can hold several): its kind (`cancel_all`, `cancel`, `cancel_emergency`, `periodic`, `event` or `emergency_periodic`), the contract number, and the request's terms: the reporting interval in seconds; the lateral deviation (nautical miles), vertical speed (ft/min; negative means report when descending faster) and altitude range (ft) that trigger an event report; whether to report waypoint changes; the data groups wanted (`flight_id`, `predicted_route`, `earth_reference`, `air_reference`, `meteo`, `airframe_id`), each with its modulus (sent with every modulus-th report); and aircraft intent (modulus and projection time in minutes).
 
-**Encoding:** As libacars (`adsc.c`). The reporting interval is the scaling factor (the top two bits: 0, 1, 8 or 64 for the values 0 to 3) times the rate (the low six bits) plus one, in seconds. Altitudes are signed, in 4 ft; the vertical speed is signed, in 64 ft/min; the lateral deviation is in eighths of a nautical mile.
+**Encoding:** As libacars (`adsc.c`). The reporting interval, in seconds, is the scaling factor (the top two bits: 0, 1, 8 or 64 for the values 0 to 3) × (the rate, the low six bits, + 1): `C8` is 64 × (8 + 1) = 576 seconds. Altitudes are signed, in 4 ft; the vertical speed is signed, in 64 ft/min; the lateral deviation is in eighths of a nautical mile.
 
 **Checked against libacars:** On 2,014 distinct A6 messages from the January 2026 corpus, every one of the 1,999 that libacars decodes gives the same requests and values, and the 15 that libacars cannot decode (an empty payload or a failed CRC) are not parsed.
 
