@@ -63,7 +63,7 @@ docker run -d --name acars-postgres -p 5432:5432 \
 
 `migrate` is the only command that creates the ClickHouse tables, so the last step is required on a fresh installation.
 
-To run the whole stack (both databases and the `live` ingester) with Docker Compose, see [docs/deployment.md](docs/deployment.md).
+To run the whole stack (both databases, the `live` ingester and a read-only web viewer for the PostgreSQL state, on port 8081) with Docker Compose, see [docs/deployment.md](docs/deployment.md).
 
 ### Configuration
 

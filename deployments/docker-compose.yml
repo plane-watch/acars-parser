@@ -1,10 +1,13 @@
-# The acars_parser stack: ClickHouse (message archive), PostgreSQL (state)
-# and the live ingester. See docs/deployment.md.
+# The acars_parser stack: ClickHouse (message archive), PostgreSQL (state),
+# the live ingester and a read-only web viewer for the state database. See
+# docs/deployment.md.
 #
 # Usage, from the repository root:
 #   docker compose -f deployments/docker-compose.yml up -d clickhouse postgres
 #   docker compose -f deployments/docker-compose.yml run --rm schema
 #   docker compose -f deployments/docker-compose.yml up -d live
+#   docker compose -f deployments/docker-compose.yml run --rm dbviewer-role
+#   docker compose -f deployments/docker-compose.yml up -d dbviewer
 name: acars
 
 services:
@@ -64,6 +67,59 @@ services:
     depends_on:
       clickhouse:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  # One-off: creates or updates the read-only role that dbviewer connects as.
+  # Idempotent; run it once before the first "up dbviewer", and again after a
+  # change to DBVIEWER_PASSWORD.
+  dbviewer-role:
+    image: postgres:16-alpine
+    profiles: ["tools"]
+    environment:
+      PGHOST: postgres
+      PGUSER: acars
+      PGDATABASE: acars_state
+      PGPASSWORD: ${POSTGRES_PASSWORD:-acars}
+      VIEWER_PASSWORD: ${DBVIEWER_PASSWORD:-acars_viewer}
+    # $$ stops Compose from interpolating; the shell in the container expands
+    # VIEWER_PASSWORD, so the password does not appear in the command line
+    # that Compose records.
+    command:
+      - sh
+      - -c
+      - psql -X -v viewer_role=acars_viewer -v "viewer_password=$$VIEWER_PASSWORD" -f /dbviewer-role.sql
+    volumes:
+      - ./postgres/dbviewer-role.sql:/dbviewer-role.sql:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # A read-only web interface to the PostgreSQL state database (pgweb).
+  # It has no authentication: anyone who can reach the port can read every
+  # table. See docs/deployment.md.
+  dbviewer:
+    image: sosedoff/pgweb:0.17.0
+    container_name: acars-dbviewer
+    restart: unless-stopped
+    environment:
+      # Read by the PostgreSQL driver, so the password stays out of the
+      # command line.
+      PGPASSWORD: ${DBVIEWER_PASSWORD:-acars_viewer}
+    command:
+      - pgweb
+      - --bind=0.0.0.0
+      - --listen=8081
+      - --host=postgres
+      - --user=acars_viewer
+      - --db=acars_state
+      - --ssl=disable
+      - --readonly
+      - --lock-session
+      - --skip-open
+    ports:
+      - "${DBVIEWER_BIND:-0.0.0.0}:8081:8081"
+    depends_on:
       postgres:
         condition: service_healthy
 
