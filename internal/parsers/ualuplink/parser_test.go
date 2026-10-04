@@ -54,11 +54,28 @@ func TestParseRejectsOtherText(t *testing.T) {
 		"QUNDCULUA~1EPNF INFO\r\nUA1211/02 XXXX KDEN\r\n",
 		// The day of the month is out of range.
 		"QUNDCULUA~1EPNF INFO\r\nUA1211/32 PHNL KDEN\r\n",
+		// A header-like line in the body, not in the header position.
+		"QUNDCULUA~1FREE TEXT\nDO NOT USE THE FOLLOWING ROUTE:\nUA1211/02 PHNL KDEN\nTHIS ROUTE HAS BEEN CANCELLED",
 		// Another airline's uplink.
 		"QUHDQOCLO~1RA101211540 TAKEOFF DATA\nUA1211/02 PHNL KDEN\n",
 	} {
 		if r := (&Parser{}).Parse(&acars.Message{Label: "RA", Text: text}); r != nil {
 			t.Errorf("Parse(%q) = %+v, want nil", text, r)
+		}
+	}
+}
+
+// TestParseHeaderPositionsAndSpacing checks the header after a part marker,
+// extra spaces and tabs, and CR-only line ends.
+func TestParseHeaderPositionsAndSpacing(t *testing.T) {
+	for _, text := range []string{
+		"QUNDCULUA~1HOWGOZIT\r\n** PART 01 OF 01 **\r\nUA1211/02 PHNL KDEN\r\n",
+		"QUNDCULUA~1EPNF INFO\n UA1211/02  PHNL\tKDEN \n",
+		"QUNDCULUA~1EPNF INFO\rUA1211/02 PHNL KDEN\rSENT: 06:53:29Z",
+	} {
+		r, ok := (&Parser{}).Parse(&acars.Message{Label: "RA", Text: text}).(*Result)
+		if !ok || r.Flight != "UA1211" || r.Origin != "PHNL" || r.Destination != "KDEN" {
+			t.Errorf("Parse(%q) = %+v", text, r)
 		}
 	}
 }

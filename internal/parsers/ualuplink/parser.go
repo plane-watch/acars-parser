@@ -2,7 +2,8 @@
 // from its operations system, address QUNDCULUA. The first line names the
 // message ("TURB SIGMET", "GATE ASSIGN", "EPNF INFO") and an early line names
 // the flight it is for: the flight number, its day of the month, and the
-// origin and destination. For example:
+// origin and destination. The flight line is the line after the title, or
+// after a part marker ("** PART 01 OF 01 **") that follows it. For example:
 //
 //	QUNDCULUA~1TURB SIGMET
 //		UAL252-04 PHNL KIAH
@@ -44,15 +45,13 @@ var (
 	// and the title.
 	titleRe = regexp.MustCompile(`^QUNDCULUA~\d([^\r\n]*)`)
 
-	// flightRe matches the flight line, which may be indented with a tab:
-	// the flight number, "/" or "-", the day, the origin and destination.
-	flightRe = regexp.MustCompile(`^\t?(UAL?\d{1,4})[/-](\d{2}) +([A-Z]{4}) ([A-Z]{4})\s*$`)
-)
+	// flightRe matches the flight line, which may be indented: the flight
+	// number, "/" or "-", the day, the origin and destination.
+	flightRe = regexp.MustCompile(`^[ \t]*(UAL?\d{1,4})[/-](\d{2})[ \t]+([A-Z]{4})[ \t]+([A-Z]{4})[ \t]*$`)
 
-// maxHeaderLines is how many lines after the title are searched for the
-// flight line; it is the first or, after a "** PART 01 OF 01 **" line, the
-// second.
-const maxHeaderLines = 3
+	// partRe matches a part marker, such as "** PART 01 OF 01 **".
+	partRe = regexp.MustCompile(`^[ \t]*\*\* PART \d+ OF \d+ \*\*[ \t]*$`)
+)
 
 // Parser parses United uplink headers.
 type Parser struct{}
@@ -77,25 +76,33 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if t == nil {
 		return nil
 	}
-	lines := strings.Split(strings.ReplaceAll(msg.Text, "\r", ""), "\n")
-	for i := 1; i < len(lines) && i <= maxHeaderLines; i++ {
-		f := flightRe.FindStringSubmatch(lines[i])
-		if f == nil {
-			continue
-		}
-		day, _ := strconv.Atoi(f[2])
-		if day < 1 || day > 31 || !patterns.IsValidICAO(f[3]) || !patterns.IsValidICAO(f[4]) {
-			return nil
-		}
-		return &Result{
-			MsgID:       int64(msg.ID),
-			Timestamp:   msg.Timestamp,
-			Title:       strings.TrimSpace(t[1]),
-			Flight:      f[1],
-			Day:         day,
-			Origin:      f[3],
-			Destination: f[4],
-		}
+	// The flight line is the line after the title, or after a part marker
+	// that follows the title. A flight-like line anywhere else is body text
+	// and is not read.
+	text := strings.ReplaceAll(msg.Text, "\r\n", "\n")
+	lines := strings.Split(strings.ReplaceAll(text, "\r", "\n"), "\n")
+	i := 1
+	if i < len(lines) && partRe.MatchString(lines[i]) {
+		i++
 	}
-	return nil
+	if i >= len(lines) {
+		return nil
+	}
+	f := flightRe.FindStringSubmatch(lines[i])
+	if f == nil {
+		return nil
+	}
+	day, _ := strconv.Atoi(f[2])
+	if day < 1 || day > 31 || !patterns.IsValidICAO(f[3]) || !patterns.IsValidICAO(f[4]) {
+		return nil
+	}
+	return &Result{
+		MsgID:       int64(msg.ID),
+		Timestamp:   msg.Timestamp,
+		Title:       strings.TrimSpace(t[1]),
+		Flight:      f[1],
+		Day:         day,
+		Origin:      f[3],
+		Destination: f[4],
+	}
 }

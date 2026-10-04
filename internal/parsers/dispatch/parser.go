@@ -14,13 +14,19 @@ type Result struct {
 	MsgID        int64  `json:"message_id,omitempty"`
 	FlightNumber string `json:"flight_number,omitempty"`
 	Tail         string `json:"tail,omitempty"`
-	AckRequired  bool   `json:"ack_required"`
-	Category     string `json:"category,omitempty"`    // MEL, SIGMET, FUEL, AMEND, etc.
-	MELRef       string `json:"mel_ref,omitempty"`     // MEL/CDL/SDL reference
-	MDDRNumber   string `json:"mddr_number,omitempty"` // Maintenance deferral number
-	DispatcherID string `json:"dispatcher_id,omitempty"`
-	Timestamp    string `json:"timestamp,omitempty"`
-	Content      string `json:"content,omitempty"` // Main message content
+
+	// FlightNumberDigits and AircraftNumber are from the "FLT: 991 /
+	// ACFT: 391" form: the flight number without its airline code, and the
+	// airline's own number for the aircraft (not a registration).
+	FlightNumberDigits string `json:"flight_number_digits,omitempty"`
+	AircraftNumber     string `json:"aircraft_number,omitempty"`
+	AckRequired        bool   `json:"ack_required"`
+	Category           string `json:"category,omitempty"`    // MEL, SIGMET, FUEL, AMEND, etc.
+	MELRef             string `json:"mel_ref,omitempty"`     // MEL/CDL/SDL reference
+	MDDRNumber         string `json:"mddr_number,omitempty"` // Maintenance deferral number
+	DispatcherID       string `json:"dispatcher_id,omitempty"`
+	Timestamp          string `json:"timestamp,omitempty"`
+	Content            string `json:"content,omitempty"` // Main message content
 }
 
 func (r *Result) Type() string     { return "dispatcher" }
@@ -75,16 +81,21 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		AckRequired: strings.Contains(text, "PLEASE ACK"),
 	}
 
-	// Parse flight/tail - format 1: ASA849 N381HA
+	// Parse flight/tail - format 1: ASA849 N381HA. Other text has the
+	// same shape (weather such as "FEW050 BKN100"), so the line is read
+	// only when its second token is the transmitted tail.
 	if m := flightTailRe1.FindStringSubmatch(text); m != nil {
-		result.FlightNumber = m[1]
-		result.Tail = m[2]
+		if t := acars.NormaliseRegistration(msg.Tail); t != "" && acars.NormaliseRegistration(m[2]) == t {
+			result.FlightNumber = m[1]
+			result.Tail = m[2]
+		}
 	}
 
-	// Parse flight/tail - format 2: FLT: 991 ACFT: 391
+	// Parse flight/tail - format 2: FLT: 991 ACFT: 391. These are the
+	// flight number's digits and the airline's aircraft number.
 	if m := flightTailRe2.FindStringSubmatch(text); m != nil {
-		result.FlightNumber = m[1]
-		result.Tail = m[2]
+		result.FlightNumberDigits = m[1]
+		result.AircraftNumber = m[2]
 	}
 
 	// Parse MEL reference.

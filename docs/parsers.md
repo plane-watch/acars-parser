@@ -357,6 +357,8 @@ The payload is decoded with both message sets. A decode is valid when every elem
 
 **Extracted fields:** flight number, tail, acknowledgement flag, category, MEL (Minimum Equipment List) reference, MDDR number, dispatcher ID, timestamp and message content.
 
+**Flight and tail:** A `ASA849 N381HA` line is read only when its second token is the transmitted tail, because other text has the same shape (weather such as `FEW050 BKN100`). The `FLT: 991` / `ACFT: 391` form gives the flight number's digits (`flight_number_digits`) and the airline's aircraft number (`aircraft_number`), which is not a registration.
+
 ---
 
 ### envelope
@@ -791,7 +793,7 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 
 **Technique:** Hand-written regex.
 
-**Description:** Parses the header of United Airlines uplinks from its operations system (address `QUNDCULUA`). The first line names the message, and the first or second line after it names the flight the message is for. For example:
+**Description:** Parses the header of United Airlines uplinks from its operations system (address `QUNDCULUA`). The first line names the message, and the line after it, or after a part marker (`** PART 01 OF 01 **`) that follows it, names the flight the message is for. A flight-like line anywhere else is body text and is not read. For example:
 
 ```
 QUNDCULUA~1TURB SIGMET
