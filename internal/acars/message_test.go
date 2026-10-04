@@ -234,3 +234,19 @@ func TestAircraftAddress(t *testing.T) {
 		})
 	}
 }
+
+func TestNormaliseRegistration(t *testing.T) {
+	tests := []struct{ in, want string }{
+		{"VH-EBO", "VHEBO"},
+		{".N17RX", "N17RX"},
+		{"..N17RX", "N17RX"},
+		{" ..b-lqc ", "BLQC"},
+		{"", ""},
+		{"...", ""},
+	}
+	for _, tt := range tests {
+		if got := NormaliseRegistration(tt.in); got != tt.want {
+			t.Errorf("NormaliseRegistration(%q) = %q, want %q", tt.in, got, tt.want)
+		}
+	}
+}

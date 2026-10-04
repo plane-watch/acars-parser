@@ -206,7 +206,7 @@ type flightID struct {
 // otherwise read as airline N1, flight 23, suffix AB.
 func parseFlightID(s, tail string) (flightID, bool) {
 	s = strings.TrimSpace(s)
-	if t := strings.ReplaceAll(strings.TrimPrefix(strings.TrimSpace(tail), "."), "-", ""); t != "" && strings.ReplaceAll(s, "-", "") == t {
+	if t := acars.NormaliseRegistration(tail); t != "" && acars.NormaliseRegistration(s) == t {
 		return flightID{}, false
 	}
 	m := callsignRe.FindStringSubmatch(s)
@@ -239,7 +239,7 @@ func sameFlight(a, b, tail string) bool {
 	ia, okA := parseFlightID(a, tail)
 	ib, okB := parseFlightID(b, tail)
 	if !okA || !okB {
-		return strings.ReplaceAll(a, "-", "") == strings.ReplaceAll(b, "-", "")
+		return acars.NormaliseRegistration(a) == acars.NormaliseRegistration(b)
 	}
 	if ia.number != ib.number || ia.suffix != ib.suffix {
 		return false

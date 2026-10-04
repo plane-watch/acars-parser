@@ -97,6 +97,15 @@ func (m *Message) AircraftAddress() (string, bool) {
 	return addr, true
 }
 
+// NormaliseRegistration returns a registration in a form for comparison:
+// upper case, without surrounding space, the leading dots with which ARINC
+// pads registrations to seven characters ("..N17RX"), or dashes. Two forms
+// of one registration ("VH-EBO", ".VHEBO") normalise to the same value.
+func NormaliseRegistration(s string) string {
+	s = strings.TrimLeft(strings.TrimSpace(s), ".")
+	return strings.ToUpper(strings.ReplaceAll(s, "-", ""))
+}
+
 // IsICAOAddress reports whether s is a usable 24-bit ICAO aircraft address:
 // six upper-case hex digits, and neither all zeros nor all ones (which are
 // not assigned to aircraft).

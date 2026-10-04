@@ -160,14 +160,10 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 }
 
 // isTransmittedTail reports whether a registration field is the transmitted
-// tail, ignoring dashes and a leading "." (as some messages transmit the
-// tail). An empty tail matches nothing.
+// tail (see acars.NormaliseRegistration). An empty tail matches nothing.
 func isTransmittedTail(reg, tail string) bool {
-	norm := func(s string) string {
-		return strings.ReplaceAll(strings.TrimPrefix(strings.TrimSpace(s), "."), "-", "")
-	}
-	t := norm(tail)
-	return t != "" && norm(reg) == t
+	t := acars.NormaliseRegistration(tail)
+	return t != "" && acars.NormaliseRegistration(reg) == t
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.

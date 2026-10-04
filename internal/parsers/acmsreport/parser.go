@@ -97,7 +97,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Destination:        c["dest"],
 		FlightNumberDigits: c["flight_digits"],
 	}
-	reg := strings.TrimPrefix(c["reg_field"], ".")
+	reg := strings.TrimLeft(c["reg_field"], ".")
 	if sameRegistration(reg, msg.Tail) {
 		result.Registration = reg
 	}
@@ -105,14 +105,11 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 }
 
 // sameRegistration reports whether the report's registration is the
-// transmitted tail, ignoring dashes and a leading "." (as some messages
-// transmit the tail). An empty tail matches nothing.
+// transmitted tail (see acars.NormaliseRegistration). An empty tail matches
+// nothing.
 func sameRegistration(reg, tail string) bool {
-	norm := func(s string) string {
-		return strings.ReplaceAll(strings.TrimPrefix(strings.TrimSpace(s), "."), "-", "")
-	}
-	t := norm(tail)
-	return t != "" && norm(reg) == t
+	t := acars.NormaliseRegistration(tail)
+	return t != "" && acars.NormaliseRegistration(reg) == t
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.

@@ -450,6 +450,8 @@ func TestSameFlight(t *testing.T) {
 		{"N123AB", "N123AB", "N123AB", true},
 		{"N123AB", "SWR23AB", "N123AB", false},
 		{"N-123AB", "N123AB", "N123AB", true},
+		// ARINC pads registrations with leading dots.
+		{"N17RX", "SWR7RX", "..N17RX", false},
 		{"", "QF1", "", false},
 	}
 	for _, tt := range tests {

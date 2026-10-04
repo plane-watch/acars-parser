@@ -261,10 +261,11 @@ The result type is always `cpdlc`. The kind of message is recorded in the `messa
 
 **Direction:** The uplink and downlink message sets give different meanings to the same element numbers (element 0 is dM0 WILCO as a downlink and uM0 UNABLE as an uplink), so the direction decides what a message says. It is taken from the feed's link direction, then the ACARS block ID, then the label: AA is an uplink and BA a downlink (for a relayed H1 message, its original label). In ten minutes of live traffic (October 2026), all 118 AA messages were uplinks and all 77 BA messages downlinks. Label H1 carries both directions, so it does not give one.
 
-The payload is decoded with both message sets, and a decode is valid when every element is defined:
+The payload is decoded with both message sets. A decode is valid when every element is defined (not reserved) and is not a placeholder: an element whose type in `fans_uper_types.go` is an empty struct although its label has a data placeholder (downlink elements 81 to 86, 89 and 98, such as dM82 `WE CANNOT ACCEPT [altitude]`). Decoding a placeholder reads none of its data, so the bits after it are misread.
 - If only one message set gives valid elements, it is used, and the result reports that direction, whatever the feed indicated.
 - If both do, the known direction decides. If the direction is not known, the elements are not reported and the error is `direction_unknown`.
-- If neither does, the elements are not reported and the error is `no_valid_elements`.
+- If at least one message set decodes but neither gives valid elements, the elements are not reported and the error is `no_valid_elements`.
+- If neither message set decodes at all (for example, the payload is too short), the error is `decode_failed:` followed by the decoder's error.
 
 **Extracted fields:** message type, direction, ground station, registration, header (message ID, optional reference number and optional timestamp), every message element (the primary element and any additional elements) with its label and formatted text, the formatted text of the whole message, the raw hex and any error (for example `crc_failed`).
 

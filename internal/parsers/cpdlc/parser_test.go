@@ -251,3 +251,13 @@ func TestParseDirectionFallback(t *testing.T) {
 		}
 	}
 }
+
+// TestParseWithTraceUnwrapsH1 checks that tracing reads the H1 forms as
+// Parse does.
+func TestParseWithTraceUnwrapsH1(t *testing.T) {
+	for _, text := range []string{"- #MD/AA YQME2YA.AT1..N17RX22CE87E840CCD8", "USADCXA.AT1.N7857B618691D300B734"} {
+		if trace := (&Parser{}).ParseWithTrace(&acars.Message{ID: 1, Label: "H1", Text: text}); !trace.Matched {
+			t.Errorf("ParseWithTrace(%q).Matched = false", text)
+		}
+	}
+}

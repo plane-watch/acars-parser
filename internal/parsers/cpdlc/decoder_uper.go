@@ -3,6 +3,9 @@ package cpdlc
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
 
 	"github.com/shaneshort/go-asn/uper"
 )
@@ -60,15 +63,45 @@ func DecodeWithUPER(data []byte, direction MessageDirection) (*Message, error) {
 	return nil, ErrNoValidElements
 }
 
+// placeholderUplink and placeholderDownlink are the element IDs whose UPER
+// type in fans_uper_types.go is an empty struct although the element's label
+// has a data placeholder (e.g. dM82 WE CANNOT ACCEPT [altitude]). Decoding
+// one reads none of its data, so the bits after it are misread: a decode
+// containing one is not valid.
+var (
+	placeholderUplink   = placeholderElements(reflect.TypeOf(UPERUplinkElement{}), GetUplinkLabel)
+	placeholderDownlink = placeholderElements(reflect.TypeOf(UPERDownlinkElement{}), GetDownlinkLabel)
+)
+
+// placeholderElements returns the choice numbers of an element choice type
+// whose alternative is *struct{} but whose label has a "[" placeholder.
+func placeholderElements(choice reflect.Type, label func(int) string) map[int]bool {
+	empty := reflect.TypeOf(&struct{}{})
+	out := make(map[int]bool)
+	for i := 0; i < choice.NumField(); i++ {
+		f := choice.Field(i)
+		tag := f.Tag.Get("asn1")
+		if f.Type != empty || !strings.HasPrefix(tag, "choice:") {
+			continue
+		}
+		n, err := strconv.Atoi(strings.TrimPrefix(tag, "choice:"))
+		if err == nil && strings.Contains(label(n), "[") {
+			out[n] = true
+		}
+	}
+	return out
+}
+
 // validateUplinkElements checks if all decoded uplink elements are semantically valid.
-// Returns false if any element has a "(reserved)" or empty label.
+// Returns false if any element has a "(reserved)" or empty label, or is a
+// placeholder (see placeholderUplink).
 func validateUplinkElements(msg *Message) bool {
 	if msg == nil || len(msg.Elements) == 0 {
 		return false
 	}
 	for _, elem := range msg.Elements {
 		label := GetUplinkLabel(elem.ID)
-		if label == "(reserved)" || label == "" {
+		if label == "(reserved)" || label == "" || placeholderUplink[elem.ID] {
 			return false
 		}
 	}
@@ -76,14 +109,15 @@ func validateUplinkElements(msg *Message) bool {
 }
 
 // validateDownlinkElements checks if all decoded downlink elements are semantically valid.
-// Returns false if any element has a "(reserved)" or empty label.
+// Returns false if any element has a "(reserved)" or empty label, or is a
+// placeholder (see placeholderDownlink).
 func validateDownlinkElements(msg *Message) bool {
 	if msg == nil || len(msg.Elements) == 0 {
 		return false
 	}
 	for _, elem := range msg.Elements {
 		label := GetDownlinkLabel(elem.ID)
-		if label == "(reserved)" || label == "" {
+		if label == "(reserved)" || label == "" || placeholderDownlink[elem.ID] {
 			return false
 		}
 	}

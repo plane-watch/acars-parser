@@ -61,16 +61,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
-	// Label H1 carries CPDLC relayed with its original label ("- #MD/AA
-	// ...") or without the leading "/"; the original label, when given,
-	// stands in for the message's label in the direction fallback.
-	text, label := msg.Text, msg.Label
-	if inner, relayed, ok := arinc.Unwrap(text); ok {
-		text = inner
-		if relayed != "" {
-			label = relayed
-		}
-	}
+	text, label := envelopeText(msg)
 
 	result := &Result{
 		MsgID:     int64(msg.ID),
@@ -167,6 +158,22 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	return result
 }
 
+// envelopeText returns the message's text in the ARINC envelope form that
+// arinc.Parse reads, and the label that stands for the message in the
+// direction fallback. Label H1 carries CPDLC relayed with its original label
+// ("- #MD/AA ..."), which is returned in place of H1, or without the leading
+// "/" (see arinc.Unwrap).
+func envelopeText(msg *acars.Message) (text, label string) {
+	text, label = msg.Text, msg.Label
+	if inner, relayed, ok := arinc.Unwrap(text); ok {
+		text = inner
+		if relayed != "" {
+			label = relayed
+		}
+	}
+	return text, label
+}
+
 // determineDirection returns the direction of a message whose label (or,
 // for a relayed message, original label) is label, or "" if it is not
 // known. Priority: LinkDirection > BlockID > Label.
@@ -241,7 +248,7 @@ func (p *Parser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 		return trace
 	}
 
-	text := msg.Text
+	text, _ := envelopeText(msg)
 
 	// Identify which IMI marker is present.
 	imiType := ""

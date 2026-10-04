@@ -3,6 +3,7 @@ package cpdlc
 import (
 	"encoding/hex"
 	"errors"
+	"sort"
 	"testing"
 )
 
@@ -192,4 +193,35 @@ func msgDirection(msg *Message) MessageDirection {
 		return DirectionUnknown
 	}
 	return msg.Direction
+}
+
+// TestDecodeRejectsPlaceholderElements checks that an element whose UPER
+// type is a placeholder without the data its label requires is not taken as
+// a valid decode. dM82 WE CANNOT ACCEPT [altitude] is typed as an empty
+// struct, so payload 002900 decoded "validly" as a downlink although the
+// altitude was never read.
+func TestDecodeRejectsPlaceholderElements(t *testing.T) {
+	data, _ := hex.DecodeString("002900")
+	for _, dir := range []MessageDirection{DirectionUplink, DirectionDownlink, DirectionUnknown} {
+		if msg, err := DecodeWithUPER(data, dir); err == nil {
+			t.Errorf("direction %v: decoded %+v; want an error", dir, msg.Elements)
+		}
+	}
+	t.Logf("placeholder uplink elements: %v", sortedKeys(placeholderUplink))
+	t.Logf("placeholder downlink elements: %v", sortedKeys(placeholderDownlink))
+	if !placeholderDownlink[82] {
+		t.Error("dM82 is not recognised as a placeholder")
+	}
+	if placeholderDownlink[0] {
+		t.Error("dM0 WILCO, which carries no data, is treated as a placeholder")
+	}
+}
+
+func sortedKeys(m map[int]bool) []int {
+	keys := make([]int, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	return keys
 }

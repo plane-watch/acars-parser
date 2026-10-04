@@ -120,7 +120,7 @@ var airlineCodeRe = regexp.MustCompile(`^[A-Z0-9]{2}$`)
 // a letter), when the field does not end with the tail, or when the prefix is
 // not such a code: the registration is then not reported rather than guessed.
 func splitRegistration(field, tail string) (reg, glued string, ok bool) {
-	tail = strings.ReplaceAll(strings.TrimPrefix(strings.TrimSpace(tail), "."), "-", "")
+	tail = acars.NormaliseRegistration(tail)
 	if len(tail) < 2 || !strings.ContainsAny(tail, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
 		return "", "", false
 	}

@@ -98,7 +98,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 			result.MsgType = match.Captures["msg_type"]
 			result.OriginICAO = match.Captures["origin"]
 			result.DestICAO = match.Captures["dest"]
-			result.Tail = strings.TrimPrefix(match.Captures["tail"], ".")
+			result.Tail = strings.TrimLeft(match.Captures["tail"], ".")
 			foundHeader = true
 
 		case "alt_format":

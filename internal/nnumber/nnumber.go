@@ -30,10 +30,10 @@ const (
 )
 
 // ICAOAddress returns the ICAO address, as six upper-case hex digits, of a
-// US N-number registration, and false if tail is not a valid N-number. A
-// leading "." (as some messages transmit the tail) is ignored.
+// US N-number registration, and false if tail is not a valid N-number.
+// Leading dots (with which ARINC pads registrations) are ignored.
 func ICAOAddress(tail string) (string, bool) {
-	s := strings.ToUpper(strings.TrimPrefix(strings.TrimSpace(tail), "."))
+	s := strings.ToUpper(strings.TrimLeft(strings.TrimSpace(tail), "."))
 	if len(s) < 2 || len(s) > 6 || s[0] != 'N' {
 		return "", false
 	}
