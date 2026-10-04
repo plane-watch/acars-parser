@@ -46,6 +46,7 @@ func TestBaseline(t *testing.T) {
 
 	var failures []string
 	changedByParser := make(map[string]int)
+	changedByKind := make(map[string]int)
 	for i := range cases {
 		got, err := baseline.Observe(reg.Dispatch(cases[i].Message()))
 		if err != nil {
@@ -63,6 +64,7 @@ func TestBaseline(t *testing.T) {
 		}
 		for _, d := range diffs {
 			changedByParser[parserOfDiff(d)]++
+			changedByKind[kindOfDiff(d)]++
 		}
 		failures = append(failures, fmt.Sprintf("message %d (stratum %s):\n    %s",
 			cases[i].ID, cases[i].Stratum, strings.Join(diffs, "\n    ")))
@@ -88,13 +90,14 @@ func TestBaseline(t *testing.T) {
 	if len(shown) > maxReportedCases {
 		shown = shown[:maxReportedCases]
 	}
-	t.Errorf("%d of %d baseline messages changed. Differences by parser: %s\n\n%s",
-		len(failures), len(cases), summariseCounts(changedByParser), strings.Join(shown, "\n"))
+	t.Errorf("%d of %d baseline messages changed.\nDifferences by parser: %s\nDifferences by kind (all messages):\n    %s\n\n%s",
+		len(failures), len(cases), summariseCounts(changedByParser),
+		strings.ReplaceAll(summariseCounts(changedByKind), ", ", "\n    "), strings.Join(shown, "\n"))
 	if len(failures) > maxReportedCases {
 		t.Errorf("... and %d more changed messages", len(failures)-maxReportedCases)
 	}
 	t.Error("review the differences; if every one is intended, re-record with: " +
-		"go test ./internal/parsers -run TestBaseline -update-baseline")
+		"go test -buildvcs=true ./internal/parsers -run TestBaseline -update-baseline")
 }
 
 // parserOfDiff extracts the parser name from a baseline.Compare difference,
@@ -103,6 +106,15 @@ func parserOfDiff(d string) string {
 	rest := strings.TrimPrefix(d, `parser "`)
 	if i := strings.IndexByte(rest, '"'); i >= 0 {
 		return rest[:i]
+	}
+	return d
+}
+
+// kindOfDiff reduces a difference to its kind, dropping the values, e.g.
+// `parser "h1pos" field "/wind_speed" changed`.
+func kindOfDiff(d string) string {
+	if i := strings.Index(d, ": "); i >= 0 {
+		return d[:i]
 	}
 	return d
 }

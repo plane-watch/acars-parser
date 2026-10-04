@@ -634,7 +634,8 @@ func (p *H1PosParser) Parse(msg *acars.Message) registry.Result {
 		}
 
 		// Parse wind data (5 digits: DDDSS = direction + speed).
-		if windStr := match.Captures["wind"]; len(windStr) == 5 {
+		// The wind is DDDSS or DDDSSS: three digits of direction, then the speed.
+		if windStr := match.Captures["wind"]; len(windStr) == 5 || len(windStr) == 6 {
 			if dir, err := parseIntField(windStr[:3]); err == nil {
 				result.WindDir = dir
 			}
