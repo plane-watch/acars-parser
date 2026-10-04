@@ -196,3 +196,77 @@ func TestPWIChecksumAndTokenBoundaries(t *testing.T) {
 		})
 	}
 }
+
+// TestPWISecondReviewCases covers the second Codex review of the PWI parser.
+func TestPWISecondReviewCases(t *testing.T) {
+	tests := []struct {
+		name  string
+		text  string
+		route []RouteWindLayer
+	}{
+		{
+			// The checksum is judged against the section it ends: in a WD
+			// section "242701234" is not a token, but "24270" is a wind.
+			name:  "checksum after a five-digit route wind",
+			text:  "PWI/WD300,DUBED,242701234",
+			route: []RouteWindLayer{{FlightLevel: 300, Waypoints: []WaypointWind{{Waypoint: "DUBED", WindDir: 242, WindSpeed: 70}}}},
+		},
+		{
+			name: "an impossible wind is not published",
+			text: "PWI/WD300,DUBED,999999",
+		},
+		{
+			name: "a bare temperature is not a waypoint",
+			text: "PWI/WD300,M49,226039,300M49",
+		},
+		{
+			// ARINC 424 oceanic waypoints: 5350N is 53N 050W, 48N70 is 48N 170W.
+			name: "ARINC 424 lat/lon waypoints",
+			text: "PWI/WD350,5350N,250080,350M50.48N70,260090,350M51",
+			route: []RouteWindLayer{{FlightLevel: 350, Waypoints: []WaypointWind{
+				{Waypoint: "5350N", WindDir: 250, WindSpeed: 80, Temperature: -50},
+				{Waypoint: "48N70", WindDir: 260, WindSpeed: 90, Temperature: -51},
+			}}},
+		},
+	}
+
+	p := &PWIParser{}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := p.Parse(&acars.Message{ID: 1, Label: "H1", Text: tt.text})
+			if tt.route == nil {
+				if got != nil {
+					t.Errorf("Parse() = %+v, want nil", got)
+				}
+				return
+			}
+			if got == nil {
+				t.Fatal("Parse returned nil")
+			}
+			if r := got.(*PWIResult); !reflect.DeepEqual(r.RouteWinds, tt.route) {
+				t.Errorf("route winds = %+v\nwant           %+v", r.RouteWinds, tt.route)
+			}
+		})
+	}
+}
+
+func TestPWIQuickCheckAndTraceFollowParse(t *testing.T) {
+	p := &PWIParser{}
+
+	wrapped := "PW\n\tI/WD300,DUBED,226039"
+	if !p.QuickCheck(wrapped) {
+		t.Error("QuickCheck rejected a header split by line wrapping")
+	}
+	if p.Parse(&acars.Message{ID: 1, Label: "H1", Text: wrapped}) == nil {
+		t.Error("Parse rejected a header split by line wrapping")
+	}
+
+	unreadable := &acars.Message{ID: 1, Label: "H1", Text: "PWI/WD300,DUBED,999999"}
+	if trace := p.ParseWithTrace(unreadable); trace.Matched {
+		t.Error("trace reported a match for a message Parse rejects")
+	}
+	readable := &acars.Message{ID: 1, Label: "H1", Text: "PWI/WD300,DUBED,226039C583"}
+	if trace := p.ParseWithTrace(readable); !trace.Matched {
+		t.Error("trace reported no match for a message Parse accepts")
+	}
+}

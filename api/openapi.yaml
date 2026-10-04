@@ -8,8 +8,8 @@ info:
     SIDs, squawk codes, and passenger counts. Data is keyed by aircraft ICAO hex
     address, callsign, and flight date.
 
-    Data is written to PostgreSQL by `acars_parser live` and
-    `acars_parser reparse -enrich`; this API only reads it. "Today" means the
+    Data is written to PostgreSQL by `acars_parser live`, keyed on the
+    transmitted aircraft address and flight number; this API only reads it. "Today" means the
     current UTC date. Path values for `icao_hex` and `callsign` are converted to
     upper case and are not otherwise validated.
 

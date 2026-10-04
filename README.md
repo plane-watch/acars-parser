@@ -111,7 +111,7 @@ acars_parser <command> [options]
 | `extract` | Parse a JSONL file and write the results as JSON | none |
 | `live` | Consume the NATS feed, print, and store the results | ClickHouse, PostgreSQL |
 | `query` | Query stored messages | ClickHouse |
-| `reparse` | Re-run the current parsers over stored messages and compare the results | ClickHouse (and PostgreSQL with `-enrich`) |
+| `reparse` | Re-run the current parsers over stored messages and compare the results | ClickHouse |
 | `debug` | Trace the pattern matching for a single message | ClickHouse (with `-id`) |
 | `review` | Web UI for browsing messages and setting golden annotations | ClickHouse, PostgreSQL |
 | `templates` | Group messages into normalised format templates | ClickHouse |
@@ -257,7 +257,6 @@ Re-runs the current parsers over stored messages and compares each new result wi
 | `-dump` | none | Write regressed messages, with raw text, to a file |
 | `-update` | `false` | Insert the new results into ClickHouse |
 | `-batch` | `10000` | ClickHouse query page size |
-| `-enrich` | `false` | Populate PostgreSQL `flight_enrichment` from the results |
 
 Behaviour to be aware of:
 
@@ -318,7 +317,7 @@ Normalises message text into token templates and groups messages by template. Th
 
 ### backfill
 
-Rebuilds the PostgreSQL state from the `parsed_json` stored in ClickHouse, using a pool of workers. It updates `aircraft`, `waypoints`, `routes`, `atis_current` and `flight_state`. It does not update `flight_enrichment`; use `reparse -enrich` for that.
+Rebuilds the PostgreSQL state from the `parsed_json` stored in ClickHouse, using a pool of workers. It updates `aircraft`, `waypoints`, `routes`, `atis_current` and `flight_state`. It does not update `flight_enrichment`.
 
 ```bash
 ./bin/acars_parser backfill -type flight_plan -workers 16
@@ -405,7 +404,7 @@ Because `messages` is a plain `MergeTree`, `OPTIMIZE ... FINAL` does not remove 
 
 ## Enrichment API
 
-A REST API that serves per-flight enrichment data from PostgreSQL `flight_enrichment`. That table is populated by `live` and by `reparse -enrich`.
+A REST API that serves per-flight enrichment data from PostgreSQL `flight_enrichment`. That table is populated by `live`, keyed on the aircraft address and flight number as transmitted.
 
 ```bash
 ./bin/enrichment-api -port 8081

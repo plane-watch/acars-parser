@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
-	"acars_parser/internal/enrichment"
 	"acars_parser/internal/registry"
 	"acars_parser/internal/storage"
 )
@@ -38,13 +37,6 @@ func runReparseCmd(args []string) {
 	chUser := fs.String("ch-user", defaultCHUser(), "ClickHouse user")
 	chPassword := fs.String("ch-password", defaultCHPassword(), "ClickHouse password")
 
-	// PostgreSQL connection options (for enrichment).
-	pgHost := fs.String("pg-host", defaultPGHost(), "PostgreSQL host")
-	pgPort := fs.Int("pg-port", defaultPGPort(), "PostgreSQL port")
-	pgDatabase := fs.String("pg-database", defaultPGDatabase(), "PostgreSQL database")
-	pgUser := fs.String("pg-user", defaultPGUser(), "PostgreSQL user")
-	pgPassword := fs.String("pg-password", defaultPGPassword(), "PostgreSQL password")
-
 	msgID := fs.Uint64("id", 0, "Reparse a specific message by ID and show result")
 	parserType := fs.String("type", "", "Filter by parser type")
 	label := fs.String("label", "", "Filter by ACARS label")
@@ -56,7 +48,6 @@ func runReparseCmd(args []string) {
 	dumpFile := fs.String("dump", "", "Dump regressed messages to file (includes raw text)")
 	updateDB := fs.Bool("update", false, "Update ClickHouse with new parse results")
 	batchSize := fs.Int("batch", 10000, "Batch size for updates")
-	enrichDB := fs.Bool("enrich", false, "Populate PostgreSQL flight_enrichment table")
 
 	if err := fs.Parse(args); err != nil {
 		fmt.Fprintf(os.Stderr, "Error parsing flags: %v\n", err)
@@ -78,29 +69,6 @@ func runReparseCmd(args []string) {
 		os.Exit(1)
 	}
 	defer func() { _ = chDB.Close() }()
-
-	// Open PostgreSQL connection if enrichment is requested.
-	var pgDB *storage.PostgresDB
-	if *enrichDB {
-		pgDB, err = storage.OpenPostgres(ctx, storage.PostgresConfig{
-			Host:     *pgHost,
-			Port:     *pgPort,
-			Database: *pgDatabase,
-			User:     *pgUser,
-			Password: *pgPassword,
-		})
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error connecting to PostgreSQL: %v\n", err)
-			os.Exit(1)
-		}
-		defer pgDB.Close()
-
-		// Ensure schema exists.
-		if err := pgDB.CreateSchema(ctx); err != nil {
-			fmt.Fprintf(os.Stderr, "Error creating schema: %v\n", err)
-			os.Exit(1)
-		}
-	}
 
 	// Handle single message reparse.
 	if *msgID != 0 {
@@ -138,21 +106,14 @@ func runReparseCmd(args []string) {
 	// Process messages in batches.
 	var allResults []ReparseResult
 	stats := struct {
-		Total       int
-		Unchanged   int
-		Improved    int
-		Regressed   int
-		Changed     int
-		Enrichments int
-		FieldStats  map[string]int
+		Total      int
+		Unchanged  int
+		Improved   int
+		Regressed  int
+		Changed    int
+		FieldStats map[string]int
 	}{
 		FieldStats: make(map[string]int),
-	}
-
-	// Build registration-to-hex lookup cache if enriching.
-	var regToHex map[string]string
-	if pgDB != nil {
-		regToHex = make(map[string]string)
 	}
 
 	var updateBatch []storage.CHInsertParams
@@ -193,7 +154,6 @@ func runReparseCmd(args []string) {
 			}
 
 			matches := reg.Dispatch(acarsMsg)
-			newResults := registry.Results(matches)
 			var newFields map[string]string
 			var newParserType string
 			var parsedData interface{}
@@ -236,34 +196,6 @@ func runReparseCmd(args []string) {
 				stats.Changed++
 			}
 
-			// Extract enrichment data if requested.
-			if pgDB != nil && len(newResults) > 0 {
-				// Try to get ICAO hex from registration via PostgreSQL aircraft table.
-				icaoHex := ""
-				if msg.Tail != "" {
-					if hex, ok := regToHex[msg.Tail]; ok {
-						icaoHex = hex
-					} else {
-						// Look up in aircraft table.
-						if aircraft, err := pgDB.GetAircraftByRegistration(ctx, msg.Tail); err == nil && aircraft != nil {
-							icaoHex = aircraft.ICAOHex
-							regToHex[msg.Tail] = icaoHex
-						} else {
-							regToHex[msg.Tail] = "" // Cache miss too
-						}
-					}
-				}
-
-				// Extract enrichment if we have an ICAO hex.
-				if icaoHex != "" {
-					if update := enrichment.ExtractEnrichment(icaoHex, msg.Flight, msg.Timestamp, newResults); update != nil {
-						if err := pgDB.UpsertFlightEnrichment(ctx, *update); err == nil {
-							stats.Enrichments++
-						}
-					}
-				}
-			}
-
 			// Collect for update if requested and there was a change.
 			if *updateDB && result.DiffType != "unchanged" {
 				updateBatch = append(updateBatch, storage.CHInsertParams{
@@ -296,11 +228,6 @@ func runReparseCmd(args []string) {
 	}
 
 	fmt.Printf("\r                                                    \r")
-
-	// Print enrichment stats if requested.
-	if pgDB != nil {
-		fmt.Printf("Enrichment: %d records written to PostgreSQL\n", stats.Enrichments)
-	}
 
 	// Dump regressions to file if requested.
 	if *dumpFile != "" {
@@ -514,13 +441,12 @@ func compareFieldsCH(id uint64, parserType string, old, new map[string]string) R
 
 // outputSummary prints a human-readable summary.
 func outputSummary(results []ReparseResult, stats struct {
-	Total       int
-	Unchanged   int
-	Improved    int
-	Regressed   int
-	Changed     int
-	Enrichments int
-	FieldStats  map[string]int
+	Total      int
+	Unchanged  int
+	Improved   int
+	Regressed  int
+	Changed    int
+	FieldStats map[string]int
 }, verbose, regressionsOnly, improvementsOnly bool) {
 
 	fmt.Println("Re-parse Summary")
@@ -599,13 +525,12 @@ func percent(n, total int) float64 {
 }
 
 func outputReparseJSON(results []ReparseResult, stats struct {
-	Total       int
-	Unchanged   int
-	Improved    int
-	Regressed   int
-	Changed     int
-	Enrichments int
-	FieldStats  map[string]int
+	Total      int
+	Unchanged  int
+	Improved   int
+	Regressed  int
+	Changed    int
+	FieldStats map[string]int
 }) {
 	output := map[string]interface{}{
 		"stats":   stats,

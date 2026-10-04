@@ -778,7 +778,7 @@ func (p *PWIParser) Labels() []string { return []string{"H1"} }
 func (p *PWIParser) Priority() int    { return 30 }
 
 func (p *PWIParser) QuickCheck(text string) bool {
-	return strings.Contains(text, "PWI/")
+	return strings.Contains(pwiNormaliser.Replace(text), "PWI/")
 }
 
 func (p *PWIParser) Parse(msg *acars.Message) registry.Result {
@@ -786,18 +786,12 @@ func (p *PWIParser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
-	// Remove line wrapping, which can fall inside a wind group ("310\n\t270031"),
-	// then the block markers that multi-block messages carry wherever a block
-	// ends, which can also fall inside a token ("VE- #MDLDT" is VELDT). Both are
-	// removed before looking for the PWI header, which they can also split.
-	text := pwiBlockMarker.ReplaceAllString(pwiLineWrap.Replace(msg.Text), "")
-
-	// Find PWI section.
-	pwiIdx := strings.Index(text, "PWI/")
-	if pwiIdx < 0 {
+	// Normalise before looking for the header, which wrapping or a block
+	// marker can also split.
+	text, ok := pwiBody(msg.Text)
+	if !ok {
 		return nil
 	}
-	text = stripPWIChecksum(text[pwiIdx+4:]) // Skip "PWI/".
 
 	report := &PWIResult{
 		MsgID:     int64(msg.ID),
@@ -858,19 +852,12 @@ func (p *PWIParser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 		return trace
 	}
 
-	text := msg.Text
-
-	// Find PWI section.
-	pwiIdx := strings.Index(text, "PWI/")
-	if pwiIdx < 0 {
+	// Use the same normalisation as Parse.
+	text, ok := pwiBody(msg.Text)
+	if !ok {
 		trace.QuickCheck.Reason = "PWI/ not found"
 		return trace
 	}
-	text = text[pwiIdx+4:]
-
-	// Normalise newlines.
-	text = strings.ReplaceAll(text, "\r\n", "\n")
-	text = strings.ReplaceAll(text, "\n", "")
 
 	// Add extractors for each section type.
 	sections := strings.Split(text, "/")
@@ -923,18 +910,35 @@ func (p *PWIParser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 		Value:   fmt.Sprintf("found=%v", hasWD),
 	})
 
-	trace.Matched = hasCB || hasDD || hasWD
+	// A section being present does not mean it could be read: the trace
+	// matches only when Parse produces a result.
+	trace.Matched = p.Parse(msg) != nil
 	return trace
 }
 
 // parseAltitudeWinds parses altitude wind data like "100252039.150251040.200246036".
-// pwiBlockMarker matches the marker inserted where a multi-block PWI
-// message's blocks join: "- #MD", or "- #M1" to "- #M3" (all four occur in
-// the January 2026 corpus).
-var pwiBlockMarker = regexp.MustCompile(`- #M[D1-3]`)
+// pwiNormaliser removes what transport adds inside a PWI message: line
+// wrapping ("\r", "\n", "\t"), which can fall inside a wind group
+// ("310\n\t270031"), and the block markers inserted where a multi-block
+// message's blocks join ("- #MD", or "- #M1" to "- #M3", all four of which
+// occur in the January 2026 corpus), which can fall inside a token
+// ("VE- #MDLDT" is VELDT). It uses plain string replacement so that
+// QuickCheck can use it.
+var pwiNormaliser = strings.NewReplacer(
+	"\r", "", "\n", "", "\t", "",
+	"- #MD", "", "- #M1", "", "- #M2", "", "- #M3", "",
+)
 
-// pwiLineWrap removes the line-wrapping characters found in PWI messages.
-var pwiLineWrap = strings.NewReplacer("\r", "", "\n", "", "\t", "")
+// pwiBody returns the normalised text after the "PWI/" header, with the
+// trailing checksum removed, and false if there is no header.
+func pwiBody(text string) (string, bool) {
+	n := pwiNormaliser.Replace(text)
+	i := strings.Index(n, "PWI/")
+	if i < 0 {
+		return "", false
+	}
+	return stripPWIChecksum(n[i+4:]), true
+}
 
 // parseAltitudeWinds parses dot-separated climb or descent wind groups.
 // Groups are nine digits, FFFDDDSSS (flight level, direction, speed), or
@@ -1020,15 +1024,20 @@ func parseRouteWindLayer(data string) *RouteWindLayer {
 }
 
 // routeWaypointPattern matches a route wind waypoint: a named fix ("LARMA",
-// "VHP", "BO613"), a runway ("RW19C") or a lat/lon point ("N53089E019480",
-// "N50W020"). It must start with a letter, which distinguishes it from wind
-// and temperature fields; parseRouteWindLayer also requires a valid wind to
-// follow, so a stray field such as "M49" is not taken as a waypoint.
-var routeWaypointPattern = regexp.MustCompile(`^[A-Z][A-Z0-9]{1,12}$`)
+// "VHP", "BO613"), a runway ("RW19C"), a lat/lon point ("N53089E019480",
+// "N50W020"), or an ARINC 424 oceanic lat/lon waypoint ("5350N" is 53N 050W,
+// "48N70" is 48N 170W; 30,240 and 3,914 tokens of these two forms in the
+// January 2026 corpus). Wind and temperature fields never match: winds are
+// all digits and route temperatures start with three digits.
+var routeWaypointPattern = regexp.MustCompile(`^(?:[A-Z][A-Z0-9]{1,12}|\d{4}[NSEW]|\d{2}[NSEW]\d{2})$`)
+
+// bareTemperaturePattern matches a temperature on its own ("M49", "P05"),
+// which is never a waypoint.
+var bareTemperaturePattern = regexp.MustCompile(`^[MP]\d{1,2}$`)
 
 // isRouteWaypoint reports whether s looks like a route wind waypoint.
 func isRouteWaypoint(s string) bool {
-	return routeWaypointPattern.MatchString(s)
+	return routeWaypointPattern.MatchString(s) && !bareTemperaturePattern.MatchString(s)
 }
 
 // routeTemperaturePattern matches a route wind altitude and temperature field,
@@ -1062,6 +1071,11 @@ func parseRouteWind(token string) (dir, speed int, ok bool) {
 	}
 	_, _ = fmt.Sscanf(token[:3], "%d", &dir)
 	_, _ = fmt.Sscanf(token[3:], "%d", &speed)
+	// A direction beyond 360 degrees or a speed of 400 kt or more is not a
+	// wind, so the token is not read as one.
+	if dir > 360 || speed >= 400 {
+		return 0, 0, false
+	}
 	return dir, speed, true
 }
 
@@ -1074,18 +1088,40 @@ func beforeSubFields(s string) string {
 	return s
 }
 
-// pwiTokenPattern matches a complete final token of a PWI section: an altitude
-// wind group (eight or nine digits), a route wind (five or six digits), or a
-// route altitude and temperature field.
-var pwiTokenPattern = regexp.MustCompile(`^(?:\d{8,9}|\d{5,6}|\d{3}[MP]\d{1,2})$`)
+// pwiSectionTokens gives, for each PWI section, the pattern a complete final
+// token of that section must match: climb and descent groups (eight or nine
+// digits), a route wind (five or six digits) or route altitude and
+// temperature, or a timestamp.
+var pwiSectionTokens = map[string]*regexp.Regexp{
+	"CB": regexp.MustCompile(`^\d{8,9}$`),
+	"DD": regexp.MustCompile(`^\d{8,9}$`),
+	"WD": regexp.MustCompile(`^(?:\d{5,6}|\d{3}[MP]\d{1,2})$`),
+	"TS": regexp.MustCompile(`^\d{4,6}$`),
+}
+
+// isCompletePWIToken reports whether token is a complete final token for its
+// section. An unknown section accepts any of the section patterns.
+func isCompletePWIToken(token, section string) bool {
+	if re, ok := pwiSectionTokens[section]; ok {
+		return re.MatchString(token)
+	}
+	for _, re := range pwiSectionTokens {
+		if re.MatchString(token) {
+			return true
+		}
+	}
+	return false
+}
 
 // stripPWIChecksum removes the 4-character hex checksum that complete PWI
 // messages end with. The checksum is not always present (truncated and some
 // single-block messages lack it), and it can begin with digits, so it is
-// removed only when the message's final token is not a complete token with it
-// and is a complete token without it, or the text then ends with a separator.
-// For example "100328073B13" is the eight-digit group 10032807 followed by
-// 3B13, while a message ending in the wind "258103" is left alone.
+// removed only when the message's final token, judged by the grammar of the
+// section it is in, is not complete with it and is complete without it (or
+// the text then ends with a separator). For example "100328073B13" in a DD
+// section is the eight-digit group 10032807 followed by 3B13, and
+// "242701234" in a WD section is the wind 24270 followed by 1234, while a
+// message ending in the wind "258103" is left alone.
 func stripPWIChecksum(text string) string {
 	if len(text) < 4 {
 		return text
@@ -1096,30 +1132,36 @@ func stripPWIChecksum(text string) string {
 			return text
 		}
 	}
-	rest := text[:len(text)-4]
-	if pwiTokenPattern.MatchString(lastPWIToken(text)) {
+	if token, section := lastPWIToken(text); isCompletePWIToken(token, section) {
 		return text
 	}
-	tail := lastPWIToken(rest)
-	if tail == "" || pwiTokenPattern.MatchString(tail) {
+	rest := text[:len(text)-4]
+	token, section := lastPWIToken(rest)
+	if token == "" || isCompletePWIToken(token, section) {
 		return rest
 	}
 	return text
 }
 
-// lastPWIToken returns the text after the last PWI field separator. When that
-// token starts a section, its two-letter section code (CB, DD, TS or WD) is
-// not part of the token.
-func lastPWIToken(s string) string {
+// lastPWIToken returns the text after the last PWI field separator, and the
+// two-letter code of the section it is in (CB, DD, TS or WD; empty if
+// unknown). When the token starts its section, the section code is not part
+// of the token.
+func lastPWIToken(s string) (token, section string) {
+	if j := strings.LastIndexByte(s, '/'); j >= 0 && len(s) >= j+3 {
+		section = s[j+1 : j+3]
+	} else if len(s) >= 2 {
+		section = s[:2]
+	}
 	i := strings.LastIndexAny(s, ".,/:")
-	token := s[i+1:]
+	token = s[i+1:]
 	if (i < 0 || s[i] == '/') && len(token) >= 2 {
 		switch token[:2] {
 		case "CB", "DD", "TS", "WD":
 			token = token[2:]
 		}
 	}
-	return token
+	return token, section
 }
 
 // isDigits reports whether s is non-empty and consists only of ASCII digits.

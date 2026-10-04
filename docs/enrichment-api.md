@@ -248,14 +248,17 @@ The table has a unique constraint on `(icao_hex, callsign, flight_date)` and ind
 
 ### Data Population
 
-The API only reads the table. Two commands of the main `acars_parser` CLI write to it:
+The API only reads the table. Only `acars_parser live` writes to it (unless `-no-store` is set), and only from transmitted identity:
 
-| Command | Source of ICAO hex | Source of callsign | Source of `flight_date` |
-|---------|--------------------|--------------------|-------------------------|
-| `acars_parser live` (unless `-no-store` is set) | The `airframe.icao` field of the NATS message | The `flight.flight` field of the NATS message | The date the message was processed (see [Known Limitations](#known-limitations)) |
-| `acars_parser reparse -enrich` | Looked up from the message's tail in the PostgreSQL `aircraft` table | The ClickHouse `flight` column | The ClickHouse message timestamp |
+| Field | Source |
+|-------|--------|
+| ICAO hex | The aircraft's link-layer address (`acars.Message.AircraftAddress`: the sender of a downlink, the recipient of an uplink) |
+| Callsign | The flight number as transmitted (`message.flight`) |
+| `flight_date` | The date the message was processed (see [Known Limitations](#known-limitations)) |
 
-`acars_parser backfill` does **not** populate `flight_enrichment`.
+Airframes' `airframe` and `flight` records are not used: their accuracy is unknown, and Airframes may in future draw on data this project feeds downstream. Messages without a link-layer address (for example most ACARS and satellite messages) therefore produce no enrichment.
+
+`acars_parser backfill` and `reparse` do **not** populate `flight_enrichment`. The stored corpus does not record transmitted identity, so enrichment cannot be rebuilt from it until storage v2.
 
 A record is written only when the ICAO hex is known, a callsign is available (from the message or from a `flight_number`, `flight_num` or `flight` field in the parser result), and at least one enrichment field was extracted. Before storage, the callsign's numeric part has its leading zeros removed (`QFA008` becomes `QFA8`).
 

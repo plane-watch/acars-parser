@@ -31,7 +31,7 @@ The enrichment API reads the same `POSTGRES_*` variables. The standalone tools i
 | Schema | Created by |
 |---|---|
 | ClickHouse tables | `acars_parser migrate` only |
-| PostgreSQL tables | `live`, `backfill`, `reparse -enrich`, `migrate` |
+| PostgreSQL tables | `live`, `backfill`, `migrate` |
 
 Neither database is created automatically. The ClickHouse database named by `CLICKHOUSE_DATABASE` must already exist, because the connection selects it, and `Ping` fails otherwise.
 
@@ -102,7 +102,7 @@ This table has the same fields as `atis_current` (see below), stored as strings,
 | `atis_current` | The latest ATIS per airport | `airport_icao` | `live`, `backfill`, `migrate` |
 | `flight_state` | Per-flight tracking state | `key` | `backfill`, `migrate` |
 | `golden_annotations` | Review annotations keyed by ClickHouse message ID | `message_id` | `review`, `migrate` |
-| `flight_enrichment` | Per-flight data served by the enrichment API | `(icao_hex, callsign, flight_date)` | `live`, `reparse -enrich` |
+| `flight_enrichment` | Per-flight data served by the enrichment API | `(icao_hex, callsign, flight_date)` | `live` |
 
 Some tables have only one writer:
 
