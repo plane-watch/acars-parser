@@ -39,7 +39,6 @@ type Result struct {
 	ETA         string `json:"eta,omitempty"`
 	Mode        string `json:"mode,omitempty"` // AUTO, etc.
 	Runway      string `json:"runway,omitempty"`
-	Gate        string `json:"gate,omitempty"`
 	RawData     string `json:"raw_data,omitempty"`
 }
 
@@ -106,10 +105,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	case "b6_ldg_data":
 		result.MessageType = "B6"
+		result.Origin = match.Captures["origin"]
 		result.Destination = match.Captures["dest"]
-		result.ETA = match.Captures["eta"]
+		result.ReportTime = match.Captures["time"]
 		result.Runway = match.Captures["runway"]
-		result.Gate = match.Captures["gate"]
+		if day, err := strconv.Atoi(match.Captures["day"]); err == nil {
+			result.DayOfMonth = day
+		}
 
 	case "os_format":
 		result.MessageType = "OS"
@@ -121,6 +123,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		result.MessageType = "C3"
 		result.Origin = match.Captures["origin"]
 		result.Destination = match.Captures["dest"]
+		result.ReportTime = match.Captures["time"]
+		if day, err := strconv.Atoi(match.Captures["day"]); err == nil {
+			result.DayOfMonth = day
+		}
 
 	default:
 		return nil

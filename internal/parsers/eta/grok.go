@@ -22,29 +22,36 @@ var Formats = []patterns.Format{
 		Pattern: `/IR\s+(?P<flight>[A-Z]{3}\d+)/.*?/ETA\s+(?P<eta>{TIME4})`,
 		Fields:  []string{"flight", "eta"},
 	},
-	// B6 LDG DATA REQ format.
-	// Example: /B6 LDG DATA REQ/YMML 1530 00/RWY 16R/GATE A12
-	// Groups: dest, eta, runway, gate
+	// B6 landing data request (United).
+	// Example: /B6 LDG DATA REQ   / KIAD KBOS 31 182755 KBOS R22L/---- F30 G1460
+	// Groups: origin, dest, day, time, runway (the requested landing runway).
+	// The trailing fields (F30, G1460) are not extracted: their meaning is not
+	// established from the traffic.
 	{
 		Name: "b6_ldg_data",
-		Pattern: `/B6\s+LDG\s+DATA\s+REQ/(?P<dest>{ICAO})\s+(?P<eta>{TIME4})` +
-			`(?:\s+\d{2})?/RWY\s*(?P<runway>{RUNWAY})(?:/GATE\s*(?P<gate>[A-Z0-9]+))?`,
-		Fields: []string{"dest", "eta", "runway", "gate"},
+		Pattern: `/B6\s+LDG\s+DATA\s+REQ\s*/\s*(?P<origin>{ICAO})\s+(?P<dest>{ICAO})\s+` +
+			`(?P<day>\d{2})\s+(?P<time>{TIME6})\s+{ICAO}\s+R(?P<runway>\d{1,2}[LRC]?)\s*/`,
+		Fields: []string{"origin", "dest", "day", "time", "runway"},
 	},
 	// OS format.
 	// Example: /OS YSSY/YMML 123456
 	// Groups: origin, dest, time
+	// TODO: No message in the January 2026 corpus (11.7M messages) contains
+	// "/OS ", so this format is unverified against real traffic. Confirm it
+	// from a real example, or remove it.
 	{
 		Name:    "os_format",
 		Pattern: `/OS\s+(?P<origin>{ICAO})\s*/(?P<dest>{ICAO})\s*(?P<time>{TIME6})?`,
 		Fields:  []string{"origin", "dest", "time"},
 	},
-	// C3 route format.
-	// Example: /C3 YSSY.YMML
-	// Groups: origin, dest
+	// C3 gate request (United).
+	// Example: /C3 GATE REQ       / KEWR KATL 17 040207 1287 ---- ---- ---- ----
+	// Groups: origin, dest, day, time. The four-digit number after the time is
+	// not extracted: it is probably the flight number, but that is not proven.
 	{
-		Name:    "c3_route",
-		Pattern: `/C3\s+(?P<origin>{ICAO})\s*\.(?P<dest>{ICAO})`,
-		Fields:  []string{"origin", "dest"},
+		Name: "c3_route",
+		Pattern: `/C3\s+GATE\s+REQ\s*/\s*(?P<origin>{ICAO})\s+(?P<dest>{ICAO})\s+` +
+			`(?P<day>\d{2})\s+(?P<time>{TIME6})`,
+		Fields: []string{"origin", "dest", "day", "time"},
 	},
 }
