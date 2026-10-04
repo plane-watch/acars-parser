@@ -222,3 +222,15 @@ func TestTrajectoryParser_QuickCheck(t *testing.T) {
 		}
 	}
 }
+
+// TestTrajectoryParser_TraceMatchesParse checks that tracing reports a
+// match only when Parse does: a header with an invalid airport matches the
+// regexes but is not parsed.
+func TestTrajectoryParser_TraceMatchesParse(t *testing.T) {
+	text := "++86501,N8951S,B7378MAX,260107,WN2545,KMCO,XXXX,0059,SMX34-2502-F320\r\n1\r\n" +
+		"N3640.3,W09644.9,070342,33998,-48.3,269,117,ER,00000,0,\r\n:\r\n"
+	msg := &acars.Message{ID: 1, Label: "H1", Tail: "N8951S", Text: text}
+	if trace := (&TrajectoryParser{}).ParseWithTrace(msg); trace.Matched {
+		t.Error("ParseWithTrace reports a match that Parse rejects")
+	}
+}

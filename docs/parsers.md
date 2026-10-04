@@ -339,11 +339,11 @@ The payload is decoded with both message sets. A decode is valid when every elem
 
 **Package:** `internal/parsers/envelope` · **Labels:** AA, A6 · **Priority:** 100 · **Type:** `envelope`
 
-**Technique:** Hand-written regex for the header, and binary decoding for the ADS-C payload.
+**Technique:** Hand-written regex for the header. For ADS-C messages, the hex payload is decoded only to verify the CRC and count its bytes.
 
 **Description:** Extracts the aircraft registration and ground station from ARINC envelope headers (`/<station>.AT1.`, `.CR1.` and `.ADS` messages). It does not decode the ADS-C payload: on label A6 it is a contract request from the ground station, which holds no position (aircraft reports are on B6, decoded by the `adsc` parser). On label AA, it runs after the `cpdlc` parser, and both can return a result for the same message.
 
-**Extracted fields:** tail, station, message type (AT1, CR1 or ADS), payload size, and, for ADS-C, latitude, longitude and altitude.
+**Extracted fields:** tail, station, message type (AT1, CR1 or ADS) and payload size.
 
 ---
 

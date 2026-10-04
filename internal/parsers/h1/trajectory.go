@@ -207,6 +207,6 @@ func (p *TrajectoryParser) ParseWithTrace(msg *acars.Message) *registry.TraceRes
 		Value:   strconv.Itoa(len(posMatches)) + " found",
 	})
 
-	trace.Matched = headerMatch != nil && len(posMatches) > 0
+	trace.Matched = p.Parse(msg) != nil
 	return trace
 }
