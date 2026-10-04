@@ -7,6 +7,7 @@ import (
 	_ "acars_parser/internal/parsers/adsc"
 	_ "acars_parser/internal/parsers/agfsr"
 	_ "acars_parser/internal/parsers/atis"
+	_ "acars_parser/internal/parsers/cmcreport"
 	_ "acars_parser/internal/parsers/cpdlc"
 	_ "acars_parser/internal/parsers/crew"
 	_ "acars_parser/internal/parsers/delay"

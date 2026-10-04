@@ -95,6 +95,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [adsc](#adsc) | adsc | B6 | 10 | `adsc` | Binary tag decoding | Yes |
 | [agfsr](#agfsr) | agfsr | 4T | 100 | `agfsr` | Grok | No |
 | [atis](#atis) | atis | A9 | 100 | `atis` | Hand-written regex | Yes |
+| [cmcreport](#cmcreport) | cmcreport | H1 | 60 | `cmc_report` | Grok | Yes |
 | [cpdlc](#cpdlc) | cpdlc | AA, BA | 50 | `cpdlc` | ARINC layer + ASN.1 UPER decoding | Yes |
 | [crew_list](#crew_list) | crew | RA | 55 | `crew_list` | Hand-written regex | Yes |
 | [delay_summary](#delay_summary) | delay | 3E, RA | 50 | `delay_summary` | Hand-written regex | Yes |
@@ -192,6 +193,26 @@ The parsers are listed in alphabetical order of package.
 **Description:** Parses D-ATIS (digital Automatic Terminal Information Service) broadcasts.
 
 **Extracted fields:** airport, ATIS letter, ATIS type (ARR/DEP), ATIS time, runways, approaches, wind, visibility, clouds, temperature, dew point, QNH and remarks.
+
+---
+
+### cmcreport
+
+**Package:** `internal/parsers/cmcreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `cmc_report`
+
+**Technique:** Grok (format `cmc_header`).
+
+**Description:** Parses the header line of Boeing central maintenance computer (CMC) reports: RTE (route), PLF (post-flight) and CFG (configuration). For example:
+
+```
+RTE 1 04OCT26 0930 TG HS-TWC THA482 YPPH/VTBS BCG4F-45LD-0077 C L 0915 04OCT26
+```
+
+**Extracted fields:** report type, sequence number, report date (DDMMMYY) and time (HHMM), IATA airline code, registration, ICAO callsign, origin and destination.
+
+**Registration and airline code:** The registration field sometimes carries the IATA airline code, either separated by a space (`TG HS-TWC`) or glued to its front (`5YN703GT`, `BRB-17807`). A glued code cannot be told apart from the registration reliably on its own. The tail transmitted in the ACARS header settles it: the registration is the part of the field that matches the header tail (ignoring dashes, since `HP-9907` and `HP9907` both occur), and a 2-character remainder is the airline code. If the field does not end with the header tail, no registration or glued airline code is reported.
+
+**Coverage (January 2026 corpus):** 19,136 of 19,183 CMC reports parsed (99.75%), giving 1,977 aircraft, 3,848 (flight, origin, destination) combinations and 85 IATA-to-ICAO airline code pairs. The rest are other layouts (a weather CFG report, RTE lines without a sequence number) that carry no flight or route.
 
 ---
 
