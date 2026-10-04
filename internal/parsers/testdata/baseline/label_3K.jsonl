@@ -1,4 +1,4 @@
-{"id":117239,"timestamp":"2025-12-31T19:05:34.848Z","label":"3K","tail":"N572UP","flight":"UP0058","text":"311905 31HNL ANC 19051565/////","stratum":"3K/unparsed","expected":[]}
+{"id":117239,"timestamp":"2025-12-31T19:05:34.848Z","label":"3K","tail":"N572UP","text":"311905 31HNL ANC 19051565/////","stratum":"3K/unparsed","expected":[]}
 {"id":1981913,"timestamp":"2026-01-06T02:20:11.436Z","label":"3K","tail":"N172UP","text":"060046 06PHL MDT 0046028901984","stratum":"3K/unparsed","expected":[]}
 {"id":2240375,"timestamp":"2026-01-06T10:19:51.054Z","label":"3K","tail":"N158UP","text":"060916 06PHL MHT 0916041003582","stratum":"3K/unparsed","expected":[]}
 {"id":2254398,"timestamp":"2026-01-06T10:39:48.624Z","label":"3K","tail":"N127UP","text":"060930 06PHL ATL 0930043304359","stratum":"3K/unparsed","expected":[]}

@@ -1,4 +1,4 @@
-{"id":64406,"timestamp":"2025-12-31T18:37:41.494Z","label":"7B","tail":"B-LRU","flight":"CX0156","text":"M30ACX0156\n\tANKIS \n\tETA HKG IS 23:24 UTC\n\tESTIMATING ON BLOCKS AROUND 23:40Z AT THIS STAGE\n\tREGARDS CX156","stratum":"7B/unparsed","expected":[]}
+{"id":64406,"timestamp":"2025-12-31T18:37:41.494Z","label":"7B","tail":"B-LRU","text":"M30ACX0156\n\tANKIS \n\tETA HKG IS 23:24 UTC\n\tESTIMATING ON BLOCKS AROUND 23:40Z AT THIS STAGE\n\tREGARDS CX156","stratum":"7B/unparsed","expected":[]}
 {"id":767932,"timestamp":"2026-01-04T07:01:39.552Z","label":"7B","tail":"N291GX","text":"PLS CONFIRM PARKING POSPYTON 0024 FL370 F0B16.0","stratum":"7B/unparsed","expected":[]}
 {"id":767946,"timestamp":"2026-01-04T07:01:40.708Z","label":"7B","tail":"N291GX","text":"PLS CONFIRM PARKING POSPYTON 0024 FL370 F0B16.0","stratum":"7B/unparsed","expected":[]}
 {"id":2261420,"timestamp":"2026-01-06T10:50:28.962Z","label":"7B","tail":"N1438","text":"POS RPT IPOKE 0936ZFL350 15.1FOB KMIA 1032EFOB 11.2","stratum":"7B/unparsed","expected":[]}

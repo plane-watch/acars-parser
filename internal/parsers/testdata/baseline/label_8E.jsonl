@@ -1,4 +1,4 @@
-{"id":109366,"timestamp":"2025-12-31T19:01:31.124Z","label":"8E","tail":"G-EZDM","flight":"U275QM","text":"EGKK,2142","stratum":"8E/unparsed","expected":[]}
+{"id":109366,"timestamp":"2025-12-31T19:01:31.124Z","label":"8E","tail":"G-EZDM","text":"EGKK,2142","stratum":"8E/unparsed","expected":[]}
 {"id":330148,"timestamp":"2026-01-03T10:36:51.099Z","label":"8E","tail":"OE-LQC","text":"EBBR,0724","stratum":"8E/unparsed","expected":[]}
 {"id":331980,"timestamp":"2026-01-03T10:42:22.000Z","label":"8E","tail":"G-EZDN","text":"EGPH,0747","stratum":"8E/unparsed","expected":[]}
 {"id":513821,"timestamp":"2026-01-03T22:29:50.662Z","label":"8E","tail":"G-EZDV","text":"EGGW,2208","stratum":"8E/unparsed","expected":[]}

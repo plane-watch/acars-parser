@@ -1,4 +1,4 @@
-{"id":23307,"timestamp":"2025-12-31T18:15:17.315Z","label":"1A","tail":"N491HA","flight":"HA1011","text":"AC491 ASA/ACK 1011 COPY \u0026 MAHALO FOR T","stratum":"1A/unparsed","expected":[]}
+{"id":23307,"timestamp":"2025-12-31T18:15:17.315Z","label":"1A","tail":"N491HA","text":"AC491 ASA/ACK 1011 COPY \u0026 MAHALO FOR T","stratum":"1A/unparsed","expected":[]}
 {"id":480176,"timestamp":"2026-01-03T21:46:42.242Z","label":"1A","tail":"N920XJ","text":"03211A  GSO  LGA7\r\n/FN 5149\r\n/CAS: P1\r\n212750/FIRE SYS FAULT (S)","stratum":"1A/unparsed","expected":[]}
 {"id":513760,"timestamp":"2026-01-03T22:29:49.596Z","label":"1A","tail":"N925XJ","text":"03211A  CHS  MSP7\r\n/FN 4845\r\n/CAS: P1\r\n213827/ICE (C)","stratum":"1A/unparsed","expected":[]}
 {"id":657248,"timestamp":"2026-01-04T03:04:44.725Z","label":"1A","tail":"N390HA","text":"FLT 0841,SEA-HNL SKD ARV 0506,","stratum":"1A/unparsed","expected":[]}

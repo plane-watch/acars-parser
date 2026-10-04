@@ -1,9 +1,9 @@
-{"id":7792,"timestamp":"2025-12-31T18:06:31.769Z","label":"4F","tail":"N339NB","flight":"NW1218","text":"4F6","stratum":"4F/unparsed","expected":[]}
-{"id":23785,"timestamp":"2025-12-31T18:15:33.976Z","label":"4F","tail":"N339NB","flight":"NW2062","text":"4F6","stratum":"4F/unparsed","expected":[]}
-{"id":68293,"timestamp":"2025-12-31T18:39:35.825Z","label":"4F","tail":"N572UP","flight":"UP0058","text":"R","stratum":"4F/unparsed","expected":[]}
-{"id":79798,"timestamp":"2025-12-31T18:46:12.237Z","label":"4F","tail":"N6716C","flight":"DL1040","text":"4F6","stratum":"4F/unparsed","expected":[]}
-{"id":81015,"timestamp":"2025-12-31T18:46:53.033Z","label":"4F","tail":"N633UP","flight":"UP0034","text":"R","stratum":"4F/unparsed","expected":[]}
-{"id":82023,"timestamp":"2025-12-31T18:47:25.363Z","label":"4F","tail":"N356NW","flight":"NW0000","text":"4F6","stratum":"4F/unparsed","expected":[]}
+{"id":7792,"timestamp":"2025-12-31T18:06:31.769Z","label":"4F","tail":"N339NB","text":"4F6","stratum":"4F/unparsed","expected":[]}
+{"id":23785,"timestamp":"2025-12-31T18:15:33.976Z","label":"4F","tail":"N339NB","text":"4F6","stratum":"4F/unparsed","expected":[]}
+{"id":68293,"timestamp":"2025-12-31T18:39:35.825Z","label":"4F","tail":"N572UP","text":"R","stratum":"4F/unparsed","expected":[]}
+{"id":79798,"timestamp":"2025-12-31T18:46:12.237Z","label":"4F","tail":"N6716C","text":"4F6","stratum":"4F/unparsed","expected":[]}
+{"id":81015,"timestamp":"2025-12-31T18:46:53.033Z","label":"4F","tail":"N633UP","text":"R","stratum":"4F/unparsed","expected":[]}
+{"id":82023,"timestamp":"2025-12-31T18:47:25.363Z","label":"4F","tail":"N356NW","text":"4F6","stratum":"4F/unparsed","expected":[]}
 {"id":2128476,"timestamp":"2026-01-06T07:36:05.370Z","label":"4F","tail":"N448UP","text":"R","stratum":"4F/unparsed","expected":[]}
 {"id":2135287,"timestamp":"2026-01-06T07:45:26.307Z","label":"4F","tail":"N428UP","text":"R","stratum":"4F/unparsed","expected":[]}
 {"id":2167478,"timestamp":"2026-01-06T08:30:21.682Z","label":"4F","tail":"N461UP","text":"R","stratum":"4F/unparsed","expected":[]}
@@ -19,7 +19,7 @@
 {"id":3163849,"timestamp":"2026-01-07T11:50:16.554Z","label":"4F","tail":"N432UP","text":"R","stratum":"4F/unparsed","expected":[]}
 {"id":3168015,"timestamp":"2026-01-07T11:54:35.666Z","label":"4F","tail":"N448UP","text":"R","stratum":"4F/unparsed","expected":[]}
 {"id":3186833,"timestamp":"2026-01-07T12:10:10.637Z","label":"4F","tail":"N314DU","text":"4F6","stratum":"4F/unparsed","expected":[]}
-{"id":3241297,"timestamp":"2026-01-07T14:18:54.439Z","label":"4F","tail":"N352UP","flight":"UP104","text":"R","stratum":"4F/unparsed","expected":[]}
+{"id":3241297,"timestamp":"2026-01-07T14:18:54.439Z","label":"4F","tail":"N352UP","text":"R","stratum":"4F/unparsed","expected":[]}
 {"id":3316956,"timestamp":"2026-01-07T18:04:40.193Z","label":"4F","tail":"N633UP","text":"R","stratum":"4F/unparsed","expected":[]}
 {"id":3316957,"timestamp":"2026-01-07T18:04:40.193Z","label":"4F","tail":"N633UP","text":"R","stratum":"4F/unparsed","expected":[]}
 {"id":3371565,"timestamp":"2026-01-07T19:26:25.399Z","label":"4F","tail":"N362UP","text":"R","stratum":"4F/unparsed","expected":[]}

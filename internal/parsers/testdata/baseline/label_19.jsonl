@@ -1,5 +1,5 @@
-{"id":42945,"timestamp":"2025-12-31T18:25:39.912Z","label":"19","tail":"B-1343","flight":"HU7907","text":"M06AHU7907..LOADOK","stratum":"19/unparsed","expected":[]}
-{"id":66484,"timestamp":"2025-12-31T18:38:42.878Z","label":"19","tail":"C-GZQX","flight":"PD510","text":"POS VIYAP  /1838/14329/FL310/292061","stratum":"19/unparsed","expected":[]}
+{"id":42945,"timestamp":"2025-12-31T18:25:39.912Z","label":"19","tail":"B-1343","text":"M06AHU7907..LOADOK","stratum":"19/unparsed","expected":[]}
+{"id":66484,"timestamp":"2025-12-31T18:38:42.878Z","label":"19","tail":"C-GZQX","text":"POS VIYAP  /1838/14329/FL310/292061","stratum":"19/unparsed","expected":[]}
 {"id":515622,"timestamp":"2026-01-03T22:31:28.967Z","label":"19","tail":"C-GKQJ","text":"POS DEDKI  /2138/8136/FL145/282047","stratum":"19/unparsed","expected":[]}
 {"id":642354,"timestamp":"2026-01-04T02:40:26.282Z","label":"19","tail":"C-GKQK","text":"POS VIBRU  /2248/19222/FL267/274080","stratum":"19/unparsed","expected":[]}
 {"id":663122,"timestamp":"2026-01-04T04:57:37.814Z","label":"19","tail":"C-GKQQ","text":"POS CYRIL  /2342/7503/FL090/291039","stratum":"19/unparsed","expected":[]}
@@ -95,6 +95,6 @@
 {"id":11384860,"timestamp":"2026-01-21T17:32:18.254Z","label":"19","tail":"C-GZQK","text":"POS \u003eFQM   /1608/25632/FL360/260122","stratum":"19/unparsed","expected":[]}
 {"id":11407904,"timestamp":"2026-01-21T17:57:53.114Z","label":"19","tail":"C-GZQK","text":"POS \u003eHAR   /1618/24975/FL369/254122","stratum":"19/unparsed","expected":[]}
 {"id":11528714,"timestamp":"2026-01-21T20:43:01.437Z","label":"19","tail":"N740EV","text":"P,R,2026-01-21 17:19:20,4500,2,","stratum":"19/unparsed","expected":[]}
-{"id":11544271,"timestamp":"2026-01-21T23:05:32.027Z","label":"19","tail":"JA846J","flight":"JL106","text":"M01AJL0000TIS04M21210352    ","stratum":"19/unparsed","expected":[]}
+{"id":11544271,"timestamp":"2026-01-21T23:05:32.027Z","label":"19","tail":"JA846J","text":"M01AJL0000TIS04M21210352    ","stratum":"19/unparsed","expected":[]}
 {"id":11675955,"timestamp":"2026-01-22T04:30:54.914Z","label":"19","tail":"C-GZQB","text":"POS DEKNI  /0430/11077/FL043/255046","stratum":"19/unparsed","expected":[]}
 {"id":11680662,"timestamp":"2026-01-22T04:38:37.784Z","label":"19","tail":"C-GTCY","text":"ETA MSG,0538","stratum":"19/unparsed","expected":[]}

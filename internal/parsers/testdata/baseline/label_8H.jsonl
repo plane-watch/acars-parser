@@ -1,8 +1,8 @@
-{"id":19755,"timestamp":"2025-12-31T18:13:18.085Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M26ASA0281S 33.992,E 98.132,0248,YPPH,FAOR,160200,  437750,32000,21840,  62","stratum":"8H/unparsed","expected":[]}
-{"id":38523,"timestamp":"2025-12-31T18:23:18.779Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M27ASA0281S 34.211,E 96.696,0249,YPPH,FAOR,157520,  435000,32000,22016,  66","stratum":"8H/unparsed","expected":[]}
-{"id":56779,"timestamp":"2025-12-31T18:33:19.084Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M29ASA0281S 34.413,E 95.272,0249,YPPH,FAOR,154600,  427875,31998,22791,  71","stratum":"8H/unparsed","expected":[]}
-{"id":74750,"timestamp":"2025-12-31T18:43:19.390Z","label":"8H","tail":"ZS-SXD","flight":"SA281","text":"M31ASA0281S 34.598,E 93.842,0249,YPPH,FAOR,151600,  435375,31998,22439,  66","stratum":"8H/unparsed","expected":[]}
-{"id":108366,"timestamp":"2025-12-31T19:01:02.677Z","label":"8H","tail":"ZS-SZJ","flight":"SA0058","text":"S 26.083,E 28.075,2225,FAOR,FZAA,38440,  331000,10868,24235,  16","stratum":"8H/unparsed","expected":[]}
+{"id":19755,"timestamp":"2025-12-31T18:13:18.085Z","label":"8H","tail":"ZS-SXD","text":"M26ASA0281S 33.992,E 98.132,0248,YPPH,FAOR,160200,  437750,32000,21840,  62","stratum":"8H/unparsed","expected":[]}
+{"id":38523,"timestamp":"2025-12-31T18:23:18.779Z","label":"8H","tail":"ZS-SXD","text":"M27ASA0281S 34.211,E 96.696,0249,YPPH,FAOR,157520,  435000,32000,22016,  66","stratum":"8H/unparsed","expected":[]}
+{"id":56779,"timestamp":"2025-12-31T18:33:19.084Z","label":"8H","tail":"ZS-SXD","text":"M29ASA0281S 34.413,E 95.272,0249,YPPH,FAOR,154600,  427875,31998,22791,  71","stratum":"8H/unparsed","expected":[]}
+{"id":74750,"timestamp":"2025-12-31T18:43:19.390Z","label":"8H","tail":"ZS-SXD","text":"M31ASA0281S 34.598,E 93.842,0249,YPPH,FAOR,151600,  435375,31998,22439,  66","stratum":"8H/unparsed","expected":[]}
+{"id":108366,"timestamp":"2025-12-31T19:01:02.677Z","label":"8H","tail":"ZS-SZJ","text":"S 26.083,E 28.075,2225,FAOR,FZAA,38440,  331000,10868,24235,  16","stratum":"8H/unparsed","expected":[]}
 {"id":1211845,"timestamp":"2026-01-05T04:08:30.788Z","label":"8H","tail":"EI-SIJ","text":"V08CA/CRGDRSCL/05/0357/","stratum":"8H/unparsed","expected":[]}
 {"id":2230478,"timestamp":"2026-01-06T10:05:24.007Z","label":"8H","tail":"OY-KAS","text":"3SH3 LOADCF 0347/06 ENVA/ENGM .OY-KAS\r\n084201,090700,,090700,38733,A","stratum":"8H/unparsed","expected":[]}
 {"id":2247133,"timestamp":"2026-01-06T10:29:35.516Z","label":"8H","tail":"LN-RGN","text":"V08CA/CRGDRSCL/06/0922/","stratum":"8H/unparsed","expected":[]}

@@ -1,5 +1,5 @@
-{"id":61186,"timestamp":"2025-12-31T18:35:50.514Z","label":"B1","tail":"C-FRAM","flight":"AC0859","text":"/EGGX.OC1/RCL 046\r\nACA859-RESNO/1951 M083F340\r\n-RMK/MAX FL35019EE","stratum":"B1/unparsed","expected":[]}
-{"id":84670,"timestamp":"2025-12-31T18:48:54.473Z","label":"B1","tail":"G-VIIN","flight":"BA037J","text":"/EGGX.RCL 046\r\nBAW37J -DOGAL/1957 M082F360\r\n-RMK/MAX FL380","stratum":"B1/unparsed","expected":[]}
+{"id":61186,"timestamp":"2025-12-31T18:35:50.514Z","label":"B1","tail":"C-FRAM","text":"/EGGX.OC1/RCL 046\r\nACA859-RESNO/1951 M083F340\r\n-RMK/MAX FL35019EE","stratum":"B1/unparsed","expected":[]}
+{"id":84670,"timestamp":"2025-12-31T18:48:54.473Z","label":"B1","tail":"G-VIIN","text":"/EGGX.RCL 046\r\nBAW37J -DOGAL/1957 M082F360\r\n-RMK/MAX FL380","stratum":"B1/unparsed","expected":[]}
 {"id":864368,"timestamp":"2026-01-04T15:47:28.586Z","label":"B1","tail":"N845MD","text":"/EGGX.OC1/RCL 030\r\nAAL91-SUNOT/1630 M085F360\r\n-RMK/MAX F3803570","stratum":"B1/unparsed","expected":[]}
 {"id":1372965,"timestamp":"2026-01-05T07:15:03.161Z","label":"B1","tail":"A6-EEV","text":"/CZQX.OC1/RCL 000\r\nUAE8UW-UMESI/0652 M085F350\r\n-RMK/MAX FL 37005D2","stratum":"B1/unparsed","expected":[]}
 {"id":1442022,"timestamp":"2026-01-05T08:45:20.348Z","label":"B1","tail":"ET-AOV","text":"/EGGX.OC1/RCL 030\r\nETH574-GOMUP/0715 M085F360\r\n-RMK/MAX F380C9D5","stratum":"B1/unparsed","expected":[]}

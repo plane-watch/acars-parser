@@ -1,11 +1,11 @@
-{"id":12355,"timestamp":"2025-12-31T18:08:56.377Z","label":"5D","tail":"N777AN","flight":"AA0731","text":"KCLTA046","stratum":"5D/unparsed","expected":[]}
-{"id":13344,"timestamp":"2025-12-31T18:09:25.453Z","label":"5D","tail":"N216NN","flight":"MQ3355","text":"KEWRA024","stratum":"5D/unparsed","expected":[]}
-{"id":29465,"timestamp":"2025-12-31T18:18:21.215Z","label":"5D","tail":"VH-VFF","flight":"JQ0000","text":"YSSY","stratum":"5D/unparsed","expected":[]}
-{"id":49515,"timestamp":"2025-12-31T18:29:23.317Z","label":"5D","tail":"VH-VFO","flight":"JQ0671","text":"YSSY","stratum":"5D/unparsed","expected":[]}
-{"id":53084,"timestamp":"2025-12-31T18:31:20.700Z","label":"5D","tail":"VH-VGV","flight":"JQ0989","text":"YSSY","stratum":"5D/unparsed","expected":[]}
-{"id":90451,"timestamp":"2025-12-31T18:51:58.667Z","label":"5D","tail":"VH-VGV","flight":"JQ0989","text":"YSSY","stratum":"5D/unparsed","expected":[]}
-{"id":100236,"timestamp":"2025-12-31T18:57:00.628Z","label":"5D","tail":"N647AW","flight":"US2506","text":"PHL A024","stratum":"5D/unparsed","expected":[]}
-{"id":113888,"timestamp":"2025-12-31T19:03:50.253Z","label":"5D","tail":"N777AN","flight":"AA0731","text":"KCLTA046","stratum":"5D/unparsed","expected":[]}
+{"id":12355,"timestamp":"2025-12-31T18:08:56.377Z","label":"5D","tail":"N777AN","text":"KCLTA046","stratum":"5D/unparsed","expected":[]}
+{"id":13344,"timestamp":"2025-12-31T18:09:25.453Z","label":"5D","tail":"N216NN","text":"KEWRA024","stratum":"5D/unparsed","expected":[]}
+{"id":29465,"timestamp":"2025-12-31T18:18:21.215Z","label":"5D","tail":"VH-VFF","text":"YSSY","stratum":"5D/unparsed","expected":[]}
+{"id":49515,"timestamp":"2025-12-31T18:29:23.317Z","label":"5D","tail":"VH-VFO","text":"YSSY","stratum":"5D/unparsed","expected":[]}
+{"id":53084,"timestamp":"2025-12-31T18:31:20.700Z","label":"5D","tail":"VH-VGV","text":"YSSY","stratum":"5D/unparsed","expected":[]}
+{"id":90451,"timestamp":"2025-12-31T18:51:58.667Z","label":"5D","tail":"VH-VGV","text":"YSSY","stratum":"5D/unparsed","expected":[]}
+{"id":100236,"timestamp":"2025-12-31T18:57:00.628Z","label":"5D","tail":"N647AW","text":"PHL A024","stratum":"5D/unparsed","expected":[]}
+{"id":113888,"timestamp":"2025-12-31T19:03:50.253Z","label":"5D","tail":"N777AN","text":"KCLTA046","stratum":"5D/unparsed","expected":[]}
 {"id":663219,"timestamp":"2026-01-04T04:57:51.557Z","label":"5D","tail":"N761RW","text":"KBWIA024","stratum":"5D/unparsed","expected":[]}
 {"id":746456,"timestamp":"2026-01-04T06:30:06.114Z","label":"5D","tail":"N253NN","text":"KORDA024","stratum":"5D/unparsed","expected":[]}
 {"id":1102294,"timestamp":"2026-01-04T21:00:28.226Z","label":"5D","tail":"N282NN","text":"KBNAA024","stratum":"5D/unparsed","expected":[]}

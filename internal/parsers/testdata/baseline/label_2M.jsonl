@@ -1,7 +1,7 @@
 {"id":662853,"timestamp":"2026-01-04T04:57:17.294Z","label":"2M","tail":"HL8575","text":"OIL/KE75/2.0/2.0/.0/","stratum":"2M/unparsed","expected":[]}
 {"id":669131,"timestamp":"2026-01-04T05:05:46.869Z","label":"2M","tail":"HL8575","text":"OIL/KE75/2.0/2.0/.0/","stratum":"2M/unparsed","expected":[]}
-{"id":5102420,"timestamp":"2026-01-09T23:25:39.892Z","label":"2M","tail":"HL8391","flight":"KE498","text":"M31AKE0000OIL/KE411/.0/.0/.0/","stratum":"2M/unparsed","expected":[]}
+{"id":5102420,"timestamp":"2026-01-09T23:25:39.892Z","label":"2M","tail":"HL8391","text":"M31AKE0000OIL/KE411/.0/.0/.0/","stratum":"2M/unparsed","expected":[]}
 {"id":5816764,"timestamp":"2026-01-11T02:13:23.748Z","label":"2M","tail":"HL8515","text":"OIL/KE75/2.0/2.0/ /","stratum":"2M/unparsed","expected":[]}
-{"id":6397289,"timestamp":"2026-01-11T15:57:51.182Z","label":"2M","tail":"HL8575","flight":"KE42","text":"M45AKE0000OIL/KE2012/.0/.0/.0/","stratum":"2M/unparsed","expected":[]}
+{"id":6397289,"timestamp":"2026-01-11T15:57:51.182Z","label":"2M","tail":"HL8575","text":"M45AKE0000OIL/KE2012/.0/.0/.0/","stratum":"2M/unparsed","expected":[]}
 {"id":7428706,"timestamp":"2026-01-13T00:09:47.866Z","label":"2M","tail":"HL8574","text":"OIL/KE72/2.0/2.0/.0/","stratum":"2M/unparsed","expected":[]}
 {"id":9041808,"timestamp":"2026-01-18T01:01:45.363Z","label":"2M","tail":"HL8285","text":"OIL/KE278/0/0/0/","stratum":"2M/unparsed","expected":[]}

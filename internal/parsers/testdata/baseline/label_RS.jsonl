@@ -1,4 +1,4 @@
-{"id":77106,"timestamp":"2025-12-31T18:44:40.211Z","label":"RS","tail":"OH-LZH","flight":"AY8YL","text":"C/FIN8YL/EFHK/M/3YBB/8Y67S/C79D3/8Y6V4/C7AU4/3/4/1/3T/1Z/1G/11I/93/BM/7H/5U/2F/U","stratum":"RS/unparsed","expected":[]}
+{"id":77106,"timestamp":"2025-12-31T18:44:40.211Z","label":"RS","tail":"OH-LZH","text":"C/FIN8YL/EFHK/M/3YBB/8Y67S/C79D3/8Y6V4/C7AU4/3/4/1/3T/1Z/1G/11I/93/BM/7H/5U/2F/U","stratum":"RS/unparsed","expected":[]}
 {"id":180064,"timestamp":"2026-01-03T06:07:27.133Z","label":"RS","tail":"C-FCUG","text":"E/ACA1061/CYVR/1/14WH/3Y","stratum":"RS/unparsed","expected":[]}
 {"id":236192,"timestamp":"2026-01-03T07:59:22.529Z","label":"RS","tail":"HA-LXY","text":"E/WMT3WL/LMML/M/1C2K/5R","stratum":"RS/unparsed","expected":[]}
 {"id":284359,"timestamp":"2026-01-03T08:59:53.614Z","label":"RS","tail":"HB-JXN","text":"C/EZS1583/EGHI/B/1DPT/8E3CW/AMVY0/8E3ZB/AMWAR/3/4/2/5J/3E/1Y/JD/7A/83/74/3X/32/27/SS/7T/7F/49/36/1Y/V","stratum":"RS/unparsed","expected":[]}

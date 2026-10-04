@@ -1,4 +1,4 @@
-{"id":56927,"timestamp":"2025-12-31T18:33:23.571Z","label":"3J","tail":"N576UP","flight":"UP80","text":"311833 31ANC PVG ","stratum":"3J/unparsed","expected":[]}
+{"id":56927,"timestamp":"2025-12-31T18:33:23.571Z","label":"3J","tail":"N576UP","text":"311833 31ANC PVG ","stratum":"3J/unparsed","expected":[]}
 {"id":257045,"timestamp":"2026-01-03T08:38:16.938Z","label":"3J","tail":"N576UP","text":"030634 03ANC SZX ","stratum":"3J/unparsed","expected":[]}
 {"id":258398,"timestamp":"2026-01-03T08:39:19.100Z","label":"3J","tail":"N576UP","text":"030635 03ANC SZX ","stratum":"3J/unparsed","expected":[]}
 {"id":843615,"timestamp":"2026-01-04T15:26:08.731Z","label":"3J","tail":"N326UP","text":"041512 04PHL STN ","stratum":"3J/unparsed","expected":[]}

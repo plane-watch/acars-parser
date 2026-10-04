@@ -1,4 +1,4 @@
-{"id":85168,"timestamp":"2025-12-31T18:49:17.702Z","label":"QR","tail":"N107US","flight":"AA0350","text":"KCLTMWCR1849OS MWCR /FUL 220","stratum":"QR/unparsed","expected":[]}
+{"id":85168,"timestamp":"2025-12-31T18:49:17.702Z","label":"QR","tail":"N107US","text":"KCLTMWCR1849OS MWCR /FUL 220","stratum":"QR/unparsed","expected":[]}
 {"id":166038,"timestamp":"2026-01-03T05:38:53.079Z","label":"QR","tail":"9H-QEA","text":"LEGEEDLV2151","stratum":"QR/unparsed","expected":[]}
 {"id":175121,"timestamp":"2026-01-03T05:57:38.998Z","label":"QR","tail":"9H-QAG","text":"EGPHEDLV2214","stratum":"QR/unparsed","expected":[]}
 {"id":319856,"timestamp":"2026-01-03T10:08:53.239Z","label":"QR","tail":"9H-QCS","text":"LEBLEGBB2322","stratum":"QR/unparsed","expected":[]}

@@ -1,4 +1,4 @@
-{"id":89133,"timestamp":"2025-12-31T18:51:19.581Z","label":"58","tail":"G-SUNS","flight":"LS23ML","text":"LS23ML/31/185118/N50.459/E5.609/35984/N/","stratum":"58/unparsed","expected":[]}
+{"id":89133,"timestamp":"2025-12-31T18:51:19.581Z","label":"58","tail":"G-SUNS","text":"LS23ML/31/185118/N50.459/E5.609/35984/N/","stratum":"58/unparsed","expected":[]}
 {"id":175430,"timestamp":"2026-01-03T05:58:04.956Z","label":"58","tail":"A9C-NG","text":"GF0019/03/053039/N49.911/E8.553/35919/N/","stratum":"58/unparsed","expected":[]}
 {"id":318891,"timestamp":"2026-01-03T10:06:49.246Z","label":"58","tail":"G-SUNJ","text":"LS07AJ/03/070723/N52.036/W2.604/32043/N/","stratum":"58/unparsed","expected":[]}
 {"id":336873,"timestamp":"2026-01-03T10:52:42.304Z","label":"58","tail":"G-SUNG","text":"LS57PB/03/072210/N51.247/W0.530/30737/N/","stratum":"58/unparsed","expected":[]}

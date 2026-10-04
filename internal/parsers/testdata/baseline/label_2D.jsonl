@@ -1,4 +1,4 @@
-{"id":74466,"timestamp":"2025-12-31T18:43:09.555Z","label":"2D","tail":"HB-JDJ","flight":"LX0","text":"1840,5080,1843","stratum":"2D/unparsed","expected":[]}
+{"id":74466,"timestamp":"2025-12-31T18:43:09.555Z","label":"2D","tail":"HB-JDJ","text":"1840,5080,1843","stratum":"2D/unparsed","expected":[]}
 {"id":182524,"timestamp":"2026-01-03T06:12:03.951Z","label":"2D","tail":"A6-LRB","text":"TOD01,ETD133,OMAA,EDDL,02JAN26,0619,EDDL23L,38,","stratum":"2D/unparsed","expected":[]}
 {"id":354783,"timestamp":"2026-01-03T11:36:31.457Z","label":"2D","tail":"HB-IOF","text":"0736,6960,0737","stratum":"2D/unparsed","expected":[]}
 {"id":501504,"timestamp":"2026-01-03T22:17:29.189Z","label":"2D","tail":"HB-JDA","text":"2133,4480,2135","stratum":"2D/unparsed","expected":[]}
@@ -46,7 +46,7 @@
 {"id":6364194,"timestamp":"2026-01-11T14:11:13.671Z","label":"2D","tail":"A6-BNE","text":"TOC01    ETD006/11JAN25111252KIADLEBL\r\n1904,LEBL *,100, 55300,","stratum":"2D/unparsed","expected":[]}
 {"id":6831869,"timestamp":"2026-01-12T09:18:37.566Z","label":"2D","tail":"EI-DVM","text":"\r\nEIN603/12JAN26/EI-DVM/EHAM/EIDW/0900","stratum":"2D/unparsed","expected":[]}
 {"id":6898129,"timestamp":"2026-01-12T10:57:02.404Z","label":"2D","tail":"HB-JCP","text":"1051,05050,1053","stratum":"2D/unparsed","expected":[]}
-{"id":7207842,"timestamp":"2026-01-12T19:50:29.628Z","label":"2D","tail":"HL8217","flight":"KE2028","text":"M00AKE00001906","stratum":"2D/unparsed","expected":[]}
+{"id":7207842,"timestamp":"2026-01-12T19:50:29.628Z","label":"2D","tail":"HL8217","text":"M00AKE00001906","stratum":"2D/unparsed","expected":[]}
 {"id":7223488,"timestamp":"2026-01-12T19:42:06.018Z","label":"2D","tail":"HB-JMD","text":"1824,14330,1826","stratum":"2D/unparsed","expected":[]}
 {"id":7343558,"timestamp":"2026-01-12T22:25:22.042Z","label":"2D","tail":"HB-JCL","text":"1915,03425,1925","stratum":"2D/unparsed","expected":[]}
 {"id":7451895,"timestamp":"2026-01-13T00:35:36.491Z","label":"2D","tail":"OO-TCH","text":"2009,EBBR,LSZH,12JAN26\r\n6080,P,2011,SN2737","stratum":"2D/unparsed","expected":[]}

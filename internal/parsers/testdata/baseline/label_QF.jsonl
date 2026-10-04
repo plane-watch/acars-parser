@@ -1,7 +1,7 @@
-{"id":29141,"timestamp":"2025-12-31T18:18:11.007Z","label":"QF","tail":"B-LNO","flight":"HX707","text":"M22AHX0707----------OFF\n\tVHHH1817WADD424","stratum":"QF/unparsed","expected":[]}
-{"id":84196,"timestamp":"2025-12-31T18:48:40.089Z","label":"QF","tail":"N599NN","flight":"OH5601","text":"PHL1848JAX/FB 0138/FP 140/CO 647716/FO 883885/A1 030843/A2 280498","stratum":"QF/unparsed","expected":[]}
-{"id":106446,"timestamp":"2025-12-31T19:00:02.084Z","label":"QF","tail":"VH-YXS","flight":"JQ0602","text":"AVV1859SYD","stratum":"QF/unparsed","expected":[]}
-{"id":110630,"timestamp":"2025-12-31T19:02:09.817Z","label":"QF","tail":"N692AE","flight":"PT5885","text":"PHL1902YYZOS YYZ/FUL0804","stratum":"QF/unparsed","expected":[]}
+{"id":29141,"timestamp":"2025-12-31T18:18:11.007Z","label":"QF","tail":"B-LNO","text":"M22AHX0707----------OFF\n\tVHHH1817WADD424","stratum":"QF/unparsed","expected":[]}
+{"id":84196,"timestamp":"2025-12-31T18:48:40.089Z","label":"QF","tail":"N599NN","text":"PHL1848JAX/FB 0138/FP 140/CO 647716/FO 883885/A1 030843/A2 280498","stratum":"QF/unparsed","expected":[]}
+{"id":106446,"timestamp":"2025-12-31T19:00:02.084Z","label":"QF","tail":"VH-YXS","text":"AVV1859SYD","stratum":"QF/unparsed","expected":[]}
+{"id":110630,"timestamp":"2025-12-31T19:02:09.817Z","label":"QF","tail":"N692AE","text":"PHL1902YYZOS YYZ/FUL0804","stratum":"QF/unparsed","expected":[]}
 {"id":124834,"timestamp":"2026-01-03T02:34:47.921Z","label":"QF","tail":"N600NN","text":"PHL0050ATL/FB 0106/FP 144/CO 257206/FO 879336/A1 030901/A2 033036","stratum":"QF/unparsed","expected":[]}
 {"id":624613,"timestamp":"2026-01-04T00:34:07.965Z","label":"QF","tail":"N630NN","text":"PHL2214BNA/FB 0112/FP 138/CO 647389/FO 982582/A1 923059/A2 944453","stratum":"QF/unparsed","expected":[]}
 {"id":680323,"timestamp":"2026-01-04T05:17:59.822Z","label":"QF","tail":"N579NN","text":"PHL2350SAV/FB 0145/FP 134/CO 788580/FO 892895/A1 940019/A2 903690","stratum":"QF/unparsed","expected":[]}

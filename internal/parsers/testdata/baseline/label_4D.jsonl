@@ -1,4 +1,4 @@
-{"id":65814,"timestamp":"2025-12-31T18:38:21.368Z","label":"4D","tail":"C-FENO","flight":"WR3570","text":"MNT01,311838,WEN3570,IRS 3 DIFFERENCE\r\nWARNING IN CRUISE\r\n","stratum":"4D/unparsed","expected":[]}
+{"id":65814,"timestamp":"2025-12-31T18:38:21.368Z","label":"4D","tail":"C-FENO","text":"MNT01,311838,WEN3570,IRS 3 DIFFERENCE\r\nWARNING IN CRUISE\r\n","stratum":"4D/unparsed","expected":[]}
 {"id":2279774,"timestamp":"2026-01-06T11:17:31.407Z","label":"4D","tail":"EI-DER","text":"\r\nEIN34J/06JAN26/EI-DER/EIDW/EIDW/ANY-0930,LFT-0931,CAR-0930","stratum":"4D/unparsed","expected":[]}
 {"id":2686899,"timestamp":"2026-01-06T20:01:55.100Z","label":"4D","tail":"JY-REA","text":"** 4D LSZH OJAI\r\n/FN 154 \r\n/R ENG START 142409","stratum":"4D/unparsed","expected":[]}
 {"id":3931580,"timestamp":"2026-01-08T09:48:24.741Z","label":"4D","tail":"EI-DEJ","text":"\r\nEIN4GM/08JAN26/EI-DEJ/EIDW/EIDW/ANY-0933,LFT-0933,CAR-0934","stratum":"4D/unparsed","expected":[]}

@@ -1,8 +1,8 @@
-{"id":23172,"timestamp":"2025-12-31T18:15:12.396Z","label":"","tail":"B-16731","flight":"BR18","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":37580,"timestamp":"2025-12-31T18:22:50.724Z","label":"","tail":"JA867J","flight":"JL726","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":48991,"timestamp":"2025-12-31T18:29:06.556Z","label":"","tail":"A6-BLU","flight":"EY473","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":92196,"timestamp":"2025-12-31T18:52:50.390Z","label":"","tail":"N508DN","flight":"DL196","text":"0010","stratum":"/unparsed","expected":[]}
-{"id":116371,"timestamp":"2025-12-31T19:05:06.000Z","label":"","tail":"B-1566","flight":"MF801","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":23172,"timestamp":"2025-12-31T18:15:12.396Z","label":"","tail":"B-16731","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":37580,"timestamp":"2025-12-31T18:22:50.724Z","label":"","tail":"JA867J","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":48991,"timestamp":"2025-12-31T18:29:06.556Z","label":"","tail":"A6-BLU","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":92196,"timestamp":"2025-12-31T18:52:50.390Z","label":"","tail":"N508DN","text":"0010","stratum":"/unparsed","expected":[]}
+{"id":116371,"timestamp":"2025-12-31T19:05:06.000Z","label":"","tail":"B-1566","text":"0010","stratum":"/unparsed","expected":[]}
 {"id":294371,"timestamp":"2026-01-03T10:02:00.789Z","label":"","text":"1bffaa1e28f640033a85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
 {"id":296101,"timestamp":"2026-01-03T10:08:07.167Z","label":"","text":"1bff001e28f640001d85001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}
 {"id":789150,"timestamp":"2026-01-04T09:04:47.264Z","label":"","text":"1bffaa815101289c007d3b2b144700278183444b0001444b0101000045533031011447002741534153004ac9e100005341414200000100220000007a050100c301d6c50dc00606042b1b000004010f0110cd01082be10000003240c0010ac202636dc1010187020006c60100850203e8f20400057e40c302283708047618c055","stratum":"/unparsed","expected":[]}
@@ -95,6 +95,6 @@
 {"id":11112423,"timestamp":"2026-01-20T10:05:12.851Z","label":"","text":"1bffec1b28f64700c50a6472480b0804ddeac4d5","stratum":"/unparsed","expected":[]}
 {"id":11127721,"timestamp":"2026-01-20T10:26:40.455Z","label":"","text":"1bffe1","stratum":"/unparsed","expected":[]}
 {"id":11164575,"timestamp":"2026-01-20T11:19:02.839Z","label":"","text":"1bfe641b64c00100230862d3b902c3022020","stratum":"/unparsed","expected":[]}
-{"id":11303110,"timestamp":"2026-01-21T16:05:11.578Z","label":"","tail":"N708GT","flight":"5Y354","text":"0013","stratum":"/unparsed","expected":[]}
+{"id":11303110,"timestamp":"2026-01-21T16:05:11.578Z","label":"","tail":"N708GT","text":"0013","stratum":"/unparsed","expected":[]}
 {"id":11336424,"timestamp":"2026-01-21T16:45:52.612Z","label":"","text":"1bffac1864c00000930862d9cf01c3029193","stratum":"/unparsed","expected":[]}
 {"id":11350668,"timestamp":"2026-01-21T17:03:37.741Z","label":"","text":"1bff441e28f640010285001e0400000004000000020304bc5cd931b4da00393b90209f2ed84808","stratum":"/unparsed","expected":[]}

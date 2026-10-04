@@ -1,5 +1,5 @@
-{"id":36598,"timestamp":"2025-12-31T18:22:14.961Z","label":"B0","tail":"HB-JHI","flight":"LX52","text":"/SOUCAYA.AFN/FMHSWR52,.HB-JHI,,182214/FRP0FF5C","stratum":"B0/unparsed","expected":[]}
-{"id":93245,"timestamp":"2025-12-31T18:53:30.199Z","label":"B0","tail":"C-FDHG","flight":"AC956","text":"/USADCXA.AFN/FMHACA956,.C-FDHG,,185318/FCPYYZE2YA,03CBC","stratum":"B0/unparsed","expected":[]}
+{"id":36598,"timestamp":"2025-12-31T18:22:14.961Z","label":"B0","tail":"HB-JHI","text":"/SOUCAYA.AFN/FMHSWR52,.HB-JHI,,182214/FRP0FF5C","stratum":"B0/unparsed","expected":[]}
+{"id":93245,"timestamp":"2025-12-31T18:53:30.199Z","label":"B0","tail":"C-FDHG","text":"/USADCXA.AFN/FMHACA956,.C-FDHG,,185318/FCPYYZE2YA,03CBC","stratum":"B0/unparsed","expected":[]}
 {"id":137240,"timestamp":"2026-01-03T04:51:03.359Z","label":"B0","tail":"HL8285","text":"/YWGE2YA.AFN/FMHKAL8231,.HL8285,71C285,044805/FPON52150W112468,0/FCOADS,01/FCOATC,015110","stratum":"B0/unparsed","expected":[]}
 {"id":192613,"timestamp":"2026-01-03T06:38:58.088Z","label":"B0","tail":"G-XWBK","text":"/CZVR.AFN/FMHBAW88C,.G-XWBK,407AF4,055417/FPON49115W123124,1/FCOADS,01/FCOATC,01DA60","stratum":"B0/unparsed","expected":[]}
 {"id":647843,"timestamp":"2026-01-04T02:51:24.969Z","label":"B0","tail":"F-OVAA","text":"/YYZE2YA.AFN/FMHTHT8,.F-OVAA,3A5400,225028/FPON43135W085187,0/FCOATC,01/FCOADS,016184","stratum":"B0/unparsed","expected":[]}

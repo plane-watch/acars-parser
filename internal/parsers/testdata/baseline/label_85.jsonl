@@ -1,5 +1,5 @@
-{"id":28410,"timestamp":"2025-12-31T18:17:47.076Z","label":"85","tail":"EI-NSE","flight":"EI173","text":"\r\nMVA\r\nEIN173/31DEC25.EI-NSE.EIDW\r\nEA1954 ","stratum":"85/unparsed","expected":[]}
-{"id":102078,"timestamp":"2025-12-31T18:57:51.097Z","label":"85","tail":"EI-FNG","flight":"EI123","text":"\r\nMVA\r\nEIN123/31DEC25.EI-FNG.KORD\r\nEA1911 ","stratum":"85/unparsed","expected":[]}
+{"id":28410,"timestamp":"2025-12-31T18:17:47.076Z","label":"85","tail":"EI-NSE","text":"\r\nMVA\r\nEIN173/31DEC25.EI-NSE.EIDW\r\nEA1954 ","stratum":"85/unparsed","expected":[]}
+{"id":102078,"timestamp":"2025-12-31T18:57:51.097Z","label":"85","tail":"EI-FNG","text":"\r\nMVA\r\nEIN123/31DEC25.EI-FNG.KORD\r\nEA1911 ","stratum":"85/unparsed","expected":[]}
 {"id":715067,"timestamp":"2026-01-04T05:54:55.609Z","label":"85","tail":"C-GOKG","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
 {"id":1347353,"timestamp":"2026-01-05T06:47:14.067Z","label":"85","tail":"C-GOIO","text":"REQ STAND","stratum":"85/unparsed","expected":[]}
 {"id":1396059,"timestamp":"2026-01-05T07:39:53.204Z","label":"85","tail":"SE-RUO","text":"V08CA/OCCMSG/\r\nGOOD MORNING\r\nWE HAVE A 45MIN \r\nTURNAROUND WITH A/C SWAP\r\nANY CHANCE TO KEEP SAME\r\nA/C\r\nREGARDS SK1415","stratum":"85/unparsed","expected":[]}

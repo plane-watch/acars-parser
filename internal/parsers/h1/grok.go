@@ -9,14 +9,15 @@ var Formats = []patterns.Format{
 	// H1 POS position format with time (6-digit) - most common format.
 	// Example: POSN53139W001524,RODOL,173054,320,MCT,173303,ASNIP,M56,29442,2092BA73
 	// Fields: position, waypoint, time (HHMMSS), altitude (FL in hundreds), next waypoint, ETA, third waypoint, temp, wind, extra fields
-	// Waypoints may be named fixes or lat/lon points (e.g. N58548E016310).
+	// Waypoints may be named fixes or lat/lon points (e.g. N58548E016310); they
+	// always start with a letter.
 	// The wind is DDDSS or DDDSSS: three digits of direction, then the speed in knots.
 	// Note: Ground speed appears later in extended variants, not in this position.
 	{
 		Name: "h1_position_time",
 		Pattern: `^POS(?P<lat_dir>{LAT_DIR})(?P<lat>\d{5})(?P<lon_dir>{LON_DIR})(?P<lon>\d{6}),` +
-			`(?P<curr_wpt>[A-Z0-9]+),(?P<report_time>\d{6}),(?P<altitude>\d+),` +
-			`(?P<next_wpt>[A-Z0-9]+),(?P<eta>\d+),(?P<wpt3>[A-Z0-9]+),(?P<temp>[MP]\d+)` +
+			`(?P<curr_wpt>[A-Z][A-Z0-9]*),(?P<report_time>\d{6}),(?P<altitude>\d+),` +
+			`(?P<next_wpt>[A-Z][A-Z0-9]*),(?P<eta>\d+),(?P<wpt3>[A-Z][A-Z0-9]*),(?P<temp>[MP]\d+)` +
 			`(?:,(?P<wind>\d{5,6}))?(?:,(?P<extra>[A-Z0-9]+))?`,
 		Fields: []string{"lat_dir", "lat", "lon_dir", "lon", "curr_wpt", "report_time", "altitude", "next_wpt", "eta", "wpt3", "temp", "wind", "extra"},
 	},

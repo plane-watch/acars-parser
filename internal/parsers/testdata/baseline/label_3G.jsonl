@@ -28,7 +28,7 @@
 {"id":6423377,"timestamp":"2026-01-11T17:08:41.382Z","label":"3G","tail":"D-ABPE","text":"7035,6 E51, E51A8B8","stratum":"3G/unparsed","expected":[]}
 {"id":6423380,"timestamp":"2026-01-11T17:08:41.436Z","label":"3G","tail":"D-ABPE","text":"7035,6 E51, E51A8B8","stratum":"3G/unparsed","expected":[]}
 {"id":6423381,"timestamp":"2026-01-11T17:08:41.916Z","label":"3G","tail":"D-ABPE","text":"7035,6 E51, E51A8B8","stratum":"3G/unparsed","expected":[]}
-{"id":6797799,"timestamp":"2026-01-12T08:26:15.243Z","label":"3G","tail":"D-ABPM","flight":"LH500","text":"5627,5 077, C64BEA6","stratum":"3G/unparsed","expected":[]}
+{"id":6797799,"timestamp":"2026-01-12T08:26:15.243Z","label":"3G","tail":"D-ABPM","text":"5627,5 077, C64BEA6","stratum":"3G/unparsed","expected":[]}
 {"id":7097616,"timestamp":"2026-01-12T16:32:48.437Z","label":"3G","tail":"D-ABPB","text":"7368,S D45, E5100A8","stratum":"3G/unparsed","expected":[]}
 {"id":7097620,"timestamp":"2026-01-12T16:32:48.625Z","label":"3G","tail":"D-ABPB","text":"7368,S D45, E5100A8","stratum":"3G/unparsed","expected":[]}
 {"id":7097627,"timestamp":"2026-01-12T16:32:48.980Z","label":"3G","tail":"D-ABPB","text":"7368,S D45, E5100A8","stratum":"3G/unparsed","expected":[]}

@@ -1,6 +1,6 @@
-{"id":16178,"timestamp":"2025-12-31T18:11:05.338Z","label":"18","tail":"N577QS","flight":"GS0001","text":"(2/GLA","stratum":"18/unparsed","expected":[]}
-{"id":18254,"timestamp":"2025-12-31T18:12:30.753Z","label":"18","tail":"C-GZQC","flight":"PD205","text":"181228,C-GZQC/PD0205,N4339.68 W07851.06,115567,10129,182,294053","stratum":"18/unparsed","expected":[]}
-{"id":35967,"timestamp":"2025-12-31T18:21:54.433Z","label":"18","tail":"N14250","flight":"UA0342","text":"/18 POST TIMES SECS/ KORD MWCR 31 181932/IN TIME 1818/PDOOR 181932/CDOOR 181834/BR SET 181753\r\n/LOC N106100,E1221430","stratum":"18/unparsed","expected":[]}
+{"id":16178,"timestamp":"2025-12-31T18:11:05.338Z","label":"18","tail":"N577QS","text":"(2/GLA","stratum":"18/unparsed","expected":[]}
+{"id":18254,"timestamp":"2025-12-31T18:12:30.753Z","label":"18","tail":"C-GZQC","text":"181228,C-GZQC/PD0205,N4339.68 W07851.06,115567,10129,182,294053","stratum":"18/unparsed","expected":[]}
+{"id":35967,"timestamp":"2025-12-31T18:21:54.433Z","label":"18","tail":"N14250","text":"/18 POST TIMES SECS/ KORD MWCR 31 181932/IN TIME 1818/PDOOR 181932/CDOOR 181834/BR SET 181753\r\n/LOC N106100,E1221430","stratum":"18/unparsed","expected":[]}
 {"id":121546,"timestamp":"2026-01-03T02:44:42.166Z","label":"18","tail":"B-30FW","text":"PDOX","stratum":"18/unparsed","expected":[]}
 {"id":337241,"timestamp":"2026-01-03T13:02:06.796Z","label":"18","tail":"HS-TEX","text":"00","stratum":"18/unparsed","expected":[]}
 {"id":913588,"timestamp":"2026-01-04T18:07:29.069Z","label":"18","tail":"HS-TJR","text":"15\n\t","stratum":"18/unparsed","expected":[]}
@@ -36,7 +36,7 @@
 {"id":4361340,"timestamp":"2026-01-09T03:48:31.473Z","label":"18","tail":"C-GKQM","text":"022602,C-GKQM/PD0672,N4340.45 W07924.28,93221,4039, 39,192034","stratum":"18/unparsed","expected":[]}
 {"id":4542044,"timestamp":"2026-01-09T07:17:48.325Z","label":"18","tail":"B-20EL","text":"POX,CZ0689,09JAN26,051610,ZGGG,EGKK, 55.493,  12.26,37998, 16100,  .84,-122.2,- 98.0,  33.8,-60.56,012252,  115,","stratum":"18/unparsed","expected":[]}
 {"id":4548978,"timestamp":"2026-01-09T07:27:46.319Z","label":"18","tail":"B-30F0","text":"POX,CZ0347,09JAN26,052023,ZGGG,LFPG,N51.891,E006.318,380,140,0.845,-140,-096.4,026,-052,0603,","stratum":"18/unparsed","expected":[]}
-{"id":4559780,"timestamp":"2026-01-09T08:25:53.386Z","label":"18","tail":"HS-TEP","flight":"TG318","text":"00","stratum":"18/unparsed","expected":[]}
+{"id":4559780,"timestamp":"2026-01-09T08:25:53.386Z","label":"18","tail":"HS-TEP","text":"00","stratum":"18/unparsed","expected":[]}
 {"id":4563314,"timestamp":"2026-01-09T07:42:35.631Z","label":"18","tail":"HS-TKZ","text":"N 47.435,E  8.925, 5817, 10.3,147.8","stratum":"18/unparsed","expected":[]}
 {"id":4577116,"timestamp":"2026-01-09T07:58:47.118Z","label":"18","tail":"C-GKXO","text":"060604,C-GKXO/PD0309,N4926.77 W12214.18,115849,10894,169,300046","stratum":"18/unparsed","expected":[]}
 {"id":4779435,"timestamp":"2026-01-09T15:30:46.907Z","label":"18","tail":"B-1121","text":"PTIX03","stratum":"18/unparsed","expected":[]}
@@ -89,9 +89,9 @@
 {"id":10719057,"timestamp":"2026-01-20T00:04:28.152Z","label":"18","tail":"B-20EL","text":"POX,CZ0304,19JAN26,223043,EGLL,ZGGG, 52.923,   3.88,35000, 63400,  .85,  60.5,-160.0,  29.5,-64.57,103729,  115,","stratum":"18/unparsed","expected":[]}
 {"id":10854009,"timestamp":"2026-01-20T04:45:02.911Z","label":"18","tail":"C-GKXA","text":"041601,C-GKXA/PD0590,N3834.37 W07817.01,101384,9473,390,251154","stratum":"18/unparsed","expected":[]}
 {"id":10865902,"timestamp":"2026-01-20T04:58:29.570Z","label":"18","tail":"C-GKYV","text":"042856,C-GKYV/PD0552,N3954.36 W07818.93,102649,7740,370,247130","stratum":"18/unparsed","expected":[]}
-{"id":10924246,"timestamp":"2026-01-20T06:20:56.264Z","label":"18","tail":"HS-TEP","flight":"TG318","text":"15","stratum":"18/unparsed","expected":[]}
+{"id":10924246,"timestamp":"2026-01-20T06:20:56.264Z","label":"18","tail":"HS-TEP","text":"15","stratum":"18/unparsed","expected":[]}
 {"id":11197071,"timestamp":"2026-01-20T12:47:36.842Z","label":"18","tail":"C-GKQS","text":"122142,C-GKQS/PD0102,N4506.75 W07610.03,110412,13224,300,251068","stratum":"18/unparsed","expected":[]}
-{"id":11247193,"timestamp":"2026-01-20T14:28:22.732Z","label":"18","tail":"HS-TEP","flight":"TG318","text":"00","stratum":"18/unparsed","expected":[]}
+{"id":11247193,"timestamp":"2026-01-20T14:28:22.732Z","label":"18","tail":"HS-TEP","text":"00","stratum":"18/unparsed","expected":[]}
 {"id":11330892,"timestamp":"2026-01-21T17:04:52.352Z","label":"18","tail":"B-8361","text":"PTIX05","stratum":"18/unparsed","expected":[]}
 {"id":11330895,"timestamp":"2026-01-21T17:04:52.590Z","label":"18","tail":"B-8361","text":"PTIX05","stratum":"18/unparsed","expected":[]}
 {"id":11419643,"timestamp":"2026-01-21T18:10:28.634Z","label":"18","tail":"C-GKYV","text":"162401,C-GKYV/PD0653,N4354.56 W08728.87,129359,22011,360,264091","stratum":"18/unparsed","expected":[]}

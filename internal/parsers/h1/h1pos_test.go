@@ -63,3 +63,10 @@ func TestH1PosParser(t *testing.T) {
 		})
 	}
 }
+
+func TestH1PosParserRejectsNumericWaypoints(t *testing.T) {
+	text := "POSN39006W075260,12345,014938,340,SMELI,015155,TRPOD,M52,290061,204D6A3"
+	if got := (&H1PosParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Text: text}); got != nil {
+		t.Errorf("Parse() = %+v, want nil for an all-digit waypoint", got)
+	}
+}

@@ -117,3 +117,82 @@ func TestPWIParser(t *testing.T) {
 		})
 	}
 }
+
+// TestPWIChecksumAndTokenBoundaries covers the trailing 4-character checksum,
+// which is not always present and can begin with digits, so it must only be
+// removed when the final token is valid without it and invalid with it.
+func TestPWIChecksumAndTokenBoundaries(t *testing.T) {
+	tests := []struct {
+		name    string
+		text    string
+		descent []AltitudeWind
+		route   []RouteWindLayer
+	}{
+		{
+			name:  "checksum starting with digits after a six-digit wind",
+			text:  "PWI/WD300,DUBED,2260393B13",
+			route: []RouteWindLayer{{FlightLevel: 300, Waypoints: []WaypointWind{{Waypoint: "DUBED", WindDir: 226, WindSpeed: 39}}}},
+		},
+		{
+			name:    "checksum after an eight-digit group",
+			text:    "PWI/DD10032807" + "3B13",
+			descent: []AltitudeWind{{FlightLevel: 100, WindDir: 328, WindSpeed: 7}},
+		},
+		{
+			name: "checksum after a one-digit temperature",
+			text: "PWI/WD400,HVE,330041,400M5" + "3B13",
+			route: []RouteWindLayer{{FlightLevel: 400, Waypoints: []WaypointWind{
+				{Waypoint: "HVE", WindDir: 330, WindSpeed: 41, Temperature: -5},
+			}}},
+		},
+		{
+			name: "no checksum: a message ending in a wind keeps it",
+			text: "PWI/WD300,UMGE,258103",
+			route: []RouteWindLayer{{FlightLevel: 300, Waypoints: []WaypointWind{
+				{Waypoint: "UMGE", WindDir: 258, WindSpeed: 103},
+			}}},
+		},
+		{
+			name: "a temperature field is not a waypoint",
+			text: "PWI/WD300,M49,DUBED,226039,300M49",
+			route: []RouteWindLayer{{FlightLevel: 300, Waypoints: []WaypointWind{
+				{Waypoint: "DUBED", WindDir: 226, WindSpeed: 39, Temperature: -49},
+			}}},
+		},
+		{
+			name: "named waypoints with digits are kept",
+			text: "PWI/WD410,AMVES,273027,410M59.BO613,272027,410M59",
+			route: []RouteWindLayer{{FlightLevel: 410, Waypoints: []WaypointWind{
+				{Waypoint: "AMVES", WindDir: 273, WindSpeed: 27, Temperature: -59},
+				{Waypoint: "BO613", WindDir: 272, WindSpeed: 27, Temperature: -59},
+			}}},
+		},
+		{
+			name: "an unknown block marker number is not removed",
+			text: "PWI/WD400,HVE,330- #M4041,400M56",
+		},
+	}
+
+	p := &PWIParser{}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := p.Parse(&acars.Message{ID: 1, Label: "H1", Text: tt.text})
+			if tt.descent == nil && tt.route == nil {
+				if got != nil {
+					t.Errorf("Parse() = %+v, want nil", got)
+				}
+				return
+			}
+			if got == nil {
+				t.Fatal("Parse returned nil")
+			}
+			r := got.(*PWIResult)
+			if !reflect.DeepEqual(r.DescentWinds, tt.descent) {
+				t.Errorf("descent winds = %+v\nwant             %+v", r.DescentWinds, tt.descent)
+			}
+			if !reflect.DeepEqual(r.RouteWinds, tt.route) {
+				t.Errorf("route winds = %+v\nwant           %+v", r.RouteWinds, tt.route)
+			}
+		})
+	}
+}

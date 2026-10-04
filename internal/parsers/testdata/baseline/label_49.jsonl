@@ -1,4 +1,4 @@
-{"id":61434,"timestamp":"2025-12-31T18:35:57.914Z","label":"49","tail":"B-1345","flight":"HU727","text":"M41AHU072701ICCL    CHH727/311835ZUCKLEMD\n\t+ 4883220.2+  9.5","stratum":"49/unparsed","expected":[]}
+{"id":61434,"timestamp":"2025-12-31T18:35:57.914Z","label":"49","tail":"B-1345","text":"M41AHU072701ICCL    CHH727/311835ZUCKLEMD\n\t+ 4883220.2+  9.5","stratum":"49/unparsed","expected":[]}
 {"id":176073,"timestamp":"2026-01-03T05:59:28.929Z","label":"49","tail":"A7-BEI","text":"01TOICVOZ015/030531YBBNOTHH\r\n259   187.2 +30.1","stratum":"49/unparsed","expected":[]}
 {"id":364472,"timestamp":"2026-01-03T16:38:21.841Z","label":"49","tail":"N16009","text":"01ERDCUAL945    /031617EDDFKORD\r\n+37997274.9- 19.3","stratum":"49/unparsed","expected":[]}
 {"id":638863,"timestamp":"2026-01-04T00:50:57.837Z","label":"49","tail":"A7-BCI","text":"01CLER     QTR4G/032219EIDWOTHH\r\n+38895270.9- 29.2","stratum":"49/unparsed","expected":[]}

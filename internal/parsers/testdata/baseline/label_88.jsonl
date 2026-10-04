@@ -1,5 +1,5 @@
-{"id":17654,"timestamp":"2025-12-31T18:12:08.695Z","label":"88","tail":"N392HA","flight":"HA850","text":"M01AHA0850/HNLOCHA.MAHALO","stratum":"88/unparsed","expected":[]}
-{"id":82132,"timestamp":"2025-12-31T18:47:29.710Z","label":"88","tail":"N361HA","flight":"HA813","text":"/HNLOCHA.OUR ETA PHNL IS 0003Z.\r\nDO YOU STILL WANT US\r\nTO FLY CI200.\r\n","stratum":"88/unparsed","expected":[]}
+{"id":17654,"timestamp":"2025-12-31T18:12:08.695Z","label":"88","tail":"N392HA","text":"M01AHA0850/HNLOCHA.MAHALO","stratum":"88/unparsed","expected":[]}
+{"id":82132,"timestamp":"2025-12-31T18:47:29.710Z","label":"88","tail":"N361HA","text":"/HNLOCHA.OUR ETA PHNL IS 0003Z.\r\nDO YOU STILL WANT US\r\nTO FLY CI200.\r\n","stratum":"88/unparsed","expected":[]}
 {"id":178122,"timestamp":"2026-01-03T06:03:55.023Z","label":"88","tail":"EC-MBE","text":"FUELREL,6417,LT,0820,A1\r\n38,53,91,89,2,-\r\n,,,","stratum":"88/unparsed","expected":[]}
 {"id":232769,"timestamp":"2026-01-03T07:51:57.109Z","label":"88","tail":"SE-ROC","text":"V08CA/FLOWCF/030517/","stratum":"88/unparsed","expected":[]}
 {"id":242451,"timestamp":"2026-01-03T08:12:16.098Z","label":"88","tail":"HZ-RXX","text":"FTX00/RUHASRX\r\nRXI401 /02030627OERKEGLL\r\nGOOD MORNING\r\n1 HEADSET U/S\r\nKIND REGARDS","stratum":"88/unparsed","expected":[]}

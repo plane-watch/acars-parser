@@ -1,4 +1,4 @@
-{"id":34211,"timestamp":"2025-12-31T18:20:59.414Z","label":"4B","tail":"N633UP","flight":"UP0032","text":"311820 31SDF HNL 00321853735   2102090   5068320   ////////////////////D","stratum":"4B/unparsed","expected":[]}
+{"id":34211,"timestamp":"2025-12-31T18:20:59.414Z","label":"4B","tail":"N633UP","text":"311820 31SDF HNL 00321853735   2102090   5068320   ////////////////////D","stratum":"4B/unparsed","expected":[]}
 {"id":225554,"timestamp":"2026-01-03T07:42:37.285Z","label":"4B","tail":"EC-NTA","text":"IB06FK.03.LSZH.LEMD.637523.637523.DL\r\nFUPL5638.LT.D803\r","stratum":"4B/unparsed","expected":[]}
 {"id":567199,"timestamp":"2026-01-03T23:40:53.442Z","label":"4B","tail":"EC-OQH","text":"IB03AA.03.KBOS.LEMD.314425.314425.NL\r\nFUPL5431  .UG.D809\r","stratum":"4B/unparsed","expected":[]}
 {"id":1439037,"timestamp":"2026-01-05T08:41:19.314Z","label":"4B","tail":"EC-OCS","text":"IB06FK.05.LSZH.LEMD.025623.025623.DL\r\nFUPL6292.LT.D810\r","stratum":"4B/unparsed","expected":[]}

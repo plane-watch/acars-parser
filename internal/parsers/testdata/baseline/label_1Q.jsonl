@@ -1,4 +1,4 @@
-{"id":73691,"timestamp":"2025-12-31T18:42:43.939Z","label":"1Q","tail":"HB-JBE","flight":"LX3AP","text":"LEVC,9,,,,,,,,","stratum":"1Q/unparsed","expected":[]}
+{"id":73691,"timestamp":"2025-12-31T18:42:43.939Z","label":"1Q","tail":"HB-JBE","text":"LEVC,9,,,,,,,,","stratum":"1Q/unparsed","expected":[]}
 {"id":205635,"timestamp":"2026-01-03T07:13:07.954Z","label":"1Q","tail":"HB-JCH","text":"LSZH,9,,,,,,,,","stratum":"1Q/unparsed","expected":[]}
 {"id":935265,"timestamp":"2026-01-04T18:03:46.492Z","label":"1Q","tail":"HB-JCN","text":"LSZH,7,,,,,4,10,,","stratum":"1Q/unparsed","expected":[]}
 {"id":999218,"timestamp":"2026-01-04T19:11:09.464Z","label":"1Q","tail":"HB-JCO","text":"LSZH,9,,,,,10,,,","stratum":"1Q/unparsed","expected":[]}

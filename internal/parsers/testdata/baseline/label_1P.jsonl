@@ -1,4 +1,4 @@
-{"id":26719,"timestamp":"2025-12-31T18:16:58.248Z","label":"1P","tail":"HB-JJN","flight":"WK215P","text":"181654,N 47.603,E  8.228,5730,212,221.000,1821,2.8T,MS06,015,001,","stratum":"1P/unparsed","expected":[]}
+{"id":26719,"timestamp":"2025-12-31T18:16:58.248Z","label":"1P","tail":"HB-JJN","text":"181654,N 47.603,E  8.228,5730,212,221.000,1821,2.8T,MS06,015,001,","stratum":"1P/unparsed","expected":[]}
 {"id":489405,"timestamp":"2026-01-03T21:59:06.649Z","label":"1P","tail":"HB-IHF","text":"213012,N 37.369,W 78.762,43034,243,455,0010,019.3T,MS55,272,062","stratum":"1P/unparsed","expected":[]}
 {"id":490131,"timestamp":"2026-01-03T22:00:22.668Z","label":"1P","tail":"HB-IHF","text":"213012,N 37.369,W 78.762,43034,243,455,0010,019.3T,MS55,272,062","stratum":"1P/unparsed","expected":[]}
 {"id":543575,"timestamp":"2026-01-03T23:03:41.902Z","label":"1P","tail":"HB-IHC","text":"214633,N 47.497,E  8.360,9980 ,215,236,2323,023.8T,MS19,272,019","stratum":"1P/unparsed","expected":[]}

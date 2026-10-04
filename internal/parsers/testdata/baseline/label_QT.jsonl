@@ -1,11 +1,11 @@
-{"id":60424,"timestamp":"2025-12-31T18:35:25.757Z","label":"QT","tail":"VN-A890","flight":"VN260","text":"M83AVN0260        181418340145FI 0260/DD 31","stratum":"QT/unparsed","expected":[]}
+{"id":60424,"timestamp":"2025-12-31T18:35:25.757Z","label":"QT","tail":"VN-A890","text":"M83AVN0260        181418340145FI 0260/DD 31","stratum":"QT/unparsed","expected":[]}
 {"id":105197,"timestamp":"2025-12-31T18:59:22.507Z","label":"QT","tail":"HL8502","text":"M01ATW0000RKSI----18471859  76","stratum":"QT/unparsed","expected":[]}
 {"id":115029,"timestamp":"2025-12-31T19:04:23.829Z","label":"QT","tail":"B-LNZ","text":"M01ARH0000ZJHKZJHK----1526----","stratum":"QT/unparsed","expected":[]}
 {"id":187081,"timestamp":"2026-01-03T06:24:46.216Z","label":"QT","tail":"EI-EKL","text":"EDLV----23352340 111","stratum":"QT/unparsed","expected":[]}
 {"id":187859,"timestamp":"2026-01-03T06:26:35.938Z","label":"QT","tail":"EI-EKL","text":"EDLV----04190436 111","stratum":"QT/unparsed","expected":[]}
 {"id":187914,"timestamp":"2026-01-03T06:26:49.711Z","label":"QT","tail":"EI-EKL","text":"EDLV----03510411 111","stratum":"QT/unparsed","expected":[]}
 {"id":834390,"timestamp":"2026-01-04T08:03:25.159Z","label":"QT","tail":"C-FNWD","text":"CYVR----15150051  64","stratum":"QT/unparsed","expected":[]}
-{"id":935651,"timestamp":"2026-01-04T18:28:44.613Z","label":"QT","tail":"HL8708","flight":"TW405","text":"M01ATW0000RKSI----17361749  70","stratum":"QT/unparsed","expected":[]}
+{"id":935651,"timestamp":"2026-01-04T18:28:44.613Z","label":"QT","tail":"HL8708","text":"M01ATW0000RKSI----17361749  70","stratum":"QT/unparsed","expected":[]}
 {"id":1046489,"timestamp":"2026-01-04T19:58:53.259Z","label":"QT","tail":"OY-JZT","text":"------------0559 265","stratum":"QT/unparsed","expected":[]}
 {"id":1050273,"timestamp":"2026-01-04T20:02:40.061Z","label":"QT","tail":"OY-JZT","text":"------------0559 265","stratum":"QT/unparsed","expected":[]}
 {"id":1155555,"timestamp":"2026-01-04T22:06:23.097Z","label":"QT","tail":"OY-JZT","text":"------------0559 265","stratum":"QT/unparsed","expected":[]}

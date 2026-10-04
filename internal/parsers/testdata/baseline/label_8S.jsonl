@@ -1,5 +1,5 @@
-{"id":49856,"timestamp":"2025-12-31T18:29:34.077Z","label":"8S","tail":"G-EZWD","flight":"U275ZX","text":"LEAL,2011,N,Y,N,--,4,2\r\n\r\n\r\n\r\n\r\n","stratum":"8S/unparsed","expected":[]}
-{"id":84487,"timestamp":"2025-12-31T18:48:49.142Z","label":"8S","tail":"G-EZBV","flight":"U282RG","text":"EHAM,1930,N,Y,N,--,--,2\r\n\r\n\r\n\r\n\r\n","stratum":"8S/unparsed","expected":[]}
+{"id":49856,"timestamp":"2025-12-31T18:29:34.077Z","label":"8S","tail":"G-EZWD","text":"LEAL,2011,N,Y,N,--,4,2\r\n\r\n\r\n\r\n\r\n","stratum":"8S/unparsed","expected":[]}
+{"id":84487,"timestamp":"2025-12-31T18:48:49.142Z","label":"8S","tail":"G-EZBV","text":"EHAM,1930,N,Y,N,--,--,2\r\n\r\n\r\n\r\n\r\n","stratum":"8S/unparsed","expected":[]}
 {"id":174922,"timestamp":"2026-01-03T05:57:18.155Z","label":"8S","tail":"EI-HGT","text":"044123,C,EDLV","stratum":"8S/unparsed","expected":[]}
 {"id":216350,"timestamp":"2026-01-03T07:30:02.298Z","label":"8S","tail":"G-EZBZ","text":"EPKK,0741,N,Y,N,--,1,--\r\n1 DEAF\r\n\r\n\r\n\r\n","stratum":"8S/unparsed","expected":[]}
 {"id":288594,"timestamp":"2026-01-03T09:05:16.140Z","label":"8S","tail":"G-UZED","text":"LSGG,0754,N,Y,N,--,--,1\r\n\r\n\r\n\r\n\r\n","stratum":"8S/unparsed","expected":[]}

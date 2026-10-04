@@ -7,7 +7,7 @@
 {"id":3708791,"timestamp":"2026-01-08T00:36:06.766Z","label":"_d","tail":"XA-VUW","text":"\t","stratum":"_d/unparsed","expected":[]}
 {"id":4068405,"timestamp":"2026-01-08T11:03:17.782Z","label":"_d","tail":"G-VIIP","text":"S","stratum":"_d/unparsed","expected":[]}
 {"id":4090408,"timestamp":"2026-01-08T12:38:45.191Z","label":"_d","tail":"N/00\u0014W","text":"S4\u0010AAA213\u001f","stratum":"_d/unparsed","expected":[]}
-{"id":4973987,"timestamp":"2026-01-09T15:55:29.971Z","label":"_d","tail":"N39728","flight":"UA3801","text":"S50\tUA\u003e6p5","stratum":"_d/unparsed","expected":[]}
+{"id":4973987,"timestamp":"2026-01-09T15:55:29.971Z","label":"_d","tail":"N39728","text":"S50\tUA\u003e6p5","stratum":"_d/unparsed","expected":[]}
 {"id":5404102,"timestamp":"2026-01-10T05:54:19.431Z","label":"_d","tail":"\u0006CF]IS","text":"M55AQB7774","stratum":"_d/unparsed","expected":[]}
 {"id":5847394,"timestamp":"2026-01-10T23:56:51.438Z","label":"_d","tail":"CNvQM","text":"M13AQK8909","stratum":"_d/unparsed","expected":[]}
 {"id":6536693,"timestamp":"2026-01-11T15:07:49.115Z","label":"_d","tail":"Nr73NW","text":"S56ANW1:75","stratum":"_d/unparsed","expected":[]}
@@ -21,7 +21,7 @@
 {"id":9457884,"timestamp":"2026-01-18T04:55:48.104Z","label":"_d","tail":"lCMFIVR","text":"S55AAK0858","stratum":"_d/unparsed","expected":[]}
 {"id":9867155,"timestamp":"2026-01-18T16:15:35.410Z","label":"_d","tail":"?NV49PP","text":"\u0017","stratum":"_d/unparsed","expected":[]}
 {"id":10200433,"timestamp":"2026-01-19T04:03:20.545Z","label":"_d","tail":"/C-GEVJ","text":"S46","stratum":"_d/unparsed","expected":[]}
-{"id":10607032,"timestamp":"2026-01-19T15:23:09.421Z","label":"_d","tail":"N976UY","flight":"AA2451","text":"S13AAAq53T","stratum":"_d/unparsed","expected":[]}
+{"id":10607032,"timestamp":"2026-01-19T15:23:09.421Z","label":"_d","tail":"N976UY","text":"S13AAAq53T","stratum":"_d/unparsed","expected":[]}
 {"id":10644146,"timestamp":"2026-01-19T17:06:37.639Z","label":"_d","tail":"\"N424YX","text":"M37AYX4\u00196","stratum":"_d/unparsed","expected":[]}
 {"id":10792091,"timestamp":"2026-01-20T03:18:33.362Z","label":"_d","tail":"N\u000248NV","text":"S07AG40589","stratum":"_d/unparsed","expected":[]}
 {"id":11568813,"timestamp":"2026-01-21T22:10:34.649Z","label":"_d","tail":"N\u001140KN","text":"S46AAA2131","stratum":"_d/unparsed","expected":[]}

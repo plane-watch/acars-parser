@@ -1,4 +1,4 @@
-{"id":38335,"timestamp":"2025-12-31T18:23:14.497Z","label":"8F","tail":"SP-RSI","flight":"FR2RX","text":"182312,O,LEVC","stratum":"8F/unparsed","expected":[]}
+{"id":38335,"timestamp":"2025-12-31T18:23:14.497Z","label":"8F","tail":"SP-RSI","text":"182312,O,LEVC","stratum":"8F/unparsed","expected":[]}
 {"id":174611,"timestamp":"2026-01-03T05:56:59.924Z","label":"8F","tail":"9H-QAG","text":"023137,O,EDLV","stratum":"8F/unparsed","expected":[]}
 {"id":175045,"timestamp":"2026-01-03T05:57:29.652Z","label":"8F","tail":"9H-QAG","text":"050614,C,EDLV","stratum":"8F/unparsed","expected":[]}
 {"id":183929,"timestamp":"2026-01-03T06:15:24.973Z","label":"8F","tail":"EI-DCO","text":"051900,C,EDLV","stratum":"8F/unparsed","expected":[]}

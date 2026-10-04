@@ -1,4 +1,4 @@
-{"id":99314,"timestamp":"2025-12-31T18:56:30.401Z","label":"2P","tail":"A6-BMD","flight":"EY3JC","text":"M87AEY03JCFM4WMKK,OMAA,311856,2041, 19.94,  66.25,36001,286,- 65.5, 16300","stratum":"2P/unparsed","expected":[]}
+{"id":99314,"timestamp":"2025-12-31T18:56:30.401Z","label":"2P","tail":"A6-BMD","text":"M87AEY03JCFM4WMKK,OMAA,311856,2041, 19.94,  66.25,36001,286,- 65.5, 16300","stratum":"2P/unparsed","expected":[]}
 {"id":133481,"timestamp":"2026-01-03T04:46:35.297Z","label":"2P","tail":"A6-BMH","text":"FM4OMAA,EDDF,030445,0512, 50.37,  10.68,23167,308,- 88.4, 10500","stratum":"2P/unparsed","expected":[]}
 {"id":166077,"timestamp":"2026-01-03T05:38:55.523Z","label":"2P","tail":"A6-ETP","text":"FM5 OMAA,EIDW,051820,----,+52.017,  +7.304,35995,-70.06,411 ,18900,ETD72E    ,","stratum":"2P/unparsed","expected":[]}
 {"id":207703,"timestamp":"2026-01-03T07:19:49.628Z","label":"2P","tail":"A6-APJ","text":"FM3 0611,0712,+ 49.17,+ 10.81, 39984, 406,    28","stratum":"2P/unparsed","expected":[]}

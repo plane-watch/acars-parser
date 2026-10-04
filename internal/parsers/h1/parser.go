@@ -786,26 +786,24 @@ func (p *PWIParser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
-	text := msg.Text
+	// Remove line wrapping, which can fall inside a wind group ("310\n\t270031"),
+	// then the block markers that multi-block messages carry wherever a block
+	// ends, which can also fall inside a token ("VE- #MDLDT" is VELDT). Both are
+	// removed before looking for the PWI header, which they can also split.
+	text := pwiBlockMarker.ReplaceAllString(pwiLineWrap.Replace(msg.Text), "")
 
 	// Find PWI section.
 	pwiIdx := strings.Index(text, "PWI/")
 	if pwiIdx < 0 {
 		return nil
 	}
-	text = text[pwiIdx+4:] // Skip "PWI/".
+	text = stripPWIChecksum(text[pwiIdx+4:]) // Skip "PWI/".
 
 	report := &PWIResult{
 		MsgID:     int64(msg.ID),
 		Timestamp: msg.Timestamp,
 		Tail:      msg.Tail,
 	}
-
-	// Remove line wrapping, which can fall inside a wind group ("310\n\t270031"),
-	// then the block markers that multi-block messages carry wherever a block
-	// ends, which can also fall inside a token ("VE- #MDLDT" is VELDT).
-	text = pwiLineWrap.Replace(text)
-	text = pwiBlockMarker.ReplaceAllString(text, "")
 
 	// Split by section markers (TS, CB, WD, DD).
 	sections := strings.Split(text, "/")
@@ -826,9 +824,9 @@ func (p *PWIParser) Parse(msg *acars.Message) registry.Result {
 				report.ReportTime = data
 			}
 		case "CB":
-			report.ClimbWinds = parseAltitudeWinds(data)
+			report.ClimbWinds = parseAltitudeWinds(beforeSubFields(data))
 		case "DD":
-			report.DescentWinds = parseAltitudeWinds(data)
+			report.DescentWinds = parseAltitudeWinds(beforeSubFields(data))
 		case "WD":
 			if layer := parseRouteWindLayer(data); layer != nil {
 				report.RouteWinds = append(report.RouteWinds, *layer)
@@ -933,27 +931,27 @@ func (p *PWIParser) ParseWithTrace(msg *acars.Message) *registry.TraceResult {
 // pwiBlockMarker matches the marker inserted where a multi-block PWI
 // message's blocks join: "- #MD", or "- #M1" to "- #M3" (all four occur in
 // the January 2026 corpus).
-var pwiBlockMarker = regexp.MustCompile(`- #M[D0-9]`)
+var pwiBlockMarker = regexp.MustCompile(`- #M[D1-3]`)
 
 // pwiLineWrap removes the line-wrapping characters found in PWI messages.
 var pwiLineWrap = strings.NewReplacer("\r", "", "\n", "", "\t", "")
 
 // parseAltitudeWinds parses dot-separated climb or descent wind groups.
-// Groups are normally nine digits, FFFDDDSSS (flight level, direction,
-// speed). The last group in a section can be followed by other data, such as
-// ":,,,," or the message checksum, so only its leading nine digits are used.
-// Exactly eight-digit groups are also seen (727 in the January 2026 corpus).
+// Groups are nine digits, FFFDDDSSS (flight level, direction, speed), or
+// occasionally eight (727 in the January 2026 corpus). The caller removes any
+// ":" sub-field and the message checksum first, so a group is used only if it
+// is exactly eight or nine digits.
 func parseAltitudeWinds(data string) []AltitudeWind {
 	var winds []AltitudeWind
 	parts := strings.Split(data, ".")
 
 	for _, part := range parts {
-		if len(part) < 8 {
+		if !isDigits(part) || (len(part) != 8 && len(part) != 9) {
 			continue
 		}
 		var fl, dir, speed int
-		if len(part) >= 9 && isDigits(part[:9]) {
-			_, _ = fmt.Sscanf(part[:9], "%3d%3d%3d", &fl, &dir, &speed)
+		if len(part) == 9 {
+			_, _ = fmt.Sscanf(part, "%3d%3d%3d", &fl, &dir, &speed)
 		} else if len(part) == 8 {
 			_, _ = fmt.Sscanf(part, "%2d%3d%3d", &fl, &dir, &speed)
 			if speed > 200 {
@@ -971,143 +969,157 @@ func parseAltitudeWinds(data string) []AltitudeWind {
 	return winds
 }
 
-// parseRouteWindLayer parses route wind data.
+// parseRouteWindLayer parses one route wind layer: the flight level, then for
+// each waypoint its wind and, optionally, its altitude and temperature.
 // Handles formats like:
 // - "410,EHGG,348048,410M69.SONEB,352048,410M69.OLDOD,..."
-// - "300,SPI,316078,300M49.BAYLI,315080,300M49...."
+// - "380,N53089E019480,270014.N53196E019325,260015.LARMA,236027" (no temperatures)
+//
+// The layer is split on both "," and ".", since "." separates a temperature
+// from the next waypoint (and, in the second form, a wind from the next
+// waypoint). A token is taken as a waypoint only when the token after it is a
+// valid wind; otherwise parsing moves on by one token, so an unreadable field
+// never causes the following waypoints to be skipped.
 func parseRouteWindLayer(data string) *RouteWindLayer {
-	parts := strings.Split(data, ",")
-	if len(parts) < 2 {
+	tokens := strings.FieldsFunc(data, func(r rune) bool { return r == ',' || r == '.' })
+	if len(tokens) < 2 {
 		return nil
 	}
 
 	var fl int
-	_, _ = fmt.Sscanf(parts[0], "%d", &fl)
+	_, _ = fmt.Sscanf(tokens[0], "%d", &fl)
 	if fl == 0 {
 		return nil
 	}
 
-	layer := &RouteWindLayer{
-		FlightLevel: fl,
-	}
-
-	// Parse waypoint entries. Format: WAYPOINT,WINDDATA,TEMPDATA.NEXTWAYPOINT,...
-	// The period separates temperature from next waypoint.
-	i := 1
-	for i < len(parts) {
-		// Get waypoint name (might have trailing period or be after one).
-		wpName := strings.TrimSpace(parts[i])
-		wpName = strings.TrimSuffix(wpName, ".") // Remove trailing period if present.
-
-		if !isRouteWaypoint(wpName) {
+	layer := &RouteWindLayer{FlightLevel: fl}
+	for i := 1; i < len(tokens); {
+		if !isRouteWaypoint(tokens[i]) || i+1 >= len(tokens) {
 			i++
 			continue
 		}
-
-		ww := &WaypointWind{Waypoint: wpName}
-
-		// Next part should be wind data: DDDSSS or DDDSS (direction, then speed).
-		hasWind := false
-		if i+1 < len(parts) {
-			ww.WindDir, ww.WindSpeed, hasWind = parseRouteWind(parts[i+1])
+		dir, speed, ok := parseRouteWind(tokens[i+1])
+		if !ok {
+			i++
+			continue
 		}
-
-		// Next part should be temp data, possibly with next waypoint after period.
-		if i+2 < len(parts) {
-			tempData := parts[i+2]
-			// Split on period to separate temp from next waypoint.
-			if dotIdx := strings.Index(tempData, "."); dotIdx >= 0 {
-				tempPart := tempData[:dotIdx]
-				nextWpt := tempData[dotIdx+1:]
-
-				// Parse temperature (e.g., "300M49" or "410M69").
-				ww.Temperature = parseRouteTemperature(tempPart)
-
-				// If there's a next waypoint, insert it back for the next iteration.
-				if nextWpt != "" && nextWpt != "." {
-					// Modify parts to include the next waypoint.
-					parts[i+2] = nextWpt
-					i += 2 // Move to the next waypoint position.
-				} else {
-					i += 3
-				}
-			} else {
-				// No period, just temperature data.
-				ww.Temperature = parseRouteTemperature(tempData)
-				i += 3
-			}
-		} else {
-			i += 3
+		ww := WaypointWind{Waypoint: tokens[i], WindDir: dir, WindSpeed: speed}
+		next := i + 2
+		if next < len(tokens) && routeTemperaturePattern.MatchString(tokens[next]) {
+			ww.Temperature = parseRouteTemperature(tokens[next])
+			next++
 		}
-
-		// A waypoint without a readable wind is not reported, rather than
-		// being reported with a fabricated 0 degrees at 0 kt.
-		if hasWind {
-			layer.Waypoints = append(layer.Waypoints, *ww)
-		}
+		layer.Waypoints = append(layer.Waypoints, ww)
+		i = next
 	}
 
 	if len(layer.Waypoints) == 0 {
 		return nil
 	}
-
 	return layer
 }
 
-// isRouteWaypoint reports whether s looks like a route wind waypoint: a named
-// fix ("LARMA", "VHP") or a lat/lon point ("N53089E019480"). It must start with
-// a letter, which also distinguishes it from wind and temperature fields.
+// routeWaypointPattern matches a route wind waypoint: a named fix ("LARMA",
+// "VHP", "BO613"), a runway ("RW19C") or a lat/lon point ("N53089E019480",
+// "N50W020"). It must start with a letter, which distinguishes it from wind
+// and temperature fields; parseRouteWindLayer also requires a valid wind to
+// follow, so a stray field such as "M49" is not taken as a waypoint.
+var routeWaypointPattern = regexp.MustCompile(`^[A-Z][A-Z0-9]{1,12}$`)
+
+// isRouteWaypoint reports whether s looks like a route wind waypoint.
 func isRouteWaypoint(s string) bool {
-	if len(s) < 2 || len(s) > 13 || s[0] < 'A' || s[0] > 'Z' {
-		return false
-	}
-	for i := 1; i < len(s); i++ {
-		c := s[i]
-		if (c < 'A' || c > 'Z') && (c < '0' || c > '9') {
-			return false
-		}
-	}
-	return true
+	return routeWaypointPattern.MatchString(s)
 }
 
-// parseRouteTemperature reads the temperature from a route wind altitude field
-// such as "400M58" (minus 58 C) or "080P05". Temperatures are one or two
-// digits, and at most two are read, because the last field in a message is
-// followed directly by the 4-character checksum ("400M583B13" is M58 then
-// 3B13). A one-digit temperature in that last position followed by a checksum
-// that starts with a digit is read with one extra digit; this is rare (one-digit
-// temperatures are about 0.02% of route temperatures in the January 2026 corpus).
+// routeTemperaturePattern matches a route wind altitude and temperature field,
+// such as "400M58" (FL400, minus 58 C) or "080P5".
+var routeTemperaturePattern = regexp.MustCompile(`^\d{3}([MP])(\d{1,2})$`)
+
+// parseRouteTemperature reads the temperature from a route wind altitude
+// field. The message checksum has already been removed by stripPWIChecksum, so
+// the field must match exactly; otherwise no temperature is read.
 func parseRouteTemperature(field string) int {
-	i := strings.IndexAny(field, "MP")
-	if i < 0 {
+	m := routeTemperaturePattern.FindStringSubmatch(field)
+	if m == nil {
 		return 0
 	}
-	sign := 1
-	if field[i] == 'M' {
-		sign = -1
+	value := 0
+	for _, c := range m[2] {
+		value = value*10 + int(c-'0')
 	}
-	value, n := 0, 0
-	for j := i + 1; j < len(field) && n < 2 && field[j] >= '0' && field[j] <= '9'; j++ {
-		value = value*10 + int(field[j]-'0')
-		n++
+	if m[1] == "M" {
+		return -value
 	}
-	return sign * value
+	return value
 }
 
-// parseRouteWind reads a route wind field's leading digits as DDDSSS or DDDSS
-// (direction in degrees, then speed in knots). Five-digit winds occur in about
-// 5% of route wind groups in the January 2026 corpus.
-func parseRouteWind(field string) (dir, speed int, ok bool) {
-	n := 0
-	for n < len(field) && field[n] >= '0' && field[n] <= '9' {
-		n++
-	}
-	if n != 5 && n != 6 {
+// parseRouteWind reads a route wind token as DDDSSS or DDDSS (direction in
+// degrees, then speed in knots). Five-digit winds occur in about 5% of route
+// wind groups in the January 2026 corpus.
+func parseRouteWind(token string) (dir, speed int, ok bool) {
+	if !isDigits(token) || (len(token) != 5 && len(token) != 6) {
 		return 0, 0, false
 	}
-	_, _ = fmt.Sscanf(field[:3], "%d", &dir)
-	_, _ = fmt.Sscanf(field[3:n], "%d", &speed)
+	_, _ = fmt.Sscanf(token[:3], "%d", &dir)
+	_, _ = fmt.Sscanf(token[3:], "%d", &speed)
 	return dir, speed, true
+}
+
+// beforeSubFields returns s up to its first ":" or ",". In climb and descent
+// sections these introduce further sub-fields (":,,,M16,1024" or ",,,,").
+func beforeSubFields(s string) string {
+	if i := strings.IndexAny(s, ":,"); i >= 0 {
+		return s[:i]
+	}
+	return s
+}
+
+// pwiTokenPattern matches a complete final token of a PWI section: an altitude
+// wind group (eight or nine digits), a route wind (five or six digits), or a
+// route altitude and temperature field.
+var pwiTokenPattern = regexp.MustCompile(`^(?:\d{8,9}|\d{5,6}|\d{3}[MP]\d{1,2})$`)
+
+// stripPWIChecksum removes the 4-character hex checksum that complete PWI
+// messages end with. The checksum is not always present (truncated and some
+// single-block messages lack it), and it can begin with digits, so it is
+// removed only when the message's final token is not a complete token with it
+// and is a complete token without it, or the text then ends with a separator.
+// For example "100328073B13" is the eight-digit group 10032807 followed by
+// 3B13, while a message ending in the wind "258103" is left alone.
+func stripPWIChecksum(text string) string {
+	if len(text) < 4 {
+		return text
+	}
+	sum := text[len(text)-4:]
+	for i := 0; i < 4; i++ {
+		if !crc.IsHexDigit(sum[i]) {
+			return text
+		}
+	}
+	rest := text[:len(text)-4]
+	if pwiTokenPattern.MatchString(lastPWIToken(text)) {
+		return text
+	}
+	tail := lastPWIToken(rest)
+	if tail == "" || pwiTokenPattern.MatchString(tail) {
+		return rest
+	}
+	return text
+}
+
+// lastPWIToken returns the text after the last PWI field separator. When that
+// token starts a section, its two-letter section code (CB, DD, TS or WD) is
+// not part of the token.
+func lastPWIToken(s string) string {
+	i := strings.LastIndexAny(s, ".,/:")
+	token := s[i+1:]
+	if (i < 0 || s[i] == '/') && len(token) >= 2 {
+		switch token[:2] {
+		case "CB", "DD", "TS", "WD":
+			token = token[2:]
+		}
+	}
+	return token
 }
 
 // isDigits reports whether s is non-empty and consists only of ASCII digits.

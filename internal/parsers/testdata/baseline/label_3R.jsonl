@@ -1,4 +1,4 @@
-{"id":492051,"timestamp":"2026-01-03T21:25:08.671Z","label":"3R","tail":"N171SY","flight":"OO3457","text":"2,20,1,0,1,0,7900,2,2,0,AC 21:05,\r\n\r\n","stratum":"3R/unparsed","expected":[]}
+{"id":492051,"timestamp":"2026-01-03T21:25:08.671Z","label":"3R","tail":"N171SY","text":"2,20,1,0,1,0,7900,2,2,0,AC 21:05,\r\n\r\n","stratum":"3R/unparsed","expected":[]}
 {"id":762055,"timestamp":"2026-01-04T06:53:10.253Z","label":"3R","tail":"EI-EFE","text":"ACK \r\n","stratum":"3R/unparsed","expected":[]}
 {"id":1113938,"timestamp":"2026-01-04T21:13:22.077Z","label":"3R","tail":"EI-GXG","text":"ACK 1-0\r\n","stratum":"3R/unparsed","expected":[]}
 {"id":1125751,"timestamp":"2026-01-04T21:25:27.261Z","label":"3R","tail":"EI-DHZ","text":"ACK ACK\r\n","stratum":"3R/unparsed","expected":[]}
@@ -35,7 +35,7 @@
 {"id":5954902,"timestamp":"2026-01-11T04:47:27.367Z","label":"3R","tail":"N663QX","text":"ACK LOAD CLOSEOUT\r\n846095\r\nQX2223 YVR-SEA\r\n","stratum":"3R/unparsed","expected":[]}
 {"id":6398860,"timestamp":"2026-01-11T16:07:14.388Z","label":"3R","tail":"N643QX","text":"ACK LOAD CLOSEOUT\r\n848250\r\nQX2042 YVR-SEA\r\n","stratum":"3R/unparsed","expected":[]}
 {"id":6568460,"timestamp":"2026-01-12T03:38:30.204Z","label":"3R","tail":"N653QX","text":"ACK LOAD CLOSEOUT\r\n852437\r\nQX2369 YVR-SEA\r\n","stratum":"3R/unparsed","expected":[]}
-{"id":6715276,"timestamp":"2026-01-12T06:33:41.264Z","label":"3R","tail":"EI-HMT","flight":"FR6CN","text":"ACK\r\n","stratum":"3R/unparsed","expected":[]}
+{"id":6715276,"timestamp":"2026-01-12T06:33:41.264Z","label":"3R","tail":"EI-HMT","text":"ACK\r\n","stratum":"3R/unparsed","expected":[]}
 {"id":6796932,"timestamp":"2026-01-12T08:24:46.565Z","label":"3R","tail":"N660QX","text":"ACK LOAD CLOSEOUT\r\n853092\r\nQX2209 FAI-ANC\r\n","stratum":"3R/unparsed","expected":[]}
 {"id":7332337,"timestamp":"2026-01-12T22:12:45.402Z","label":"3R","tail":"EI-EMK","text":"ACK ACK\r\n","stratum":"3R/unparsed","expected":[]}
 {"id":7332338,"timestamp":"2026-01-12T22:12:45.632Z","label":"3R","tail":"EI-EMK","text":"ACK ACK\r\n","stratum":"3R/unparsed","expected":[]}

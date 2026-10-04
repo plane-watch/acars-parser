@@ -1,4 +1,4 @@
-{"id":78100,"timestamp":"2025-12-31T18:45:13.918Z","label":"4S","tail":"EI-EDP","flight":"EI6KR","text":"31DEC25 1845\r\nEIN6KR\r\nEI-EDP\r\nEBBR EIDW\r\nEND OF MSG\r\n","stratum":"4S/unparsed","expected":[]}
+{"id":78100,"timestamp":"2025-12-31T18:45:13.918Z","label":"4S","tail":"EI-EDP","text":"31DEC25 1845\r\nEIN6KR\r\nEI-EDP\r\nEBBR EIDW\r\nEND OF MSG\r\n","stratum":"4S/unparsed","expected":[]}
 {"id":468779,"timestamp":"2026-01-03T21:34:03.366Z","label":"4S","tail":"C-FHMO","text":"DFR AC1207/03","stratum":"4S/unparsed","expected":[]}
 {"id":554898,"timestamp":"2026-01-03T23:23:44.354Z","label":"4S","tail":"EI-NSD","text":"000002-1700STAND ENQUIRY.\r\nPLEASE SEND STAND INFO\r\n03JAN26 2150\r\nEIN179\r\nEI-NSD\r\nEGLL EIDW\r\nTHANK YOU\r\nEND OF MSG\r\n","stratum":"4S/unparsed","expected":[]}
 {"id":963963,"timestamp":"2026-01-04T18:34:12.672Z","label":"4S","tail":"EI-NSC","text":"000002-1700STAND ENQUIRY.\r\nPLEASE SEND STAND INFO\r\n04JAN26 1729\r\nEIN169\r\nEI-NSC\r\nEGLL EIDW\r\nTHANK YOU\r\nEND OF MSG\r\n","stratum":"4S/unparsed","expected":[]}

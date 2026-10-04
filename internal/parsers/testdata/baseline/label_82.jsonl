@@ -1,4 +1,4 @@
-{"id":233,"timestamp":"2025-12-31T18:02:28.687Z","label":"82","tail":"N8739L","flight":"WN2467","text":"11180222,07LDR01,KHOU LANDING DATA,FLT     METAR-17","stratum":"82/unparsed","expected":[]}
+{"id":233,"timestamp":"2025-12-31T18:02:28.687Z","label":"82","tail":"N8739L","text":"11180222,07LDR01,KHOU LANDING DATA,FLT     METAR-17","stratum":"82/unparsed","expected":[]}
 {"id":289810,"timestamp":"2026-01-03T09:07:23.330Z","label":"82","tail":"D-AILI","text":"3L064653,07174313B316741MEDDF ARR ATIS Y 0620,0027,","stratum":"82/unparsed","expected":[]}
 {"id":290696,"timestamp":"2026-01-03T09:09:10.289Z","label":"82","tail":"D-AILI","text":"3L064653,07174313B316741MEDDF ARR ATIS Y 0620,0027,","stratum":"82/unparsed","expected":[]}
 {"id":290879,"timestamp":"2026-01-03T09:09:36.429Z","label":"82","tail":"D-AILI","text":"3L064829,A7-RTWY M FOR RWY 25C WHEN PERFORMING VISU","stratum":"82/unparsed","expected":[]}
@@ -79,7 +79,7 @@
 {"id":9324008,"timestamp":"2026-01-18T07:13:20.296Z","label":"82","tail":"EI-SIX","text":"V08CA/LSCONF/SK0802/EGLL/ENGM/99176/","stratum":"82/unparsed","expected":[]}
 {"id":9338782,"timestamp":"2026-01-18T07:34:26.024Z","label":"82","tail":"G-EZBW","text":"HI TEAM\r\nLAV IS LEAKING\r\nWATER\r\nTHX JACK\r\n\r\n\r\n","stratum":"82/unparsed","expected":[]}
 {"id":9382061,"timestamp":"2026-01-18T08:40:32.722Z","label":"82","tail":"EI-SIZ","text":"V08CA/LSCONF/SK7933/ESSA/LPMA/12999/","stratum":"82/unparsed","expected":[]}
-{"id":9468514,"timestamp":"2026-01-18T11:06:05.862Z","label":"82","tail":"PR-XMR","flight":"G37685","text":"H1110600,0A/AEPDAYA.FS1/FSM 1025 260118 SABE\r\nG3723","stratum":"82/unparsed","expected":[]}
+{"id":9468514,"timestamp":"2026-01-18T11:06:05.862Z","label":"82","tail":"PR-XMR","text":"H1110600,0A/AEPDAYA.FS1/FSM 1025 260118 SABE\r\nG3723","stratum":"82/unparsed","expected":[]}
 {"id":9765826,"timestamp":"2026-01-18T18:35:08.785Z","label":"82","tail":"OE-LSO","text":"HI. JUST FYI. LAV A WAST\r\nE BIN COMPARTMENT FLAP B\r\nROKEN AND ENTERED AS CAB\r\nIN DEFECT THE ENGINEERS\r\nTONIGHT. CHEERS\r\n\r\n","stratum":"82/unparsed","expected":[]}
 {"id":9818954,"timestamp":"2026-01-18T19:56:46.592Z","label":"82","tail":"G-EZUK","text":"HI\r\nWE HAVE GPS 1 FAULT\r\nETA BHX 1730\r\nCHEERS\r\n\r\n\r\n","stratum":"82/unparsed","expected":[]}
 {"id":9868513,"timestamp":"2026-01-18T21:14:54.348Z","label":"82","tail":"D-AIRT","text":"3L170832,074267670316261MEDDF ARR ATIS O 1650,0027,","stratum":"82/unparsed","expected":[]}

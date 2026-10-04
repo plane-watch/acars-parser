@@ -20,7 +20,7 @@
 {"id":2063931,"timestamp":"2026-01-06T03:46:06.865Z","label":"48","tail":"N530DE","text":"050148 KJFK KPHX7\r\n/FN 0798\r\n                        N","stratum":"48/unparsed","expected":[]}
 {"id":2064121,"timestamp":"2026-01-06T03:46:18.268Z","label":"48","tail":"N530DE","text":"050148 KJFK KPHX7\r\n/FN 0798\r\n                        N","stratum":"48/unparsed","expected":[]}
 {"id":2137876,"timestamp":"2026-01-06T07:52:51.207Z","label":"48","tail":"EI-EAV","text":"FLIGHT NUMBER = EI0108\n\tDATE = 06 JAN\n\tTIME = 0752\n\tTAIL = EI-EAV\n\tSTAND INFO = 314 ","stratum":"48/unparsed","expected":[]}
-{"id":2235195,"timestamp":"2026-01-06T10:13:33.359Z","label":"48","tail":"EI-NSB","flight":"EI611","text":"\r\nFLIGHT NUMBER = EI0153\r\nDATE = 06 JAN\r\nTIME = 0935\r\nTAIL = EI-NSB\r\nSTAND INFO = 314 \r\n","stratum":"48/unparsed","expected":[]}
+{"id":2235195,"timestamp":"2026-01-06T10:13:33.359Z","label":"48","tail":"EI-NSB","text":"\r\nFLIGHT NUMBER = EI0153\r\nDATE = 06 JAN\r\nTIME = 0935\r\nTAIL = EI-NSB\r\nSTAND INFO = 314 \r\n","stratum":"48/unparsed","expected":[]}
 {"id":2291766,"timestamp":"2026-01-06T12:30:29.348Z","label":"48","tail":"N315DU","text":"061248 KBWI KSLC6\r\n0396                    N","stratum":"48/unparsed","expected":[]}
 {"id":2292492,"timestamp":"2026-01-06T12:34:20.897Z","label":"48","tail":"YUFVJ","text":"SPN0207","stratum":"48/unparsed","expected":[]}
 {"id":2329783,"timestamp":"2026-01-06T13:44:53.835Z","label":"48","tail":"LVGQK","text":"SPN02","stratum":"48/unparsed","expected":[]}
@@ -34,7 +34,7 @@
 {"id":3354206,"timestamp":"2026-01-07T19:02:51.888Z","label":"48","tail":"N1937V","text":"SPN02","stratum":"48/unparsed","expected":[]}
 {"id":3646183,"timestamp":"2026-01-08T00:01:21.166Z","label":"48","tail":"N336DU","text":"071948 KRDU KBOS6\r\n0DCA                    N","stratum":"48/unparsed","expected":[]}
 {"id":4004930,"timestamp":"2026-01-08T11:57:33.452Z","label":"48","tail":"EI-GAJ","text":"FLIGHT NUMBER = EI0068\n\tDATE = 08 JAN\n\tTIME = 1154\n\tTAIL = EI-GAJ\n\tSTAND INFO = 401C","stratum":"48/unparsed","expected":[]}
-{"id":4103190,"timestamp":"2026-01-08T18:42:10.767Z","label":"48","tail":"G-EILA","flight":"EI935","text":"FLIGHT NUMBER = EI0035\n\tDATE = 08 JAN\n\tTIME = 1508\n\tTAIL = G-EILA\n\tSTAND INFO = NOT AVAILABLE","stratum":"48/unparsed","expected":[]}
+{"id":4103190,"timestamp":"2026-01-08T18:42:10.767Z","label":"48","tail":"G-EILA","text":"FLIGHT NUMBER = EI0035\n\tDATE = 08 JAN\n\tTIME = 1508\n\tTAIL = G-EILA\n\tSTAND INFO = NOT AVAILABLE","stratum":"48/unparsed","expected":[]}
 {"id":4201863,"timestamp":"2026-01-09T01:16:52.429Z","label":"48","tail":"N550DR","text":"SPN0204\n\t","stratum":"48/unparsed","expected":[]}
 {"id":4549801,"timestamp":"2026-01-09T08:14:36.205Z","label":"48","tail":"N550DR","text":"SPN0206\n\t","stratum":"48/unparsed","expected":[]}
 {"id":4728946,"timestamp":"2026-01-09T11:35:22.099Z","label":"48","tail":"N111DC","text":"080948 KSAN KDTW7\r\n/FN 0764\r\n                        N","stratum":"48/unparsed","expected":[]}

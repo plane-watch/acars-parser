@@ -1,6 +1,6 @@
-{"id":58066,"timestamp":"2025-12-31T18:34:01.008Z","label":"HX","tail":"N370NB","flight":"NW1375","text":"RA MQ5                            \r\n 913514 ALAN J       LAYO               \r\n 263204 BLAINE SCO   LAYO               \r\n*CREW F*                             ","stratum":"HX/unparsed","expected":[]}
-{"id":85850,"timestamp":"2025-12-31T18:49:33.417Z","label":"HX","tail":"A7-ALH","flight":"QR893","text":"S04AQR0893.MA FMT .0\u0026HDeF/jVEJ5tjgezrobKR|","stratum":"HX/unparsed","expected":[]}
-{"id":102505,"timestamp":"2025-12-31T18:58:02.881Z","label":"HX","tail":"HB-IHZ","flight":"WK232","text":"H1T2     ::SM/GA730160030/M30/Q03\r\nZuri","stratum":"HX/unparsed","expected":[]}
+{"id":58066,"timestamp":"2025-12-31T18:34:01.008Z","label":"HX","tail":"N370NB","text":"RA MQ5                            \r\n 913514 ALAN J       LAYO               \r\n 263204 BLAINE SCO   LAYO               \r\n*CREW F*                             ","stratum":"HX/unparsed","expected":[]}
+{"id":85850,"timestamp":"2025-12-31T18:49:33.417Z","label":"HX","tail":"A7-ALH","text":"S04AQR0893.MA FMT .0\u0026HDeF/jVEJ5tjgezrobKR|","stratum":"HX/unparsed","expected":[]}
+{"id":102505,"timestamp":"2025-12-31T18:58:02.881Z","label":"HX","tail":"HB-IHZ","text":"H1T2     ::SM/GA730160030/M30/Q03\r\nZuri","stratum":"HX/unparsed","expected":[]}
 {"id":167592,"timestamp":"2026-01-03T05:41:19.285Z","label":"HX","tail":"HB-JHM","text":"H1T2     ::DM450000160030/M40/Q01\r\nLX/,","stratum":"HX/unparsed","expected":[]}
 {"id":217466,"timestamp":"2026-01-03T07:32:13.171Z","label":"HX","tail":"A7-ALX","text":".MA FMT .0\u0026HDeF/jVEJ5tkD-zk4,+4|","stratum":"HX/unparsed","expected":[]}
 {"id":233459,"timestamp":"2026-01-03T07:52:49.237Z","label":"HX","tail":"A7-ALX","text":".MA FMT .0\u0026HDeF/jVEJ5tkDGzN*GM+|","stratum":"HX/unparsed","expected":[]}

@@ -1,4 +1,4 @@
-{"id":30233,"timestamp":"2025-12-31T18:18:44.192Z","label":"QP","tail":"N173US","flight":"AA3096","text":"KRICKCLT1818 157     /DC 1818/PB 1818/CC 1818/PC 1816","stratum":"QP/unparsed","expected":[]}
+{"id":30233,"timestamp":"2025-12-31T18:18:44.192Z","label":"QP","tail":"N173US","text":"KRICKCLT1818 157     /DC 1818/PB 1818/CC 1818/PC 1816","stratum":"QP/unparsed","expected":[]}
 {"id":82830,"timestamp":"2025-12-31T18:47:52.384Z","label":"QP","tail":"HL8502","text":"M00ATW0000RKSI----1847  77     ","stratum":"QP/unparsed","expected":[]}
 {"id":153824,"timestamp":"2026-01-03T05:11:36.346Z","label":"QP","tail":"EI-IGH","text":"LEVCEIDW0500 190     ","stratum":"QP/unparsed","expected":[]}
 {"id":172367,"timestamp":"2026-01-03T05:52:50.384Z","label":"QP","tail":"SP-RSD","text":"EPMOLIRA0503 212     ","stratum":"QP/unparsed","expected":[]}

@@ -1,7 +1,7 @@
-{"id":17301,"timestamp":"2025-12-31T18:11:57.580Z","label":"87","tail":"C-FGWJ","flight":"WS0268","text":"SHOWING A BIT EARLY... E\r\nTA 1135 MT\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"87/unparsed","expected":[]}
-{"id":72312,"timestamp":"2025-12-31T18:41:58.442Z","label":"87","tail":"EC-IXD","flight":"IB6TT","text":"000012-1200OUT111841.RCD0945.LCD1836,CARG1841.AVCS.DCLT1841.","stratum":"87/unparsed","expected":[]}
-{"id":87661,"timestamp":"2025-12-31T18:50:33.702Z","label":"87","tail":"C-GUWJ","flight":"WS0310","text":"GDAY\r\nCAN U PLSE LET RAMP/CSA\r\nKNOW WERE SHOWING 30 MIN\r\nEARLY. ETA1212L GATE\r\nTHX\r\n\r\n\r\n\r\n\r\n","stratum":"87/unparsed","expected":[]}
-{"id":88000,"timestamp":"2025-12-31T18:50:45.478Z","label":"87","tail":"C-GUWJ","flight":"WS0310","text":"GDAY\r\nCAN U PLSE LET RAMP/CSA\r\nKNOW WERE SHOWING 30 MIN\r\nEARLY. ETA1212L GATE\r\nTHX\r\n\r\n\r\n\r\n\r\n","stratum":"87/unparsed","expected":[]}
+{"id":17301,"timestamp":"2025-12-31T18:11:57.580Z","label":"87","tail":"C-FGWJ","text":"SHOWING A BIT EARLY... E\r\nTA 1135 MT\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n","stratum":"87/unparsed","expected":[]}
+{"id":72312,"timestamp":"2025-12-31T18:41:58.442Z","label":"87","tail":"EC-IXD","text":"000012-1200OUT111841.RCD0945.LCD1836,CARG1841.AVCS.DCLT1841.","stratum":"87/unparsed","expected":[]}
+{"id":87661,"timestamp":"2025-12-31T18:50:33.702Z","label":"87","tail":"C-GUWJ","text":"GDAY\r\nCAN U PLSE LET RAMP/CSA\r\nKNOW WERE SHOWING 30 MIN\r\nEARLY. ETA1212L GATE\r\nTHX\r\n\r\n\r\n\r\n\r\n","stratum":"87/unparsed","expected":[]}
+{"id":88000,"timestamp":"2025-12-31T18:50:45.478Z","label":"87","tail":"C-GUWJ","text":"GDAY\r\nCAN U PLSE LET RAMP/CSA\r\nKNOW WERE SHOWING 30 MIN\r\nEARLY. ETA1212L GATE\r\nTHX\r\n\r\n\r\n\r\n\r\n","stratum":"87/unparsed","expected":[]}
 {"id":207503,"timestamp":"2026-01-03T07:19:08.237Z","label":"87","tail":"TC-RBL","text":"PC7331/03JAN26 06:10:54,0610","stratum":"87/unparsed","expected":[]}
 {"id":234323,"timestamp":"2026-01-03T07:53:56.440Z","label":"87","tail":"EC-NTA","text":"000002-1200OUT111913.RCD1852.LCD0621,CARG0619.AVCS.DCLT0621.","stratum":"87/unparsed","expected":[]}
 {"id":321106,"timestamp":"2026-01-03T10:12:29.543Z","label":"87","tail":"TC-RBL","text":"PC7332/03JAN26 07:09:06,0709","stratum":"87/unparsed","expected":[]}

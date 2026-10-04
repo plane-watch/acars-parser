@@ -1,4 +1,4 @@
-{"id":64606,"timestamp":"2025-12-31T18:37:44.945Z","label":"5U","tail":"N90","flight":"XA1","text":"001WX31183735N4451.9W09133.23204090056\r\n024AQ,    ,KOFK,KBEI,,,,","stratum":"5U/unparsed","expected":[]}
+{"id":64606,"timestamp":"2025-12-31T18:37:44.945Z","label":"5U","tail":"N90","text":"001WX31183735N4451.9W09133.23204090056\r\n024AQ,    ,KOFK,KBEI,,,,","stratum":"5U/unparsed","expected":[]}
 {"id":135139,"timestamp":"2026-01-03T04:48:32.237Z","label":"5U","tail":"VH-VZO","text":"\r\nWX REQUEST\r\nQFA0453/03\r\nATIS  \r\nYMML ---- ----","stratum":"5U/unparsed","expected":[]}
 {"id":307697,"timestamp":"2026-01-03T09:43:03.035Z","label":"5U","tail":"G-EZUS","text":"LFSB LFST EDDS LIMC-SA","stratum":"5U/unparsed","expected":[]}
 {"id":354187,"timestamp":"2026-01-03T11:34:46.414Z","label":"5U","tail":"G-TUOD","text":"SA/LFLB LFPO EGKK LFLL","stratum":"5U/unparsed","expected":[]}

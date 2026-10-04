@@ -1,5 +1,5 @@
-{"id":6354,"timestamp":"2025-12-31T18:05:45.484Z","label":"QQ","tail":"N760US","flight":"AA0477","text":"MWCRKMIA1805OS KMIA /FUL 135/MO 1756","stratum":"QQ/unparsed","expected":[]}
-{"id":83312,"timestamp":"2025-12-31T18:48:07.347Z","label":"QQ","tail":"N307NV","flight":"G40014","text":"KFSDKLAS18481838","stratum":"QQ/unparsed","expected":[]}
+{"id":6354,"timestamp":"2025-12-31T18:05:45.484Z","label":"QQ","tail":"N760US","text":"MWCRKMIA1805OS KMIA /FUL 135/MO 1756","stratum":"QQ/unparsed","expected":[]}
+{"id":83312,"timestamp":"2025-12-31T18:48:07.347Z","label":"QQ","tail":"N307NV","text":"KFSDKLAS18481838","stratum":"QQ/unparsed","expected":[]}
 {"id":140582,"timestamp":"2026-01-03T04:54:56.965Z","label":"QQ","tail":"EI-EVL","text":"LMMLEPKK04500443","stratum":"QQ/unparsed","expected":[]}
 {"id":202720,"timestamp":"2026-01-03T07:05:46.225Z","label":"QQ","tail":"OY-JYB","text":"EFHKEIDW06320607","stratum":"QQ/unparsed","expected":[]}
 {"id":346565,"timestamp":"2026-01-03T11:10:37.670Z","label":"QQ","tail":"EC-NIY","text":"EHAMLEBL0728/ETA0924\r\nVY15GH03\r\nPD 0600\r\nCD 0545\r\nE 0719\r\nM 0714","stratum":"QQ/unparsed","expected":[]}

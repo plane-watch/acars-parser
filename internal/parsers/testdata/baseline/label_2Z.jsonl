@@ -1,5 +1,5 @@
-{"id":52513,"timestamp":"2025-12-31T18:31:04.388Z","label":"2Z","tail":"F-GZCN","flight":"AF0565","text":"LFPG","stratum":"2Z/unparsed","expected":[]}
-{"id":52514,"timestamp":"2025-12-31T18:31:04.326Z","label":"2Z","tail":"F-GZCN","flight":"AF0565","text":"LFPG","stratum":"2Z/unparsed","expected":[]}
+{"id":52513,"timestamp":"2025-12-31T18:31:04.388Z","label":"2Z","tail":"F-GZCN","text":"LFPG","stratum":"2Z/unparsed","expected":[]}
+{"id":52514,"timestamp":"2025-12-31T18:31:04.326Z","label":"2Z","tail":"F-GZCN","text":"LFPG","stratum":"2Z/unparsed","expected":[]}
 {"id":280263,"timestamp":"2026-01-03T08:54:50.592Z","label":"2Z","tail":"F-HUVH","text":"LFPG","stratum":"2Z/unparsed","expected":[]}
 {"id":302203,"timestamp":"2026-01-03T09:30:33.853Z","label":"2Z","tail":"F-HOZA","text":"LFPG","stratum":"2Z/unparsed","expected":[]}
 {"id":327049,"timestamp":"2026-01-03T10:27:30.214Z","label":"2Z","tail":"F-HPNT","text":"LFPG","stratum":"2Z/unparsed","expected":[]}

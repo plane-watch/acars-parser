@@ -1,4 +1,4 @@
-{"id":18195,"timestamp":"2025-12-31T18:12:16.763Z","label":"3I","tail":"N633UP","flight":"UP0032","text":"311812 31SDF HNL 18120448","stratum":"3I/unparsed","expected":[]}
+{"id":18195,"timestamp":"2025-12-31T18:12:16.763Z","label":"3I","tail":"N633UP","text":"311812 31SDF HNL 18120448","stratum":"3I/unparsed","expected":[]}
 {"id":1376234,"timestamp":"2026-01-05T07:19:22.459Z","label":"3I","tail":"N395UP","text":"050522 05BCN VLC 05220248","stratum":"3I/unparsed","expected":[]}
 {"id":2918740,"timestamp":"2026-01-07T05:55:11.649Z","label":"3I","tail":"N171UP","text":"070354 07BDL PHL 03540230","stratum":"3I/unparsed","expected":[]}
 {"id":3038565,"timestamp":"2026-01-07T08:39:03.498Z","label":"3I","tail":"N392UP","text":"070613 07BCN VLC 06120194","stratum":"3I/unparsed","expected":[]}

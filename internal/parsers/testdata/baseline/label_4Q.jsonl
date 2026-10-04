@@ -1,6 +1,6 @@
-{"id":54814,"timestamp":"2025-12-31T18:32:13.556Z","label":"4Q","tail":"C-FVLZ","flight":"AC64","text":"KQ1 AC0064/31/31 ICN YVR/0843/0901/1818/1825","stratum":"4Q/unparsed","expected":[]}
-{"id":62016,"timestamp":"2025-12-31T18:36:13.643Z","label":"4Q","tail":"N6716C","flight":"DL2090","text":"31184Q KATL KMSP7\r\n/FN 2090\r\n/ENG 1 STOP 183227/ENG 2 STOP 183612","stratum":"4Q/unparsed","expected":[]}
-{"id":96402,"timestamp":"2025-12-31T18:55:04.218Z","label":"4Q","tail":"C-GEPG","flight":"AC978","text":"TDX AC0978/31/31 YVR 1824Z 1854Z 536  \r0125/010915 L A","stratum":"4Q/unparsed","expected":[]}
+{"id":54814,"timestamp":"2025-12-31T18:32:13.556Z","label":"4Q","tail":"C-FVLZ","text":"KQ1 AC0064/31/31 ICN YVR/0843/0901/1818/1825","stratum":"4Q/unparsed","expected":[]}
+{"id":62016,"timestamp":"2025-12-31T18:36:13.643Z","label":"4Q","tail":"N6716C","text":"31184Q KATL KMSP7\r\n/FN 2090\r\n/ENG 1 STOP 183227/ENG 2 STOP 183612","stratum":"4Q/unparsed","expected":[]}
+{"id":96402,"timestamp":"2025-12-31T18:55:04.218Z","label":"4Q","tail":"C-GEPG","text":"TDX AC0978/31/31 YVR 1824Z 1854Z 536  \r0125/010915 L A","stratum":"4Q/unparsed","expected":[]}
 {"id":191128,"timestamp":"2026-01-03T06:34:58.624Z","label":"4Q","tail":"C-FCUG","text":"KQ1 AC1061/02/03 LAS YVR/----/----/0529/0537\r","stratum":"4Q/unparsed","expected":[]}
 {"id":222335,"timestamp":"2026-01-03T07:39:30.887Z","label":"4Q","tail":"C-FSDQ","text":"TAR AC0544/02/03 YVR 0608Z 0616Z 504\r0037/0135","stratum":"4Q/unparsed","expected":[]}
 {"id":295634,"timestamp":"2026-01-03T09:16:34.323Z","label":"4Q","tail":"C-GMIU","text":"KQ1 AC1317/02/03 CUN YVR/2358/0021/0634/0644\r","stratum":"4Q/unparsed","expected":[]}
