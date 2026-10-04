@@ -11,13 +11,18 @@ import "acars_parser/internal/patterns"
 // Groups: report type, sequence, date (DDMMMYY), time (HHMM), an optional IATA
 // airline code followed by a space, the registration field (which may have
 // the airline code glued to its front, e.g. "5YN703GT" or "BRB-17807"), the
-// ICAO callsign, and origin/destination.
+// ICAO callsign (three letters, then a flight number starting with a digit),
+// and origin/destination.
+//
+// The header is a single line, so fields are separated by spaces only; the
+// destination must end the line or be followed by a space, so that a longer
+// token is not cut short.
 var Formats = []patterns.Format{
 	{
 		Name: "cmc_header",
-		Pattern: `^(?P<report_type>RTE|PLF|CFG)\s+(?P<seq>\d+)\s+(?P<date>\d{2}[A-Z]{3}\d{2})\s+(?P<time>\d{4})\s+` +
-			`(?:(?P<airline>[A-Z0-9]{2})\s+)?(?P<reg_field>[A-Z0-9-]+)\s+(?P<flight>[A-Z]{3}[A-Z0-9]{1,5})\s+` +
-			`(?P<origin>{ICAO})/(?P<dest>{ICAO})`,
+		Pattern: `^(?P<report_type>RTE|PLF|CFG) +(?P<seq>\d+) +(?P<date>\d{2}[A-Z]{3}\d{2}) +(?P<time>\d{4}) +` +
+			`(?:(?P<airline>[A-Z0-9]{2}) +)?(?P<reg_field>[A-Z0-9-]+) +(?P<flight>[A-Z]{3}\d[A-Z0-9]{0,4}) +` +
+			`(?P<origin>{ICAO})/(?P<dest>{ICAO})(?:\s|$)`,
 		Fields: []string{"report_type", "seq", "date", "time", "airline", "reg_field", "flight", "origin", "dest"},
 	},
 }

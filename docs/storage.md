@@ -121,6 +121,7 @@ Only transmitted data is stored. `live` and `backfill` do not take facts from Ai
 - **Type.** The ICAO designator of the transmitted type (`internal/aircrafttype`), only when the transmitted value identifies exactly one. The raw value is kept by the extractor.
 - **Operator.** No longer written, because it came only from Airframes.
 - **Routes.** Only pairs where both endpoints are ICAO codes are written, because the `routes` columns are ICAO codes. The extractor keeps IATA pairs as transmitted, for storage v2.
+- **Route and flight pairing.** Some parser results name the flight they describe (a `flight` field), such as a stored CMC report. When the transmitted flight has a different flight number (ignoring the airline prefix, so `TG482` matches `THA482`), the report was recorded on another flight and its route is not used.
 
 Rows migrated from January may hold Airframes-derived values.
 

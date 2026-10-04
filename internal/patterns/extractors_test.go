@@ -93,6 +93,7 @@ func TestIsValidICAO(t *testing.T) {
 		{"YSSY", true},
 		{"RJTT", true},
 		{"ZSPD", true},
+		{"UZTT", true}, // Tashkent, under the UZ prefix (formerly UTTT).
 
 		// Invalid - wrong length.
 		{"JFK", false},

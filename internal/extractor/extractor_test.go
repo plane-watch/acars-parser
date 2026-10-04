@@ -81,6 +81,17 @@ type loadsheetLike struct {
 func (r *loadsheetLike) Type() string     { return "loadsheet" }
 func (r *loadsheetLike) MessageID() int64 { return 0 }
 
+// reportLike is a result that names its own flight and route, as a stored
+// maintenance report does.
+type reportLike struct {
+	Flight      string `json:"flight"`
+	Origin      string `json:"origin"`
+	Destination string `json:"destination"`
+}
+
+func (r *reportLike) Type() string     { return "report" }
+func (r *reportLike) MessageID() int64 { return 0 }
+
 func (r *mockResult) Type() string     { return r.typeStr }
 func (r *mockResult) MessageID() int64 { return r.msgID }
 
@@ -115,6 +126,26 @@ func TestExtract(t *testing.T) {
 		}
 		if f.Origin != "" || f.Destination != "" || f.AircraftTypeRaw != "" {
 			t.Errorf("route or type taken from Airframes: %q-%q, %q", f.Origin, f.Destination, f.AircraftTypeRaw)
+		}
+	})
+
+	t.Run("a result's route is used only with its own flight", func(t *testing.T) {
+		report := &reportLike{Flight: "THA482", Origin: "YPPH", Destination: "VTBS"}
+		tests := []struct {
+			name, transmitted, wantFlight, wantOrigin string
+		}{
+			{"same callsign", "THA482", "THA482", "YPPH"},
+			{"same flight in IATA form", "TG482", "TG482", "YPPH"},
+			{"no transmitted flight", "", "THA482", "YPPH"},
+			// A report stored on an earlier flight and sent on this one.
+			{"another flight", "THA661", "THA661", ""},
+		}
+		for _, tt := range tests {
+			msg := &acars.Message{ID: 1, Label: "H1", Tail: "HS-TWC", FlightNumber: tt.transmitted}
+			f := Extract(msg, []registry.Result{report}).Flight
+			if f.FlightNumber != tt.wantFlight || f.Origin != tt.wantOrigin || (f.Destination != "") != (tt.wantOrigin != "") {
+				t.Errorf("%s: flight %q, route %q-%q; want %q, origin %q", tt.name, f.FlightNumber, f.Origin, f.Destination, tt.wantFlight, tt.wantOrigin)
+			}
 		}
 	})
 
@@ -307,5 +338,25 @@ func TestIsValidAirportCode(t *testing.T) {
 				t.Errorf("isValidAirportCode(%q) = %v, want %v", tt.input, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestSameFlightNumber(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want bool
+	}{
+		{"THA482", "TG482", true},
+		{"QFA001", "QF1", true},
+		{"BAW990G", "BA990G", true},
+		{"BAW990G", "BAW990", false},
+		{"UAL2443", "UAL243", false},
+		{"UAL", "UAL", false},
+		{"", "QF1", false},
+	}
+	for _, tt := range tests {
+		if got := sameFlightNumber(tt.a, tt.b); got != tt.want {
+			t.Errorf("sameFlightNumber(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
+		}
 	}
 }

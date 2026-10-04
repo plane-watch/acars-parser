@@ -1,6 +1,7 @@
 package cmcreport
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -70,6 +71,11 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 	c := match.Captures
+	// The pattern checks the airports' shape only; reject codes that are
+	// not plausible ICAO airport codes.
+	if !patterns.IsValidICAO(c["origin"]) || !patterns.IsValidICAO(c["dest"]) {
+		return nil
+	}
 
 	result := &Result{
 		MsgID:       int64(msg.ID),
@@ -86,12 +92,21 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	if reg, glued, ok := splitRegistration(c["reg_field"], msg.Tail); ok {
 		result.Registration = reg
-		if glued != "" {
+		switch {
+		case glued == "":
+		case result.Airline == "":
 			result.Airline = glued
+		case result.Airline != glued:
+			// The separately transmitted code and the glued one disagree,
+			// so neither is reported.
+			result.Airline = ""
 		}
 	}
 	return result
 }
+
+// airlineCodeRe matches a 2-character IATA airline code.
+var airlineCodeRe = regexp.MustCompile(`^[A-Z0-9]{2}$`)
 
 // splitRegistration finds the registration in the header's registration
 // field using the tail transmitted in the ACARS header. The field may carry
@@ -100,12 +115,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 // transmitted tail settles it. Dashes are ignored when comparing, since the
 // header and the field sometimes differ only by one ("HP-9907" and "HP9907").
 // The registration is returned in the field's form, with any glued prefix,
-// which must be a 2-character airline code. ok is false when the field does
-// not end with the tail, or the prefix is not 2 characters: the registration
-// is then not reported rather than guessed.
+// which must be a 2-character airline code of letters and digits. ok is false
+// when the tail is not a plausible registration (at least 2 characters, with
+// a letter), when the field does not end with the tail, or when the prefix is
+// not such a code: the registration is then not reported rather than guessed.
 func splitRegistration(field, tail string) (reg, glued string, ok bool) {
 	tail = strings.ReplaceAll(strings.TrimPrefix(strings.TrimSpace(tail), "."), "-", "")
-	if tail == "" {
+	if len(tail) < 2 || !strings.ContainsAny(tail, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
 		return "", "", false
 	}
 	// Walk back from the end of the field until len(tail) non-dash
@@ -125,7 +141,7 @@ func splitRegistration(field, tail string) (reg, glued string, ok bool) {
 		return "", "", false
 	}
 	prefix := field[:start]
-	if prefix != "" && len(prefix) != 2 {
+	if prefix != "" && !airlineCodeRe.MatchString(prefix) {
 		return "", "", false
 	}
 	return field[start:], prefix, true

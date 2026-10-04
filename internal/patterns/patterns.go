@@ -195,8 +195,8 @@ var validICAOPrefixes = map[string]bool{
 	"SA": true, "SB": true, "SC": true, "SD": true, "SE": true, "SF": true, "SG": true, "SK": true, "SL": true, "SM": true, "SN": true, "SO": true, "SP": true, "SS": true, "SU": true, "SV": true, "SW": true, "SY": true,
 	// T - Caribbean (TB = Barbados, TF = French Caribbean, TI = US Virgin Islands).
 	"TA": true, "TB": true, "TC": true, "TD": true, "TF": true, "TG": true, "TI": true, "TJ": true, "TK": true, "TL": true, "TN": true, "TQ": true, "TR": true, "TT": true, "TU": true, "TV": true, "TX": true,
-	// U - Russia, former USSR.
-	"UA": true, "UB": true, "UC": true, "UD": true, "UE": true, "UG": true, "UH": true, "UI": true, "UK": true, "UL": true, "UM": true, "UN": true, "UO": true, "UR": true, "US": true, "UT": true, "UU": true, "UW": true,
+	// U - Russia, former USSR (UZ = Uzbekistan, which replaced its UT codes).
+	"UA": true, "UB": true, "UC": true, "UD": true, "UE": true, "UG": true, "UH": true, "UI": true, "UK": true, "UL": true, "UM": true, "UN": true, "UO": true, "UR": true, "US": true, "UT": true, "UU": true, "UW": true, "UZ": true,
 	// V - South/Southeast Asia (VA/VI = India, VC = Sri Lanka, VD = Cambodia, VM = Vietnam/Macau).
 	"VA": true, "VC": true, "VD": true, "VE": true, "VG": true, "VH": true, "VI": true, "VL": true, "VM": true, "VN": true, "VO": true, "VQ": true, "VR": true, "VT": true, "VV": true, "VY": true,
 	// W - Indonesia, Malaysia.

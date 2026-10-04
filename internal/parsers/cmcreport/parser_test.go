@@ -103,3 +103,54 @@ func TestParseRejectsOtherText(t *testing.T) {
 		}
 	}
 }
+
+// TestParseRejectsMalformedFields checks that a header whose flight or
+// airports are not well formed is not parsed, rather than parsed with fields
+// taken from the wrong position.
+func TestParseRejectsMalformedFields(t *testing.T) {
+	for _, text := range []string{
+		// The destination is longer than an ICAO code.
+		"RTE 1 04OCT26 0930 N37319 UAL2443 KORD/KJAXX",
+		// The flight has no digits, and the airports are words.
+		"RTE 1 04OCT26 0930 N37319 TEST FROM/WITH",
+		// The registration is missing, which shifts the fields.
+		"RTE 1 04OCT26 0930 THA482 YPPH VTBS/KORD",
+		// The header is split across lines.
+		"RTE 1 04OCT26 0930\nTG HS-TWC\nTHA482 YPPH/VTBS",
+	} {
+		if got := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "N37319", Text: text}); got != nil {
+			t.Errorf("Parse(%q) = %+v, want nil", text, got)
+		}
+	}
+}
+
+// TestSplitRegistrationRejectsAmbiguousSplits checks that a split is made
+// only when the tail is a plausible registration and the remainder is a
+// plausible airline code.
+func TestSplitRegistrationRejectsAmbiguousSplits(t *testing.T) {
+	tests := []struct{ field, tail string }{
+		{"N37319", "7319"},   // The tail has no letters.
+		{"N-37319", "37319"}, // The prefix would be "N-".
+		{"--N703GT", "N703GT"},
+		{"XAB", "B"}, // The tail is too short to be a registration.
+	}
+	for _, tt := range tests {
+		if reg, glued, ok := splitRegistration(tt.field, tt.tail); ok {
+			t.Errorf("splitRegistration(%q, %q) = %q, %q, true; want false", tt.field, tt.tail, reg, glued)
+		}
+	}
+}
+
+// TestParseDropsConflictingAirlineCodes checks that when the airline code
+// is transmitted separately and a different one is glued to the
+// registration, neither is reported.
+func TestParseDropsConflictingAirlineCodes(t *testing.T) {
+	got := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "B-17807",
+		Text: "CFG 41 19JAN26 0203 TG BRB-17807 EVA026 RCTP/KSEA"})
+	if got == nil {
+		t.Fatal("Parse returned nil")
+	}
+	if r := got.(*Result); r.Airline != "" || r.Registration != "B-17807" {
+		t.Errorf("airline %q, registration %q; want no airline, B-17807", r.Airline, r.Registration)
+	}
+}

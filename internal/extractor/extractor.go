@@ -162,6 +162,23 @@ func NormaliseFlightNumber(flightNum string) string {
 	return flightNum
 }
 
+// flightSuffixRe captures the flight number at the end of a callsign: its
+// digits and an optional letter suffix, e.g. "990" and "G" in "BAW990G".
+var flightSuffixRe = regexp.MustCompile(`(\d+)([A-Z]?)$`)
+
+// sameFlightNumber reports whether two callsigns have the same flight number,
+// ignoring the airline prefix (which may be ICAO or IATA, e.g. "THA482" and
+// "TG482") and leading zeros. A callsign without a flight number matches
+// nothing.
+func sameFlightNumber(a, b string) bool {
+	ma := flightSuffixRe.FindStringSubmatch(strings.TrimSpace(a))
+	mb := flightSuffixRe.FindStringSubmatch(strings.TrimSpace(b))
+	if ma == nil || mb == nil {
+		return false
+	}
+	return strings.TrimLeft(ma[1], "0") == strings.TrimLeft(mb[1], "0") && ma[2] == mb[2]
+}
+
 // IsICAOCallsign checks if a flight number uses ICAO format (3-letter airline prefix).
 func IsICAOCallsign(flightNum string) bool {
 	match := flightNumRe.FindStringSubmatch(flightNum)
@@ -242,26 +259,38 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, result registr
 	if v, ok := m["flight_num"].(string); ok && v != "" {
 		update.FlightNumber = strings.TrimSpace(v)
 	}
-	// The loadsheet parser reports its flight number as "flight".
-	if v, ok := m["flight"].(string); ok && v != "" && update.FlightNumber == "" {
-		update.FlightNumber = strings.TrimSpace(v)
+	// The loadsheet parser reports its flight number as "flight", as do
+	// stored reports (such as CMC reports) that name the flight they were
+	// recorded on. Such a report can be sent on a later flight, when its
+	// route is not that flight's: the route is then not used.
+	routeIsThisFlight := true
+	if v, ok := m["flight"].(string); ok && v != "" {
+		v = strings.TrimSpace(v)
+		switch {
+		case update.FlightNumber == "":
+			update.FlightNumber = v
+		case !sameFlightNumber(v, update.FlightNumber):
+			routeIsThisFlight = false
+		}
 	}
 	if v, ok := m["callsign"].(string); ok && v != "" && update.FlightNumber == "" {
 		update.FlightNumber = strings.TrimSpace(v)
 	}
 
 	// Extract route (with validation to reject corrupted codes).
-	if v, ok := m["origin"].(string); ok && v != "" && isAirportCode(strings.TrimSpace(v)) {
-		update.Origin = strings.TrimSpace(v)
-	}
-	if v, ok := m["origin_icao"].(string); ok && v != "" && isValidAirportCode(v) {
-		update.Origin = strings.TrimSpace(v)
-	}
-	if v, ok := m["destination"].(string); ok && v != "" && isAirportCode(strings.TrimSpace(v)) {
-		update.Destination = strings.TrimSpace(v)
-	}
-	if v, ok := m["dest_icao"].(string); ok && v != "" && isValidAirportCode(v) {
-		update.Destination = strings.TrimSpace(v)
+	if routeIsThisFlight {
+		if v, ok := m["origin"].(string); ok && v != "" && isAirportCode(strings.TrimSpace(v)) {
+			update.Origin = strings.TrimSpace(v)
+		}
+		if v, ok := m["origin_icao"].(string); ok && v != "" && isValidAirportCode(v) {
+			update.Origin = strings.TrimSpace(v)
+		}
+		if v, ok := m["destination"].(string); ok && v != "" && isAirportCode(strings.TrimSpace(v)) {
+			update.Destination = strings.TrimSpace(v)
+		}
+		if v, ok := m["dest_icao"].(string); ok && v != "" && isValidAirportCode(v) {
+			update.Destination = strings.TrimSpace(v)
+		}
 	}
 
 	// Extract position.
