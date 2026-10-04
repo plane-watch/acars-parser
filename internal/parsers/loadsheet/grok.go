@@ -31,21 +31,23 @@ var LoadsheetFormats = []LoadsheetFormat{
 	{
 		Name:   "etihad",
 		Labels: []string{"RA", "3S", "C1", "H1"},
-		Pattern: regexp.MustCompile(`(?s)` +
+		// The lines follow one another in a fixed order, so each field is
+		// matched where it belongs; a missing field is not looked for in
+		// later text.
+		Pattern: regexp.MustCompile(`` +
 			`LOADSHEET\s+(?P<status>FINAL|PRELIM)\s+(?P<edition>\d{3})\s+(?P<time>\d{4})\s*\n` +
 			`\s*(?P<flight>[A-Z]{2}\d{1,4}[A-Z]?)/\d+\s+\d+[A-Z]{3}\d+[ \t]+(?P<aircraft_type>[A-Z][A-Z0-9]{3})[ \t]*\n` +
-			`\s*(?P<origin>[A-Z]{3})\s+(?P<destination>[A-Z]{3})\s+(?P<tail>[A-Z0-9-]+)\s+(?P<crew>\d+/\d+)` +
-			`.*?` +
-			`ZFW\s+(?P<zfw>\d+)\s+MAX\s+(?P<zfw_max>\d+)` +
-			`.*?` +
-			`TOF\s+(?P<tof>\d+)` +
-			`.*?` +
-			`TOW\s+(?P<tow>\d+)\s+MAX\s+(?P<tow_max>\d+)` +
-			`(?:.*?TIF\s+(?P<tif>\d+))?` +
-			`(?:.*?LAW\s+(?P<law>\d+)\s+MAX\s+(?P<law_max>\d+))?` +
-			`(?:.*?PAX/(?P<pax_breakdown>[\d/]+)\s+TTL\s+(?P<pax_total>\d+))?` +
-			`(?:.*?MACZFW\s+(?P<mac_zfw>[\d.]+))?` +
-			`(?:.*?MACTOW\s+(?P<mac_tow>[\d.]+))?`),
+			`\s*(?P<origin>[A-Z]{3})\s+(?P<destination>[A-Z]{3})\s+(?P<tail>[A-Z0-9-]+)\s+(?P<crew>\d+/\d+)\s*\n` +
+			`\s*ZFW\s+(?P<zfw>\d+)\s+MAX\s+(?P<zfw_max>\d+)(?:\s+L)?\s*\n` +
+			`\s*TOF\s+(?P<tof>\d+)\s*\n` +
+			`\s*TOW\s+(?P<tow>\d+)\s+MAX\s+(?P<tow_max>\d+)(?:\s+L)?\s*\n` +
+			`(?:\s*TIF\s+(?P<tif>\d+)\s*\n)?` +
+			`\s*LAW\s+(?P<law>\d+)\s+MAX\s+(?P<law_max>\d+)(?:\s+L)?\s*\n` +
+			`(?:\s*UNDLD\s+\d+\s*\n)?` +
+			`(?:\s*PAX/(?P<pax_breakdown>[\d/]+)\s+TTL\s+(?P<pax_total>\d+)\s*\n` +
+			`(?:\s*PAX\s+\d+\s+PLUS\s+\d+\s*\n)?` +
+			`(?:\s*(?:BI|DOI|LIZFW|LITOW)\s+[\d.]+\s*\n)*` +
+			`(?:\s*MACZFW\s+(?P<mac_zfw>[\d.]+)\s*\n\s*MACTOW\s+(?P<mac_tow>[\d.]+))?)?`),
 		WeightUnit: "kg",
 	},
 

@@ -41,13 +41,13 @@ type Result struct {
 }
 
 // messagePattern matches an ARINC 622 binary message in envelope form:
-// "/", the ground station (4 to 7 characters), ".", the IMI (AT1, CR1, CC1
-// or DR1), the registration field and the hex payload. The registration
+// "/", the ground station (4 to 7 characters), ".", the IMI (AT1, CR1, CC1,
+// DR1 or ADS), the registration field and the hex payload. The registration
 // field is seven characters, padded on the left with dots (".N514DN",
 // "..N17RX"; "B-18772" has none), so it is read by its length: the payload
-// cannot be told from the registration's last characters ("EC-NMZ" ends in
-// hex digits).
-var messagePattern = regexp.MustCompile(`^/([A-Z0-9]{4,7})\.([A-Z]{2}[0-9])([A-Z0-9.-]{7})([0-9A-F]*)$`)
+// cannot be told from the registration's last characters ("B-16731" ends
+// in a hex digit).
+var messagePattern = regexp.MustCompile(`^/([A-Z0-9]{4,7})\.(AT1|CR1|CC1|DR1|ADS)([A-Z0-9.-]{7})([0-9A-Fa-f]*)$`)
 
 // relayedPattern matches an ARINC 622 message relayed in label H1 with its
 // original label, e.g. "- #MD/AA PIKCPYA.AT1.N657UA...": a "- #" sublabel,
@@ -96,6 +96,13 @@ func Parse(text string) (*Result, error) {
 	}
 	groundStation, imi, regField, hexStr := matches[1], matches[2], matches[3], matches[4]
 
+	// Dots pad the field on the left only; a dot elsewhere is not a
+	// registration.
+	registration := strings.TrimLeft(regField, ".")
+	if registration == "" || strings.Contains(registration, ".") {
+		return nil, fmt.Errorf("%w: invalid registration field %q", ErrUnknownFormat, regField)
+	}
+
 	hexData, err := hex.DecodeString(hexStr)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", ErrInvalidHex, err)
@@ -113,7 +120,7 @@ func Parse(text string) (*Result, error) {
 	return &Result{
 		GroundStation: groundStation,
 		IMI:           imi,
-		Registration:  strings.TrimLeft(regField, "."),
+		Registration:  registration,
 		Payload:       hexData[:len(hexData)-2],
 		RawHex:        hexStr,
 	}, nil

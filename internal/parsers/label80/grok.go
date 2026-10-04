@@ -11,7 +11,7 @@ var Formats = []patterns.Format{
 	{
 		Name: "header_format",
 		Pattern: `\d+\s+(?P<msg_type>\w+)\s+\S+\s+` +
-			`(?P<origin>{ICAO})/(?P<dest>{ICAO})\s+\.*(?P<tail>[A-Z0-9-]+)`,
+			`(?P<origin>{ICAO})/(?P<dest>{ICAO})\s+\.*(?P<tail>[A-Z0-9-]+)(?:/|\s|$)`,
 		Fields: []string{"msg_type", "origin", "dest", "tail"},
 	},
 	// Alternative header format.

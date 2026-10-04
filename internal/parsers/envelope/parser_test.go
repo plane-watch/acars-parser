@@ -140,3 +140,22 @@ func TestTailIsTheRegistrationField(t *testing.T) {
 		}
 	}
 }
+
+// TestParseNeedsAVerifiedEnvelope checks that only a complete envelope with
+// a valid CRC is parsed, and that a seven-character registration passes the
+// quick check.
+func TestParseNeedsAVerifiedEnvelope(t *testing.T) {
+	for _, text := range []string{
+		"/NOTE.ADS IS NOT AN ENVELOPE",
+		"/SGNGWXA.ADSB-16731NOTHEX",
+		"/SGNGWXA.ADSB-1673107010BCD0D010E0130D7", // CRC changed.
+	} {
+		if r := (&Parser{}).Parse(&acars.Message{Label: "A6", Text: text}); r != nil {
+			t.Errorf("Parse(%q) = %+v, want nil", text, r)
+		}
+	}
+	text := "/YEGE2YA.AT1B-1877224C8C0DE2B1624D9F3AA4F9C17A760F1D0"
+	if !(&Parser{}).QuickCheck(text) {
+		t.Error("QuickCheck = false for a seven-character registration")
+	}
+}

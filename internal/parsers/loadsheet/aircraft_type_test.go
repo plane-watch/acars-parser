@@ -89,3 +89,13 @@ func TestParseTokenAfterDateOnlyInEtihadLayout(t *testing.T) {
 		t.Errorf("Etihad on label 3S: got %+v", r)
 	}
 }
+
+// TestParseEtihadDoesNotReachIntoLaterText checks that fields missing from
+// the Etihad loadsheet are not taken from text after it.
+func TestParseEtihadDoesNotReachIntoLaterText(t *testing.T) {
+	text := "LOADSHEET FINAL 001 0242\nEY401/19 20JAN26 B78X\nBKK AUH A6BMA 2/11\nZFW 173124 MAX 192776\nTOF 45200\nTOW 218324 MAX 254011\nEND LOADSHEET\nPREVIOUS FLIGHT DATA\nLAW 99999 MAX 100000\nPAX/9/99 TTL 108\n"
+	r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "3S", Text: text}).(*Result)
+	if ok && (r.LAW == 99999 || r.PAX == 108) {
+		t.Errorf("took LAW %d and PAX %d from text after the loadsheet", r.LAW, r.PAX)
+	}
+}

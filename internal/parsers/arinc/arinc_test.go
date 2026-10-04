@@ -55,14 +55,35 @@ func TestParse(t *testing.T) {
 			wantPayloadLen: 5,
 		},
 		{
-			// A registration whose last character is a hex digit: the
-			// field's length, not the hex, ends it.
+			// A seven-character registration ending in a hex digit ("1"):
+			// the field's length, not the hex, ends it.
 			name:           "Registration ending in a hex digit",
-			text:           "/LPAFAYA.AT1.EC-NMZ2109002823D6A70C5BCC",
-			wantGS:         "LPAFAYA",
-			wantIMI:        "AT1",
-			wantReg:        "EC-NMZ",
+			text:           "/SGNGWXA.ADSB-1673107010BCD0D010E0130D6",
+			wantGS:         "SGNGWXA",
+			wantIMI:        "ADS",
+			wantReg:        "B-16731",
 			wantPayloadLen: 8,
+		},
+		{
+			// Lower-case payload hex; the CRC is valid.
+			name:           "Lower-case hex",
+			text:           "/NYCODYA.AT1.N784AV22c823e840fbce",
+			wantGS:         "NYCODYA",
+			wantIMI:        "AT1",
+			wantReg:        "N784AV",
+			wantPayloadLen: 5,
+		},
+		{
+			// A dot inside the registration field is not padding.
+			name:    "Dot inside the registration",
+			text:    "/ABCD.AT1.N5.4DN004BCE",
+			wantErr: ErrUnknownFormat,
+		},
+		{
+			// Not an ARINC 622 IMI, although the CRC is valid.
+			name:    "Unknown IMI",
+			text:    "/ABCD.XY9.N514DN00A453",
+			wantErr: ErrUnknownFormat,
 		},
 		{
 			// Truly truncated message - missing CRC bytes entirely.

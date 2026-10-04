@@ -19,3 +19,12 @@ func TestParseTailStopsAtTheSlash(t *testing.T) {
 		t.Errorf("Tail = %q, want HK-5365", r.Tail)
 	}
 }
+
+// TestParseRejectsAMalformedTail checks that a malformed tail token is not
+// cut down to a registration-like prefix.
+func TestParseRejectsAMalformedTail(t *testing.T) {
+	text := "3N01 POSRPT 0254/04 SKBO/CYYZ HK-5365.BAD/01F 10:55"
+	if r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "80", Text: text}).(*Result); ok && r.Tail != "" {
+		t.Errorf("Tail = %q, want none", r.Tail)
+	}
+}

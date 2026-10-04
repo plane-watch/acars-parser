@@ -261,3 +261,17 @@ func TestParseWithTraceUnwrapsH1(t *testing.T) {
 		}
 	}
 }
+
+// TestParseSevenCharacterRegistration checks that a message from an aircraft
+// with a seven-character registration, which has no dot after the IMI,
+// passes the quick check and is decoded (real message, January 2026).
+func TestParseSevenCharacterRegistration(t *testing.T) {
+	text := "/YEGE2YA.AT1B-1877224C8C0DE2B1624D9F3AA4F9C17A760F1D0"
+	if !(&Parser{}).QuickCheck(text) {
+		t.Fatal("QuickCheck = false")
+	}
+	r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "AA", Text: text}).(*Result)
+	if !ok || r.Registration != "B-18772" || r.MessageType != "cpdlc" {
+		t.Errorf("got %+v", r)
+	}
+}

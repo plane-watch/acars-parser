@@ -3,6 +3,7 @@ package cpdlc
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"acars_parser/internal/acars"
@@ -47,12 +48,14 @@ func (p *Parser) Name() string     { return "cpdlc" }
 func (p *Parser) Labels() []string { return []string{"AA", "BA", "H1"} }
 func (p *Parser) Priority() int    { return 50 } // Higher priority than generic parsers.
 
+// imiRe matches a CPDLC IMI followed by the start of the registration
+// field, which is a dot unless the registration has seven characters
+// (".AT1.N514DN", ".AT1B-18772").
+var imiRe = regexp.MustCompile(`\.(?:AT1|CR1|CC1|DR1)[A-Z0-9.-]`)
+
 // QuickCheck checks if the message contains CPDLC markers.
 func (p *Parser) QuickCheck(text string) bool {
-	return strings.Contains(text, IMI_AT1) ||
-		strings.Contains(text, IMI_CR1) ||
-		strings.Contains(text, IMI_CC1) ||
-		strings.Contains(text, IMI_DR1)
+	return imiRe.MatchString(text)
 }
 
 // Parse parses a CPDLC message.
