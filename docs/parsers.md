@@ -162,15 +162,28 @@ The parsers are listed in alphabetical order of package.
 
 **Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
 
-**Technique:** Grok (format `acms_cc`).
+**Technique:** Grok (format `acms_cc`), and hand-written code for the fixed-width record of report 239.
 
 **Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
 
 ```
 A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0TIA05JST4R0000/...
+A321,039021,1,1,TB000000/REP037,00,00,4/C1N74532,OCT02,042921,KDEN,KLAA,1460/C29999,...
+A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL787,4300,09/...
 ```
 
-**Extracted fields:** the aircraft series (`A321`), the report number (`001`), and from the CC block the registration, report date (MMMDD, no year) and time (HHMMSS), origin, destination and the flight number's digits (`0816`). The serial number and the `TB000000` block are not captured, because their meaning is not established.
+**Extracted fields:** the aircraft series (`A321`), the report number (`001`), and from the CC block (named `CC` or `C1`) the registration, report date (MMMDD, no year; some reports separate the month and day with a comma) and time (HHMMSS; left out or blanked as `XXXXXX` in some reports), origin, destination and the flight number's digits (`0816`; left out in some reports, and not reported when `0000`). A report without the digits may give the ICAO callsign at the start of a C2 block (`UAL787`), reported as `flight`. The serial number and the `TB000000` block are not captured, because their meaning is not established.
+
+**Corrupted destinations:** reports 032 and 037 replace the destination's last letter with its third (`KLAA` for KLAS, `KORR` for KORD, `MMUU` for MMUN). In the archive most of their destinations, from several airlines, were corrupted this way, while their origins were real airports. Their destination is not reported, so they give no route.
+
+**Report 239:** a fixed-width record that is wrapped across lines:
+
+```
+A319,060733,1,1,TB000000/REP239,00,00,4/239N366NB2975123125181051192N45602W122616  2  5  2341  1T 0512  72
+00 128 126 0000260500J8IH-KLAXKPDX
+```
+
+After `239` come the registration, the flight number's digits (`2975`), the date (MMDDYY, reported as MMMDD) and time, and, 83 characters after the registration once line breaks are removed, the origin and destination (`KLAX`, `KPDX`). The registration has no fixed width, so the record is parsed only when it starts with the transmitted tail and its route is two plausible ICAO codes. In the archive, 2,990 of 3,000 records had the route at that offset. The position and other fields are not parsed.
 
 **Aircraft series, not type:** The series is reported as `aircraft_series`, not `aircraft_type`, so it is not normalised to an ICAO designator. In the January 2026 corpus, `A320` and `A321` were sent by aircraft that other messages identify as A20N (39 tails) and A21N (52 tails): the series does not distinguish the ceo from the neo.
 

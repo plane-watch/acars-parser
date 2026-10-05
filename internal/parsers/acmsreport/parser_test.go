@@ -44,6 +44,57 @@ func TestParse(t *testing.T) {
 			want: Result{AircraftSeries: "A321", Report: "004", Registration: "9H-WDJ", ReportDate: "OCT04",
 				ReportTime: "084040", Origin: "EGGW", Destination: "LBSF", FlightNumberDigits: "0219"},
 		},
+		{
+			// Reports 032 and 037 corrupt the destination ("KLAA" for KLAS),
+			// so it is not reported.
+			name: "C1 block of report 037",
+			tail: "N74532",
+			text: "A321,039021,1,1,TB000000/REP037,00,00,4/C1N74532,OCT02,042921,KDEN,KLAA,1460/C29999,W553,06,801518,801524",
+			want: Result{AircraftSeries: "A321", Report: "037", Registration: "N74532", ReportDate: "OCT02",
+				ReportTime: "042921", Origin: "KDEN", FlightNumberDigits: "1460"},
+		},
+		{
+			name: "blanked time in report 037",
+			tail: "N491UA",
+			text: "A320,002230,1,1,TB000000/REP037,00,00,4/C1N491UA,OCT04,XXXXXX,KSFO,KAUS,0400/C29999,I23232,06,010419,011426",
+			want: Result{AircraftSeries: "A320", Report: "037", Registration: "N491UA", ReportDate: "OCT04",
+				Origin: "KSFO", FlightNumberDigits: "0400"},
+		},
+		{
+			name: "no time",
+			tail: "N402FR",
+			text: "A320,035141,1,1,TB000000/REP050,00,00,4/CCN402FR,OCT02,KATL,KIAD,3692/C001,1665,4000/C1035807,040848/",
+			want: Result{AircraftSeries: "A320", Report: "050", Registration: "N402FR", ReportDate: "OCT02",
+				Origin: "KATL", Destination: "KIAD", FlightNumberDigits: "3692"},
+		},
+		{
+			name: "split date and a C2 callsign in report 032",
+			tail: "N34562",
+			text: "A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL787,4300,09/C3801971,802140,0,0062",
+			want: Result{AircraftSeries: "A321", Report: "032", Registration: "N34562", ReportDate: "JAN03",
+				ReportTime: "055354", Origin: "KIAH", Flight: "UAL787"},
+		},
+		{
+			name: "flight number 0000 is no flight number",
+			tail: "HB-JDF",
+			text: "A320,090398,1,1,TB000000/REP073,00,00,1/C1HB-JDF,OCT04,093931,LQSA,LSZH,0000/C2SW060053740013",
+			want: Result{AircraftSeries: "A320", Report: "073", Registration: "HB-JDF", ReportDate: "OCT04",
+				ReportTime: "093931", Origin: "LQSA", Destination: "LSZH"},
+		},
+		{
+			name: "REP239 fixed-width record",
+			tail: "N366NB",
+			text: "A319,060733,1,1,TB000000/REP239,00,00,4/239N366NB2975123125181051192N45602W122616  2  5  2341  1T 0512  72\r\n00 128 126 0000260500J8IH-KLAXKPDX",
+			want: Result{AircraftSeries: "A319", Report: "239", Registration: "N366NB", ReportDate: "DEC31",
+				ReportTime: "181051", Origin: "KLAX", Destination: "KPDX", FlightNumberDigits: "2975"},
+		},
+		{
+			name: "REP239 record with text after the route",
+			tail: "N595DT",
+			text: "A321,037018,1,1,TB000000/REP239,00,00,4/239N595DT1909100426083958789N42691W 85 77350-20-48257 99AH0503 11000 268 554 0000430510B8/9WKSLCKJFK   35000 2232-------.----   224 461",
+			want: Result{AircraftSeries: "A321", Report: "239", Registration: "N595DT", ReportDate: "OCT04",
+				ReportTime: "083958", Origin: "KSLC", Destination: "KJFK", FlightNumberDigits: "1909"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -80,6 +131,12 @@ func TestParseRejectsOtherText(t *testing.T) {
 		"A321,002244,1,1,TB000000/REP239,00,00,4/239N537DT0473011726093629777N44886W",
 		// A CC block with blanked airports.
 		"A321,020701,1,1,TB000000/REP019,84,01,4/CCN589DT,JAN19,212615,'''','''',0820/C0TWP03005030001",
+		// Placeholder airports.
+		"A321,000123,1,1,TB000000/REP035,00,00,4/C1N589DT,OCT04,102635,NODT,NODT,0000/C201,68035",
+		// A REP239 record whose registration is not the transmitted tail.
+		"A321,037018,1,1,TB000000/REP239,00,00,4/239N595DT1909100426083958789N42691W 85 77350-20-48257 99AH0503 11000 268 554 0000430510B8/9WKSLCKJFK",
+		// A REP239 record without airports in the route field.
+		"A321,037018,1,1,TB000000/REP239,00,00,4/239N589DT1909100426083958789N42691W 85 77350-20-48257 99AH0503 11000 268 554 0000430510B8/9W''",
 		// Not an ACMS header.
 		"A321 IS AN AIRCRAFT",
 		"RTE 1 06JAN26 0034 N37319 UAL2443 KORD/KJAX",

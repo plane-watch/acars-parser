@@ -1,8 +1,10 @@
 package acmsreport
 
 import (
+	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"acars_parser/internal/acars"
 	"acars_parser/internal/patterns"
@@ -30,8 +32,12 @@ type Result struct {
 
 	// FlightNumberDigits is the flight number without its airline code,
 	// e.g. "0816". The extractor uses the route only for a transmitted
-	// flight with this number.
-	FlightNumberDigits string `json:"flight_number_digits"`
+	// flight with this number. A flight number of 0000 is not reported.
+	FlightNumberDigits string `json:"flight_number_digits,omitempty"`
+
+	// Flight is the ICAO callsign from a C2 block, e.g. "UAL787", in
+	// reports that do not give the flight number's digits.
+	Flight string `json:"flight,omitempty"`
 }
 
 func (r *Result) Type() string     { return "acms_report" }
@@ -62,14 +68,19 @@ func (p *Parser) Name() string     { return "acmsreport" }
 func (p *Parser) Labels() []string { return []string{"H1"} }
 func (p *Parser) Priority() int    { return 60 }
 
-// QuickCheck looks for the series prefix ("A3xx,") and a CC block.
+// QuickCheck looks for the series prefix ("A3xx,") and a CC, C1 or report
+// 239 block.
 func (p *Parser) QuickCheck(text string) bool {
-	return len(text) > 5 && strings.HasPrefix(text, "A3") && text[4] == ',' && strings.Contains(text, "/CC")
+	return len(text) > 5 && strings.HasPrefix(text, "A3") && text[4] == ',' &&
+		(strings.Contains(text, "/CC") || strings.Contains(text, "/C1") || strings.Contains(text, "/239"))
 }
 
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if !p.QuickCheck(msg.Text) {
 		return nil
+	}
+	if r := parseReport239(msg); r != nil {
+		return r
 	}
 	compiler, err := getCompiler()
 	if err != nil {
@@ -91,17 +102,114 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Timestamp:          msg.Timestamp,
 		AircraftSeries:     c["series"],
 		Report:             c["report"],
-		ReportDate:         c["date"],
+		ReportDate:         c["month"] + c["day"],
 		ReportTime:         c["time"],
 		Origin:             c["origin"],
 		Destination:        c["dest"],
-		FlightNumberDigits: c["flight_digits"],
+		FlightNumberDigits: flightDigits(c["flight_digits"]),
+		Flight:             c["callsign"],
+	}
+	if corruptDestination[result.Report] {
+		result.Destination = ""
 	}
 	reg := strings.TrimLeft(c["reg_field"], ".")
 	if sameRegistration(reg, msg.Tail) {
 		result.Registration = reg
 	}
 	return result
+}
+
+// corruptDestination lists the reports whose destination is corrupted: the
+// last letter is replaced by the third ("KLAA" for KLAS, "KORR" for KORD,
+// "MMUU" for MMUN). In the archive, the destination of most reports 032 and
+// 037, from several airlines, was corrupted this way, while their origins
+// were real airports. Without an airport list the corrupted values cannot
+// be told from real ones (KFLL), so these reports' destination is not
+// reported, and they give no route.
+var corruptDestination = map[string]bool{"032": true, "037": true}
+
+// report239Re matches the header of report 239 up to its record, which
+// starts with the report number again: "A321,037018,1,1,TB000000/REP239,
+// 00,00,4/239".
+var report239Re = regexp.MustCompile(`^(A3\d{2}),\d+,\d,\d,TB\d+/REP239,[^/]*/239`)
+
+// Offsets in the report 239 record, counted from the end of the
+// registration once line breaks are removed (the record is wrapped across
+// lines). The registration has no fixed width, so it is located by the
+// transmitted tail. In the archive, 2,990 of 3,000 records had the route at
+// offset 83.
+const (
+	r239Flight = 0  // The flight number's digits (4).
+	r239Date   = 4  // MMDDYY.
+	r239Time   = 10 // HHMMSS.
+	r239Route  = 83 // Origin and destination, ICAO (4 + 4).
+)
+
+// parseReport239 parses the fixed-width record of report 239:
+//
+//	A319,060733,1,1,TB000000/REP239,00,00,4/239N366NB2975123125181051192N45602W122616  2  5  2341  1T 0512  72
+//	00 128 126 0000260500J8IH-KLAXKPDX
+//
+// After "239" come the registration (N366NB), the flight number's digits
+// (2975), the date (123125, MMDDYY) and time (181051), a position and other
+// fields not parsed, and the route (KLAX, KPDX). The record is used only
+// when its registration is the transmitted tail and its route is two
+// plausible ICAO codes: without a tail, the fields cannot be located.
+func parseReport239(msg *acars.Message) *Result {
+	m := report239Re.FindStringSubmatchIndex(msg.Text)
+	if m == nil {
+		return nil
+	}
+	tail := strings.TrimLeft(msg.Tail, ".")
+	if tail == "" {
+		return nil
+	}
+	record := strings.NewReplacer("\r", "", "\n", "").Replace(msg.Text[m[1]:])
+	if !strings.HasPrefix(record, tail) {
+		return nil
+	}
+	record = record[len(tail):]
+	if len(record) < r239Route+8 {
+		return nil
+	}
+	digits := record[r239Flight : r239Flight+4]
+	date, err := time.Parse("010206", record[r239Date:r239Date+6])
+	clock := record[r239Time : r239Time+6]
+	origin, dest := record[r239Route:r239Route+4], record[r239Route+4:r239Route+8]
+	if err != nil || !allDigits(digits) || !allDigits(clock) ||
+		!patterns.IsValidICAO(origin) || !patterns.IsValidICAO(dest) {
+		return nil
+	}
+	return &Result{
+		MsgID:              int64(msg.ID),
+		Timestamp:          msg.Timestamp,
+		AircraftSeries:     msg.Text[m[2]:m[3]],
+		Report:             "239",
+		Registration:       tail,
+		ReportDate:         strings.ToUpper(date.Format("Jan02")),
+		ReportTime:         clock,
+		Origin:             origin,
+		Destination:        dest,
+		FlightNumberDigits: flightDigits(digits),
+	}
+}
+
+// flightDigits returns the flight number's digits, or nothing for 0000,
+// which reports send when no flight number is set.
+func flightDigits(s string) string {
+	if strings.Trim(s, "0") == "" {
+		return ""
+	}
+	return s
+}
+
+func allDigits(s string) bool {
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return s != ""
 }
 
 // sameRegistration reports whether the report's registration is the
