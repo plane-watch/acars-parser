@@ -162,7 +162,7 @@ The parsers are listed in alphabetical order of package.
 
 **Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
 
-**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_281` and `acms_291`), and hand-written code for the fixed-width record of report 239.
+**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_csv`, `acms_281` and `acms_291`), and hand-written code for the fixed-width record of report 239.
 
 **Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
 
@@ -176,6 +176,15 @@ A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL78
 
 **Short header:** reports also come with a short header, `A37/A31937,1,1/`: a letter and the report number, then the series (`A319`) and the report number again. Its report number has two digits and is kept as sent (`37`, not `037`). With this header, a CC or C1 block is parsed as above, and a `C1TRP` block (reports 38 and 39, `C1TRP,180234,KDFW,KRIC,...`) gives the time and route of a trajectory report whose samples are not parsed.
 
+**A330 and A340 reports:** the short header can also stand on a line of its own, sometimes after a line of digits. It is then followed by a C1 line of comma-separated values, giving the registration, the date (`25DEC31`, reported as `DEC31`), the time (`17.03.50`, reported as `170350`), the route and the ICAO callsign (reported as `flight`):
+
+```
+R01/A33001,1,1
+C1,.VH-EBP,25DEC31,17.03.50,WADD,YSSY,QFA044    ,5000,374
+```
+
+or by the `/WX` block of report 281 (below).
+
 **Corrupted destinations:** reports 032 and 037 replace the destination's last letter with its third (`KLAA` for KLAS, `KORR` for KORD, `MMUU` for MMUN). In the archive most of their destinations, from several airlines, were corrupted this way, while their origins were real airports. Their destination is not reported, so they give no route. The rule applies only to the three-digit report numbers of the long header: with the short header, reports `32` and `37` had real destinations.
 
 **Report 239:** a fixed-width record that is wrapped across lines:
@@ -187,7 +196,7 @@ A319,060733,1,1,TB000000/REP239,00,00,4/239N366NB2975123125181051192N45602W12261
 
 After `239` come the registration, the flight number's digits (`2975`), the date (MMDDYY, reported as MMMDD) and time, and, 83 characters after the registration once line breaks are removed, the origin and destination (`KLAX`, `KPDX`). The registration has no fixed width, so the record is parsed only when it starts with the transmitted tail and its route is two plausible ICAO codes. In the archive, 2,990 of 3,000 records had the route at that offset. The position and other fields are not parsed.
 
-**Reports 281 and 291:** report 281 gives the route after `//WX02EN04` (`KBDLKDTW`) and, on the next line, usually a position in thousandths of a degree (`N42191W072884` is 42.191, −72.884), reported as `latitude` and `longitude`. Report 291 is a trajectory report whose `TRP KPHL KPBI` line gives the route; its timed samples are not parsed. Neither gives a registration, date or flight number.
+**Reports 281 and 291:** report 281 gives the route after `//WX02EN04` (`KBDLKDTW`) and, on the next line, usually a position in thousandths of a degree (`N42191W072884` is 42.191, −72.884), reported as `latitude` and `longitude`. The same block follows the short header in A330 reports (`R81/A33081,1,1`). Report 291 is a trajectory report whose `TRP KPHL KPBI` line gives the route; its timed samples are not parsed. Neither gives a registration, date or flight number.
 
 **Aircraft series, not type:** The series is reported as `aircraft_series`, not `aircraft_type`, so it is not normalised to an ICAO designator. In the January 2026 corpus, `A320` and `A321` were sent by aircraft that other messages identify as A20N (39 tails) and A21N (52 tails): the series does not distinguish the ceo from the neo.
 

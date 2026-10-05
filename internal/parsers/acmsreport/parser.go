@@ -75,10 +75,16 @@ func (p *Parser) Priority() int    { return 60 }
 
 // QuickCheck looks for the series prefix ("A3xx,") and a CC or C1 block,
 // or one of the reports 239, 281 and 291; or for the short header
-// ("A37/A3...") and a C1 or CC block.
+// ("A37/A3...", perhaps after a line of digits) and a C1, CC or WX block.
 func (p *Parser) QuickCheck(text string) bool {
-	if len(text) > 8 && text[3] == '/' && strings.HasPrefix(text[4:], "A3") {
-		return strings.Contains(text, "/C1") || strings.Contains(text, "/CC")
+	header := text
+	if len(text) > 0 && text[0] >= '0' && text[0] <= '9' {
+		if i := strings.IndexByte(text, '\n'); i >= 0 {
+			header = text[i+1:]
+		}
+	}
+	if len(header) > 8 && header[3] == '/' && strings.HasPrefix(header[4:], "A3") {
+		return strings.Contains(header, "C1") || strings.Contains(header, "/CC") || strings.Contains(header, "/WX")
 	}
 	return len(text) > 5 && strings.HasPrefix(text, "A3") && text[4] == ',' &&
 		(strings.Contains(text, "/CC") || strings.Contains(text, "/C1") ||
@@ -114,7 +120,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		AircraftSeries:     c["series"] + c["series_short"],
 		Report:             c["report"] + c["report_short"],
 		ReportDate:         c["month"] + c["day"],
-		ReportTime:         c["time"],
+		ReportTime:         c["time"] + c["hour"] + c["minute"] + c["second"],
 		Origin:             c["origin"],
 		Destination:        c["dest"],
 		FlightNumberDigits: flightDigits(c["flight_digits"]),

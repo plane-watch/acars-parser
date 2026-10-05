@@ -52,6 +52,20 @@ var Formats = []patterns.Format{
 		Pattern: `^` + shortHeader + `/C1TRP,(?P<time>\d{6}),(?P<origin>{ICAO}),(?P<dest>{ICAO}),`,
 		Fields:  []string{"series_short", "report_short", "time", "origin", "dest"},
 	},
+	// A C1 line of comma-separated values follows the short header on a
+	// line of its own (A330 and A340 reports): the registration (with a
+	// leading "."), the date (YYMMMDD), the time (HH.MM.SS), the route and
+	// the ICAO callsign, padded with spaces. Example:
+	//
+	//	R01/A33001,1,1
+	//	C1,.VH-EBP,25DEC31,17.03.50,WADD,YSSY,QFA044    ,5000,374
+	{
+		Name: "acms_csv",
+		Pattern: `^` + shortHeader + `\r?\nC1,(?P<reg_field>\.?[A-Z0-9-]{2,8}),\d{2}(?P<month>[A-Z]{3})(?P<day>\d{2}),` +
+			`(?P<hour>\d{2})\.(?P<minute>\d{2})\.(?P<second>\d{2}),(?P<origin>{ICAO}),(?P<dest>{ICAO}),` +
+			`(?P<callsign>[A-Z]{3}\d[A-Z0-9]{0,4})[ \t]*,`,
+		Fields: []string{"series_short", "report_short", "reg_field", "month", "day", "hour", "minute", "second", "origin", "dest", "callsign"},
+	},
 	// Report 281 gives the route after "//WX02EN04" and, on the next line,
 	// usually a position in thousandths of a degree ("N42191W072884" is
 	// 42.191, -72.884, just after leaving KBDL for KDTW). The rest of the
@@ -59,11 +73,19 @@ var Formats = []patterns.Format{
 	//
 	//	A320,115883,1,1,TB000000/REP281,00,00,4//WX02EN04KBDLKDTW
 	//	N42191W07288409361047P0222180140XXXX21003020)
+	//
+	// The same block also follows the short header on a line of its own,
+	// sometimes after a line of digits:
+	//
+	//	281095500101010066028
+	//	R81/A33081,1,1
+	//	/WX02EN31KMSPPHNL
+	//	N43582W09558218422749M3903161020XXXX250030ERV
 	{
 		Name: "acms_281",
-		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>281),[^/]*//WX\d{2}EN\d{2}` +
+		Pattern: `^(?:(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>281),[^/]*/|(?:\d+\r?\n)?` + shortHeader + `\r?\n)/WX\d{2}EN\d{2}` +
 			`(?P<origin>{ICAO})(?P<dest>{ICAO})[ \t]*(?:\r?\n(?P<lat_hemi>[NS])(?P<lat>\d{5})(?P<lon_hemi>[EW])(?P<lon>\d{6}))?`,
-		Fields: []string{"series", "report", "origin", "dest", "lat_hemi", "lat", "lon_hemi", "lon"},
+		Fields: []string{"series", "report", "series_short", "report_short", "origin", "dest", "lat_hemi", "lat", "lon_hemi", "lon"},
 	},
 	// Report 291 is a trajectory report: the route on the "TRP" line, then
 	// timed samples (A1, A2, ...) that are not parsed. Example:

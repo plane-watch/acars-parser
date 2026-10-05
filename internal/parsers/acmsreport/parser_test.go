@@ -129,6 +129,20 @@ func TestParse(t *testing.T) {
 			text: "A38/A32138,1,1/C1TRP,180234,KDFW,KRIC,08,8,94238/C2348139,-0904766,330,01653,464,0252,1/C3349627",
 			want: Result{AircraftSeries: "A321", Report: "38", ReportTime: "180234", Origin: "KDFW", Destination: "KRIC"},
 		},
+		{
+			name: "C1 CSV line under a short header line",
+			tail: "VH-EBP",
+			text: "R01/A33001,1,1\r\nC1,.VH-EBP,25DEC31,17.03.50,WADD,YSSY,QFA044    ,5000,374\r\nC2,002,06.0,000000,D1333GE05CQFA11,000,052,052\r\n",
+			want: Result{AircraftSeries: "A330", Report: "01", Registration: "VH-EBP", ReportDate: "DEC31",
+				ReportTime: "170350", Origin: "WADD", Destination: "YSSY", Flight: "QFA044"},
+		},
+		{
+			name: "WX block under a short header line, after a number line",
+			tail: "N815NW",
+			text: "281095500101010066028\r\nR81/A33081,1,1\r\n/WX02EN31KMSPPHNL\r\nN43582W09558218422749M3903161020XXXX250030ERV\r\n",
+			want: Result{AircraftSeries: "A330", Report: "81", Origin: "KMSP", Destination: "PHNL",
+				Latitude: 43.582, Longitude: -95.582},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
