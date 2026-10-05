@@ -15,6 +15,7 @@ import (
 	_ "acars_parser/internal/parsers/cpdlc"
 	_ "acars_parser/internal/parsers/crew"
 	_ "acars_parser/internal/parsers/delay"
+	_ "acars_parser/internal/parsers/deltaheader"
 	_ "acars_parser/internal/parsers/dispatch"
 	_ "acars_parser/internal/parsers/envelope"
 	_ "acars_parser/internal/parsers/eta"

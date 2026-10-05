@@ -71,8 +71,14 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | AA | cpdlc (50), envelope (100) |
 | A6 | adscrequest (50), envelope (100) |
 | SA | hazard_alert (60), mediaadv (100) |
-| 10 | loadsheet (60), label10 (100) |
-| 21 | weather (50), label21 (100) |
+| 10 | deltaheader (60), loadsheet (60), label10 (100) |
+| 13 | deltaheader (60), loadsheet (60) |
+| 15 | deltaheader (60), fst (100) |
+| 21 | weather (50), deltaheader (60), label21 (100) |
+| 27 | weather (50), deltaheader (60) |
+| 30 | deltaheader (60), loadsheet (60) |
+| 44 | deltaheader (60), label44 (100) |
+| 45 | deltaheader (60), loadsheet (60) |
 | 22 | loadsheet (60), label22 (100) |
 
 ### Matching Techniques
@@ -104,6 +110,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [cpdlc](#cpdlc) | cpdlc | AA, BA, H1 | 50 | `cpdlc` | ARINC layer + ASN.1 UPER decoding | Yes |
 | [crew_list](#crew_list) | crew | RA | 55 | `crew_list` | Hand-written regex | Yes |
 | [delay_summary](#delay_summary) | delay | 3E, RA | 50 | `delay_summary` | Hand-written regex | Yes |
+| [deltaheader](#deltaheader) | deltaheader | 10–15, 17, 20, 21, 24, 26, 27, 30, 32, 36–39, 44, 45, 48 | 60 | `delta_header` | Hand-written regex | Yes |
 | [dispatcher](#dispatcher) | dispatch | RA, 25, H1 | 45 | `dispatcher` | Hand-written regex | Yes |
 | [envelope](#envelope) | envelope | AA, A6 | 100 | `envelope` | Hand-written regex + binary decoding | Yes |
 | [eta](#eta) | eta | 5Z | 100 | `eta` | Grok | No |
@@ -143,7 +150,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [ualuplink](#ualuplink) | ualuplink | RA | 60 | `united_uplink` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 49 parsers in 45 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 50 parsers in 46 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
 
 ---
 
@@ -371,6 +378,27 @@ An element's `data` holds its parameters: nothing for an element without paramet
 **Description:** Parses delay summary messages. The quick check looks for `DELAY SUMMARY`.
 
 **Extracted fields:** flight number, flight date, origin, destination, scheduled and actual departure times, departure delay, scheduled and actual arrival times, arrival delay, IATA delay codes with minutes, and the message creation time.
+
+---
+
+### deltaheader
+
+**Package:** `internal/parsers/deltaheader` · **Labels:** 10–15, 17, 20, 21, 24, 26, 27, 30, 32, 36–39, 44, 45, 48 · **Priority:** 60 · **Type:** `delta_header`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the route header on many of Delta's downlinks, for example:
+
+```
+041124 KATL KIAD7
+/FN 1324
+```
+
+The header line is six digits, the origin, the destination and one digit. The last two of the six digits echo the message's label, and a header whose echo differs from the label is rejected.
+
+**Extracted fields:** origin, destination, and the flight number's digits from the `/FN` line when there is one (as `flight_number_digits`, so the extractor attributes the route only to a transmitted flight with that number).
+
+**Limitations:** the first four digits look like a day and hour, but in October 2026 about a quarter of them differed from the day of receipt in messages whose flight number was current, so they are not reported; nor is the final digit. The body after the header differs by label and is not parsed.
 
 ---
 
