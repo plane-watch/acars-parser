@@ -1,6 +1,7 @@
-// Package acmsreport parses the header and CC block of Airbus aircraft
-// condition monitoring system (ACMS) reports sent on label H1, and the
-// fixed-width record of report 239.
+// Package acmsreport parses aircraft condition monitoring system (ACMS)
+// reports sent on label H1: the header and CC block of Airbus reports, the
+// fixed-width record of report 239, and the route records of reports 281
+// and 291 and the 76401 record (which Southwest's 737s also send alone).
 package acmsreport
 
 import "acars_parser/internal/patterns"
@@ -86,6 +87,21 @@ var Formats = []patterns.Format{
 		Pattern: `^(?:(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>281),[^/]*/|(?:\d+\r?\n)?` + shortHeader + `\r?\n)/WX\d{2}EN\d{2}` +
 			`(?P<origin>{ICAO})(?P<dest>{ICAO})[ \t]*(?:\r?\n(?P<lat_hemi>[NS])(?P<lat>\d{5})(?P<lon_hemi>[EW])(?P<lon>\d{6}))?`,
 		Fields: []string{"series", "report", "series_short", "report_short", "origin", "dest", "lat_hemi", "lat", "lon_hemi", "lon"},
+	},
+	// The 76401 record gives the route after "02E04" and, on the next line,
+	// usually a position in thousandths of a degree, like report 281. It is
+	// sent on its own (Southwest's 737s), after the long header (report 301)
+	// and under the short header on a line of its own. Example:
+	//
+	//	76401
+	//	02E04KSJCKBUR
+	//	N37393W12196023300194P031300007G000025002PJ2R
+	{
+		Name: "acms_76401",
+		Pattern: `^(?:(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*/|(?:\d+\r?\n)?` + shortHeader + `\r?\n)?` +
+			`(?P<record>76401)\r?\n\d{2}E\d{2}(?P<origin>{ICAO})(?P<dest>{ICAO})[ \t]*` +
+			`(?:\r?\n(?P<lat_hemi>[NS])(?P<lat>\d{5})(?P<lon_hemi>[EW])(?P<lon>\d{6}))?`,
+		Fields: []string{"series", "report", "series_short", "report_short", "record", "origin", "dest", "lat_hemi", "lat", "lon_hemi", "lon"},
 	},
 	// Report 291 is a trajectory report: the route on the "TRP" line, then
 	// timed samples (A1, A2, ...) that are not parsed. Example:

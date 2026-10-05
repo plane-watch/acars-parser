@@ -75,8 +75,12 @@ func (p *Parser) Priority() int    { return 60 }
 
 // QuickCheck looks for the series prefix ("A3xx,") and a CC or C1 block,
 // or one of the reports 239, 281 and 291; or for the short header
-// ("A37/A3...", perhaps after a line of digits) and a C1, CC or WX block.
+// ("A37/A3...", perhaps after a line of digits) and a C1, CC or WX block;
+// or for the 76401 record.
 func (p *Parser) QuickCheck(text string) bool {
+	if strings.Contains(text, "76401") {
+		return true
+	}
 	header := text
 	if len(text) > 0 && text[0] >= '0' && text[0] <= '9' {
 		if i := strings.IndexByte(text, '\n'); i >= 0 {
@@ -125,6 +129,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Destination:        c["dest"],
 		FlightNumberDigits: flightDigits(c["flight_digits"]),
 		Flight:             c["callsign"],
+	}
+	if result.Report == "" {
+		// A 76401 record sent on its own.
+		result.Report = c["record"]
 	}
 	result.Latitude, result.Longitude = position(c["lat_hemi"], c["lat"], c["lon_hemi"], c["lon"])
 	if corruptDestination[result.Report] {

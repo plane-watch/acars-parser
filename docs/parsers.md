@@ -65,7 +65,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), ualuplink (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60), swareport (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60), progress (60), swareport (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
@@ -119,6 +119,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [gateassign](#gateassign) | gateassign | RA | 60 | `gate_assignment` | Grok | No |
 | [fpn](#fpn) | h1 | H1, 4A, HX | 10 | `flight_plan` | Tokeniser | Yes |
 | [h1pos](#h1pos) | h1 | H1 | 20 | `h1_position` | Grok | No |
+| [progress](#progress) | h1 | H1 | 60 | `progress_report` | Hand-written regex | Yes |
 | [pwi](#pwi) | h1 | H1 | 30 | `pwi` | Custom section parsing | No |
 | [mdc](#mdc) | h1 | H1 | 40 | `mdc` | Hand-written regex | Yes |
 | [swareport](#swareport) | swareport | H1 | 60 | `swa_report` | Hand-written regex | Yes |
@@ -150,7 +151,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [ualuplink](#ualuplink) | ualuplink | RA | 60 | `united_uplink` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 50 parsers in 46 packages. The `h1` package registers five parsers: `fpn`, `h1pos`, `pwi`, `mdc` and `trajectory`.
+That is 51 parsers in 46 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
 
 ---
 
@@ -162,7 +163,7 @@ The parsers are listed in alphabetical order of package.
 
 **Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
 
-**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_csv`, `acms_281` and `acms_291`), and hand-written code for the fixed-width record of report 239.
+**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_csv`, `acms_281`, `acms_76401` and `acms_291`), and hand-written code for the fixed-width record of report 239.
 
 **Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
 
@@ -197,6 +198,16 @@ A319,060733,1,1,TB000000/REP239,00,00,4/239N366NB2975123125181051192N45602W12261
 After `239` come the registration, the flight number's digits (`2975`), the date (MMDDYY, reported as MMMDD) and time, and, 83 characters after the registration once line breaks are removed, the origin and destination (`KLAX`, `KPDX`). The registration has no fixed width, so the record is parsed only when it starts with the transmitted tail and its route is two plausible ICAO codes. In the archive, 2,990 of 3,000 records had the route at that offset. The position and other fields are not parsed.
 
 **Reports 281 and 291:** report 281 gives the route after `//WX02EN04` (`KBDLKDTW`) and, on the next line, usually a position in thousandths of a degree (`N42191W072884` is 42.191, −72.884), reported as `latitude` and `longitude`. The same block follows the short header in A330 reports (`R81/A33081,1,1`). Report 291 is a trajectory report whose `TRP KPHL KPBI` line gives the route; its timed samples are not parsed. Neither gives a registration, date or flight number.
+
+**The 76401 record** gives the route after `02E04` and, on the next line, usually a position in thousandths of a degree, like report 281:
+
+```
+76401
+02E04KSJCKBUR
+N37393W12196023300194P031300007G000025002PJ2R
+```
+
+Southwest's 737s send it on its own (the report is then `76401` and there is no series); Airbus aircraft send it after the long header (report 301) or under the short header on a line of its own.
 
 **Aircraft series, not type:** The series is reported as `aircraft_series`, not `aircraft_type`, so it is not normalised to an ICAO designator. In the January 2026 corpus, `A320` and `A321` were sent by aircraft that other messages identify as A20N (39 tails) and A21N (52 tails): the series does not distinguish the ceo from the neo.
 
@@ -530,6 +541,27 @@ POSN33005W096222,WIGIS,004904,143,JAYXX,27,005245,TRYTN,M4,281040,380K,305K,1429
 The position is in degrees and decimal minutes (`N39006` is 39°00.6′): of 236,351 reports in the archive, 25 had minutes of 60 or more. Waypoints are named fixes, lat/lon points (`N58548E016310`) or a place, bearing and distance (`NOLSU196-0022`), and any of them may be empty, as may the ETA. In `h1_position_time` a waypoint must start with a letter: an all-digit value means the fields are misaligned. The longer `h1_position_route` layout, sent mostly by Southwest, adds a number before the ETA and, after the wind, two speeds, two numbers and the route; there the first waypoint may also be a runway (`RW36R`) or an altitude point (`1000`), because the trailing fields fix the positions.
 
 **Extracted fields:** latitude, longitude, report time, flight level, ground speed, current, next and third waypoints, ETA, temperature, wind direction and speed, and, from `h1_position_route`, the origin and destination.
+
+---
+
+### progress
+
+**Package:** `internal/parsers/h1` (`progress.go`) · **Labels:** H1 · **Priority:** 60 · **Type:** `progress_report`
+
+**Technique:** Hand-written regex, and the FPN tokeniser for the route section.
+
+**Description:** Parses H1 PRG progress reports, whose fields are separated by `/` in any order and which end with a four-character checksum appended to the last field. For example:
+
+```
+PRG/DTEHAM,18R,207,085235,041/FNDAL162/TS080747,090223AE30
+PRG/TS093622,041026/DTEGCC,23R,218,110622,043/FNUAE34YB474
+PRG/DTLEMG,12O,63,092914/PR1380,.../RP:DA:LSGG:AA:LEMG:A:BLN1A:...
+PRG/LR,034035,SWA2568,KATL,KTPA,19L,25,...
+```
+
+**Extracted fields:** the destination (`DT`), the ICAO callsign (`FN`; read after the checksum is removed, so `FNUAE34YB474` is `UAE34Y`), the time (`TS`, HHMMSS), and the origin from an `RP` section when its arrival airport (`AA`) is the `DT` destination. Southwest's `PRG/LR` layout gives the time, callsign, origin and destination.
+
+**Limitations:** the `DT` runway (whose suffix, as in `12O`, is not established), the numbers after it, the `PR` section and the rest of the route are not parsed.
 
 ---
 

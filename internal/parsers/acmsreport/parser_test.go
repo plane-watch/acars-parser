@@ -143,6 +143,24 @@ func TestParse(t *testing.T) {
 			want: Result{AircraftSeries: "A330", Report: "81", Origin: "KMSP", Destination: "PHNL",
 				Latitude: 43.582, Longitude: -95.582},
 		},
+		{
+			name: "76401 record on its own",
+			tail: "N474WN",
+			text: "76401\r\n02E04KSJCKBUR\r\nN37393W12196023300194P031300007G000025002PJ2R",
+			want: Result{Report: "76401", Origin: "KSJC", Destination: "KBUR", Latitude: 37.393, Longitude: -121.96},
+		},
+		{
+			name: "76401 record in a report with the long header",
+			tail: "OE-IVA",
+			text: "A320,047784,1,1,TB000000/REP301,00,00,1/76401\r\n02E02LCLKLSZH\r\nN42167E02128503383802M061039050GXXXX241030/9W\r\n",
+			want: Result{AircraftSeries: "A320", Report: "301", Origin: "LCLK", Destination: "LSZH", Latitude: 42.167, Longitude: 21.285},
+		},
+		{
+			name: "76401 record under a short header line",
+			tail: "HB-JHK",
+			text: "R01/A33001,1,1\r\n76401\r\n02E02VABBLSZH\r\nN47566E01233803453600M056276012GXXXX2400B8IH-\r\n",
+			want: Result{AircraftSeries: "A330", Report: "01", Origin: "VABB", Destination: "LSZH", Latitude: 47.566, Longitude: 12.338},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

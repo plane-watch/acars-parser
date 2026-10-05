@@ -464,7 +464,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 
 | Result type | Parser | Labels |
 |---|---|---|
-| `acms_report` | Airbus ACMS report headers: aircraft series, registration, route and flight number digits | H1 |
+| `acms_report` | ACMS report headers and route records: aircraft series, registration, route, flight number digits or callsign, and some positions | H1 |
 | `adsc` | ADS-C reports (binary tag decoding) | B6 |
 | `adsc_request` | ADS-C contract requests and cancellations from ATS units | A6, H1 |
 | `afn` | AFN logons: callsign, registration, 24-bit aircraft address, ATS facility | A0, H1 |
@@ -484,6 +484,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `flight_plan` | H1 flight plans (FPN) | H1, 4A, HX |
 | `h1_position` | H1 position reports (POS) | H1 |
 | `pwi` | Predicted wind information | H1 |
+| `progress_report` | PRG progress reports: destination, callsign, time and, when given, origin | H1 |
 | `mdc` | Maintenance and fault reports | H1 |
 | `delta_header` | Delta downlink route header: origin, destination and flight number digits | 10–15, 17, 20, 21, 24, 26, 27, 30, 32, 36–39, 44, 45, 48 |
 | `swa_report` | Southwest ACMS report headers: aircraft type, flight, date and route | H1 |
