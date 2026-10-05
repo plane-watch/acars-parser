@@ -493,6 +493,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `h2_wind` | Wind layers | H2 |
 | `hazard_alert` | ARINC Direct HAZARD ALERT | H1, SA |
 | `label10_position` | Position with route and waypoint timing | 10 |
+| `ldr_report` | Southwest LDR reports: position, altitude and route | 10 |
 | `waypoint_position` | Waypoint position reports | 16 |
 | `position_report` | POSN position reports | 21 |
 | `label22_position` | Position in degrees/minutes/seconds | 22 |

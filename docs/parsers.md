@@ -71,7 +71,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | AA | cpdlc (50), envelope (100) |
 | A6 | adscrequest (50), envelope (100) |
 | SA | hazard_alert (60), mediaadv (100) |
-| 10 | deltaheader (60), loadsheet (60), label10 (100) |
+| 10 | deltaheader (60), loadsheet (60), label10 (100), ldr (100) |
 | 11 | deltaheader (60), unitedheader (60) |
 | 12 | deltaheader (60), unitedheader (60) |
 | 13 | deltaheader (60), loadsheet (60), unitedheader (60) |
@@ -131,6 +131,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [h2_wind](#h2_wind) | h2wind | H2 | 100 | `h2_wind` | Grok | No |
 | [hazard_alert](#hazard_alert) | hazard | _, H1, SA | 60 | `hazard_alert` | Hand-written regex | Yes |
 | [label10](#label10) | label10 | 10 | 100 | `label10_position` | Grok | No |
+| [ldr](#ldr) | label10 | 10 | 100 | `ldr_report` | Hand-written regex | Yes |
 | [label16](#label16) | label16 | 16 | 100 | `waypoint_position` | Grok | No |
 | [label21](#label21) | label21 | 21 | 100 | `position_report` | Grok | No |
 | [label22](#label22) | label22 | 22 | 100 | `label22_position` | Grok | No |
@@ -158,7 +159,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [unitedheader](#unitedheader) | unitedheader | 11–19, 1E, 1G, 1M, 1R, 22, 23, 27, 2R, 33 | 60 | `united_header` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 54 parsers in 49 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
+That is 55 parsers in 49 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`; the `label10` package registers two, `label10` and `ldr`.
 
 ---
 
@@ -684,6 +685,22 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 **Description:** Parses Label 10 position reports that include the route ahead.
 
 **Extracted fields:** latitude, longitude, Mach, heading, flight level, destination, ETA, fuel, distance, and waypoints with ETAs.
+
+---
+
+### ldr
+
+**Package:** `internal/parsers/label10` (`ldr.go`) · **Labels:** 10 · **Priority:** 100 · **Type:** `ldr_report`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the start of Southwest's LDR reports:
+
+```
+LDR01,189,D,SWA-2600-019,0,N 35.194,W119.735,34995,  9.4,KSFO,KLAX,KLAX,24R/,25L/,/,...
+```
+
+**Extracted fields:** the report name, the latitude and longitude (decimal degrees), the altitude in feet, the origin and the destination. The field after the destination (the landing airport, which differed from the destination in 5 of 5,799 archived reports) and the runways are not parsed: their meanings are not established.
 
 ---
 
