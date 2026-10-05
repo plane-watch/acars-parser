@@ -477,7 +477,8 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `delay_summary` | IATA delay codes | 3E, RA |
 | `dispatcher` | Dispatcher and MEL messages | RA, 25, H1 |
 | `envelope` | Tail and station from AT1/CR1/ADS headers | AA, A6 |
-| `eta` | ETA and timing formats | 5Z |
+| `eta` | ETA and timing formats, and United's label 5Z header (code, route, day and time) | 5Z |
+| `united_header` | United downlink header: code, title, route, day and time | 11–19, 1E, 1G, 1M, 1R, 22, 23, 27, 2R, 33 |
 | `fst` | FST flight status | 15 |
 | `fuel_delivery` | Fuel delivery receipts | 3E, RA |
 | `gate_assignment` | Gate assignment | RA |

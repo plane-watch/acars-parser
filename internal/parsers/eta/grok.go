@@ -54,4 +54,15 @@ var Formats = []patterns.Format{
 			`(?P<day>\d{2})\s+(?P<time>{TIME6})`,
 		Fields: []string{"origin", "dest", "day", "time"},
 	},
+	// Any other United downlink with the same header: a two-character code,
+	// a title padded to the "/", the route, the day and the time. It comes
+	// after the specific formats, which extract more.
+	// Example: /R3 HOWGOZIT REQ   / KEWR KMCO 19 152736 1739 19 KEWR
+	// Groups: code, origin, dest, day, time. The rest is not parsed.
+	{
+		Name: "united_header",
+		Pattern: `^/(?P<code>[0-9A-Z]{2}) [A-Z0-9 ]{14,16}/ (?P<origin>{ICAO}) (?P<dest>{ICAO}) ` +
+			`(?P<day>\d{2}) (?P<time>{TIME6})`,
+		Fields: []string{"code", "origin", "dest", "day", "time"},
+	},
 }

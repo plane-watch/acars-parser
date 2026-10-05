@@ -31,7 +31,7 @@ type Result struct {
 	MsgID       int64  `json:"message_id"`
 	Timestamp   string `json:"timestamp"`
 	Tail        string `json:"tail,omitempty"`
-	MessageType string `json:"message_type"` // ET, IR, B6, OS, C3
+	MessageType string `json:"message_type"` // ET, IR, B6, OS, C3, or another United code such as R3.
 	Origin      string `json:"origin,omitempty"`
 	Destination string `json:"destination,omitempty"`
 	DayOfMonth  int    `json:"day_of_month,omitempty"`
@@ -57,7 +57,8 @@ func (p *Parser) Labels() []string { return []string{"5Z"} }
 func (p *Parser) Priority() int    { return 100 }
 
 func (p *Parser) QuickCheck(text string) bool {
-	return strings.Contains(text, "/ET ") ||
+	return strings.HasPrefix(text, "/") ||
+		strings.Contains(text, "/ET ") ||
 		strings.Contains(text, "/IR ") ||
 		strings.Contains(text, "/B6 ") ||
 		strings.Contains(text, "/OS ") ||
@@ -121,6 +122,15 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	case "c3_route":
 		result.MessageType = "C3"
+		result.Origin = match.Captures["origin"]
+		result.Destination = match.Captures["dest"]
+		result.ReportTime = match.Captures["time"]
+		if day, err := strconv.Atoi(match.Captures["day"]); err == nil {
+			result.DayOfMonth = day
+		}
+
+	case "united_header":
+		result.MessageType = match.Captures["code"]
 		result.Origin = match.Captures["origin"]
 		result.Destination = match.Captures["dest"]
 		result.ReportTime = match.Captures["time"]

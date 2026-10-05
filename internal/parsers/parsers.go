@@ -49,5 +49,6 @@ import (
 	_ "acars_parser/internal/parsers/takeoff"
 	_ "acars_parser/internal/parsers/turbulence"
 	_ "acars_parser/internal/parsers/ualuplink"
+	_ "acars_parser/internal/parsers/unitedheader"
 	_ "acars_parser/internal/parsers/weather"
 )

@@ -25,6 +25,18 @@ func TestParse(t *testing.T) {
 			want: Result{MessageType: "ET", Origin: "KSNA", Destination: "KIAH", DayOfMonth: 29, ReportTime: "182901", ETA: "1908", Mode: "AUTO"},
 		},
 		{
+			// Other United downlinks share the header: the code, a title,
+			// the route, the day and the time.
+			name: "other United code",
+			text: "/R3 HOWGOZIT REQ   / KEWR KMCO 19 152736 1739 19 KEWR",
+			want: Result{MessageType: "R3", Origin: "KEWR", Destination: "KMCO", DayOfMonth: 19, ReportTime: "152736"},
+		},
+		{
+			name: "C3 gate request with AUTO in the title",
+			text: "/C3 GATE REQ AUTO  / KORD KSFO 04 120102 1523 ---- ---- ---- ----",
+			want: Result{MessageType: "C3", Origin: "KORD", Destination: "KSFO", DayOfMonth: 4, ReportTime: "120102"},
+		},
+		{
 			name: "IR in-range report",
 			text: "/IR MKE0100001/UM   /WC   /IB   /ETA 0511",
 			want: Result{MessageType: "IR", RawData: "MKE0100001", ETA: "0511"},

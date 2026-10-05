@@ -72,14 +72,18 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | A6 | adscrequest (50), envelope (100) |
 | SA | hazard_alert (60), mediaadv (100) |
 | 10 | deltaheader (60), loadsheet (60), label10 (100) |
-| 13 | deltaheader (60), loadsheet (60) |
-| 15 | deltaheader (60), fst (100) |
+| 11 | deltaheader (60), unitedheader (60) |
+| 12 | deltaheader (60), unitedheader (60) |
+| 13 | deltaheader (60), loadsheet (60), unitedheader (60) |
+| 14 | deltaheader (60), unitedheader (60) |
+| 15 | deltaheader (60), unitedheader (60), fst (100) |
+| 17 | deltaheader (60), unitedheader (60) |
 | 21 | weather (50), deltaheader (60), label21 (100) |
-| 27 | weather (50), deltaheader (60) |
+| 27 | weather (50), deltaheader (60), unitedheader (60) |
 | 30 | deltaheader (60), loadsheet (60) |
 | 44 | deltaheader (60), label44 (100) |
 | 45 | deltaheader (60), loadsheet (60) |
-| 22 | loadsheet (60), label22 (100) |
+| 22 | loadsheet (60), unitedheader (60), label22 (100) |
 
 ### Matching Techniques
 
@@ -149,9 +153,10 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [takeoff_data](#takeoff_data) | takeoff | RA, H1, C1 | 55 | `takeoff_data` | Hand-written regex | Yes |
 | [turbulence](#turbulence) | turbulence | C1 | 65 | `turbulence` | Hand-written regex | No |
 | [ualuplink](#ualuplink) | ualuplink | RA | 60 | `united_uplink` | Hand-written regex | Yes |
+| [unitedheader](#unitedheader) | unitedheader | 11–19, 1E, 1G, 1M, 1R, 22, 23, 27, 2R, 33 | 60 | `united_header` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 51 parsers in 46 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
+That is 52 parsers in 47 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
 
 ---
 
@@ -469,9 +474,15 @@ The header line is six digits, the origin, the destination and one digit. The la
 
 **Package:** `internal/parsers/eta` · **Labels:** 5Z · **Priority:** 100 · **Type:** `eta`
 
-**Technique:** Grok (formats `et_exp_time`, `ir_format`, `b6_ldg_data`, `os_format` and `c3_route`).
+**Technique:** Grok (formats `et_exp_time`, `ir_format`, `b6_ldg_data`, `os_format`, `c3_route` and `united_header`).
 
-**Description:** Parses ETA and timing messages in the ET, IR, B6, OS and C3 formats.
+**Description:** Parses ETA and timing messages in the ET, IR, B6, OS and C3 formats, and the header of United's other label 5Z downlinks (the `united_header` format, tried last):
+
+```
+/R3 HOWGOZIT REQ   / KEWR KMCO 19 152736 1739 19 KEWR
+```
+
+The header is a two-character code (reported as the message type), a title padded to the `/`, the route, the day of the month and the time. The same header on other labels, where the code is the label, is parsed by [unitedheader](#unitedheader).
 
 **Extracted fields:** message type, origin, destination, day of month, report time, ETA, mode, runway and gate.
 
@@ -929,6 +940,24 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 **Description:** Parses turbulence advisories and SIGMETs. The quick check requires `TURB` together with `SIGMET`, `ADVISORY` or `WSI`.
 
 **Extracted fields:** turbulence type, ID, severity, lower and upper altitude, validity period, movement, description, and entry and exit points.
+
+---
+
+### unitedheader
+
+**Package:** `internal/parsers/unitedheader` · **Labels:** 11–19, 1E, 1G, 1M, 1R, 22, 23, 27, 2R, 33 · **Priority:** 60 · **Type:** `united_header`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the header line of United's downlinks on labels other than 5Z, for example:
+
+```
+/14 OFF EVENT      / KFSD KDEN 19 153705/TIME 1537
+```
+
+The code is the label, which the parser requires; the same header on label 5Z is parsed by [eta](#eta).
+
+**Extracted fields:** code, title, origin, destination, day of month and time (HHMMSS). The body after the header is not parsed; the `AC TYPE` line of label 33 is United's family code (`B737` for every 737 model), not a type designator, so it is not reported.
 
 ---
 
