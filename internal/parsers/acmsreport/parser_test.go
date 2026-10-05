@@ -95,6 +95,25 @@ func TestParse(t *testing.T) {
 			want: Result{AircraftSeries: "A321", Report: "239", Registration: "N595DT", ReportDate: "OCT04",
 				ReportTime: "083958", Origin: "KSLC", Destination: "KJFK", FlightNumberDigits: "1909"},
 		},
+		{
+			name: "report 281 route and position",
+			tail: "N368NW",
+			text: "A320,115883,1,1,TB000000/REP281,00,00,4//WX02EN04KBDLKDTW\r\nN42191W07288409361047P0222180140XXXX21003020)\r\n",
+			want: Result{AircraftSeries: "A320", Report: "281", Origin: "KBDL", Destination: "KDTW",
+				Latitude: 42.191, Longitude: -72.884},
+		},
+		{
+			name: "report 281 without a position",
+			tail: "N368NW",
+			text: "A320,115883,1,1,TB000000/REP281,00,00,4//WX02EN04KBDLKDTW\r\n 42191 07288409361047P0222180140XXXX21003020)",
+			want: Result{AircraftSeries: "A320", Report: "281", Origin: "KBDL", Destination: "KDTW"},
+		},
+		{
+			name: "report 291 route",
+			tail: "N909AM",
+			text: "A321,147316,1,1,TB000000/REP291,00,00,4/\r\nTRP KPHL KPBI  8 8\r\n/A1 175021, 32.3356,- 80.3872,339,167.0,437,0.001984,",
+			want: Result{AircraftSeries: "A321", Report: "291", Origin: "KPHL", Destination: "KPBI"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

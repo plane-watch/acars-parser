@@ -2,6 +2,7 @@ package acmsreport
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -25,8 +26,8 @@ type Result struct {
 
 	// Registration is reported only when it is the transmitted tail.
 	Registration string `json:"registration,omitempty"`
-	ReportDate   string `json:"report_date"` // MMMDD, e.g. JAN20; no year.
-	ReportTime   string `json:"report_time"` // HHMMSS.
+	ReportDate   string `json:"report_date,omitempty"` // MMMDD, e.g. JAN20; no year.
+	ReportTime   string `json:"report_time,omitempty"` // HHMMSS.
 	Origin       string `json:"origin"`
 	Destination  string `json:"destination"`
 
@@ -38,6 +39,10 @@ type Result struct {
 	// Flight is the ICAO callsign from a C2 block, e.g. "UAL787", in
 	// reports that do not give the flight number's digits.
 	Flight string `json:"flight,omitempty"`
+
+	// Latitude and Longitude are the position given by report 281.
+	Latitude  float64 `json:"latitude,omitempty"`
+	Longitude float64 `json:"longitude,omitempty"`
 }
 
 func (r *Result) Type() string     { return "acms_report" }
@@ -68,11 +73,12 @@ func (p *Parser) Name() string     { return "acmsreport" }
 func (p *Parser) Labels() []string { return []string{"H1"} }
 func (p *Parser) Priority() int    { return 60 }
 
-// QuickCheck looks for the series prefix ("A3xx,") and a CC, C1 or report
-// 239 block.
+// QuickCheck looks for the series prefix ("A3xx,") and a CC or C1 block,
+// or one of the reports 239, 281 and 291.
 func (p *Parser) QuickCheck(text string) bool {
 	return len(text) > 5 && strings.HasPrefix(text, "A3") && text[4] == ',' &&
-		(strings.Contains(text, "/CC") || strings.Contains(text, "/C1") || strings.Contains(text, "/239"))
+		(strings.Contains(text, "/CC") || strings.Contains(text, "/C1") ||
+			strings.Contains(text, "/REP239,") || strings.Contains(text, "/REP281,") || strings.Contains(text, "/REP291,"))
 }
 
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
@@ -109,6 +115,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		FlightNumberDigits: flightDigits(c["flight_digits"]),
 		Flight:             c["callsign"],
 	}
+	result.Latitude, result.Longitude = position(c["lat_hemi"], c["lat"], c["lon_hemi"], c["lon"])
 	if corruptDestination[result.Report] {
 		result.Destination = ""
 	}
@@ -192,6 +199,28 @@ func parseReport239(msg *acars.Message) *Result {
 		Destination:        dest,
 		FlightNumberDigits: flightDigits(digits),
 	}
+}
+
+// position returns the position given in thousandths of a degree by report
+// 281 ("N", "42191", "W", "072884" is 42.191, -72.884), or zeros when there
+// is none or it is out of range.
+func position(latHemi, lat, lonHemi, lon string) (float64, float64) {
+	if latHemi == "" || lonHemi == "" {
+		return 0, 0
+	}
+	la, errLat := strconv.Atoi(lat)
+	lo, errLon := strconv.Atoi(lon)
+	if errLat != nil || errLon != nil || la > 90000 || lo > 180000 {
+		return 0, 0
+	}
+	latitude, longitude := float64(la)/1000, float64(lo)/1000
+	if latHemi == "S" {
+		latitude = -latitude
+	}
+	if lonHemi == "W" {
+		longitude = -longitude
+	}
+	return latitude, longitude
 }
 
 // flightDigits returns the flight number's digits, or nothing for 0000,

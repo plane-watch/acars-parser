@@ -162,7 +162,7 @@ The parsers are listed in alphabetical order of package.
 
 **Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
 
-**Technique:** Grok (format `acms_cc`), and hand-written code for the fixed-width record of report 239.
+**Technique:** Grok (formats `acms_cc`, `acms_281` and `acms_291`), and hand-written code for the fixed-width record of report 239.
 
 **Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
 
@@ -184,6 +184,8 @@ A319,060733,1,1,TB000000/REP239,00,00,4/239N366NB2975123125181051192N45602W12261
 ```
 
 After `239` come the registration, the flight number's digits (`2975`), the date (MMDDYY, reported as MMMDD) and time, and, 83 characters after the registration once line breaks are removed, the origin and destination (`KLAX`, `KPDX`). The registration has no fixed width, so the record is parsed only when it starts with the transmitted tail and its route is two plausible ICAO codes. In the archive, 2,990 of 3,000 records had the route at that offset. The position and other fields are not parsed.
+
+**Reports 281 and 291:** report 281 gives the route after `//WX02EN04` (`KBDLKDTW`) and, on the next line, usually a position in thousandths of a degree (`N42191W072884` is 42.191, −72.884), reported as `latitude` and `longitude`. Report 291 is a trajectory report whose `TRP KPHL KPBI` line gives the route; its timed samples are not parsed. Neither gives a registration, date or flight number.
 
 **Aircraft series, not type:** The series is reported as `aircraft_series`, not `aircraft_type`, so it is not normalised to an ICAO designator. In the January 2026 corpus, `A320` and `A321` were sent by aircraft that other messages identify as A20N (39 tails) and A21N (52 tails): the series does not distinguish the ceo from the neo.
 

@@ -34,4 +34,29 @@ var Formats = []patterns.Format{
 			`(?:,(?P<flight_digits>\d{1,4}))?(?:/C2(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]?),|/|\s|$)`,
 		Fields: []string{"series", "report", "reg_field", "month", "day", "time", "origin", "dest", "flight_digits", "callsign"},
 	},
+	// Report 281 gives the route after "//WX02EN04" and, on the next line,
+	// usually a position in thousandths of a degree ("N42191W072884" is
+	// 42.191, -72.884, just after leaving KBDL for KDTW). The rest of the
+	// report is not parsed. Example:
+	//
+	//	A320,115883,1,1,TB000000/REP281,00,00,4//WX02EN04KBDLKDTW
+	//	N42191W07288409361047P0222180140XXXX21003020)
+	{
+		Name: "acms_281",
+		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>281),[^/]*//WX\d{2}EN\d{2}` +
+			`(?P<origin>{ICAO})(?P<dest>{ICAO})[ \t]*(?:\r?\n(?P<lat_hemi>[NS])(?P<lat>\d{5})(?P<lon_hemi>[EW])(?P<lon>\d{6}))?`,
+		Fields: []string{"series", "report", "origin", "dest", "lat_hemi", "lat", "lon_hemi", "lon"},
+	},
+	// Report 291 is a trajectory report: the route on the "TRP" line, then
+	// timed samples (A1, A2, ...) that are not parsed. Example:
+	//
+	//	A321,147316,1,1,TB000000/REP291,00,00,4/
+	//	TRP KPHL KPBI  8 8
+	//	/A1 175021, 32.3356,- 80.3872,339,167.0,437,0.001984,
+	{
+		Name: "acms_291",
+		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>291),[^/]*/\s*` +
+			`TRP (?P<origin>{ICAO}) (?P<dest>{ICAO})\s`,
+		Fields: []string{"series", "report", "origin", "dest"},
+	},
 }
