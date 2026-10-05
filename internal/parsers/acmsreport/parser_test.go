@@ -114,6 +114,21 @@ func TestParse(t *testing.T) {
 			text: "A321,147316,1,1,TB000000/REP291,00,00,4/\r\nTRP KPHL KPBI  8 8\r\n/A1 175021, 32.3356,- 80.3872,339,167.0,437,0.001984,",
 			want: Result{AircraftSeries: "A321", Report: "291", Origin: "KPHL", Destination: "KPBI"},
 		},
+		{
+			// The two-digit report number is kept as sent, so the 032 and
+			// 037 rule does not apply: this family's destinations were real.
+			name: "short header with a C1 block",
+			tail: "N746UW",
+			text: "A37/A31937,1,1/C1N746UW,OCT04,094839,KBTV,KDCA,2680/C206,25938,5000,XX,0010,0,0100,XX,X/C30017,26751",
+			want: Result{AircraftSeries: "A319", Report: "37", Registration: "N746UW", ReportDate: "OCT04",
+				ReportTime: "094839", Origin: "KBTV", Destination: "KDCA", FlightNumberDigits: "2680"},
+		},
+		{
+			name: "short header with a C1TRP block",
+			tail: "N193UW",
+			text: "A38/A32138,1,1/C1TRP,180234,KDFW,KRIC,08,8,94238/C2348139,-0904766,330,01653,464,0252,1/C3349627",
+			want: Result{AircraftSeries: "A321", Report: "38", ReportTime: "180234", Origin: "KDFW", Destination: "KRIC"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -74,8 +74,12 @@ func (p *Parser) Labels() []string { return []string{"H1"} }
 func (p *Parser) Priority() int    { return 60 }
 
 // QuickCheck looks for the series prefix ("A3xx,") and a CC or C1 block,
-// or one of the reports 239, 281 and 291.
+// or one of the reports 239, 281 and 291; or for the short header
+// ("A37/A3...") and a C1 or CC block.
 func (p *Parser) QuickCheck(text string) bool {
+	if len(text) > 8 && text[3] == '/' && strings.HasPrefix(text[4:], "A3") {
+		return strings.Contains(text, "/C1") || strings.Contains(text, "/CC")
+	}
 	return len(text) > 5 && strings.HasPrefix(text, "A3") && text[4] == ',' &&
 		(strings.Contains(text, "/CC") || strings.Contains(text, "/C1") ||
 			strings.Contains(text, "/REP239,") || strings.Contains(text, "/REP281,") || strings.Contains(text, "/REP291,"))
@@ -103,11 +107,12 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		return nil
 	}
 
+	// Only one of the two headers matched, so one of each pair is empty.
 	result := &Result{
 		MsgID:              int64(msg.ID),
 		Timestamp:          msg.Timestamp,
-		AircraftSeries:     c["series"],
-		Report:             c["report"],
+		AircraftSeries:     c["series"] + c["series_short"],
+		Report:             c["report"] + c["report_short"],
 		ReportDate:         c["month"] + c["day"],
 		ReportTime:         c["time"],
 		Origin:             c["origin"],

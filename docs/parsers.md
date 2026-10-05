@@ -162,7 +162,7 @@ The parsers are listed in alphabetical order of package.
 
 **Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
 
-**Technique:** Grok (formats `acms_cc`, `acms_281` and `acms_291`), and hand-written code for the fixed-width record of report 239.
+**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_281` and `acms_291`), and hand-written code for the fixed-width record of report 239.
 
 **Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
 
@@ -174,7 +174,9 @@ A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL78
 
 **Extracted fields:** the aircraft series (`A321`), the report number (`001`), and from the CC block (named `CC` or `C1`) the registration, report date (MMMDD, no year; some reports separate the month and day with a comma) and time (HHMMSS; left out or blanked as `XXXXXX` in some reports), origin, destination and the flight number's digits (`0816`; left out in some reports, and not reported when `0000`). A report without the digits may give the ICAO callsign at the start of a C2 block (`UAL787`), reported as `flight`. The serial number and the `TB000000` block are not captured, because their meaning is not established.
 
-**Corrupted destinations:** reports 032 and 037 replace the destination's last letter with its third (`KLAA` for KLAS, `KORR` for KORD, `MMUU` for MMUN). In the archive most of their destinations, from several airlines, were corrupted this way, while their origins were real airports. Their destination is not reported, so they give no route.
+**Short header:** reports also come with a short header, `A37/A31937,1,1/`: a letter and the report number, then the series (`A319`) and the report number again. Its report number has two digits and is kept as sent (`37`, not `037`). With this header, a CC or C1 block is parsed as above, and a `C1TRP` block (reports 38 and 39, `C1TRP,180234,KDFW,KRIC,...`) gives the time and route of a trajectory report whose samples are not parsed.
+
+**Corrupted destinations:** reports 032 and 037 replace the destination's last letter with its third (`KLAA` for KLAS, `KORR` for KORD, `MMUU` for MMUN). In the archive most of their destinations, from several airlines, were corrupted this way, while their origins were real airports. Their destination is not reported, so they give no route. The rule applies only to the three-digit report numbers of the long header: with the short header, reports `32` and `37` had real destinations.
 
 **Report 239:** a fixed-width record that is wrapped across lines:
 
