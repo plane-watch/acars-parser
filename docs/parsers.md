@@ -518,11 +518,18 @@ The header line is six digits, the origin, the destination and one digit. The la
 
 **Package:** `internal/parsers/h1` (`parser.go`) · **Labels:** H1 · **Priority:** 20 · **Type:** `h1_position`
 
-**Technique:** Grok (formats `h1_position_time` and `h1_position_alt`).
+**Technique:** Grok (formats `h1_position_route`, `h1_position_time` and `h1_position_alt`).
 
-**Description:** Parses H1 POS position reports.
+**Description:** Parses H1 POS position reports, for example:
 
-**Extracted fields:** latitude, longitude, report time, flight level, ground speed, current, next and third waypoints, ETA, temperature, and wind direction and speed.
+```
+POSN39006W075260,OYVAY,014938,340,SMELI,015155,TRPOD,M52,290061,204D6A3
+POSN33005W096222,WIGIS,004904,143,JAYXX,27,005245,TRYTN,M4,281040,380K,305K,1429,162,KDAL,KBWI,,69,...
+```
+
+The position is in degrees and decimal minutes (`N39006` is 39°00.6′): of 236,351 reports in the archive, 25 had minutes of 60 or more. Waypoints are named fixes, lat/lon points (`N58548E016310`) or a place, bearing and distance (`NOLSU196-0022`), and any of them may be empty, as may the ETA. In `h1_position_time` a waypoint must start with a letter: an all-digit value means the fields are misaligned. The longer `h1_position_route` layout, sent mostly by Southwest, adds a number before the ETA and, after the wind, two speeds, two numbers and the route; there the first waypoint may also be a runway (`RW36R`) or an altitude point (`1000`), because the trailing fields fix the positions.
+
+**Extracted fields:** latitude, longitude, report time, flight level, ground speed, current, next and third waypoints, ETA, temperature, wind direction and speed, and, from `h1_position_route`, the origin and destination.
 
 ---
 

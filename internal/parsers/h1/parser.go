@@ -566,6 +566,8 @@ type H1PosResult struct {
 	Temperature     int     `json:"temperature,omitempty"`
 	WindDir         int     `json:"wind_dir,omitempty"`
 	WindSpeed       int     `json:"wind_speed,omitempty"`
+	Origin          string  `json:"origin,omitempty"`      // From h1_position_route.
+	Destination     string  `json:"destination,omitempty"` // From h1_position_route.
 }
 
 func (r *H1PosResult) Type() string     { return "h1_position" }
@@ -604,7 +606,13 @@ func (p *H1PosParser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	// Check for valid H1 position format.
-	if match.FormatName != "h1_position_time" && match.FormatName != "h1_position_alt" {
+	switch match.FormatName {
+	case "h1_position_time", "h1_position_alt":
+	case "h1_position_route":
+		if !patterns.IsValidICAO(match.Captures["origin"]) || !patterns.IsValidICAO(match.Captures["dest"]) {
+			return nil
+		}
+	default:
 		return nil
 	}
 
@@ -622,11 +630,14 @@ func (p *H1PosParser) Parse(msg *acars.Message) registry.Result {
 		NextWaypoint:    match.Captures["next_wpt"],
 		ThirdWaypoint:   match.Captures["wpt3"],
 		ETA:             match.Captures["eta"],
+		Origin:          match.Captures["origin"],
+		Destination:     match.Captures["dest"],
 	}
 
 	// Handle format-specific fields.
-	if match.FormatName == "h1_position_time" {
-		// Time-based format: has report_time, altitude, wind data.
+	if match.FormatName != "h1_position_alt" {
+		// The time-based formats (h1_position_time and h1_position_route):
+		// report_time, altitude and wind.
 		result.ReportTime = match.Captures["report_time"]
 
 		// Parse altitude (FL in hundreds).
