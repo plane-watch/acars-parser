@@ -30,6 +30,7 @@ import (
 	_ "acars_parser/internal/parsers/label21"
 	_ "acars_parser/internal/parsers/label22"
 	_ "acars_parser/internal/parsers/label44"
+	_ "acars_parser/internal/parsers/label49"
 	_ "acars_parser/internal/parsers/label4j"
 	_ "acars_parser/internal/parsers/label5l"
 	_ "acars_parser/internal/parsers/label80"

@@ -497,6 +497,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `position_report` | POSN position reports | 21 |
 | `label22_position` | Position in degrees/minutes/seconds | 22 |
 | `label44` | Runway, FB and POS reports | 44 |
+| `label49` | Label 49 header: report code, callsign and route | 49 |
 | `pos_weather` | Position with weather and fuel burn | 4J |
 | `route` | Routes | 5L |
 | `position` | Position and OOOI | 80 |

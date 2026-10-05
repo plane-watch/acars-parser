@@ -135,6 +135,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [label21](#label21) | label21 | 21 | 100 | `position_report` | Grok | No |
 | [label22](#label22) | label22 | 22 | 100 | `label22_position` | Grok | No |
 | [label44](#label44) | label44 | 44 | 100 | `label44` | Grok | No |
+| [label49](#label49) | label49 | 49 | 100 | `label49` | Hand-written regex | Yes |
 | [label4j](#label4j) | label4j | 4J | 100 | `pos_weather` | Grok | No |
 | [label5l](#label5l) | label5l | 5L | 100 | `route` | Grok | No |
 | [label80](#label80) | label80 | 80 | 100 | `position` | Grok | No |
@@ -157,7 +158,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [unitedheader](#unitedheader) | unitedheader | 11–19, 1E, 1G, 1M, 1R, 22, 23, 27, 2R, 33 | 60 | `united_header` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 53 parsers in 48 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
+That is 54 parsers in 49 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
 
 ---
 
@@ -731,6 +732,25 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 **Description:** Parses Label 44 takeoff runway lists, FB position reports and POS reports. Messages that contain `|` or `\` are treated as encoded and skipped.
 
 **Extracted fields:** message type, airport, runways (with suffix and distance), procedures, latitude, longitude, flight level, origin, destination, callsign and report time.
+
+---
+
+### label49
+
+**Package:** `internal/parsers/label49` · **Labels:** 49 · **Priority:** 100 · **Type:** `label49`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the header of label 49 downlinks, which many airlines send:
+
+```
+01ERDC    ETD103/311802OMAALEMD
++38996265.0- 30.7
+```
+
+The header is `01`, a four-letter report code (ERDC, TATO, DCAP, ICCL and others, whose meanings are not established), the callsign padded with spaces on either side, `/`, six digits that look like the day, hour and minute (reported as sent), and the origin and destination.
+
+**Extracted fields:** report code, callsign (as `flight`), the six digits (as `day_time`), origin and destination. The lines after the header are not parsed.
 
 ---
 
