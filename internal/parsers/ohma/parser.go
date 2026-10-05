@@ -7,8 +7,9 @@
 //	 \"departureAirportCode\":\"CYEG\",\"arrivalAirportCode\":\"CYVR\",\"flightNumber\":\"FLE821\",...
 //
 // The inner "message" is itself JSON, as a string. The parser reports the
-// tail, flight and route of a report about one aircraft and one flight; the
-// health events are not parsed. The "model" field was empty in every report
+// tail, flight and route of a report about one aircraft and one flight,
+// and only when that aircraft is the transmitting one; the health events
+// are not parsed. The "model" field was empty in every report
 // in the archive. Longer reports are split into segments (with "msg_seq"
 // and "msg_total") or across ACARS blocks; a part on its own does not
 // decode, and is not parsed.
@@ -33,7 +34,8 @@ type Result struct {
 	MsgID     int64  `json:"message_id"`
 	Timestamp string `json:"timestamp"`
 
-	// Registration is reported only when it is the transmitted tail.
+	// Registration is the report's tail, which must be the transmitted
+	// tail; it is empty when no tail was transmitted.
 	Registration string `json:"registration,omitempty"`
 	Flight       string `json:"flight"` // ICAO callsign, e.g. FLE821.
 	Origin       string `json:"origin"`
@@ -108,7 +110,12 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Destination: flight.Arrival,
 		MessageDate: r.MessageDate,
 	}
-	if tail := acars.NormaliseRegistration(msg.Tail); tail != "" && acars.NormaliseRegistration(plane.TailNumber) == tail {
+	// A report about another aircraft is not parsed: its flight and route
+	// would otherwise be credited to the transmitting aircraft.
+	if tail := acars.NormaliseRegistration(msg.Tail); tail != "" {
+		if acars.NormaliseRegistration(plane.TailNumber) != tail {
+			return nil
+		}
 		result.Registration = plane.TailNumber
 	}
 	return result
@@ -128,8 +135,11 @@ func decode(text string) (report, bool) {
 		return r, false
 	}
 	defer func() { _ = zr.Close() }()
-	data, err := io.ReadAll(io.LimitReader(zr, maxDecompressed))
-	if err != nil {
+	// Read one byte past the limit, so that a larger report is rejected
+	// rather than cut, and a report within it is read to the end of the
+	// stream, where zlib verifies its checksum.
+	data, err := io.ReadAll(io.LimitReader(zr, maxDecompressed+1))
+	if err != nil || len(data) > maxDecompressed {
 		return r, false
 	}
 	var env envelope

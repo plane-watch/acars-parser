@@ -573,7 +573,7 @@ PRG/DTLEMG,12O,63,092914/PR1380,.../RP:DA:LSGG:AA:LEMG:A:BLN1A:...
 PRG/LR,034035,SWA2568,KATL,KTPA,19L,25,...
 ```
 
-**Extracted fields:** the destination (`DT`), the ICAO callsign (`FN`; in the last field, four trailing hex characters are taken as the checksum only when that leaves the one valid callsign, so `FNUAE34YB474` is `UAE34Y`; when both readings are callsigns, as in `FNUAL1234AB`, no callsign is reported, because the checksum's algorithm is not established and it cannot be verified), the time (`TS`, HHMMSS), and the origin from an `RP` section when its arrival airport (`AA`) is the `DT` destination. Southwest's `PRG/LR` layout gives the time, callsign, origin and destination.
+**Extracted fields:** the destination (`DT`), the ICAO callsign (`FN`; in the last field, four trailing hex characters are taken as the checksum only when that leaves the one valid callsign, so `FNUAE34YB474` is `UAE34Y`; when both readings are callsigns, as in `FNUAL1234AB`, the report is not parsed, because the checksum's algorithm is not established and it cannot be verified, and the destination would otherwise be credited to the transmitted flight), the time (`TS`, HHMMSS), and the origin from an `RP` section when its arrival airport (`AA`) is the `DT` destination. Southwest's `PRG/LR` layout gives the time, callsign, origin and destination.
 
 **Limitations:** the `DT` runway (whose suffix, as in `12O`, is not established), the numbers after it, the `PR` section and the rest of the route are not parsed.
 
@@ -941,7 +941,7 @@ The header is `01`, a four-letter report code (ERDC, TATO, DCAP, ICCL and others
 {"version":"2.0","message":"{\"clientId\":\"OHMA\",\"messageDate\":\"2026-01-12T18:28:41.954Z\",\"data\":{\"airplanes\":[{\"tailNumber\":\"C-GFOF\",\"model\":\"\",\"flights\":[{\"departureAirportCode\":\"CYEG\",\"arrivalAirportCode\":\"CYVR\",\"flightNumber\":\"FLE821\",...
 ```
 
-**Extracted fields:** the registration (only when it is the transmitted tail), the ICAO callsign, the origin and destination, and the message date, from a report about exactly one aircraft and one flight. The health events are not parsed.
+**Extracted fields:** the registration, the ICAO callsign, the origin and destination, and the message date, from a report about exactly one aircraft and one flight. A report whose tail is not the transmitted tail is not parsed, so that its flight and route are not credited to the transmitting aircraft; a decompressed report larger than 1 MiB is rejected. The health events are not parsed.
 
 **Limitations:** longer reports are split into segments (with `msg_seq` and `msg_total`) or across ACARS blocks, and a part on its own does not decode: in a sample of 300 reports from the archive, 106 decoded with a flight and route. The `model` field was empty in every decoded report, and the ruleset name (`737 MAX:::AHM-37MBL8-...`) is not a type designator, so no type is reported.
 

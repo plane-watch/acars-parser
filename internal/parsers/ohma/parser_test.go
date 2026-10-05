@@ -1,6 +1,10 @@
 package ohma
 
 import (
+	"bytes"
+	"compress/zlib"
+	"encoding/base64"
+	"io"
 	"testing"
 
 	"acars_parser/internal/acars"
@@ -22,16 +26,55 @@ func TestParse(t *testing.T) {
 	}
 }
 
-// The report's registration is reported only when it is the transmitted
-// tail; the rest of the report still is.
+// A report about another aircraft is not parsed: its flight and route would
+// otherwise be credited to the transmitting aircraft. Without a transmitted
+// tail the report is parsed, without a registration.
 func TestParseOtherTail(t *testing.T) {
-	got, ok := (&Parser{}).Parse(&acars.Message{ID: 9, Label: "H1", Tail: "C-GFOE", Text: flairReport}).(*Result)
+	if r := (&Parser{}).Parse(&acars.Message{ID: 9, Label: "H1", Tail: "C-GFOE", Text: flairReport}); r != nil {
+		t.Errorf("got %+v, want nil", r)
+	}
+	got, ok := (&Parser{}).Parse(&acars.Message{ID: 9, Label: "H1", Text: flairReport}).(*Result)
 	if !ok {
-		t.Fatal("Parse returned no result")
+		t.Fatal("Parse returned no result without a tail")
 	}
-	if got.Registration != "" {
-		t.Errorf("Registration = %q, want none", got.Registration)
+	if got.Registration != "" || got.Flight != "FLE821" {
+		t.Errorf("got %+v, want flight FLE821 and no registration", *got)
 	}
+}
+
+// A report that decompresses to more than the limit is rejected, even when
+// its first part is valid JSON.
+func TestParseRejectsOversized(t *testing.T) {
+	var inner bytes.Buffer
+	zr, err := zlib.NewReader(bytes.NewReader(mustBase64(t, flairReport[4:])))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := io.Copy(&inner, zr); err != nil {
+		t.Fatal(err)
+	}
+	inner.Write(bytes.Repeat([]byte(" "), maxDecompressed))
+	var compressed bytes.Buffer
+	zw := zlib.NewWriter(&compressed)
+	if _, err := zw.Write(inner.Bytes()); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	text := "OHMA" + base64.StdEncoding.EncodeToString(compressed.Bytes())
+	if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "C-GFOF", Text: text}); r != nil {
+		t.Errorf("got %+v, want nil", r)
+	}
+}
+
+func mustBase64(t *testing.T, s string) []byte {
+	t.Helper()
+	b, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return b
 }
 
 func TestParseRejects(t *testing.T) {

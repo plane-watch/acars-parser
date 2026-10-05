@@ -52,10 +52,11 @@ func TestProgressParser(t *testing.T) {
 		},
 		{
 			// "UAL1234AB" and, without a checksum "34AB", "UAL12" are both
-			// callsigns, so the flight is not reported.
+			// callsigns, so the flight is unknown and the report is not
+			// parsed: its destination would otherwise be credited to the
+			// transmitted flight, which may be neither.
 			name: "ambiguous last callsign",
 			text: "PRG/TS093622,041026/DTEGCC,23R,218,110622,043/FNUAL1234AB",
-			want: &ProgressResult{Destination: "EGCC", ReportTime: "093622"},
 		},
 		{
 			name: "seven digits before the checksum",

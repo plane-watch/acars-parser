@@ -83,7 +83,13 @@ func (p *ProgressParser) Parse(msg *acars.Message) registry.Result {
 	for i, field := range fields {
 		switch {
 		case strings.HasPrefix(field, "FN"):
-			result.Flight = progressCallsign(field[2:], i == len(fields)-1)
+			flight, ok := progressCallsign(field[2:], i == len(fields)-1)
+			if !ok {
+				// The flight is unknown, so the destination cannot be
+				// credited to any flight.
+				return nil
+			}
+			result.Flight = flight
 		default:
 			if m := progressDestRe.FindStringSubmatch(field); m != nil {
 				result.Destination = m[1]
@@ -107,29 +113,32 @@ func (p *ProgressParser) Parse(msg *acars.Message) registry.Result {
 	return result
 }
 
-// progressCallsign returns the callsign in an FN field's value, or nothing.
+// progressCallsign returns the callsign in an FN field's value, or nothing,
+// and false when the value is ambiguous.
 // In the last field the value may end with the checksum: four hex
 // characters, as in "UAE34YB474" (UAE34Y). When the value ends with four
 // hex characters, the checksum is removed only if that leaves the one valid
 // callsign; when both readings are callsigns ("UAL1234AB" or "UAL12"), the
 // checksum cannot be told from the callsign without verifying it, which is
-// not done (its algorithm is not established), so nothing is returned.
-func progressCallsign(value string, last bool) string {
+// not done (its algorithm is not established), so the value is ambiguous.
+func progressCallsign(value string, last bool) (string, bool) {
 	if !last || len(value) <= progressChecksumLen || !isHex(value[len(value)-progressChecksumLen:]) {
 		if progressCallsignRe.MatchString(value) {
-			return value
+			return value, true
 		}
-		return ""
+		return "", true
 	}
 	stripped := value[:len(value)-progressChecksumLen]
 	whole, cut := progressCallsignRe.MatchString(value), progressCallsignRe.MatchString(stripped)
-	if cut && !whole {
-		return stripped
+	switch {
+	case cut && whole:
+		return "", false
+	case cut:
+		return stripped, true
+	case whole:
+		return value, true
 	}
-	if whole && !cut {
-		return value
-	}
-	return ""
+	return "", true
 }
 
 // isHex reports whether s is made of hex digits.
