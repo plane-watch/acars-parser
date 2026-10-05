@@ -5,7 +5,7 @@
   "ordering": "cityHash64(id), id",
   "strata": 421,
   "sampled_by": "3add513a652e",
-  "recorded_by": "3c156413136c",
+  "recorded_by": "706e971d83fa",
   "cases": 25398,
   "files": {
     "label_%091.jsonl": 2,

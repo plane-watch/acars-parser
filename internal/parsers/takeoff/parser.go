@@ -33,6 +33,9 @@ type RunwayData struct {
 type Result struct {
 	MsgID        int64        `json:"message_id,omitempty"`
 	FlightNumber string       `json:"flight_number,omitempty"`
+	Origin       string       `json:"origin,omitempty"`
+	Destination  string       `json:"destination,omitempty"`
+	Tail         string       `json:"tail,omitempty"`
 	AircraftType string       `json:"aircraft_type,omitempty"`
 	EngineType   string       `json:"engine_type,omitempty"`
 	Time         string       `json:"time,omitempty"`
@@ -106,6 +109,28 @@ var (
 	simpleRunwayRe = regexp.MustCompile(`T/O\s+([A-Z]{3,4})\s+(\d{2}[LRC]?)`)
 )
 
+// Envoy's layout. Its header lines give the flight number, day, route and
+// time ("3845/19  KORD-KVPS 1523Z") and the fleet number and tail
+// ("337/N337MR   DISP RLS  1"); the weather line gives the wind, the
+// temperature and the altimeter in inches ("WX 284/16   -18C   A3012"). Each
+// runway block starts with the airport, runway and length ("KORD 22L
+// TORA  8075"; a letter after the runway, as in "28RZ", is not part of it)
+// and holds that runway's speeds and flap setting. The generic patterns
+// above are not used for this layout: they match inside its other fields
+// (windRe would read "845/19" from the header line).
+var (
+	envoyHeaderRe = regexp.MustCompile(`(?m)^[ \t]*(\d{1,4})/\d{2}[ \t]+([A-Z]{4})-([A-Z]{4})[ \t]+(\d{4}Z)[ \t]*\r?$`)
+	envoyTailRe   = regexp.MustCompile(`(?m)^[ \t]*\d{1,4}/([A-Z0-9-]{3,8})[ \t]+DISP RLS\b`)
+	envoyFlightRe = regexp.MustCompile(`(?m)^[ \t]*AN [A-Z0-9-]+/FI ([A-Z0-9]{2})(\d{1,4})(?:/|[ \t]*\r?$)`)
+	envoyWxRe     = regexp.MustCompile(`(?m)^[ \t]*WX[ \t]+(\d{3}/\d{1,3})[ \t]+(-?\d{1,2})C[ \t]+A(\d{2})(\d{2})\b`)
+	envoyGTOWRe   = regexp.MustCompile(`(?m)^[ \t]*GTOW[ \t]+(\d+)[ \t]`)
+	envoyRunwayRe = regexp.MustCompile(`(?m)^[ \t]*([A-Z]{4})[ \t]+(\d{2}[LRC]?)[A-Z]?[ \t]+TORA[ \t]+(\d+)[ \t]*\r?$`)
+	envoyV1Re     = regexp.MustCompile(`\bV1[ \t]+(\d{2,3})\b`)
+	envoyVRRe     = regexp.MustCompile(`\bVR[ \t]+(\d{2,3})\b`)
+	envoyV2Re     = regexp.MustCompile(`\bV2[ \t]+(\d{2,3})\b`)
+	envoyFlapRe   = regexp.MustCompile(`\bFLAP[ \t]+(\d{1,2})\b`)
+)
+
 // Parser parses takeoff performance data messages.
 type Parser struct{}
 
@@ -130,6 +155,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 
 	if !p.QuickCheck(text) {
 		return nil
+	}
+
+	if m := envoyHeaderRe.FindStringSubmatchIndex(text); m != nil {
+		return parseEnvoy(msg, text, m)
 	}
 
 	result := &Result{
@@ -224,6 +253,64 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	return result
+}
+
+// parseEnvoy parses Envoy's layout (see envoyHeaderRe). header is the
+// submatch index of envoyHeaderRe in text.
+func parseEnvoy(msg *acars.Message, text string, header []int) *Result {
+	group := func(i int) string { return text[header[2*i]:header[2*i+1]] }
+	digits := group(1)
+	result := &Result{
+		MsgID:       int64(msg.ID),
+		Origin:      group(2),
+		Destination: group(3),
+		Time:        group(4),
+	}
+
+	// The envelope's flight ("AN N337MR/FI MQ3845") is taken only when its
+	// number is the header's, so that the flight is confirmed by both.
+	if m := envoyFlightRe.FindStringSubmatch(text); m != nil && strings.TrimLeft(m[2], "0") == strings.TrimLeft(digits, "0") {
+		result.FlightNumber = m[1] + m[2]
+	}
+	if m := envoyTailRe.FindStringSubmatch(text); m != nil {
+		result.Tail = m[1]
+	}
+	if m := envoyWxRe.FindStringSubmatch(text); m != nil {
+		result.Wind = m[1]
+		result.OAT, _ = strconv.Atoi(m[2])
+		result.QNH, _ = strconv.ParseFloat(m[3]+"."+m[4], 64)
+	}
+	if m := envoyGTOWRe.FindStringSubmatch(text); m != nil {
+		result.GTOW, _ = strconv.ParseFloat(m[1], 64)
+	}
+
+	// Each runway block runs to the next block's header or the end.
+	blocks := envoyRunwayRe.FindAllStringSubmatchIndex(text, -1)
+	for i, b := range blocks {
+		end := len(text)
+		if i+1 < len(blocks) {
+			end = blocks[i+1][0]
+		}
+		body := text[b[1]:end]
+		rwy := RunwayData{Airport: text[b[2]:b[3]], Runway: text[b[4]:b[5]]}
+		rwy.Length, _ = strconv.Atoi(text[b[6]:b[7]])
+		rwy.V1 = firstInt(envoyV1Re, body)
+		rwy.VR = firstInt(envoyVRRe, body)
+		rwy.V2 = firstInt(envoyV2Re, body)
+		rwy.Flaps = firstInt(envoyFlapRe, body)
+		result.Runways = append(result.Runways, rwy)
+	}
+	return result
+}
+
+// firstInt returns the first submatch of re in s as an integer, or zero.
+func firstInt(re *regexp.Regexp, s string) int {
+	m := re.FindStringSubmatch(s)
+	if m == nil {
+		return 0
+	}
+	n, _ := strconv.Atoi(m[1])
+	return n
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.

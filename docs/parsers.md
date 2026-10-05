@@ -821,7 +821,9 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 
 **Extracted fields:** flight number, aircraft model and engine type (from a line that holds only the two, such as `A320-232 V2527-A5` or United's `737-900ER CFM56-7B27`), time, wind, OAT, QNH, gross takeoff weight, centre of gravity, passengers, fuel, cargo, ZFW, remarks, and runways (airport, runway, length and shift). V1 is assigned to the last runway found.
 
-**Limitations:** `RunwayData` also declares VR, V2, flex temperature, flex EPR, flaps, EPR, MRTW, MTOW and the limit code, but `Parse` never populates them, so they are always absent from the output. The VR, V2 and flex patterns are used only by `ParseWithTrace`. `takeoff/parser.go` has a `TODO` explaining that more sample messages are needed to confirm which runway column each value belongs to.
+**Envoy layout:** a message with Envoy's header line (`3845/19  KORD-KVPS 1523Z`) is parsed by its own anchored patterns instead of the generic ones, which match inside its fields. It gives the origin, destination, time, tail (`337/N337MR   DISP RLS  1`), wind, temperature and altimeter (`WX 284/16   -18C   A3012`), gross takeoff weight, and one runway entry per `TORA` block with its length, flap setting, V1, VR and V2. The flight number comes from the envelope (`AN N337MR/FI MQ3845`) only when its number matches the header's.
+
+**Limitations:** in the other layouts, `RunwayData` also declares VR, V2, flex temperature, flex EPR, flaps, EPR, MRTW, MTOW and the limit code, but `Parse` never populates them, so they are always absent from the output. The VR, V2 and flex patterns are used only by `ParseWithTrace`. `takeoff/parser.go` has a `TODO` explaining that more sample messages are needed to confirm which runway column each value belongs to.
 
 ---
 

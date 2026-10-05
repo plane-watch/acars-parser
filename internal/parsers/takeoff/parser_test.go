@@ -1,6 +1,7 @@
 package takeoff
 
 import (
+	"strings"
 	"testing"
 
 	"acars_parser/internal/acars"
@@ -155,5 +156,59 @@ func TestParser_UnitedModelLine(t *testing.T) {
 	}
 	if tr.AircraftType != "737-900ER" || tr.EngineType != "CFM56-7B27" {
 		t.Errorf("AircraftType, EngineType = %q, %q, want %q, %q", tr.AircraftType, tr.EngineType, "737-900ER", "CFM56-7B27")
+	}
+}
+
+// envoyTakeoffData is a real Envoy takeoff data uplink (message 10450337),
+// cut after the second runway block.
+const envoyTakeoffData = ".PERFFMQ 191523\nAGM\nAN N337MR/FI MQ3845\n-  TAKEOFF DATA\n3845/19  KORD-KVPS 1523Z\n" +
+	"337/N337MR   DISP RLS  1\nWX 284/16   -18C   A3012\n------------------------\n BOW 50867      25.7\n" +
+	" ZFW 56664  12  16.5  30\n FOB 11200\nGTOW 67164  12  13.8  29\n FBO  6342\nPLDW 60822\n" +
+	"REMARKS\nAUTO CLOSEOUT\n \nKORD 22L      TORA  8075\nEO-D224        FRA  1672\n      T/O-2 ECS ON      \n" +
+	"A/I  OFF          V1 129\nAT   32           VR 129\nN1   80.5         V2 133\nMRTW 82685/O     VFS 183\n" +
+	"MTOW 81299      FLAP   2\nGTOW 67164      STAB 4.8\n \nKORD 28RZ     TORA  9750\nEO-D273        FRA  1672\n" +
+	"A/I  OFF          V1 131\n"
+
+// TestParser_EnvoyLayout checks the Envoy layout: the flight, route and
+// tail from its header lines, the weather line, and one entry per runway
+// block with its own V1.
+func TestParser_EnvoyLayout(t *testing.T) {
+	result := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "C1", Text: envoyTakeoffData})
+	tr, ok := result.(*Result)
+	if !ok {
+		t.Fatalf("expected *Result, got %T", result)
+	}
+	if tr.FlightNumber != "MQ3845" || tr.Origin != "KORD" || tr.Destination != "KVPS" || tr.Tail != "N337MR" {
+		t.Errorf("flight, origin, destination, tail = %q, %q, %q, %q, want MQ3845, KORD, KVPS, N337MR",
+			tr.FlightNumber, tr.Origin, tr.Destination, tr.Tail)
+	}
+	if tr.Time != "1523Z" || tr.Wind != "284/16" || tr.OAT != -18 || tr.QNH != 30.12 || tr.GTOW != 67164 {
+		t.Errorf("time, wind, OAT, QNH, GTOW = %q, %q, %d, %v, %v, want 1523Z, 284/16, -18, 30.12, 67164",
+			tr.Time, tr.Wind, tr.OAT, tr.QNH, tr.GTOW)
+	}
+	want := []RunwayData{
+		{Airport: "KORD", Runway: "22L", Length: 8075, Flaps: 2, V1: 129, VR: 129, V2: 133},
+		{Airport: "KORD", Runway: "28R", Length: 9750, V1: 131},
+	}
+	if len(tr.Runways) != len(want) {
+		t.Fatalf("runways = %+v, want %+v", tr.Runways, want)
+	}
+	for i := range want {
+		if tr.Runways[i] != want[i] {
+			t.Errorf("runway %d = %+v, want %+v", i, tr.Runways[i], want[i])
+		}
+	}
+}
+
+// TestParser_EnvoyFlightNeedsMatchingDigits checks that the envelope's
+// flight is used only when its number is the one in the header line.
+func TestParser_EnvoyFlightNeedsMatchingDigits(t *testing.T) {
+	text := strings.Replace(envoyTakeoffData, "/FI MQ3845", "/FI MQ3846", 1)
+	tr, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "C1", Text: text}).(*Result)
+	if !ok {
+		t.Fatal("expected a result")
+	}
+	if tr.FlightNumber != "" {
+		t.Errorf("FlightNumber = %q, want empty", tr.FlightNumber)
 	}
 }
