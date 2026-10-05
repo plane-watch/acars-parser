@@ -65,7 +65,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), ualuplink (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60), progress (60), swareport (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60), ohma (60), progress (60), swareport (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
@@ -145,6 +145,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [landingdata](#landingdata) | landingdata | C1 | 70 | `landing_data` | Hand-written regex | No |
 | [loadsheet](#loadsheet) | loadsheet | 10, 13, 14, 22, 2A, 30, 31, 35, 3S, 42, 45, C1, H1, RA | 60 | `loadsheet` | Own format engine | Yes |
 | [mediaadv](#mediaadv) | mediaadv | SA | 100 | `media_advisory` | Grok | Yes |
+| [ohma](#ohma) | ohma | H1 | 60 | `ohma` | Base64, zlib and JSON decoding | Yes |
 | [parking_info](#parking_info) | parking | 1E, RA | 50 | `parking_info` | Hand-written regex | Yes |
 | [pax_bag](#pax_bag) | paxbag | RA | 55 | `pax_bag` | Hand-written regex | Yes |
 | [pax_conn_status](#pax_conn_status) | paxconn | 3E, RA | 55 | `pax_conn_status` | Hand-written regex | Yes |
@@ -156,7 +157,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [unitedheader](#unitedheader) | unitedheader | 11–19, 1E, 1G, 1M, 1R, 22, 23, 27, 2R, 33 | 60 | `united_header` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 52 parsers in 47 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
+That is 53 parsers in 48 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`.
 
 ---
 
@@ -888,6 +889,24 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 **Description:** Parses passenger connection status messages. The quick check looks for `PAX CONN STATUS`.
 
 **Extracted fields:** current flight, connecting flights (flight number, date, time, destination, gate, wait decision, class, passengers and bags), and counts of missed, pending, will-wait and total connecting passengers.
+
+---
+
+### ohma
+
+**Package:** `internal/parsers/ohma` · **Labels:** H1 · **Priority:** 60 · **Type:** `ohma`
+
+**Technique:** Base64, zlib and JSON decoding.
+
+**Description:** Parses reports from Boeing's onboard health management application (OHMA), sent by 737 MAX aircraft. After `OHMA` the message is base64 of zlib-compressed JSON, whose `message` field is itself JSON, as a string:
+
+```
+{"version":"2.0","message":"{\"clientId\":\"OHMA\",\"messageDate\":\"2026-01-12T18:28:41.954Z\",\"data\":{\"airplanes\":[{\"tailNumber\":\"C-GFOF\",\"model\":\"\",\"flights\":[{\"departureAirportCode\":\"CYEG\",\"arrivalAirportCode\":\"CYVR\",\"flightNumber\":\"FLE821\",...
+```
+
+**Extracted fields:** the registration (only when it is the transmitted tail), the ICAO callsign, the origin and destination, and the message date, from a report about exactly one aircraft and one flight. The health events are not parsed.
+
+**Limitations:** longer reports are split into segments (with `msg_seq` and `msg_total`) or across ACARS blocks, and a part on its own does not decode: in a sample of 300 reports from the archive, 106 decoded with a flight and route. The `model` field was empty in every decoded report, and the ruleset name (`737 MAX:::AHM-37MBL8-...`) is not a type designator, so no type is reported.
 
 ---
 

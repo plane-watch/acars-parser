@@ -507,6 +507,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `landing_data` | Landing performance | C1 |
 | `loadsheet` | Loadsheets (18 formats) | 10, 13, 14, 22, 2A, 30, 31, 35, 3S, 42, 45, C1, H1, RA |
 | `media_advisory` | Data link media advisory | SA |
+| `ohma` | Boeing OHMA health reports: registration, callsign and route | H1 |
 | `parking_info` | Parking and gate information | 1E, RA |
 | `pax_bag` | Passenger and baggage details | RA |
 | `pax_conn_status` | Passenger connection status | 3E, RA |
