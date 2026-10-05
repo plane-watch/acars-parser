@@ -44,6 +44,24 @@ func TestProgressParser(t *testing.T) {
 			text: "PRG/DTLEMG,12O,63,092914/RP:DA:LSGG:AA:LEMD:A:BLN1A35F0",
 			want: &ProgressResult{Destination: "LEMG"},
 		},
+		{
+			// The last four characters are not hex, so there is no checksum.
+			name: "last callsign without a checksum",
+			text: "PRG/TS093622,041026/DTEGCC,23R,218,110622,043/FNUAL1234ZZ",
+			want: &ProgressResult{Destination: "EGCC", Flight: "UAL1234ZZ", ReportTime: "093622"},
+		},
+		{
+			// "UAL1234AB" and, without a checksum "34AB", "UAL12" are both
+			// callsigns, so the flight is not reported.
+			name: "ambiguous last callsign",
+			text: "PRG/TS093622,041026/DTEGCC,23R,218,110622,043/FNUAL1234AB",
+			want: &ProgressResult{Destination: "EGCC", ReportTime: "093622"},
+		},
+		{
+			name: "seven digits before the checksum",
+			text: "PRG/TS001457,110126/DTPHNL,26L,230,002215,046/FNUAL2195868",
+			want: &ProgressResult{Destination: "PHNL", Flight: "UAL219", ReportTime: "001457"},
+		},
 		{name: "no destination", text: "PRG/HC,390,,TEESY,KLGA,317,314112"},
 		{name: "not a progress report", text: "POSN39006W075260,OYVAY,014938,340"},
 	}

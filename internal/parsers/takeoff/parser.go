@@ -31,25 +31,29 @@ type RunwayData struct {
 
 // Result represents parsed takeoff performance data.
 type Result struct {
-	MsgID        int64        `json:"message_id,omitempty"`
-	FlightNumber string       `json:"flight_number,omitempty"`
-	Origin       string       `json:"origin,omitempty"`
-	Destination  string       `json:"destination,omitempty"`
-	Tail         string       `json:"tail,omitempty"`
-	AircraftType string       `json:"aircraft_type,omitempty"`
-	EngineType   string       `json:"engine_type,omitempty"`
-	Time         string       `json:"time,omitempty"`
-	Wind         string       `json:"wind,omitempty"`
-	OAT          int          `json:"oat,omitempty"`   // Outside air temp (C)
-	QNH          float64      `json:"qnh,omitempty"`   // Altimeter setting
-	GTOW         float64      `json:"gtow,omitempty"`  // Gross takeoff weight (klbs)
-	CG           float64      `json:"cg,omitempty"`    // Centre of gravity (%)
-	PAX          int          `json:"pax,omitempty"`   // Passenger count
-	Fuel         float64      `json:"fuel,omitempty"`  // Fuel (klbs)
-	Cargo        int          `json:"cargo,omitempty"` // Cargo weight (lbs)
-	ZFW          float64      `json:"zfw,omitempty"`   // Zero fuel weight (klbs)
-	Runways      []RunwayData `json:"runways,omitempty"`
-	Remarks      string       `json:"remarks,omitempty"`
+	MsgID        int64  `json:"message_id,omitempty"`
+	FlightNumber string `json:"flight_number,omitempty"`
+	// FlightNumberDigits is the flight number without the airline code,
+	// from Envoy's header line; the extractor uses the route only for a
+	// transmitted flight with this number.
+	FlightNumberDigits string       `json:"flight_number_digits,omitempty"`
+	Origin             string       `json:"origin,omitempty"`
+	Destination        string       `json:"destination,omitempty"`
+	Tail               string       `json:"tail,omitempty"`
+	AircraftType       string       `json:"aircraft_type,omitempty"`
+	EngineType         string       `json:"engine_type,omitempty"`
+	Time               string       `json:"time,omitempty"`
+	Wind               string       `json:"wind,omitempty"`
+	OAT                int          `json:"oat,omitempty"`   // Outside air temp (C)
+	QNH                float64      `json:"qnh,omitempty"`   // Altimeter setting
+	GTOW               float64      `json:"gtow,omitempty"`  // Gross takeoff weight (klbs)
+	CG                 float64      `json:"cg,omitempty"`    // Centre of gravity (%)
+	PAX                int          `json:"pax,omitempty"`   // Passenger count
+	Fuel               float64      `json:"fuel,omitempty"`  // Fuel (klbs)
+	Cargo              int          `json:"cargo,omitempty"` // Cargo weight (lbs)
+	ZFW                float64      `json:"zfw,omitempty"`   // Zero fuel weight (klbs)
+	Runways            []RunwayData `json:"runways,omitempty"`
+	Remarks            string       `json:"remarks,omitempty"`
 }
 
 func (r *Result) Type() string     { return "takeoff_data" }
@@ -261,10 +265,11 @@ func parseEnvoy(msg *acars.Message, text string, header []int) *Result {
 	group := func(i int) string { return text[header[2*i]:header[2*i+1]] }
 	digits := group(1)
 	result := &Result{
-		MsgID:       int64(msg.ID),
-		Origin:      group(2),
-		Destination: group(3),
-		Time:        group(4),
+		MsgID:              int64(msg.ID),
+		FlightNumberDigits: digits,
+		Origin:             group(2),
+		Destination:        group(3),
+		Time:               group(4),
 	}
 
 	// The envelope's flight ("AN N337MR/FI MQ3845") is taken only when its

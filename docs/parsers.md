@@ -562,7 +562,7 @@ The position is in degrees and decimal minutes (`N39006` is 39°00.6′): of 236
 
 **Technique:** Hand-written regex, and the FPN tokeniser for the route section.
 
-**Description:** Parses H1 PRG progress reports, whose fields are separated by `/` in any order and which end with a four-character checksum appended to the last field. For example:
+**Description:** Parses H1 PRG progress reports, whose fields are separated by `/` in any order and which usually end with a four-character checksum appended to the last field. For example:
 
 ```
 PRG/DTEHAM,18R,207,085235,041/FNDAL162/TS080747,090223AE30
@@ -571,7 +571,7 @@ PRG/DTLEMG,12O,63,092914/PR1380,.../RP:DA:LSGG:AA:LEMG:A:BLN1A:...
 PRG/LR,034035,SWA2568,KATL,KTPA,19L,25,...
 ```
 
-**Extracted fields:** the destination (`DT`), the ICAO callsign (`FN`; read after the checksum is removed, so `FNUAE34YB474` is `UAE34Y`), the time (`TS`, HHMMSS), and the origin from an `RP` section when its arrival airport (`AA`) is the `DT` destination. Southwest's `PRG/LR` layout gives the time, callsign, origin and destination.
+**Extracted fields:** the destination (`DT`), the ICAO callsign (`FN`; in the last field, four trailing hex characters are taken as the checksum only when that leaves the one valid callsign, so `FNUAE34YB474` is `UAE34Y`; when both readings are callsigns, as in `FNUAL1234AB`, no callsign is reported, because the checksum's algorithm is not established and it cannot be verified), the time (`TS`, HHMMSS), and the origin from an `RP` section when its arrival airport (`AA`) is the `DT` destination. Southwest's `PRG/LR` layout gives the time, callsign, origin and destination.
 
 **Limitations:** the `DT` runway (whose suffix, as in `12O`, is not established), the numbers after it, the `PR` section and the rest of the route are not parsed.
 
@@ -944,7 +944,7 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 
 **Extracted fields:** flight number, aircraft model and engine type (from a line that holds only the two, such as `A320-232 V2527-A5` or United's `737-900ER CFM56-7B27`), time, wind, OAT, QNH, gross takeoff weight, centre of gravity, passengers, fuel, cargo, ZFW, remarks, and runways (airport, runway, length and shift). V1 is assigned to the last runway found.
 
-**Envoy layout:** a message with Envoy's header line (`3845/19  KORD-KVPS 1523Z`) is parsed by its own anchored patterns instead of the generic ones, which match inside its fields. It gives the origin, destination, time, tail (`337/N337MR   DISP RLS  1`), wind, temperature and altimeter (`WX 284/16   -18C   A3012`), gross takeoff weight, and one runway entry per `TORA` block with its length, flap setting, V1, VR and V2. The flight number comes from the envelope (`AN N337MR/FI MQ3845`) only when its number matches the header's.
+**Envoy layout:** a message with Envoy's header line (`3845/19  KORD-KVPS 1523Z`) is parsed by its own anchored patterns instead of the generic ones, which match inside its fields. It gives the origin, destination, time, tail (`337/N337MR   DISP RLS  1`), wind, temperature and altimeter (`WX 284/16   -18C   A3012`), gross takeoff weight, and one runway entry per `TORA` block with its length, flap setting, V1, VR and V2. The flight number comes from the envelope (`AN N337MR/FI MQ3845`) only when its number matches the header's; the header's digits are always reported as `flight_number_digits`, so the extractor gives the route only to a transmitted flight with that number.
 
 **Limitations:** in the other layouts, `RunwayData` also declares VR, V2, flex temperature, flex EPR, flaps, EPR, MRTW, MTOW and the limit code, but `Parse` never populates them, so they are always absent from the output. The VR, V2 and flex patterns are used only by `ParseWithTrace`. `takeoff/parser.go` has a `TODO` explaining that more sample messages are needed to confirm which runway column each value belongs to.
 

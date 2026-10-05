@@ -75,6 +75,13 @@ func TestParse(t *testing.T) {
 				ReportTime: "055354", Origin: "KIAH", Flight: "UAL787"},
 		},
 		{
+			name: "C2 callsign with two suffix letters",
+			tail: "N34562",
+			text: "A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2SWR4WF,4300,09/C3801971",
+			want: Result{AircraftSeries: "A321", Report: "032", Registration: "N34562", ReportDate: "JAN03",
+				ReportTime: "055354", Origin: "KIAH", Flight: "SWR4WF"},
+		},
+		{
 			name: "flight number 0000 is no flight number",
 			tail: "HB-JDF",
 			text: "A320,090398,1,1,TB000000/REP073,00,00,1/C1HB-JDF,OCT04,093931,LQSA,LSZH,0000/C2SW060053740013",

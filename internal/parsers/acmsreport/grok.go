@@ -39,7 +39,7 @@ var Formats = []patterns.Format{
 		Pattern: `^(?:(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*|` + shortHeader + `)/` +
 			`C[C1](?P<reg_field>\.?[A-Z0-9-]{2,8}),(?P<month>[A-Z]{3}),?(?P<day>\d{2}),` +
 			`(?:(?:(?P<time>\d{6})|X{6}),)?(?P<origin>{ICAO}),(?P<dest>{ICAO})` +
-			`(?:,(?P<flight_digits>\d{1,4}))?(?:/C2(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]?),|/|\s|$)`,
+			`(?:,(?P<flight_digits>\d{1,4}))?(?:/C2(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]{0,2}),|/|\s|$)`,
 		Fields: []string{"series", "report", "series_short", "report_short", "reg_field", "month", "day", "time", "origin", "dest", "flight_digits", "callsign"},
 	},
 	// The C1TRP block, sent with the short header (reports 38 and 39), starts

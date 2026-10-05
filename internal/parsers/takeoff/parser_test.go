@@ -178,7 +178,7 @@ func TestParser_EnvoyLayout(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected *Result, got %T", result)
 	}
-	if tr.FlightNumber != "MQ3845" || tr.Origin != "KORD" || tr.Destination != "KVPS" || tr.Tail != "N337MR" {
+	if tr.FlightNumber != "MQ3845" || tr.FlightNumberDigits != "3845" || tr.Origin != "KORD" || tr.Destination != "KVPS" || tr.Tail != "N337MR" {
 		t.Errorf("flight, origin, destination, tail = %q, %q, %q, %q, want MQ3845, KORD, KVPS, N337MR",
 			tr.FlightNumber, tr.Origin, tr.Destination, tr.Tail)
 	}
@@ -210,5 +210,10 @@ func TestParser_EnvoyFlightNeedsMatchingDigits(t *testing.T) {
 	}
 	if tr.FlightNumber != "" {
 		t.Errorf("FlightNumber = %q, want empty", tr.FlightNumber)
+	}
+	// The header's digits are still reported, so the extractor gives the
+	// route only to a transmitted flight with that number.
+	if tr.FlightNumberDigits != "3845" {
+		t.Errorf("FlightNumberDigits = %q, want 3845", tr.FlightNumberDigits)
 	}
 }

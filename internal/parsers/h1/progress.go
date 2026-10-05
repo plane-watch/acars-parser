@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/crc"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
@@ -24,8 +25,8 @@ func (r *ProgressResult) Type() string     { return "progress_report" }
 func (r *ProgressResult) MessageID() int64 { return r.MsgID }
 
 // A progress report is a list of fields separated by "/", in any order,
-// and, like other FMC downlinks, ends with a four-character checksum
-// appended to its last field. Examples:
+// and, like other FMC downlinks, usually ends with a four-character
+// checksum appended to its last field. Examples:
 //
 //	PRG/DTEHAM,18R,207,085235,041/FNDAL162/TS080747,090223AE30
 //	PRG/TS093622,041026/DTEGCC,23R,218,110622,043/FNUAE34YB474
@@ -38,13 +39,14 @@ func (r *ProgressResult) MessageID() int64 { return r.MsgID }
 // "PRG/LR,<time>,<callsign>,<origin>,<destination>,...", parsed by
 // progressLRRe.
 var (
-	progressDestRe   = regexp.MustCompile(`^DT([A-Z]{4}),`)
-	progressFlightRe = regexp.MustCompile(`^FN([A-Z]{3}\d{1,4}[A-Z]{0,2})$`)
-	progressTimeRe   = regexp.MustCompile(`^TS(\d{6}),`)
-	progressLRRe     = regexp.MustCompile(`^PRG/LR,(\d{6}),([A-Z]{3}\d{1,4}[A-Z]{0,2}),([A-Z]{4}),([A-Z]{4}),`)
+	progressDestRe     = regexp.MustCompile(`^DT([A-Z]{4}),`)
+	progressCallsignRe = regexp.MustCompile(`^[A-Z]{3}\d{1,4}[A-Z]{0,2}$`)
+	progressTimeRe     = regexp.MustCompile(`^TS(\d{6}),`)
+	progressLRRe       = regexp.MustCompile(`^PRG/LR,(\d{6}),([A-Z]{3}\d{1,4}[A-Z]{0,2}),([A-Z]{4}),([A-Z]{4}),`)
 )
 
-// progressChecksumLen is the length of the checksum that ends the report.
+// progressChecksumLen is the length of the checksum that usually ends the
+// report.
 const progressChecksumLen = 4
 
 // ProgressParser parses H1 PRG progress reports.
@@ -77,18 +79,17 @@ func (p *ProgressParser) Parse(msg *acars.Message) registry.Result {
 		return result
 	}
 
-	// Remove the checksum, so that the last field reads as sent.
-	if len(text) <= progressChecksumLen {
-		return nil
-	}
-	body := text[:len(text)-progressChecksumLen]
-	for _, field := range strings.Split(body, "/")[1:] {
-		if m := progressDestRe.FindStringSubmatch(field); m != nil {
-			result.Destination = m[1]
-		} else if m := progressFlightRe.FindStringSubmatch(field); m != nil {
-			result.Flight = m[1]
-		} else if m := progressTimeRe.FindStringSubmatch(field); m != nil {
-			result.ReportTime = m[1]
+	fields := strings.Split(text, "/")[1:]
+	for i, field := range fields {
+		switch {
+		case strings.HasPrefix(field, "FN"):
+			result.Flight = progressCallsign(field[2:], i == len(fields)-1)
+		default:
+			if m := progressDestRe.FindStringSubmatch(field); m != nil {
+				result.Destination = m[1]
+			} else if m := progressTimeRe.FindStringSubmatch(field); m != nil {
+				result.ReportTime = m[1]
+			}
 		}
 	}
 	if !patterns.IsValidICAO(result.Destination) {
@@ -104,4 +105,39 @@ func (p *ProgressParser) Parse(msg *acars.Message) registry.Result {
 		}
 	}
 	return result
+}
+
+// progressCallsign returns the callsign in an FN field's value, or nothing.
+// In the last field the value may end with the checksum: four hex
+// characters, as in "UAE34YB474" (UAE34Y). When the value ends with four
+// hex characters, the checksum is removed only if that leaves the one valid
+// callsign; when both readings are callsigns ("UAL1234AB" or "UAL12"), the
+// checksum cannot be told from the callsign without verifying it, which is
+// not done (its algorithm is not established), so nothing is returned.
+func progressCallsign(value string, last bool) string {
+	if !last || len(value) <= progressChecksumLen || !isHex(value[len(value)-progressChecksumLen:]) {
+		if progressCallsignRe.MatchString(value) {
+			return value
+		}
+		return ""
+	}
+	stripped := value[:len(value)-progressChecksumLen]
+	whole, cut := progressCallsignRe.MatchString(value), progressCallsignRe.MatchString(stripped)
+	if cut && !whole {
+		return stripped
+	}
+	if whole && !cut {
+		return value
+	}
+	return ""
+}
+
+// isHex reports whether s is made of hex digits.
+func isHex(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if !crc.IsHexDigit(s[i]) {
+			return false
+		}
+	}
+	return true
 }
