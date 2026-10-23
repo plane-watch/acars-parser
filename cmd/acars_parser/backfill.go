@@ -65,6 +65,11 @@ func runBackfillCmd(args []string) {
 		os.Exit(1)
 	}
 	defer func() { _ = ch.Close() }()
+	// Fail before doing anything if the archive lacks columns that are read.
+	if err := ch.CheckSchema(ctx); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Open PostgreSQL connection (destination).
 	pgCfg := storage.PostgresConfig{

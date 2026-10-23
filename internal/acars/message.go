@@ -103,16 +103,22 @@ var h1PreambleRe = regexp.MustCompile(`^(?:-\s*)?#[A-Z0-9]{2}B`)
 // otherwise the message itself. The message's own text, which is stored,
 // is not changed.
 func (m *Message) ForParsing() *Message {
-	if m.Label != "H1" {
-		return m
-	}
-	loc := h1PreambleRe.FindStringIndex(m.Text)
-	if loc == nil {
+	preamble := m.H1Preamble()
+	if preamble == "" {
 		return m
 	}
 	c := *m
-	c.Text = m.Text[loc[1]:]
+	c.Text = m.Text[len(preamble):]
 	return &c
+}
+
+// H1Preamble returns the FMC preamble at the start of an H1 message's text
+// (see h1PreambleRe), or nothing if the message has none.
+func (m *Message) H1Preamble() string {
+	if m.Label != "H1" {
+		return ""
+	}
+	return h1PreambleRe.FindString(m.Text)
 }
 
 // AircraftAddress returns the aircraft's 24-bit ICAO address as carried by the

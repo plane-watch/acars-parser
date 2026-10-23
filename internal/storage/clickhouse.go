@@ -119,6 +119,29 @@ var blockColumns = []string{
 	"assembled_from Array(UInt64) AFTER block_end",
 }
 
+// ErrSchemaOutdated is returned by CheckSchema when the messages table lacks
+// columns that the code reads and writes.
+var ErrSchemaOutdated = errors.New("the messages table is missing columns: update it with " +
+	"\"acars_parser migrate -skip-messages -skip-state\" (live also updates it when it starts)")
+
+// CheckSchema returns ErrSchemaOutdated if the messages table lacks the
+// block columns. Commands that read the archive call it first, so that they
+// fail before changing anything rather than part-way (a rebuild would
+// otherwise leave its staging table behind). It does not change the table:
+// that is left to CreateSchema, which live and migrate run.
+func (d *ClickHouseDB) CheckSchema(ctx context.Context) error {
+	var n uint64
+	err := d.conn.QueryRow(ctx, `SELECT count() FROM system.columns WHERE database = currentDatabase()
+		AND table = ? AND name IN ('message_number', 'block_id', 'block_end', 'assembled_from')`, MessagesTable).Scan(&n)
+	if err != nil {
+		return fmt.Errorf("check schema: %w", err)
+	}
+	if n != uint64(len(blockColumns)) {
+		return ErrSchemaOutdated
+	}
+	return nil
+}
+
 // BlockFields are a message's ACARS block fields (see acars.Message):
 // its message number, block ID and the feed's block_end flag (nil when not
 // sent), and for a message joined from its blocks, the blocks' IDs.

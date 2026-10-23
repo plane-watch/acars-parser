@@ -54,6 +54,11 @@ func runQueryCmd(args []string) {
 		os.Exit(1)
 	}
 	defer func() { _ = db.Close() }()
+	// Fail before doing anything if the archive lacks columns that are read.
+	if err := db.CheckSchema(ctx); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Handle special modes.
 	if *statsOnly {

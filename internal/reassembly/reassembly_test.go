@@ -10,6 +10,11 @@ import (
 
 var t0 = time.Date(2026, 10, 23, 15, 5, 0, 0, time.UTC)
 
+const (
+	settle = 30 * time.Second
+	idle   = 2 * time.Minute
+)
+
 // full is the text of a full block: in October 2026, H1 blocks carried 206
 // or 210 characters.
 var full = strings.Repeat("X", 206)
@@ -28,15 +33,35 @@ func block(id int64, station, msn, text string) *acars.Message {
 	}
 }
 
-func TestJoinsCompleteMessage(t *testing.T) {
-	a := New(time.Minute, 100)
-	if got := a.Add(block(10, "s1", "D47A", full), t0); got != nil {
-		t.Fatalf("after block A: got %+v, want nothing yet", got)
+func newAssembler() *Assembler {
+	return New(settle, idle, 100)
+}
+
+// flushOne flushes at at and returns the one message joined, failing the
+// test if there is not exactly one.
+func flushOne(t *testing.T, a *Assembler, at time.Time) *acars.Message {
+	t.Helper()
+	got := a.Flush(at)
+	if len(got) != 1 {
+		t.Fatalf("Flush joined %d messages, want 1", len(got))
 	}
-	got := a.Add(block(11, "s1", "D47B", "END"), t0.Add(6*time.Second))
-	if got == nil {
-		t.Fatal("after the short last block: got nothing, want the joined message")
+	return got[0]
+}
+
+func expectNone(t *testing.T, a *Assembler, at time.Time) {
+	t.Helper()
+	if got := a.Flush(at); len(got) != 0 {
+		t.Errorf("Flush joined %d messages (%q), want none", len(got), got[0].Text)
 	}
+}
+
+func TestJoinsCompleteMessageOnceSettled(t *testing.T) {
+	a := newAssembler()
+	a.Add(block(10, "s1", "D47A", full), t0)
+	a.Add(block(11, "s1", "D47B", "END"), t0.Add(6*time.Second))
+	// Not before the message has been quiet for the settling time.
+	expectNone(t, a, t0.Add(20*time.Second))
+	got := flushOne(t, a, t0.Add(6*time.Second+settle))
 	if got.Text != full+"END" {
 		t.Errorf("Text = %q, want block A then block B", got.Text)
 	}
@@ -49,115 +74,149 @@ func TestJoinsCompleteMessage(t *testing.T) {
 	if got.Tail != "N8953Q" || got.Label != "H1" || got.FlightNumber != "WN1234" || got.Timestamp != "2026-10-23T15:05:00Z" {
 		t.Errorf("got %+v, want block A's tail, label, flight and time", got)
 	}
+	// A message is joined once.
+	expectNone(t, a, t0.Add(time.Minute))
 }
 
 func TestJoinsBlocksOutOfOrder(t *testing.T) {
-	a := New(time.Minute, 100)
+	a := newAssembler()
 	a.Add(block(11, "s1", "D47B", "END"), t0)
-	if got := a.Add(block(10, "s1", "D47A", full), t0); got == nil || got.Text != full+"END" {
-		t.Errorf("got %+v, want the blocks joined in letter order", got)
+	a.Add(block(10, "s1", "D47A", full), t0)
+	if got := flushOne(t, a, t0.Add(settle)); got.Text != full+"END" {
+		t.Errorf("Text = %q, want the blocks in letter order", got.Text)
 	}
 }
 
 // A last block of full length may be followed by another, so the message
 // is not joined until a shorter block ends it.
 func TestWaitsForShortLastBlock(t *testing.T) {
-	a := New(time.Minute, 100)
+	a := newAssembler()
 	a.Add(block(10, "s1", "D47A", full), t0)
-	if got := a.Add(block(11, "s1", "D47B", full), t0); got != nil {
-		t.Fatalf("got %+v after two full blocks, want nothing", got)
-	}
-	if got := a.Add(block(12, "s1", "D47C", "END"), t0); got == nil || got.Text != full+full+"END" {
-		t.Errorf("got %+v, want three blocks joined", got)
+	a.Add(block(11, "s1", "D47B", full), t0)
+	expectNone(t, a, t0.Add(settle))
+	a.Add(block(12, "s1", "D47C", "END"), t0.Add(settle))
+	if got := flushOne(t, a, t0.Add(2*settle)); got.Text != full+full+"END" {
+		t.Errorf("Text = %q, want three blocks joined", got.Text)
 	}
 }
 
 func TestDoesNotJoinAroundMissingBlock(t *testing.T) {
-	a := New(time.Minute, 100)
+	a := newAssembler()
 	a.Add(block(10, "s1", "D47A", full), t0)
-	if got := a.Add(block(12, "s1", "D47C", "END"), t0); got != nil {
-		t.Errorf("got %+v with block B missing, want nothing", got)
-	}
+	a.Add(block(12, "s1", "D47C", "END"), t0)
+	expectNone(t, a, t0.Add(settle))
 }
 
-// Blocks whose lengths differ before the last are not all full, so the
-// sequence is not trusted.
-func TestDoesNotJoinUnequalFullBlocks(t *testing.T) {
-	a := New(time.Minute, 100)
+// A block that arrives after a shorter one shows the shorter one was not
+// the last: the blocks are inconsistent and nothing is joined. Before the
+// settling time, the shorter block looked like the end of the message.
+func TestDoesNotJoinWhenALaterBlockFollowsTheShortOne(t *testing.T) {
+	a := newAssembler()
 	a.Add(block(10, "s1", "D47A", full), t0)
 	a.Add(block(11, "s1", "D47B", full[:150]), t0)
-	if got := a.Add(block(12, "s1", "D47C", "END"), t0); got != nil {
-		t.Errorf("got %+v, want nothing", got)
+	a.Add(block(12, "s1", "D47C", "END"), t0.Add(10*time.Second))
+	expectNone(t, a, t0.Add(10*time.Second+settle))
+}
+
+// Two receptions of one block with different text cannot both be right,
+// so the message is not joined.
+func TestDoesNotJoinConflictingReceptions(t *testing.T) {
+	a := newAssembler()
+	a.Add(block(10, "s1", "D47A", full), t0)
+	a.Add(block(20, "s1", "D47A", strings.Repeat("Y", 206)), t0)
+	a.Add(block(21, "s1", "D47B", "END"), t0)
+	expectNone(t, a, t0.Add(settle))
+}
+
+// The same block received twice is one block.
+func TestToleratesRepeatedIdenticalBlock(t *testing.T) {
+	a := newAssembler()
+	a.Add(block(10, "s1", "D47A", full), t0)
+	a.Add(block(20, "s1", "D47A", full), t0)
+	a.Add(block(21, "s1", "D47B", "END"), t0)
+	got := flushOne(t, a, t0.Add(settle))
+	if got.AssembledFrom[0] != 10 {
+		t.Errorf("AssembledFrom = %v, want the first reception of block A", got.AssembledFrom)
 	}
 }
 
-// Some feeders repeat the first block's preamble ("#DFB") on later blocks.
-func TestDropsRepeatedPreamble(t *testing.T) {
-	a := New(time.Minute, 100)
-	first := "#DFB" + full[4:]
-	a.Add(block(10, "s1", "D47A", first), t0)
-	got := a.Add(block(11, "s1", "D47B", "#DFB2380-0033"), t0)
-	if got == nil || got.Text != first+"2380-0033" {
-		t.Errorf("got %+v, want the later block's preamble dropped", got)
+// Some feeders repeat the first block's H1 preamble on later blocks.
+func TestDropsRepeatedH1Preamble(t *testing.T) {
+	for _, preamble := range []string{"#DFB", "- #DFB"} {
+		a := newAssembler()
+		first := preamble + full[len(preamble):]
+		a.Add(block(10, "s1", "D47A", first), t0)
+		a.Add(block(11, "s1", "D47B", preamble+"2380-0033"), t0)
+		if got := flushOne(t, a, t0.Add(settle)); got.Text != first+"2380-0033" {
+			t.Errorf("preamble %q: Text = %q, want the later block's preamble dropped", preamble, got.Text)
+		}
 	}
 }
 
-// Some feeders also send the whole message, reassembled, on its last
+// Text that only looks like a preamble, on another label, is kept.
+func TestKeepsTextOfOtherLabels(t *testing.T) {
+	a := newAssembler()
+	first := block(10, "s1", "D47A", "#ABC"+full[4:])
+	second := block(11, "s1", "D47B", "#ABCEND")
+	first.Label, second.Label = "RA", "RA"
+	a.Add(first, t0)
+	a.Add(second, t0)
+	if got := flushOne(t, a, t0.Add(settle)); got.Text != first.Text+"#ABCEND" {
+		t.Errorf("Text = %q, want both blocks whole", got.Text)
+	}
+}
+
+// Some feeders also send the whole message, reassembled, as one long
 // block; that copy is parsed as received, so nothing is joined.
 func TestSkipsMessageAlreadyReassembled(t *testing.T) {
-	a := New(time.Minute, 100)
-	a.Add(block(10, "s1", "D47A", full), t0)
-	a.Add(block(11, "s1", "D47B", strings.Repeat("Y", 400)), t0)
-	if got := a.Add(block(12, "s1", "D47B", "END"), t0); got != nil {
-		t.Errorf("got %+v, want nothing", got)
-	}
-}
-
-func TestJoinsOnlyOnce(t *testing.T) {
-	a := New(time.Minute, 100)
+	a := newAssembler()
 	a.Add(block(10, "s1", "D47A", full), t0)
 	a.Add(block(11, "s1", "D47B", "END"), t0)
-	if got := a.Add(block(13, "s1", "D47B", "END"), t0); got != nil {
-		t.Errorf("a repeated block gave %+v, want nothing", got)
-	}
+	a.Add(block(12, "s1", "D47B", full+"END"), t0.Add(5*time.Second))
+	expectNone(t, a, t0.Add(time.Minute))
 }
 
 // Blocks received by different stations are different receptions.
 func TestKeepsStationsApart(t *testing.T) {
-	a := New(time.Minute, 100)
+	a := newAssembler()
 	a.Add(block(10, "s1", "D47A", full), t0)
-	if got := a.Add(block(11, "s2", "D47B", "END"), t0); got != nil {
-		t.Errorf("got %+v from blocks of two stations, want nothing", got)
+	a.Add(block(11, "s2", "D47B", "END"), t0)
+	expectNone(t, a, t0.Add(settle))
+}
+
+func TestForgetsIdleMessages(t *testing.T) {
+	a := newAssembler()
+	a.Add(block(10, "s1", "D47A", full), t0)
+	a.Flush(t0.Add(idle))
+	if a.Pending() != 0 {
+		t.Fatalf("%d pending after the idle time, want 0", a.Pending())
 	}
 }
 
-func TestExpiresIdleMessages(t *testing.T) {
-	a := New(time.Minute, 100)
+// A block that arrives after its message's idle time starts a new message,
+// even before a flush has forgotten the old one.
+func TestStaleBlocksAreNotJoined(t *testing.T) {
+	a := newAssembler()
 	a.Add(block(10, "s1", "D47A", full), t0)
-	if n := a.Expire(t0.Add(2 * time.Minute)); n != 1 || a.Pending() != 0 {
-		t.Fatalf("Expire dropped %d, %d pending; want 1, 0", n, a.Pending())
-	}
-	if got := a.Add(block(11, "s1", "D47B", "END"), t0.Add(2*time.Minute)); got != nil {
-		t.Errorf("got %+v after block A expired, want nothing", got)
-	}
+	a.Add(block(11, "s1", "D47B", "END"), t0.Add(10*time.Minute))
+	expectNone(t, a, t0.Add(10*time.Minute+settle))
 }
 
 func TestBoundsPendingMessages(t *testing.T) {
-	a := New(time.Minute, 2)
+	a := New(settle, idle, 2)
 	a.Add(block(10, "s1", "D01A", full), t0)
 	a.Add(block(20, "s1", "D02A", full), t0.Add(time.Second))
 	a.Add(block(30, "s1", "D03A", full), t0.Add(2*time.Second))
 	if a.Pending() != 2 {
 		t.Fatalf("Pending = %d, want 2", a.Pending())
 	}
-	// The oldest message (D01) was dropped.
-	if got := a.Add(block(11, "s1", "D01B", "END"), t0); got != nil {
-		t.Errorf("got %+v for the dropped message, want nothing", got)
-	}
+	// The least recently updated message (D01) was forgotten.
+	a.Add(block(11, "s1", "D01B", "END"), t0.Add(3*time.Second))
+	expectNone(t, a, t0.Add(3*time.Second+settle))
 }
 
 func TestIgnoresOtherMessages(t *testing.T) {
-	a := New(time.Minute, 100)
+	a := newAssembler()
 	for name, m := range map[string]*acars.Message{
 		"no message number":  block(10, "s1", "", full),
 		"no block letter":    block(10, "s1", "D97", full),
@@ -174,8 +233,7 @@ func TestIgnoresOtherMessages(t *testing.T) {
 
 // A message of one block needs no joining.
 func TestSingleBlockIsNotJoined(t *testing.T) {
-	a := New(time.Minute, 100)
-	if got := a.Add(block(10, "s1", "D47A", "SHORT"), t0); got != nil {
-		t.Errorf("got %+v, want nothing", got)
-	}
+	a := newAssembler()
+	a.Add(block(10, "s1", "D47A", "SHORT"), t0)
+	expectNone(t, a, t0.Add(settle))
 }

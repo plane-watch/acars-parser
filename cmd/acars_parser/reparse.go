@@ -72,6 +72,11 @@ func runReparseCmd(args []string) {
 		os.Exit(1)
 	}
 	defer func() { _ = chDB.Close() }()
+	// Fail before doing anything if the archive lacks columns that are read.
+	if err := chDB.CheckSchema(ctx); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	if *rebuild {
 		var cutoff time.Time

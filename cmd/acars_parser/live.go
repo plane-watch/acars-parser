@@ -185,8 +185,9 @@ func runLiveCmd(args []string) {
 		reg: reg, stats: stats, outFile: outFile, msgBuffer: msgBuffer, pg: pg, stateStats: stateStats,
 		showAll: *showAll, showRaw: *showRaw, showEmpty: *showEmpty, verbose: *verbose,
 		debugLabels: debugMap, excludeTypes: excludeMap,
-		assembler:  reassembly.New(reassemblyIdle, reassemblyMaxPending),
-		lastExpire: time.Now(),
+		assembler: reassembly.New(reassemblySettle, reassemblyIdle, reassemblyMaxPending),
+		lastFlush: time.Now(),
+		now:       time.Now,
 	}
 
 	// Subscribe.
@@ -534,25 +535,30 @@ type liveHandler struct {
 	showAll, showRaw, showEmpty, verbose bool
 	debugLabels, excludeTypes            map[string]bool
 
-	// assembler joins multi-block downlinks; lastExpire is when it last
-	// forgot idle messages.
-	assembler  *reassembly.Assembler
-	lastExpire time.Time
+	// assembler joins multi-block downlinks; lastFlush is when it last
+	// judged the settled messages.
+	assembler *reassembly.Assembler
+	lastFlush time.Time
+
+	// now returns the current time; tests replace it.
+	now func() time.Time
 }
 
 // Reassembly settings. Blocks of one message arrived up to about 25 seconds
-// apart in October 2026, so a message with no block for two minutes is
-// forgotten. Every downlink starts a group (its message number ends in a
-// block letter), about 2,000 a minute, so the bound is well above the
-// groups held for two minutes.
+// apart in October 2026: a message is judged once no block of it has
+// arrived for 30 seconds (so a joined message is processed about that long
+// after its last block), and forgotten after two minutes. Every downlink
+// starts a group (its message number ends in a block letter), about 2,000
+// a minute, so the bound is well above the groups held for two minutes.
 const (
-	reassemblyIdle        = 2 * time.Minute
-	reassemblyMaxPending  = 50000
-	reassemblyExpireEvery = 30 * time.Second
+	reassemblySettle     = 30 * time.Second
+	reassemblyIdle       = 2 * time.Minute
+	reassemblyMaxPending = 50000
+	reassemblyFlushEvery = 5 * time.Second
 )
 
-// handle decodes a feed message and processes it, and then the message
-// joined from its blocks if it completes one.
+// handle decodes a feed message, processes it and gives it to the
+// assembler, and processes the messages the assembler has joined.
 func (h *liveHandler) handle(ctx context.Context, data []byte) {
 	msg := parseMessage(data)
 	if msg == nil {
@@ -566,14 +572,19 @@ func (h *liveHandler) handle(ctx context.Context, data []byte) {
 
 	h.process(ctx, msg)
 
-	now := time.Now()
-	if joined := h.assembler.Add(msg, now); joined != nil {
+	now := h.now()
+	h.assembler.Add(msg, now)
+	if now.Sub(h.lastFlush) >= reassemblyFlushEvery {
+		h.flush(ctx, now)
+	}
+}
+
+// flush processes the messages the assembler has joined by now.
+func (h *liveHandler) flush(ctx context.Context, now time.Time) {
+	h.lastFlush = now
+	for _, joined := range h.assembler.Flush(now) {
 		h.stats.assembled++
 		h.process(ctx, joined)
-	}
-	if now.Sub(h.lastExpire) >= reassemblyExpireEvery {
-		h.assembler.Expire(now)
-		h.lastExpire = now
 	}
 }
 

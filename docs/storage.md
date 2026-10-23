@@ -33,6 +33,8 @@ The enrichment API reads the same `POSTGRES_*` variables. The standalone tools i
 | ClickHouse tables | `live` (which also adds columns missing from an existing `messages` table), `migrate` |
 | PostgreSQL tables | `live`, `backfill`, `migrate` |
 
+The commands that read `messages` (`query`, `debug`, `reparse`, `unparse` and `backfill`) check first that it has the block columns, and stop with an error naming the command to run if it does not; they do not change the table themselves.
+
 Neither database is created automatically. The ClickHouse database named by `CLICKHOUSE_DATABASE` must already exist, because the connection selects it, and `Ping` fails otherwise.
 
 On a fresh installation, create the ClickHouse tables without migrating any SQLite data:

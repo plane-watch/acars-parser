@@ -31,26 +31,30 @@ func feedBlock(t *testing.T, id int, number, text string) []byte {
 }
 
 // TestLiveJoinsBlocks checks that live parses a message split into blocks
-// once its last block arrives, as well as each block as received.
+// once its blocks have settled, as well as each block as received.
 func TestLiveJoinsBlocks(t *testing.T) {
 	reg := registry.Default()
 	reg.Sort()
+	clock := time.Date(2026, 10, 23, 15, 5, 0, 0, time.UTC)
 	h := &liveHandler{
 		reg:          reg,
 		stats:        &liveStats{typeCounts: map[string]int{}},
 		debugLabels:  map[string]bool{},
 		excludeTypes: map[string]bool{},
-		assembler:    reassembly.New(reassemblyIdle, reassemblyMaxPending),
-		lastExpire:   time.Now(),
+		assembler:    reassembly.New(reassemblySettle, reassemblyIdle, reassemblyMaxPending),
+		lastFlush:    clock,
+		now:          func() time.Time { return clock },
 	}
 	ctx := context.Background()
 	h.handle(ctx, feedBlock(t, 100, "D47A", ohmaReport[:210]))
 	h.handle(ctx, feedBlock(t, 101, "D47B", ohmaReport[210:420]))
-	if h.stats.assembled != 0 || h.stats.typeCounts["ohma"] != 0 {
-		t.Fatalf("before the last block: %d joined, %d ohma; want 0, 0", h.stats.assembled, h.stats.typeCounts["ohma"])
-	}
 	h.handle(ctx, feedBlock(t, 102, "D47C", ohmaReport[420:]))
+	h.flush(ctx, clock.Add(reassemblySettle-time.Second))
+	if h.stats.assembled != 0 || h.stats.typeCounts["ohma"] != 0 {
+		t.Fatalf("before the blocks settled: %d joined, %d ohma; want 0, 0", h.stats.assembled, h.stats.typeCounts["ohma"])
+	}
+	h.flush(ctx, clock.Add(reassemblySettle))
 	if h.stats.assembled != 1 || h.stats.typeCounts["ohma"] != 1 {
-		t.Errorf("after the last block: %d joined, %d ohma; want 1, 1", h.stats.assembled, h.stats.typeCounts["ohma"])
+		t.Errorf("after the blocks settled: %d joined, %d ohma; want 1, 1", h.stats.assembled, h.stats.typeCounts["ohma"])
 	}
 }

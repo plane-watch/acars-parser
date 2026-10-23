@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"testing"
 	"time"
@@ -251,8 +252,14 @@ func TestCreateSchemaAddsBlockColumns(t *testing.T) {
 		ENGINE = MergeTree() ORDER BY (parser_type, label, timestamp, id)`); err != nil {
 		t.Fatal(err)
 	}
+	if err := db.CheckSchema(ctx); !errors.Is(err, ErrSchemaOutdated) {
+		t.Errorf("CheckSchema before the update = %v, want ErrSchemaOutdated", err)
+	}
 	if err := db.CreateSchema(ctx); err != nil {
 		t.Fatal(err)
+	}
+	if err := db.CheckSchema(ctx); err != nil {
+		t.Errorf("CheckSchema after the update = %v, want nil", err)
 	}
 	var n uint64
 	if err := db.conn.QueryRow(ctx, `SELECT count() FROM system.columns WHERE database = currentDatabase()
