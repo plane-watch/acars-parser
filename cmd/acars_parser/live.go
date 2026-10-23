@@ -18,6 +18,7 @@ import (
 	"acars_parser/internal/acars"
 	"acars_parser/internal/enrichment"
 	"acars_parser/internal/extractor"
+	"acars_parser/internal/reassembly"
 	"acars_parser/internal/registry"
 	"acars_parser/internal/storage"
 )
@@ -110,6 +111,13 @@ func runLiveCmd(args []string) {
 		defer func() { _ = chDB_.Close() }()
 		fmt.Printf("ClickHouse: %s:%d/%s\n", *chHost, *chPort, *chDB)
 
+		// Ensure the schema exists and is current: the inserts write every
+		// column, including those added to an existing archive.
+		if err := chDB_.CreateSchema(ctx); err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating ClickHouse schema: %v\n", err)
+			os.Exit(1)
+		}
+
 		// Create message buffer for batched inserts.
 		msgBuffer = newMessageBuffer(chDB_, 1000, 5*time.Second)
 		flushWg.Add(1)
@@ -173,6 +181,14 @@ func runLiveCmd(args []string) {
 		}
 	}
 
+	handler := &liveHandler{
+		reg: reg, stats: stats, outFile: outFile, msgBuffer: msgBuffer, pg: pg, stateStats: stateStats,
+		showAll: *showAll, showRaw: *showRaw, showEmpty: *showEmpty, verbose: *verbose,
+		debugLabels: debugMap, excludeTypes: excludeMap,
+		assembler:  reassembly.New(reassemblyIdle, reassemblyMaxPending),
+		lastExpire: time.Now(),
+	}
+
 	// Subscribe.
 	_, err = nc.Subscribe(*subject, func(m *nats.Msg) {
 		stats.totalMessages++
@@ -187,7 +203,7 @@ func runLiveCmd(args []string) {
 			}
 		}
 
-		handleLiveMessage(ctx, m.Data, reg, stats, outFile, msgBuffer, pg, stateStats, *showAll, *showRaw, *showEmpty, *verbose, debugMap, excludeMap)
+		handler.handle(ctx, m.Data)
 	})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error subscribing: %v\n", err)
@@ -228,6 +244,7 @@ func runLiveCmd(args []string) {
 	fmt.Println("\n--- Session Stats ---")
 	fmt.Printf("Total: %d messages (%d unique, %d duplicates)\n",
 		stats.totalMessages, stats.totalMessages-stats.duplicates, stats.duplicates)
+	fmt.Printf("Joined from blocks: %d messages\n", stats.assembled)
 
 	// Print type counts.
 	for typeName, count := range stats.typeCounts {
@@ -326,6 +343,7 @@ func (b *messageBuffer) stop() {
 type liveStats struct {
 	totalMessages int
 	duplicates    int
+	assembled     int // Messages joined from their blocks.
 	typeCounts    map[string]int
 	seenIDs       *boundedIDCache
 }
@@ -502,47 +520,95 @@ func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars
 	}
 }
 
-func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry, stats *liveStats, outFile *os.File, msgBuffer *messageBuffer, pg *storage.PostgresDB, stateStats *liveStateStats, showAll, showRaw, showEmpty, verbose bool, debugLabels, excludeTypes map[string]bool) {
-	// Parse the message.
+// liveHandler handles the messages of a live session. Its methods run on
+// the subscription's goroutine only (nats.go calls a subscription's handler
+// for one message at a time), so neither it nor its assembler is locked.
+type liveHandler struct {
+	reg        *registry.Registry
+	stats      *liveStats
+	outFile    *os.File
+	msgBuffer  *messageBuffer
+	pg         *storage.PostgresDB
+	stateStats *liveStateStats
+
+	showAll, showRaw, showEmpty, verbose bool
+	debugLabels, excludeTypes            map[string]bool
+
+	// assembler joins multi-block downlinks; lastExpire is when it last
+	// forgot idle messages.
+	assembler  *reassembly.Assembler
+	lastExpire time.Time
+}
+
+// Reassembly settings. Blocks of one message arrived up to about 25 seconds
+// apart in October 2026, so a message with no block for two minutes is
+// forgotten. Every downlink starts a group (its message number ends in a
+// block letter), about 2,000 a minute, so the bound is well above the
+// groups held for two minutes.
+const (
+	reassemblyIdle        = 2 * time.Minute
+	reassemblyMaxPending  = 50000
+	reassemblyExpireEvery = 30 * time.Second
+)
+
+// handle decodes a feed message and processes it, and then the message
+// joined from its blocks if it completes one.
+func (h *liveHandler) handle(ctx context.Context, data []byte) {
 	msg := parseMessage(data)
 	if msg == nil {
 		return
 	}
 
 	// Debug output for specific labels - dump full JSON.
-	if len(debugLabels) > 0 && debugLabels[msg.Label] {
+	if len(h.debugLabels) > 0 && h.debugLabels[msg.Label] {
 		fmt.Printf("[DEBUG %s] FULL JSON:\n%s\n\n", msg.Label, string(data))
 	}
 
+	h.process(ctx, msg)
+
+	now := time.Now()
+	if joined := h.assembler.Add(msg, now); joined != nil {
+		h.stats.assembled++
+		h.process(ctx, joined)
+	}
+	if now.Sub(h.lastExpire) >= reassemblyExpireEvery {
+		h.assembler.Expire(now)
+		h.lastExpire = now
+	}
+}
+
+// process parses a message, received or joined, updates the state, prints
+// it and stores it.
+func (h *liveHandler) process(ctx context.Context, msg *acars.Message) {
 	// Dispatch to all matching parsers.
-	results := registry.Results(reg.Dispatch(msg))
+	results := registry.Results(h.reg.Dispatch(msg))
 
 	// Update state in PostgreSQL with parsed data.
-	if pg != nil {
-		updateStatePostgres(ctx, pg, msg, results, stateStats)
+	if h.pg != nil {
+		updateStatePostgres(ctx, h.pg, msg, results, h.stateStats)
 	}
 
 	if len(results) > 0 {
 		for _, result := range results {
 			typeName := result.Type()
-			stats.typeCounts[typeName]++
+			h.stats.typeCounts[typeName]++
 
 			// Skip excluded types.
 			// TODO: This skips storage as well as display, so excluded types (by
 			// default sq_position) are never written to ClickHouse or the JSONL
 			// output. Exclusion should apply to console output only.
-			if excludeTypes[typeName] {
+			if h.excludeTypes[typeName] {
 				continue
 			}
 
 			// Format and print.
-			if verbose {
+			if h.verbose {
 				// Verbose output: show all details.
-				printVerboseResult(msg, result, showRaw, showEmpty)
+				printVerboseResult(msg, result, h.showRaw, h.showEmpty)
 			} else {
 				msgCtx := buildContext(msg)
-				output := formatResult(result, showEmpty)
-				if showRaw {
+				output := formatResult(result, h.showEmpty)
+				if h.showRaw {
 					fmt.Printf("[%s] %s %s\n  -> %s\n", msg.Label, msgCtx, output, msg.Text)
 				} else {
 					fmt.Printf("[%s] %s %s\n", msg.Label, msgCtx, output)
@@ -550,27 +616,27 @@ func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry,
 			}
 
 			// Write to JSONL file.
-			if outFile != nil {
+			if h.outFile != nil {
 				entry := map[string]interface{}{
 					"type": typeName,
 					"data": result,
 				}
 				if b, err := json.Marshal(entry); err == nil {
-					_, _ = outFile.Write(b)
-					_, _ = outFile.WriteString("\n")
+					_, _ = h.outFile.Write(b)
+					_, _ = h.outFile.WriteString("\n")
 				}
 			}
 
 			// Store in ClickHouse.
-			if msgBuffer != nil {
-				msgBuffer.add(resultRow(msg, result))
+			if h.msgBuffer != nil {
+				h.msgBuffer.add(resultRow(msg, result))
 			}
 		}
 	} else {
 		// No parser matched.
-		if showAll {
-			if verbose {
-				printVerboseUnparsed(msg, showRaw)
+		if h.showAll {
+			if h.verbose {
+				printVerboseUnparsed(msg, h.showRaw)
 			} else {
 				msgCtx := buildContext(msg)
 				fmt.Printf("%s [%s] %s\n", msgCtx, msg.Label, truncate(msg.Text, 60))
@@ -578,8 +644,8 @@ func handleLiveMessage(ctx context.Context, data []byte, reg *registry.Registry,
 		}
 
 		// Store unparsed messages too.
-		if msgBuffer != nil && msg.Text != "" {
-			msgBuffer.add(unparsedRow(msg))
+		if h.msgBuffer != nil && msg.Text != "" {
+			h.msgBuffer.add(unparsedRow(msg))
 		}
 	}
 }

@@ -100,6 +100,7 @@ Every `acars_parser` subcommand takes its default connection settings from these
 │   ├── extractor/            # Extracts state data (aircraft, waypoints, routes, ATIS) from results
 │   ├── parsers/              # Parser implementations; parsers.go registers them all
 │   ├── patterns/             # Shared regex patterns, the grok-style format compiler and extractors
+│   ├── reassembly/           # Joins the blocks of multi-block downlinks
 │   ├── registry/             # The parser registry, dispatch and trace types
 │   ├── relay/                # NATS relay core (config, dedup, metrics)
 │   ├── review/               # Review web UI (embedded static files)
@@ -189,6 +190,8 @@ Subscribes to the NATS feed and parses each message.
 - It prints one line per result.
 - Unless `-no-store` is set, it batch-inserts results into ClickHouse `messages` (every 1,000 rows or 5 seconds).
 - Unless `-no-store` is set, it also updates the PostgreSQL `aircraft`, `waypoints`, `routes`, `atis_current` and `flight_enrichment` tables.
+- It joins the blocks of multi-block downlinks once all have arrived, and parses and stores the joined message as well as each block (see [docs/reassembly.md](docs/reassembly.md)).
+- On start, it creates the ClickHouse and PostgreSQL tables if they do not exist, and adds missing columns to `messages`.
 
 ```bash
 ./bin/acars_parser live -creds airframes_nats.creds
@@ -635,6 +638,7 @@ Multi-stop legs come from the `route_legs` table, which only `migrate` populates
 | [docs/PARSER_SPEC.md](docs/PARSER_SPEC.md) | Specification for writing parsers |
 | [docs/enrichment-api.md](docs/enrichment-api.md) | Enrichment API reference |
 | [docs/nats-relay.md](docs/nats-relay.md) | NATS relay reference |
+| [docs/reassembly.md](docs/reassembly.md) | Joining the blocks of multi-block downlinks |
 | [docs/airframes-payload.md](docs/airframes-payload.md) | The upstream Airframes NATS payload: every field, and which ones the code reads |
 | [docs/FLIGHT_MESSAGE_FLOW.md](docs/FLIGHT_MESSAGE_FLOW.md) | The ACARS messages observed across the phases of a flight |
 | [docs/investigation-notes.md](docs/investigation-notes.md) | Working notes on unparsed message formats |

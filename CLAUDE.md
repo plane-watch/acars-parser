@@ -84,11 +84,16 @@ Schema for `acars.messages` (`ENGINE = MergeTree`, `ORDER BY (parser_type, label
 | parsed_json | String |
 | missing_fields | String |
 | confidence | Float32 |
+| message_number | LowCardinality(String) |
+| block_id | LowCardinality(String) |
+| block_end | Nullable(Bool) |
+| assembled_from | Array(UInt64) |
 | created_at | DateTime64(3) |
 
 Notes:
 - Use `parser_type = 'unparsed'` to find unparsed messages
 - Use `raw_text` for the message content (not `text`)
+- A message `live` joins from its blocks is stored under its first block's ID with bit 62 set, with the blocks' IDs in `assembled_from` (see `docs/reassembly.md`); rows before October 2026 have no block fields
 - `id` is not unique: `live` writes one row per parser result, and `unparse` / `reparse -update` add rows without removing the originals (plain MergeTree does not deduplicate)
 
 ### PostgreSQL Database

@@ -193,3 +193,73 @@ func TestTableUUIDFollowsTheTable(t *testing.T) {
 		t.Errorf("after the exchange, %s has UUID %q, want %q", b, ub, ua)
 	}
 }
+
+// TestBlockColumns checks that a message's block fields (its message
+// number, block ID and block_end flag, and for a joined message the IDs of
+// its blocks) are stored and streamed back, and that a message without
+// them reads back empty.
+func TestBlockColumns(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	const table = "block_columns_test"
+	_ = db.DropTable(ctx, table)
+	if err := db.CreateMessagesTable(ctx, table); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = db.DropTable(context.Background(), table) })
+
+	ts := time.Date(2026, 10, 23, 15, 5, 0, 0, time.UTC)
+	no := false
+	rows := []CHInsertParams{
+		{ID: 10, Timestamp: ts, Label: "H1", ParserType: "unparsed", RawText: "A", ParsedData: map[string]string{},
+			BlockFields: BlockFields{MessageNumber: "D47A", BlockID: "5", BlockEnd: &no}},
+		{ID: 10 | 1<<62, Timestamp: ts, Label: "H1", ParserType: "unparsed", RawText: "AB", ParsedData: map[string]string{},
+			BlockFields: BlockFields{MessageNumber: "D47", BlockID: "5", AssembledFrom: []uint64{10, 11}}},
+		{ID: 12, Timestamp: ts, Label: "H1", ParserType: "unparsed", RawText: "C", ParsedData: map[string]string{}},
+	}
+	if err := db.InsertBatchInto(ctx, table, rows); err != nil {
+		t.Fatal(err)
+	}
+	got := map[uint64]RawMessage{}
+	if err := db.StreamRawMessages(ctx, table, 10, func(m RawMessage) error { got[m.ID] = m; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	if b := got[10]; b.MessageNumber != "D47A" || b.BlockID != "5" || b.BlockEnd == nil || *b.BlockEnd || len(b.AssembledFrom) != 0 {
+		t.Errorf("block: %+v", b)
+	}
+	if j := got[10|1<<62]; j.MessageNumber != "D47" || j.BlockEnd != nil || len(j.AssembledFrom) != 2 || j.AssembledFrom[1] != 11 {
+		t.Errorf("joined message: %+v", j)
+	}
+	if m := got[12]; m.MessageNumber != "" || m.BlockID != "" || m.BlockEnd != nil || len(m.AssembledFrom) != 0 {
+		t.Errorf("message without block fields: %+v", m)
+	}
+}
+
+// TestCreateSchemaAddsBlockColumns checks that CreateSchema adds the block
+// columns to a messages table created before they existed.
+func TestCreateSchemaAddsBlockColumns(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	_ = db.DropTable(ctx, MessagesTable)
+	t.Cleanup(func() { _ = db.DropTable(context.Background(), MessagesTable) })
+	// The table as it was before the block columns.
+	if err := db.conn.Exec(ctx, `CREATE TABLE messages (
+			id UInt64, timestamp DateTime64(3), label LowCardinality(String), parser_type LowCardinality(String),
+			flight LowCardinality(String), tail LowCardinality(String), origin LowCardinality(String),
+			destination LowCardinality(String), raw_text String, parsed_json String, missing_fields String,
+			confidence Float32, created_at DateTime64(3) DEFAULT now64(3))
+		ENGINE = MergeTree() ORDER BY (parser_type, label, timestamp, id)`); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.CreateSchema(ctx); err != nil {
+		t.Fatal(err)
+	}
+	var n uint64
+	if err := db.conn.QueryRow(ctx, `SELECT count() FROM system.columns WHERE database = currentDatabase()
+		AND table = 'messages' AND name IN ('message_number', 'block_id', 'block_end', 'assembled_from')`).Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	if n != 4 {
+		t.Errorf("%d of the 4 block columns exist", n)
+	}
+}

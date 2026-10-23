@@ -250,3 +250,31 @@ func TestNormaliseRegistration(t *testing.T) {
 		}
 	}
 }
+
+// TestNATSWrapper_ToMessageBlockFields checks that the block fields of a
+// feed message (as Airframes sends them) are kept: they are needed to
+// reassemble multi-block messages.
+func TestNATSWrapper_ToMessageBlockFields(t *testing.T) {
+	payload := `{"station":{"id":"237341468"},"message":{"id":"7908431356","timestamp":"2026-10-23T15:04:54.873Z",
+		"label":"H1","text":"#DFBABS011DA","tail":"N8953Q","message_number":"D47A","block_id":"5","block_end":false}}`
+	var w NATSWrapper
+	if err := json.Unmarshal([]byte(payload), &w); err != nil {
+		t.Fatal(err)
+	}
+	msg := w.ToMessage()
+	if msg.MessageNumber != "D47A" || msg.BlockID != "5" || msg.BlockEnd == nil || *msg.BlockEnd {
+		t.Errorf("MessageNumber, BlockID, BlockEnd = %q, %q, %v; want D47A, 5, false", msg.MessageNumber, msg.BlockID, msg.BlockEnd)
+	}
+	if msg.Station == nil || msg.Station.ID != "237341468" {
+		t.Errorf("Station = %+v, want ID 237341468", msg.Station)
+	}
+
+	// A feed message without the fields leaves them unset.
+	var bare NATSWrapper
+	if err := json.Unmarshal([]byte(`{"message":{"id":"1","label":"H1","text":"x"}}`), &bare); err != nil {
+		t.Fatal(err)
+	}
+	if msg := bare.ToMessage(); msg.MessageNumber != "" || msg.BlockEnd != nil {
+		t.Errorf("MessageNumber, BlockEnd = %q, %v; want unset", msg.MessageNumber, msg.BlockEnd)
+	}
+}

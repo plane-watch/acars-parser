@@ -30,7 +30,7 @@ The enrichment API reads the same `POSTGRES_*` variables. The standalone tools i
 
 | Schema | Created by |
 |---|---|
-| ClickHouse tables | `acars_parser migrate` only |
+| ClickHouse tables | `live` (which also adds columns missing from an existing `messages` table), `migrate` |
 | PostgreSQL tables | `live`, `backfill`, `migrate` |
 
 Neither database is created automatically. The ClickHouse database named by `CLICKHOUSE_DATABASE` must already exist, because the connection selects it, and `Ping` fails otherwise.
@@ -54,6 +54,8 @@ On a fresh installation, create the ClickHouse tables without migrating any SQLi
 
 `id` is therefore not unique.
 
+A message that `live` joins from its blocks (see [reassembly.md](reassembly.md)) is stored as well as its blocks, under the first block's ID with bit 62 set, and lists the blocks' IDs in `assembled_from`.
+
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `UInt64` | The Airframes message ID |
@@ -68,6 +70,10 @@ On a fresh installation, create the ClickHouse tables without migrating any SQLi
 | `parsed_json` | `String` | The JSON-encoded parser result |
 | `missing_fields` | `String` | Comma-separated list of expected fields that were empty |
 | `confidence` | `Float32` | |
+| `message_number` | `LowCardinality(String)` | The ACARS message number (`D47A`); for a message joined from its blocks, without the block letter (`D47`). Empty in rows stored before October 2026 |
+| `block_id` | `LowCardinality(String)` | The ACARS block ID |
+| `block_end` | `Nullable(Bool)` | The feed's `block_end` flag, which does not reliably mark a message's last block; NULL when not sent, and in rows stored before October 2026 |
+| `assembled_from` | `Array(UInt64)` | For a message joined from its blocks, the blocks' IDs in order; otherwise empty |
 | `created_at` | `DateTime64(3)` | Defaults to `now64(3)` |
 
 - **Engine:** `MergeTree()`, partitioned by `toYYYYMM(timestamp)`, ordered by `(parser_type, label, timestamp, id)`.

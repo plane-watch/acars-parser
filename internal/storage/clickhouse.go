@@ -98,12 +98,43 @@ func messagesDDL(name string) string {
 			parsed_json     String,
 			missing_fields  String,
 			confidence      Float32,
+			message_number  LowCardinality(String),
+			block_id        LowCardinality(String),
+			block_end       Nullable(Bool),
+			assembled_from  Array(UInt64),
 			created_at      DateTime64(3) DEFAULT now64(3)
 		)
 		ENGINE = MergeTree()
 		PARTITION BY toYYYYMM(timestamp)
 		ORDER BY (parser_type, label, timestamp, id)
 		SETTINGS index_granularity = 8192`
+}
+
+// blockColumns are the definitions of the block columns, which CreateSchema
+// adds to an archive created before them; messagesDDL has them too.
+var blockColumns = []string{
+	"message_number LowCardinality(String) AFTER confidence",
+	"block_id LowCardinality(String) AFTER message_number",
+	"block_end Nullable(Bool) AFTER block_id",
+	"assembled_from Array(UInt64) AFTER block_end",
+}
+
+// BlockFields are a message's ACARS block fields (see acars.Message):
+// its message number, block ID and the feed's block_end flag (nil when not
+// sent), and for a message joined from its blocks, the blocks' IDs.
+type BlockFields struct {
+	MessageNumber string
+	BlockID       string
+	BlockEnd      *bool
+	AssembledFrom []uint64
+}
+
+// assembledFrom returns the IDs as stored: an empty array, not NULL.
+func (b BlockFields) assembledFrom() []uint64 {
+	if b.AssembledFrom == nil {
+		return []uint64{}
+	}
+	return b.AssembledFrom
 }
 
 func (d *ClickHouseDB) CreateSchema(ctx context.Context) error {
@@ -139,6 +170,15 @@ func (d *ClickHouseDB) CreateSchema(ctx context.Context) error {
 		}
 	}
 
+	// Add the block columns to an archive created before they existed. The
+	// rows already stored have no block fields: they read as empty, NULL
+	// and an empty array.
+	for _, column := range blockColumns {
+		if err := d.conn.Exec(ctx, `ALTER TABLE messages ADD COLUMN IF NOT EXISTS `+column); err != nil {
+			return fmt.Errorf("add column: %w", err)
+		}
+	}
+
 	// Add bloom filter index for full-text search (ignore error if already exists).
 	_ = d.conn.Exec(ctx, `ALTER TABLE messages ADD INDEX IF NOT EXISTS idx_raw_text_bloom raw_text TYPE tokenbf_v1(32768, 3, 0) GRANULARITY 1`)
 
@@ -160,6 +200,7 @@ type CHMessage struct {
 	MissingFields string
 	Confidence    float32
 	CreatedAt     time.Time
+	BlockFields
 }
 
 // CHInsertParams contains parameters for inserting a message.
@@ -176,6 +217,7 @@ type CHInsertParams struct {
 	ParsedData    interface{}
 	MissingFields []string
 	Confidence    float32
+	BlockFields
 }
 
 // Insert stores a single message in ClickHouse.
@@ -188,9 +230,11 @@ func (d *ClickHouseDB) Insert(ctx context.Context, p CHInsertParams) error {
 	missingFields := strings.Join(p.MissingFields, ",")
 
 	err = d.conn.Exec(ctx, `
-		INSERT INTO messages (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, p.ID, p.Timestamp, p.Label, p.ParserType, p.Flight, p.Tail, p.Origin, p.Destination, p.RawText, string(parsedJSON), missingFields, p.Confidence)
+		INSERT INTO messages (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence,
+			message_number, block_id, block_end, assembled_from)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`, p.ID, p.Timestamp, p.Label, p.ParserType, p.Flight, p.Tail, p.Origin, p.Destination, p.RawText, string(parsedJSON), missingFields, p.Confidence,
+		p.MessageNumber, p.BlockID, p.BlockEnd, p.assembledFrom())
 	if err != nil {
 		return fmt.Errorf("insert message: %w", err)
 	}
@@ -213,7 +257,8 @@ func (d *ClickHouseDB) InsertBatchInto(ctx context.Context, table string, messag
 	}
 
 	batch, err := d.conn.PrepareBatch(ctx, `
-		INSERT INTO `+table+` (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence)
+		INSERT INTO `+table+` (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence,
+			message_number, block_id, block_end, assembled_from)
 	`)
 	if err != nil {
 		return fmt.Errorf("prepare batch: %w", err)
@@ -226,7 +271,8 @@ func (d *ClickHouseDB) InsertBatchInto(ctx context.Context, table string, messag
 		}
 		missingFields := strings.Join(p.MissingFields, ",")
 
-		err = batch.Append(p.ID, p.Timestamp, p.Label, p.ParserType, p.Flight, p.Tail, p.Origin, p.Destination, p.RawText, string(parsedJSON), missingFields, p.Confidence)
+		err = batch.Append(p.ID, p.Timestamp, p.Label, p.ParserType, p.Flight, p.Tail, p.Origin, p.Destination, p.RawText, string(parsedJSON), missingFields, p.Confidence,
+			p.MessageNumber, p.BlockID, p.BlockEnd, p.assembledFrom())
 		if err != nil {
 			return fmt.Errorf("append to batch: %w", err)
 		}
@@ -282,7 +328,8 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 		args = append(args, "%"+p.FullText+"%")
 	}
 
-	query := `SELECT id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence, created_at FROM messages`
+	query := `SELECT id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence, created_at,
+		message_number, block_id, block_end, assembled_from FROM messages`
 	if len(conditions) > 0 {
 		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
@@ -318,7 +365,8 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 	for rows.Next() {
 		var m CHMessage
 		err := rows.Scan(&m.ID, &m.Timestamp, &m.Label, &m.ParserType, &m.Flight, &m.Tail,
-			&m.Origin, &m.Destination, &m.RawText, &m.ParsedJSON, &m.MissingFields, &m.Confidence, &m.CreatedAt)
+			&m.Origin, &m.Destination, &m.RawText, &m.ParsedJSON, &m.MissingFields, &m.Confidence, &m.CreatedAt,
+			&m.MessageNumber, &m.BlockID, &m.BlockEnd, &m.AssembledFrom)
 		if err != nil {
 			return nil, fmt.Errorf("scan row: %w", err)
 		}
@@ -576,6 +624,7 @@ type RawMessage struct {
 	Tail      string
 	Flight    string
 	RawText   string
+	BlockFields
 }
 
 // StreamRawMessages calls fn once for each distinct message ID in a
@@ -625,14 +674,16 @@ func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chun
 // streamRange calls fn for each distinct message with an ID from lo to hi.
 func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uint64, fn func(RawMessage) error) error {
 	rows, err := d.conn.Query(ctx,
-		`SELECT id, timestamp, label, tail, flight, raw_text FROM `+table+` WHERE id >= ? AND id <= ? ORDER BY id LIMIT 1 BY id`, lo, hi)
+		`SELECT id, timestamp, label, tail, flight, raw_text, message_number, block_id, block_end, assembled_from
+		FROM `+table+` WHERE id >= ? AND id <= ? ORDER BY id LIMIT 1 BY id`, lo, hi)
 	if err != nil {
 		return fmt.Errorf("query messages %d to %d: %w", lo, hi, err)
 	}
 	defer func() { _ = rows.Close() }()
 	for rows.Next() {
 		var m RawMessage
-		if err := rows.Scan(&m.ID, &m.Timestamp, &m.Label, &m.Tail, &m.Flight, &m.RawText); err != nil {
+		if err := rows.Scan(&m.ID, &m.Timestamp, &m.Label, &m.Tail, &m.Flight, &m.RawText,
+			&m.MessageNumber, &m.BlockID, &m.BlockEnd, &m.AssembledFrom); err != nil {
 			return fmt.Errorf("scan message: %w", err)
 		}
 		if err := fn(m); err != nil {

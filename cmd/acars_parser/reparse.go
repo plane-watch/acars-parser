@@ -232,6 +232,7 @@ func runReparseCmd(args []string) {
 					RawText:     msg.RawText,
 					ParsedData:  parsedData,
 					Confidence:  msg.Confidence,
+					BlockFields: msg.BlockFields,
 				})
 			}
 

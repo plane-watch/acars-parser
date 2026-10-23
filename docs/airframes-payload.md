@@ -42,8 +42,8 @@ This document describes the JSON messages published on the Airframes NATS bus (s
 | `channel` | always | no | Receiver channel |
 | `mode` | ~52% | no | ACARS mode character |
 | `ack` | ~52% | no | Acknowledgement character |
-| `message_number` | ~34% | no | ACARS message sequence number (e.g. `M94`) |
-| `block_end` | always | no | Whether this block ends the message |
+| `message_number` | ~34% | yes | ACARS message sequence number with the block letter (e.g. `D47A`); stored, and used to join multi-block messages (see [reassembly.md](reassembly.md)) |
+| `block_end` | always | yes | Meant to say whether this block ends the message, but not reliable (see [reassembly.md](reassembly.md)); stored only |
 | `source`, `source_type` | always | no | Decoder name, and one of `vdl`, `acars`, `hfdl`, `aero-acars`, `aero-adsc`, `iridium-acars` |
 | `station_id`, `airframe_id`, `flight_id` | always | no | Airframes internal IDs |
 | `latitude`, `longitude`, `altitude` | always | no | Aircraft position when the decoder supplies it, otherwise 0 |

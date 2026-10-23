@@ -26,6 +26,7 @@ func resultRow(msg *acars.Message, result registry.Result) storage.CHInsertParam
 		ParsedData:    result,
 		MissingFields: getMissingFields(result),
 		Confidence:    float32(extractConfidenceFromResult(result)),
+		BlockFields:   blockFields(msg),
 	}
 }
 
@@ -33,14 +34,33 @@ func resultRow(msg *acars.Message, result registry.Result) storage.CHInsertParam
 // matched.
 func unparsedRow(msg *acars.Message) storage.CHInsertParams {
 	return storage.CHInsertParams{
-		ID:         uint64(msg.ID),
-		Timestamp:  parseTimestamp(msg.Timestamp),
-		Label:      msg.Label,
-		ParserType: "unparsed",
-		Flight:     msg.FlightNumber,
-		Tail:       msg.Tail,
-		RawText:    msg.Text,
-		ParsedData: map[string]string{"label": msg.Label},
+		ID:          uint64(msg.ID),
+		Timestamp:   parseTimestamp(msg.Timestamp),
+		Label:       msg.Label,
+		ParserType:  "unparsed",
+		Flight:      msg.FlightNumber,
+		Tail:        msg.Tail,
+		RawText:     msg.Text,
+		ParsedData:  map[string]string{"label": msg.Label},
+		BlockFields: blockFields(msg),
+	}
+}
+
+// blockFields returns a message's block fields as the archive stores them.
+func blockFields(msg *acars.Message) storage.BlockFields {
+	b := storage.BlockFields{MessageNumber: msg.MessageNumber, BlockID: msg.BlockID, BlockEnd: msg.BlockEnd}
+	for _, id := range msg.AssembledFrom {
+		b.AssembledFrom = append(b.AssembledFrom, uint64(id))
+	}
+	return b
+}
+
+// setBlockFields sets a message's block fields from those stored.
+func setBlockFields(msg *acars.Message, b storage.BlockFields) {
+	msg.MessageNumber, msg.BlockID, msg.BlockEnd = b.MessageNumber, b.BlockID, b.BlockEnd
+	msg.AssembledFrom = nil
+	for _, id := range b.AssembledFrom {
+		msg.AssembledFrom = append(msg.AssembledFrom, int64(id))
 	}
 }
 

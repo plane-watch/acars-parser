@@ -103,7 +103,8 @@ func runUnparseCmd(args []string) {
 
 	// Build the select query.
 	selectQuery := fmt.Sprintf(`
-		SELECT id, timestamp, label, flight, tail, origin, destination, raw_text
+		SELECT id, timestamp, label, flight, tail, origin, destination, raw_text,
+			message_number, block_id, block_end, assembled_from
 		FROM messages
 		WHERE %s
 		ORDER BY id
@@ -132,9 +133,11 @@ func runUnparseCmd(args []string) {
 			origin      string
 			destination string
 			rawText     string
+			block       storage.BlockFields
 		)
 
-		if err := rows.Scan(&id, &timestamp, &label, &flight, &tail, &origin, &destination, &rawText); err != nil {
+		if err := rows.Scan(&id, &timestamp, &label, &flight, &tail, &origin, &destination, &rawText,
+			&block.MessageNumber, &block.BlockID, &block.BlockEnd, &block.AssembledFrom); err != nil {
 			fmt.Fprintf(os.Stderr, "Error scanning row: %v\n", err)
 			continue
 		}
@@ -151,6 +154,7 @@ func runUnparseCmd(args []string) {
 			RawText:     rawText,
 			ParsedData:  map[string]interface{}{},
 			Confidence:  0,
+			BlockFields: block,
 		})
 
 		if *dryRun {

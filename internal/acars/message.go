@@ -57,6 +57,23 @@ type Message struct {
 	BlockID       string `json:"block_id,omitempty"`       // ACARS block ID ('0'-'9' = downlink, 'A'-'X' = uplink).
 	LinkDirection string `json:"link_direction,omitempty"` // Explicit direction: "uplink" or "downlink".
 
+	// MessageNumber is the downlink's message sequence number, e.g. "D47A":
+	// three characters numbering the message, and a block letter (A, B,
+	// ...) numbering the blocks of a multi-block message. A message joined
+	// from its blocks has the three characters only.
+	MessageNumber string `json:"message_number,omitempty"`
+
+	// BlockEnd is the feed's block_end flag, nil when the feed did not
+	// send it. It does not reliably mark a message's last block: in October
+	// 2026 it was false on most single-block messages, and true or false on
+	// every block of some multi-block messages.
+	BlockEnd *bool `json:"block_end,omitempty"`
+
+	// AssembledFrom lists, in order, the IDs of the blocks a message was
+	// joined from (see internal/reassembly); it is empty for a message
+	// received as sent.
+	AssembledFrom []int64 `json:"assembled_from,omitempty"`
+
 	// Link-layer (VDL) addresses of the sender and recipient: 24-bit ICAO
 	// addresses as six upper-case hex digits. See AircraftAddress.
 	FromHex string `json:"from_hex,omitempty"`
@@ -184,6 +201,8 @@ type NATSInner struct {
 	ToHex         string    `json:"to_hex,omitempty"`
 	BlockID       string    `json:"block_id,omitempty"`       // ACARS block ID ('0'-'9' = downlink, 'A'-'X' = uplink).
 	LinkDirection string    `json:"link_direction,omitempty"` // Explicit direction: "uplink" or "downlink".
+	MessageNumber string    `json:"message_number,omitempty"`
+	BlockEnd      *bool     `json:"block_end,omitempty"`
 }
 
 // ToMessage converts a NATSWrapper to a unified Message.
@@ -202,6 +221,8 @@ func (w *NATSWrapper) ToMessage() *Message {
 		FlightNumber:  strings.TrimSpace(w.Message.Flight),
 		BlockID:       w.Message.BlockID,
 		LinkDirection: w.Message.LinkDirection,
+		MessageNumber: strings.TrimSpace(w.Message.MessageNumber),
+		BlockEnd:      w.Message.BlockEnd,
 		FromHex:       strings.ToUpper(strings.TrimSpace(w.Message.FromHex)),
 		ToHex:         strings.ToUpper(strings.TrimSpace(w.Message.ToHex)),
 		Airframe:      w.Airframe,

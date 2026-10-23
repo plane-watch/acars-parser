@@ -92,6 +92,7 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 			FlightNumber: flight,
 			Text:         m.RawText,
 		}
+		setBlockFields(msg, m.BlockFields)
 		rows := messageRows(msg, registry.Results(reg.Dispatch(msg)))
 		if len(rows) == 0 {
 			rows = append(rows, unparsedRow(msg))

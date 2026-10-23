@@ -78,7 +78,8 @@ func TestRebuildArchive(t *testing.T) {
 		{ID: 1, Timestamp: jan, Label: "AA", ParserType: "envelope", Flight: "CI0123", Tail: "B-18772", RawText: cpdlc, ParsedData: map[string]string{}},
 		{ID: 1, Timestamp: jan, Label: "AA", ParserType: "unparsed", Flight: "CI0123", Tail: "B-18772", RawText: cpdlc, ParsedData: map[string]string{}},
 		// A live-era message, whose flight was transmitted.
-		{ID: 2, Timestamp: oct, Label: "H1", ParserType: "unparsed", Flight: "QF1", Tail: "VH-OQA", RawText: "NOTHING TO SEE", ParsedData: map[string]string{}},
+		{ID: 2, Timestamp: oct, Label: "H1", ParserType: "unparsed", Flight: "QF1", Tail: "VH-OQA", RawText: "NOTHING TO SEE", ParsedData: map[string]string{},
+			BlockFields: storage.BlockFields{MessageNumber: "D47", BlockID: "5", AssembledFrom: []uint64{20, 21}}},
 		// A message without text keeps an unparsed row.
 		{ID: 3, Timestamp: oct, Label: "_d", ParserType: "unparsed", Tail: "VH-OQA", ParsedData: map[string]string{}},
 	}
@@ -123,6 +124,15 @@ func TestRebuildArchive(t *testing.T) {
 		if got[i] != want[i] {
 			t.Errorf("rebuilt row %d = %v, want %v", i, got[i], want[i])
 		}
+	}
+	// The block fields are kept.
+	var number string
+	var from []uint64
+	if err := db.Conn().QueryRow(ctx, "SELECT message_number, assembled_from FROM "+storage.MessagesTable+" WHERE id = 2").Scan(&number, &from); err != nil {
+		t.Fatal(err)
+	}
+	if number != "D47" || len(from) != 2 || from[0] != 20 {
+		t.Errorf("message 2 block fields %q, %v; want D47, [20 21]", number, from)
 	}
 	if old := read(previousTable); len(old) != 4 {
 		t.Errorf("%s has %d rows, want the 4 original rows", previousTable, len(old))

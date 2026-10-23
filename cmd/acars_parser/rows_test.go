@@ -6,6 +6,7 @@ import (
 	"acars_parser/internal/acars"
 	_ "acars_parser/internal/parsers"
 	"acars_parser/internal/registry"
+	"acars_parser/internal/storage"
 )
 
 // TestMessageRows checks that a message gives one archive row per parse
@@ -35,5 +36,20 @@ func TestMessageRows(t *testing.T) {
 
 	if rows := messageRows(&acars.Message{ID: 9, Label: "H1"}, nil); len(rows) != 0 {
 		t.Errorf("a message without text gave %d rows, want none", len(rows))
+	}
+}
+
+// TestMessageRowsKeepBlockFields checks that every row of a message stores
+// its block fields.
+func TestMessageRowsKeepBlockFields(t *testing.T) {
+	yes := true
+	msg := &acars.Message{ID: 10 | acars.FlexInt64(1<<62), Label: "H1", Text: "NOTHING TO SEE",
+		MessageNumber: "D47", BlockID: "5", BlockEnd: &yes, AssembledFrom: []int64{10, 11}}
+	want := storage.BlockFields{MessageNumber: "D47", BlockID: "5", BlockEnd: &yes, AssembledFrom: []uint64{10, 11}}
+	for _, row := range messageRows(msg, nil) {
+		if row.MessageNumber != want.MessageNumber || row.BlockID != want.BlockID || row.BlockEnd != want.BlockEnd ||
+			len(row.AssembledFrom) != 2 || row.AssembledFrom[1] != 11 {
+			t.Errorf("row block fields %+v, want %+v", row.BlockFields, want)
+		}
 	}
 }
