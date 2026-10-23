@@ -33,6 +33,8 @@ The enrichment API reads the same `POSTGRES_*` variables. The standalone tools i
 | ClickHouse tables | `live` (which also adds columns missing from an existing `messages` table), `migrate` |
 | PostgreSQL tables | `live`, `backfill`, `migrate` |
 
+Parsers need the block ID or the link direction to tell an uplink from a downlink (CPDLC messages relayed on H1 cannot be decoded without it). Rows stored before October 2026 have neither, so `reparse -rebuild` and the `reparse` comparison take the direction that a parse result stored for the message recorded (`direction` in a CPDLC result), which live worked out from them.
+
 The commands that read `messages` (`query`, `debug`, `reparse`, `unparse` and `backfill`) check first that it has the block columns, and stop with an error naming the command to run if it does not; they do not change the table themselves.
 
 Neither database is created automatically. The ClickHouse database named by `CLICKHOUSE_DATABASE` must already exist, because the connection selects it, and `Ping` fails otherwise.
@@ -76,6 +78,7 @@ A message that `live` joins from its blocks (see [reassembly.md](reassembly.md))
 | `block_id` | `LowCardinality(String)` | The ACARS block ID |
 | `block_end` | `Nullable(Bool)` | The feed's `block_end` flag, which does not reliably mark a message's last block; NULL when not sent, and in rows stored before October 2026 |
 | `assembled_from` | `Array(UInt64)` | For a message joined from its blocks, the blocks' IDs in order; otherwise empty |
+| `link_direction` | `LowCardinality(String)` | The link direction the feed sent (`uplink`, `downlink`, or empty, as for most ACARS sources, whose direction follows from the block ID) |
 | `created_at` | `DateTime64(3)` | Defaults to `now64(3)` |
 
 - **Engine:** `MergeTree()`, partitioned by `toYYYYMM(timestamp)`, ordered by `(parser_type, label, timestamp, id)`.

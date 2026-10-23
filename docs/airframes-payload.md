@@ -35,7 +35,7 @@ This document describes the JSON messages published on the Airframes NATS bus (s
 | `flight` | ~35% | yes | Flight number as transmitted, sometimes space-padded (`Message.FlightNumber`, trimmed) |
 | `frequency` | always | yes | MHz; `0.0` for satellite sources |
 | `block_id` | ~50% | yes | ACARS block ID (digits are downlink, letters are uplink) |
-| `link_direction` | ~11% | yes | `uplink` or `downlink` |
+| `link_direction` | ~11% | yes | `uplink` or `downlink`; stored |
 | `from_hex`, `to_hex` | ~72% | yes | ICAO addresses of the sender and recipient (VDL). `Message.AircraftAddress` returns the aircraft's: the sender of a downlink, the recipient of an uplink |
 | `level` | always | no | Signal level (dB) |
 | `error` | always | no | Decoder error count |

@@ -48,16 +48,26 @@ func unparsedRow(msg *acars.Message) storage.CHInsertParams {
 
 // blockFields returns a message's block fields as the archive stores them.
 func blockFields(msg *acars.Message) storage.BlockFields {
-	b := storage.BlockFields{MessageNumber: msg.MessageNumber, BlockID: msg.BlockID, BlockEnd: msg.BlockEnd}
+	b := storage.BlockFields{MessageNumber: msg.MessageNumber, BlockID: msg.BlockID, BlockEnd: msg.BlockEnd,
+		LinkDirection: msg.LinkDirection}
 	for _, id := range msg.AssembledFrom {
 		b.AssembledFrom = append(b.AssembledFrom, uint64(id))
 	}
 	return b
 }
 
-// setBlockFields sets a message's block fields from those stored.
-func setBlockFields(msg *acars.Message, b storage.BlockFields) {
+// setBlockFields sets a message's block and link fields from those stored.
+// storedDirection is the direction an earlier parse of the message
+// recorded (see storage.RawMessage.StoredDirection): for a message stored
+// before the block ID and link direction were, it is used as the link
+// direction, so that parsers that need the direction (CPDLC and ADS-C)
+// parse it as live did.
+func setBlockFields(msg *acars.Message, b storage.BlockFields, storedDirection string) {
 	msg.MessageNumber, msg.BlockID, msg.BlockEnd = b.MessageNumber, b.BlockID, b.BlockEnd
+	msg.LinkDirection = b.LinkDirection
+	if msg.LinkDirection == "" && msg.BlockID == "" && (storedDirection == "uplink" || storedDirection == "downlink") {
+		msg.LinkDirection = storedDirection
+	}
 	msg.AssembledFrom = nil
 	for _, id := range b.AssembledFrom {
 		msg.AssembledFrom = append(msg.AssembledFrom, int64(id))

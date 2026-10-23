@@ -102,6 +102,7 @@ func messagesDDL(name string) string {
 			block_id        LowCardinality(String),
 			block_end       Nullable(Bool),
 			assembled_from  Array(UInt64),
+			link_direction  LowCardinality(String),
 			created_at      DateTime64(3) DEFAULT now64(3)
 		)
 		ENGINE = MergeTree()
@@ -117,6 +118,7 @@ var blockColumns = []string{
 	"block_id LowCardinality(String) AFTER message_number",
 	"block_end Nullable(Bool) AFTER block_id",
 	"assembled_from Array(UInt64) AFTER block_end",
+	"link_direction LowCardinality(String) AFTER assembled_from",
 }
 
 // ErrSchemaOutdated is returned by CheckSchema when the messages table lacks
@@ -132,7 +134,7 @@ var ErrSchemaOutdated = errors.New("the messages table is missing columns: updat
 func (d *ClickHouseDB) CheckSchema(ctx context.Context) error {
 	var n uint64
 	err := d.conn.QueryRow(ctx, `SELECT count() FROM system.columns WHERE database = currentDatabase()
-		AND table = ? AND name IN ('message_number', 'block_id', 'block_end', 'assembled_from')`, MessagesTable).Scan(&n)
+		AND table = ? AND name IN ('message_number', 'block_id', 'block_end', 'assembled_from', 'link_direction')`, MessagesTable).Scan(&n)
 	if err != nil {
 		return fmt.Errorf("check schema: %w", err)
 	}
@@ -142,14 +144,18 @@ func (d *ClickHouseDB) CheckSchema(ctx context.Context) error {
 	return nil
 }
 
-// BlockFields are a message's ACARS block fields (see acars.Message):
-// its message number, block ID and the feed's block_end flag (nil when not
-// sent), and for a message joined from its blocks, the blocks' IDs.
+// BlockFields are a message's ACARS block and link fields (see
+// acars.Message): its message number, block ID and the feed's block_end
+// flag (nil when not sent), for a message joined from its blocks the
+// blocks' IDs, and the link direction the feed sent ("uplink",
+// "downlink" or empty). Parsers need the block ID or link direction to
+// tell an uplink from a downlink, so a rebuild must have them.
 type BlockFields struct {
 	MessageNumber string
 	BlockID       string
 	BlockEnd      *bool
 	AssembledFrom []uint64
+	LinkDirection string
 }
 
 // assembledFrom returns the IDs as stored: an empty array, not NULL.
@@ -254,10 +260,10 @@ func (d *ClickHouseDB) Insert(ctx context.Context, p CHInsertParams) error {
 
 	err = d.conn.Exec(ctx, `
 		INSERT INTO messages (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence,
-			message_number, block_id, block_end, assembled_from)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			message_number, block_id, block_end, assembled_from, link_direction)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`, p.ID, p.Timestamp, p.Label, p.ParserType, p.Flight, p.Tail, p.Origin, p.Destination, p.RawText, string(parsedJSON), missingFields, p.Confidence,
-		p.MessageNumber, p.BlockID, p.BlockEnd, p.assembledFrom())
+		p.MessageNumber, p.BlockID, p.BlockEnd, p.assembledFrom(), p.LinkDirection)
 	if err != nil {
 		return fmt.Errorf("insert message: %w", err)
 	}
@@ -281,7 +287,7 @@ func (d *ClickHouseDB) InsertBatchInto(ctx context.Context, table string, messag
 
 	batch, err := d.conn.PrepareBatch(ctx, `
 		INSERT INTO `+table+` (id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence,
-			message_number, block_id, block_end, assembled_from)
+			message_number, block_id, block_end, assembled_from, link_direction)
 	`)
 	if err != nil {
 		return fmt.Errorf("prepare batch: %w", err)
@@ -295,7 +301,7 @@ func (d *ClickHouseDB) InsertBatchInto(ctx context.Context, table string, messag
 		missingFields := strings.Join(p.MissingFields, ",")
 
 		err = batch.Append(p.ID, p.Timestamp, p.Label, p.ParserType, p.Flight, p.Tail, p.Origin, p.Destination, p.RawText, string(parsedJSON), missingFields, p.Confidence,
-			p.MessageNumber, p.BlockID, p.BlockEnd, p.assembledFrom())
+			p.MessageNumber, p.BlockID, p.BlockEnd, p.assembledFrom(), p.LinkDirection)
 		if err != nil {
 			return fmt.Errorf("append to batch: %w", err)
 		}
@@ -352,7 +358,7 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 	}
 
 	query := `SELECT id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence, created_at,
-		message_number, block_id, block_end, assembled_from FROM messages`
+		message_number, block_id, block_end, assembled_from, link_direction FROM messages`
 	if len(conditions) > 0 {
 		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
@@ -389,7 +395,7 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 		var m CHMessage
 		err := rows.Scan(&m.ID, &m.Timestamp, &m.Label, &m.ParserType, &m.Flight, &m.Tail,
 			&m.Origin, &m.Destination, &m.RawText, &m.ParsedJSON, &m.MissingFields, &m.Confidence, &m.CreatedAt,
-			&m.MessageNumber, &m.BlockID, &m.BlockEnd, &m.AssembledFrom)
+			&m.MessageNumber, &m.BlockID, &m.BlockEnd, &m.AssembledFrom, &m.LinkDirection)
 		if err != nil {
 			return nil, fmt.Errorf("scan row: %w", err)
 		}
@@ -638,8 +644,9 @@ func (d *ClickHouseDB) CountDistinctIDs(ctx context.Context, table string) (uint
 	return n, err
 }
 
-// RawMessage is a stored message's transmitted content, without its parse
-// results.
+// RawMessage is a stored message's transmitted content and its block and
+// link fields, with the direction its parse results recorded, but not the
+// results themselves.
 type RawMessage struct {
 	ID        uint64
 	Timestamp time.Time
@@ -648,6 +655,12 @@ type RawMessage struct {
 	Flight    string
 	RawText   string
 	BlockFields
+
+	// StoredDirection is the "direction" a parse result stored for the
+	// message recorded ("uplink" or "downlink"; empty if none did). Rows
+	// stored before the block ID and link direction were have neither, but
+	// the CPDLC result recorded the direction live worked out from them.
+	StoredDirection string
 }
 
 // StreamRawMessages calls fn once for each distinct message ID in a
@@ -697,8 +710,10 @@ func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chun
 // streamRange calls fn for each distinct message with an ID from lo to hi.
 func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uint64, fn func(RawMessage) error) error {
 	rows, err := d.conn.Query(ctx,
-		`SELECT id, timestamp, label, tail, flight, raw_text, message_number, block_id, block_end, assembled_from
-		FROM `+table+` WHERE id >= ? AND id <= ? ORDER BY id LIMIT 1 BY id`, lo, hi)
+		`SELECT id, any(timestamp), any(label), any(tail), any(flight), any(raw_text),
+			any(message_number), any(block_id), any(block_end), any(assembled_from), any(link_direction),
+			anyIf(JSONExtractString(parsed_json, 'direction'), JSONExtractString(parsed_json, 'direction') IN ('uplink', 'downlink'))
+		FROM `+table+` WHERE id >= ? AND id <= ? GROUP BY id ORDER BY id`, lo, hi)
 	if err != nil {
 		return fmt.Errorf("query messages %d to %d: %w", lo, hi, err)
 	}
@@ -706,7 +721,7 @@ func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uin
 	for rows.Next() {
 		var m RawMessage
 		if err := rows.Scan(&m.ID, &m.Timestamp, &m.Label, &m.Tail, &m.Flight, &m.RawText,
-			&m.MessageNumber, &m.BlockID, &m.BlockEnd, &m.AssembledFrom); err != nil {
+			&m.MessageNumber, &m.BlockID, &m.BlockEnd, &m.AssembledFrom, &m.LinkDirection, &m.StoredDirection); err != nil {
 			return fmt.Errorf("scan message: %w", err)
 		}
 		if err := fn(m); err != nil {

@@ -88,6 +88,7 @@ Schema for `acars.messages` (`ENGINE = MergeTree`, `ORDER BY (parser_type, label
 | block_id | LowCardinality(String) |
 | block_end | Nullable(Bool) |
 | assembled_from | Array(UInt64) |
+| link_direction | LowCardinality(String) |
 | created_at | DateTime64(3) |
 
 Notes:

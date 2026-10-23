@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -80,6 +81,10 @@ func TestRebuildArchive(t *testing.T) {
 		// A live-era message, whose flight was transmitted.
 		{ID: 2, Timestamp: oct, Label: "H1", ParserType: "unparsed", Flight: "QF1", Tail: "VH-OQA", RawText: "NOTHING TO SEE", ParsedData: map[string]string{},
 			BlockFields: storage.BlockFields{MessageNumber: "D47", BlockID: "5", AssembledFrom: []uint64{20, 21}}},
+		// An H1 CPDLC downlink stored before the block ID was: its stored
+		// result recorded the direction, without which it cannot be decoded.
+		{ID: 4, Timestamp: oct, Label: "H1", ParserType: "cpdlc", Tail: "N7887A", RawText: "USADCXA.AT1.N7887A638E6E10006294",
+			ParsedData: map[string]string{"direction": "downlink"}},
 		// A message without text keeps an unparsed row.
 		{ID: 3, Timestamp: oct, Label: "_d", ParserType: "unparsed", Tail: "VH-OQA", ParsedData: map[string]string{}},
 	}
@@ -91,8 +96,8 @@ func TestRebuildArchive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if stats.Messages != 3 || stats.Rows != 4 {
-		t.Errorf("stats %+v, want 3 messages and 4 rows", stats)
+	if stats.Messages != 4 || stats.Rows != 5 {
+		t.Errorf("stats %+v, want 4 messages and 5 rows", stats)
 	}
 
 	type row struct {
@@ -116,7 +121,7 @@ func TestRebuildArchive(t *testing.T) {
 		return out
 	}
 	got := read(storage.MessagesTable)
-	want := []row{{1, "cpdlc", ""}, {1, "envelope", ""}, {2, "unparsed", "QF1"}, {3, "unparsed", ""}}
+	want := []row{{1, "cpdlc", ""}, {1, "envelope", ""}, {2, "unparsed", "QF1"}, {3, "unparsed", ""}, {4, "cpdlc", ""}}
 	if len(got) != len(want) {
 		t.Fatalf("rebuilt rows %v, want %v", got, want)
 	}
@@ -125,6 +130,15 @@ func TestRebuildArchive(t *testing.T) {
 			t.Errorf("rebuilt row %d = %v, want %v", i, got[i], want[i])
 		}
 	}
+	// The CPDLC downlink is decoded with its stored direction.
+	var cpdlcJSON string
+	if err := db.Conn().QueryRow(ctx, "SELECT parsed_json FROM "+storage.MessagesTable+" WHERE id = 4 AND parser_type = 'cpdlc'").Scan(&cpdlcJSON); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(cpdlcJSON, `"direction":"downlink"`) || !strings.Contains(cpdlcJSON, "WILCO") {
+		t.Errorf("rebuilt CPDLC result %s, want the downlink decoded (WILCO)", cpdlcJSON)
+	}
+
 	// The block fields are kept.
 	var number string
 	var from []uint64
@@ -134,8 +148,8 @@ func TestRebuildArchive(t *testing.T) {
 	if number != "D47" || len(from) != 2 || from[0] != 20 {
 		t.Errorf("message 2 block fields %q, %v; want D47, [20 21]", number, from)
 	}
-	if old := read(previousTable); len(old) != 4 {
-		t.Errorf("%s has %d rows, want the 4 original rows", previousTable, len(old))
+	if old := read(previousTable); len(old) != 5 {
+		t.Errorf("%s has %d rows, want the 5 original rows", previousTable, len(old))
 	}
 
 	// The timestamp keeps its milliseconds.

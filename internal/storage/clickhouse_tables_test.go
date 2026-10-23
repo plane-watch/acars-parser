@@ -213,10 +213,14 @@ func TestBlockColumns(t *testing.T) {
 	no := false
 	rows := []CHInsertParams{
 		{ID: 10, Timestamp: ts, Label: "H1", ParserType: "unparsed", RawText: "A", ParsedData: map[string]string{},
-			BlockFields: BlockFields{MessageNumber: "D47A", BlockID: "5", BlockEnd: &no}},
+			BlockFields: BlockFields{MessageNumber: "D47A", BlockID: "5", BlockEnd: &no, LinkDirection: "downlink"}},
 		{ID: 10 | 1<<62, Timestamp: ts, Label: "H1", ParserType: "unparsed", RawText: "AB", ParsedData: map[string]string{},
 			BlockFields: BlockFields{MessageNumber: "D47", BlockID: "5", AssembledFrom: []uint64{10, 11}}},
 		{ID: 12, Timestamp: ts, Label: "H1", ParserType: "unparsed", RawText: "C", ParsedData: map[string]string{}},
+		// A message stored before the link direction was, whose CPDLC
+		// result recorded the direction: its other row has none.
+		{ID: 13, Timestamp: ts, Label: "H1", ParserType: "envelope", RawText: "D", ParsedData: map[string]string{}},
+		{ID: 13, Timestamp: ts, Label: "H1", ParserType: "cpdlc", RawText: "D", ParsedData: map[string]string{"direction": "uplink"}},
 	}
 	if err := db.InsertBatchInto(ctx, table, rows); err != nil {
 		t.Fatal(err)
@@ -225,14 +229,18 @@ func TestBlockColumns(t *testing.T) {
 	if err := db.StreamRawMessages(ctx, table, 10, func(m RawMessage) error { got[m.ID] = m; return nil }); err != nil {
 		t.Fatal(err)
 	}
-	if b := got[10]; b.MessageNumber != "D47A" || b.BlockID != "5" || b.BlockEnd == nil || *b.BlockEnd || len(b.AssembledFrom) != 0 {
+	if b := got[10]; b.MessageNumber != "D47A" || b.BlockID != "5" || b.BlockEnd == nil || *b.BlockEnd || len(b.AssembledFrom) != 0 ||
+		b.LinkDirection != "downlink" {
 		t.Errorf("block: %+v", b)
 	}
 	if j := got[10|1<<62]; j.MessageNumber != "D47" || j.BlockEnd != nil || len(j.AssembledFrom) != 2 || j.AssembledFrom[1] != 11 {
 		t.Errorf("joined message: %+v", j)
 	}
-	if m := got[12]; m.MessageNumber != "" || m.BlockID != "" || m.BlockEnd != nil || len(m.AssembledFrom) != 0 {
+	if m := got[12]; m.MessageNumber != "" || m.BlockID != "" || m.BlockEnd != nil || len(m.AssembledFrom) != 0 || m.StoredDirection != "" {
 		t.Errorf("message without block fields: %+v", m)
+	}
+	if m := got[13]; m.StoredDirection != "uplink" || m.RawText != "D" {
+		t.Errorf("message with a stored direction: %+v", m)
 	}
 }
 
@@ -263,10 +271,10 @@ func TestCreateSchemaAddsBlockColumns(t *testing.T) {
 	}
 	var n uint64
 	if err := db.conn.QueryRow(ctx, `SELECT count() FROM system.columns WHERE database = currentDatabase()
-		AND table = 'messages' AND name IN ('message_number', 'block_id', 'block_end', 'assembled_from')`).Scan(&n); err != nil {
+		AND table = 'messages' AND name IN ('message_number', 'block_id', 'block_end', 'assembled_from', 'link_direction')`).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
-	if n != 4 {
-		t.Errorf("%d of the 4 block columns exist", n)
+	if n != 5 {
+		t.Errorf("%d of the 5 block columns exist", n)
 	}
 }

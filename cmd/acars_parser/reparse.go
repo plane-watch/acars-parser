@@ -179,6 +179,9 @@ func runReparseCmd(args []string) {
 				Text:  msg.RawText,
 				Tail:  msg.Tail,
 			}
+			// The row's own result recorded the direction it was parsed
+			// with, if the row predates the stored link fields.
+			setBlockFields(acarsMsg, msg.BlockFields, oldFields["direction"])
 
 			matches := reg.Dispatch(acarsMsg)
 			var newFields map[string]string
