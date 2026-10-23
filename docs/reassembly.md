@@ -15,7 +15,7 @@ A message without a tail or text, or whose message number does not end in a lett
 
 ## When a message is complete
 
-The feed's `block_end` flag does not mark the last block reliably. In a capture of 8,000 feed messages in October 2026, it was false on most single-block messages, and true on every block of some multi-block messages and false on every block of others. Completeness is therefore inferred from the blocks themselves, and only once no block of the message has arrived for 30 seconds (the settling time), so that a block arriving later can still change the judgement. `live` judges the settled messages every 5 seconds. A message is then:
+The feed's `block_end` flag does not mark the last block reliably. In a capture of 8,000 feed messages in October 2026, it was false on most single-block messages, and true on every block of some multi-block messages and false on every block of others. Completeness is therefore inferred from the blocks themselves, and only once no block of the message has arrived for 30 seconds (the settling time), so that a block arriving later can still change the judgement. `live` judges the settled messages every 5 seconds, on a timer, so a message is judged even when no further message arrives. A message is then:
 
 - **complete**, and joined, when there is a block for every letter from A to the highest one received (at least two), every block but the last has the same length as block A (a full block: 206 or 210 characters for H1 in the capture, 176 for some messages), and the last block is shorter;
 - **inconsistent**, and never joined, when a block other than the last is not full, a block is longer than block A, or the same letter was received twice with different text (two receptions that cannot both be right, so neither is trusted). A message of a single short block A needs no joining and is treated the same way;
@@ -44,7 +44,7 @@ Some feeders also send the whole message, joined, as one "block" longer than an 
 
 ## Memory
 
-Every downlink starts a group, because a single-block message's number also ends in `A`. A group with no new block for two minutes is forgotten (blocks of one message arrived up to about 25 seconds apart in the capture); a block that arrives after that starts a new group rather than joining the old blocks. At most 50,000 groups are kept, the least recently updated being forgotten first. Groups are kept in memory only, so blocks pending when `live` stops are lost.
+Every downlink starts a group, because a single-block message's number also ends in `A`. A group with no new block for two minutes is forgotten (blocks of one message arrived up to about 25 seconds apart in the capture); a block that arrives after that starts a new group rather than joining the old blocks. At most 50,000 groups are kept, the least recently updated being forgotten first. Groups are kept in memory only: when `live` stops, it processes the messages that have settled, and the blocks of messages that have not are lost.
 
 ## The archive
 

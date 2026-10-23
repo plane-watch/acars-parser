@@ -186,9 +186,18 @@ func runLiveCmd(args []string) {
 		showAll: *showAll, showRaw: *showRaw, showEmpty: *showEmpty, verbose: *verbose,
 		debugLabels: debugMap, excludeTypes: excludeMap,
 		assembler: reassembly.New(reassemblySettle, reassemblyIdle, reassemblyMaxPending),
-		lastFlush: time.Now(),
 		now:       time.Now,
 	}
+
+	// Judge the settled multi-block messages every few seconds.
+	assemblyCtx, stopAssembly := context.WithCancel(ctx)
+	var assemblyWg sync.WaitGroup
+	assemblyTicker := time.NewTicker(reassemblyFlushEvery)
+	assemblyWg.Add(1)
+	go func() {
+		defer assemblyWg.Done()
+		handler.flushLoop(assemblyCtx, assemblyTicker.C)
+	}()
 
 	// Subscribe.
 	_, err = nc.Subscribe(*subject, func(m *nats.Msg) {
@@ -223,6 +232,14 @@ func runLiveCmd(args []string) {
 	signal.Stop(sigChan)
 
 	fmt.Println("\nShutting down gracefully...")
+
+	// Stop the assembler's flush loop, and process the messages that have
+	// settled since its last tick, before the final storage flush. Messages
+	// whose blocks have not settled are not joined.
+	assemblyTicker.Stop()
+	stopAssembly()
+	assemblyWg.Wait()
+	handler.flush(ctx)
 
 	// Flush remaining messages.
 	if msgBuffer != nil {
@@ -521,10 +538,13 @@ func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars
 	}
 }
 
-// liveHandler handles the messages of a live session. Its methods run on
-// the subscription's goroutine only (nats.go calls a subscription's handler
-// for one message at a time), so neither it nor its assembler is locked.
+// liveHandler handles the messages of a live session. handle runs on the
+// subscription's goroutine and flush on the flush loop's; mu serialises
+// them, because the assembler, the stats and the buffers are not safe for
+// concurrent use.
 type liveHandler struct {
+	mu sync.Mutex
+
 	reg        *registry.Registry
 	stats      *liveStats
 	outFile    *os.File
@@ -535,10 +555,8 @@ type liveHandler struct {
 	showAll, showRaw, showEmpty, verbose bool
 	debugLabels, excludeTypes            map[string]bool
 
-	// assembler joins multi-block downlinks; lastFlush is when it last
-	// judged the settled messages.
+	// assembler joins multi-block downlinks.
 	assembler *reassembly.Assembler
-	lastFlush time.Time
 
 	// now returns the current time; tests replace it.
 	now func() time.Time
@@ -546,8 +564,9 @@ type liveHandler struct {
 
 // Reassembly settings. Blocks of one message arrived up to about 25 seconds
 // apart in October 2026: a message is judged once no block of it has
-// arrived for 30 seconds (so a joined message is processed about that long
-// after its last block), and forgotten after two minutes. Every downlink
+// arrived for 30 seconds (the flush loop runs every 5 seconds, so a joined
+// message is processed 30 to 35 seconds after its last block), and
+// forgotten after two minutes. Every downlink
 // starts a group (its message number ends in a block letter), about 2,000
 // a minute, so the bound is well above the groups held for two minutes.
 const (
@@ -558,8 +577,11 @@ const (
 )
 
 // handle decodes a feed message, processes it and gives it to the
-// assembler, and processes the messages the assembler has joined.
+// assembler.
 func (h *liveHandler) handle(ctx context.Context, data []byte) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
 	msg := parseMessage(data)
 	if msg == nil {
 		return
@@ -572,19 +594,31 @@ func (h *liveHandler) handle(ctx context.Context, data []byte) {
 
 	h.process(ctx, msg)
 
-	now := h.now()
-	h.assembler.Add(msg, now)
-	if now.Sub(h.lastFlush) >= reassemblyFlushEvery {
-		h.flush(ctx, now)
+	h.assembler.Add(msg, h.now())
+}
+
+// flush processes the messages the assembler has joined: those whose
+// blocks have settled.
+func (h *liveHandler) flush(ctx context.Context) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	for _, joined := range h.assembler.Flush(h.now()) {
+		h.stats.assembled++
+		h.process(ctx, joined)
 	}
 }
 
-// flush processes the messages the assembler has joined by now.
-func (h *liveHandler) flush(ctx context.Context, now time.Time) {
-	h.lastFlush = now
-	for _, joined := range h.assembler.Flush(now) {
-		h.stats.assembled++
-		h.process(ctx, joined)
+// flushLoop flushes at each tick, until ctx is done. Flushing on a timer
+// rather than on message arrival means a settled message is processed even
+// when no further message arrives.
+func (h *liveHandler) flushLoop(ctx context.Context, tick <-chan time.Time) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-tick:
+			h.flush(ctx)
+		}
 	}
 }
 

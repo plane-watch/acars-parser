@@ -42,19 +42,44 @@ func TestLiveJoinsBlocks(t *testing.T) {
 		debugLabels:  map[string]bool{},
 		excludeTypes: map[string]bool{},
 		assembler:    reassembly.New(reassemblySettle, reassemblyIdle, reassemblyMaxPending),
-		lastFlush:    clock,
 		now:          func() time.Time { return clock },
 	}
 	ctx := context.Background()
 	h.handle(ctx, feedBlock(t, 100, "D47A", ohmaReport[:210]))
 	h.handle(ctx, feedBlock(t, 101, "D47B", ohmaReport[210:420]))
 	h.handle(ctx, feedBlock(t, 102, "D47C", ohmaReport[420:]))
-	h.flush(ctx, clock.Add(reassemblySettle-time.Second))
-	if h.stats.assembled != 0 || h.stats.typeCounts["ohma"] != 0 {
-		t.Fatalf("before the blocks settled: %d joined, %d ohma; want 0, 0", h.stats.assembled, h.stats.typeCounts["ohma"])
+
+	// The flush loop judges the blocks on its ticks, with no further message.
+	// The tick channel is unbuffered and the loop handles one tick at a
+	// time, so a second tick at the same time returns only once the first
+	// tick's flush is done.
+	tick := make(chan time.Time)
+	loopCtx, stop := context.WithCancel(ctx)
+	done := make(chan struct{})
+	go func() {
+		h.flushLoop(loopCtx, tick)
+		close(done)
+	}()
+	start := clock
+	joinedAt := func(at time.Time) int {
+		h.mu.Lock()
+		clock = at
+		h.mu.Unlock()
+		tick <- at
+		tick <- at
+		h.mu.Lock()
+		defer h.mu.Unlock()
+		return h.stats.assembled
 	}
-	h.flush(ctx, clock.Add(reassemblySettle))
-	if h.stats.assembled != 1 || h.stats.typeCounts["ohma"] != 1 {
-		t.Errorf("after the blocks settled: %d joined, %d ohma; want 1, 1", h.stats.assembled, h.stats.typeCounts["ohma"])
+	if n := joinedAt(start.Add(reassemblySettle - time.Second)); n != 0 {
+		t.Errorf("before the blocks settled: %d joined, want 0", n)
+	}
+	if n := joinedAt(start.Add(reassemblySettle)); n != 1 {
+		t.Errorf("after the blocks settled: %d joined, want 1", n)
+	}
+	stop()
+	<-done
+	if h.stats.typeCounts["ohma"] != 1 {
+		t.Errorf("%d ohma results, want 1", h.stats.typeCounts["ohma"])
 	}
 }
