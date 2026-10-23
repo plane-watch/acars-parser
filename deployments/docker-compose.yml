@@ -128,6 +128,10 @@ services:
     image: acars_parser:local
     container_name: acars-live
     restart: unless-stopped
+    # live drains its subscription and flushes its buffers when stopped, for
+    # up to two minutes (drainLimit in cmd/acars_parser/live.go); Docker's
+    # default of 10 seconds would kill it part-way.
+    stop_grace_period: 3m
     environment: *db-env
     # The NATS credentials file stays outside the repository and the image.
     command: ["live", "-creds", "/run/secrets/airframes_nats.creds", "-exclude", ""]

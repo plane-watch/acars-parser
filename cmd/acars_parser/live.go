@@ -57,17 +57,12 @@ func runLiveCmd(args []string) {
 		os.Exit(1)
 	}
 
-	// Connect to NATS. natsClosed is closed when the connection closes,
-	// which at shutdown is after the drain has delivered the messages
-	// already received and their callbacks have returned.
-	natsClosed := make(chan struct{})
+	// Connect to NATS.
 	opts := []nats.Option{
 		nats.UserCredentials(*credsFile),
 		nats.Name("acars_parser-live"),
 		nats.ReconnectWait(2 * time.Second),
 		nats.MaxReconnects(-1),
-		nats.DrainTimeout(natsDrainTimeout),
-		nats.ClosedHandler(func(*nats.Conn) { close(natsClosed) }),
 	}
 
 	nc, err := nats.Connect(*natsServer, opts...)
@@ -205,7 +200,7 @@ func runLiveCmd(args []string) {
 	}()
 
 	// Subscribe.
-	_, err = nc.Subscribe(*subject, func(m *nats.Msg) {
+	sub, err := nc.Subscribe(*subject, func(m *nats.Msg) {
 		stats.totalMessages++
 
 		// Extract message ID from subject for early deduplication.
@@ -224,6 +219,11 @@ func runLiveCmd(args []string) {
 		fmt.Fprintf(os.Stderr, "Error subscribing: %v\n", err)
 		os.Exit(1)
 	}
+	// subClosed is closed once the subscription is closed, which nats.go
+	// does after the callback goroutine has delivered the queued messages
+	// and returned.
+	subClosed := make(chan struct{})
+	sub.SetClosedHandler(func(string) { close(subClosed) })
 
 	fmt.Println("Listening for messages... (Ctrl+C to quit)")
 	fmt.Println()
@@ -238,18 +238,21 @@ func runLiveCmd(args []string) {
 
 	fmt.Println("\nShutting down gracefully...")
 
-	// Stop the subscription first and wait for its callbacks to return, so
-	// that nothing is processed after the final flushes below and the
-	// summary is not read while a callback writes it.
-	if err := nc.Drain(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error draining NATS: %v\n", err)
-		nc.Close()
+	// Stop the subscription first: drain it (no new messages; the queued
+	// ones are delivered) and wait for its callbacks to return, so that
+	// nothing is processed after the final flushes below and the summary is
+	// not read while a callback writes it. Each callback's database work is
+	// bounded, so the wait ends; drainLimit only guards against a fault.
+	if err := sub.Drain(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error draining the subscription: %v\n", err)
+	} else {
+		select {
+		case <-subClosed:
+		case <-time.After(drainLimit):
+			fmt.Fprintf(os.Stderr, "The subscription had not drained after %s; queued messages may be lost\n", drainLimit)
+		}
 	}
-	select {
-	case <-natsClosed:
-	case <-time.After(natsDrainTimeout + 5*time.Second):
-		fmt.Fprintln(os.Stderr, "Timed out waiting for NATS to close")
-	}
+	nc.Close()
 
 	// Stop the assembler's flush loop, and process the messages that have
 	// settled since its last tick, before the final storage flush. Messages
@@ -586,9 +589,10 @@ type liveHandler struct {
 	now func() time.Time
 }
 
-// natsDrainTimeout bounds the wait, at shutdown, for the messages already
-// received to be processed.
-const natsDrainTimeout = 30 * time.Second
+// drainLimit bounds the wait, at shutdown, for the messages already
+// received to be processed. Docker must allow longer before it kills the
+// container (stop_grace_period in deployments/docker-compose.yml).
+const drainLimit = 2 * time.Minute
 
 // stateUpdateTimeout bounds a message's PostgreSQL state update, so that a
 // blocked update cannot hold the handler's lock indefinitely.
