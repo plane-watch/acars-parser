@@ -57,12 +57,17 @@ func runLiveCmd(args []string) {
 		os.Exit(1)
 	}
 
-	// Connect to NATS.
+	// Connect to NATS. natsClosed is closed when the connection closes,
+	// which at shutdown is after the drain has delivered the messages
+	// already received and their callbacks have returned.
+	natsClosed := make(chan struct{})
 	opts := []nats.Option{
 		nats.UserCredentials(*credsFile),
 		nats.Name("acars_parser-live"),
 		nats.ReconnectWait(2 * time.Second),
 		nats.MaxReconnects(-1),
+		nats.DrainTimeout(natsDrainTimeout),
+		nats.ClosedHandler(func(*nats.Conn) { close(natsClosed) }),
 	}
 
 	nc, err := nats.Connect(*natsServer, opts...)
@@ -233,6 +238,19 @@ func runLiveCmd(args []string) {
 
 	fmt.Println("\nShutting down gracefully...")
 
+	// Stop the subscription first and wait for its callbacks to return, so
+	// that nothing is processed after the final flushes below and the
+	// summary is not read while a callback writes it.
+	if err := nc.Drain(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error draining NATS: %v\n", err)
+		nc.Close()
+	}
+	select {
+	case <-natsClosed:
+	case <-time.After(natsDrainTimeout + 5*time.Second):
+		fmt.Fprintln(os.Stderr, "Timed out waiting for NATS to close")
+	}
+
 	// Stop the assembler's flush loop, and process the messages that have
 	// settled since its last tick, before the final storage flush. Messages
 	// whose blocks have not settled are not joined.
@@ -306,6 +324,10 @@ func newMessageBuffer(db *storage.ClickHouseDB, batchSize int, interval time.Dur
 	}
 }
 
+// autoFlushTimeout bounds the insert that add makes when the buffer is
+// full, which runs while the handler's lock is held.
+const autoFlushTimeout = 30 * time.Second
+
 func (b *messageBuffer) add(msg storage.CHInsertParams) {
 	b.mu.Lock()
 	b.messages = append(b.messages, msg)
@@ -313,7 +335,9 @@ func (b *messageBuffer) add(msg storage.CHInsertParams) {
 	b.mu.Unlock()
 
 	if shouldFlush {
-		if err := b.flush(context.Background()); err != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), autoFlushTimeout)
+		defer cancel()
+		if err := b.flush(ctx); err != nil {
 			fmt.Fprintf(os.Stderr, "Error auto-flushing messages: %v\n", err)
 		}
 	}
@@ -562,6 +586,14 @@ type liveHandler struct {
 	now func() time.Time
 }
 
+// natsDrainTimeout bounds the wait, at shutdown, for the messages already
+// received to be processed.
+const natsDrainTimeout = 30 * time.Second
+
+// stateUpdateTimeout bounds a message's PostgreSQL state update, so that a
+// blocked update cannot hold the handler's lock indefinitely.
+const stateUpdateTimeout = 10 * time.Second
+
 // Reassembly settings. Blocks of one message arrived up to about 25 seconds
 // apart in October 2026: a message is judged once no block of it has
 // arrived for 30 seconds (the flush loop runs every 5 seconds, so a joined
@@ -630,7 +662,9 @@ func (h *liveHandler) process(ctx context.Context, msg *acars.Message) {
 
 	// Update state in PostgreSQL with parsed data.
 	if h.pg != nil {
-		updateStatePostgres(ctx, h.pg, msg, results, h.stateStats)
+		stateCtx, cancel := context.WithTimeout(ctx, stateUpdateTimeout)
+		updateStatePostgres(stateCtx, h.pg, msg, results, h.stateStats)
+		cancel()
 	}
 
 	if len(results) > 0 {
