@@ -3,6 +3,7 @@ package acars
 
 import (
 	"encoding/json"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -87,6 +88,31 @@ type Message struct {
 	Airframe *Airframe `json:"airframe,omitempty"`
 	Flight   *Flight   `json:"flight,omitempty"`
 	Station  *Station  `json:"station,omitempty"`
+}
+
+// h1PreambleRe matches the preamble of an H1 FMC downlink's text: an
+// optional "- ", "#", a two-character sub-label (M1, DF, CF, 10, ...) and
+// "B", as in "#M1BPOSN..." and "- #DFB++86501...". Other H1 forms, such as
+// "- #MD/AA ..." (CPDLC and ADS-C) and "#M1FPN/...", are not matched: their
+// parsers read the text whole.
+var h1PreambleRe = regexp.MustCompile(`^(?:-\s*)?#[A-Z0-9]{2}B`)
+
+// ForParsing returns the message as parsers see it: for an H1 message with
+// an FMC preamble, a copy whose text starts after the preamble, so that a
+// report reads the same whether or not the feeder kept the preamble;
+// otherwise the message itself. The message's own text, which is stored,
+// is not changed.
+func (m *Message) ForParsing() *Message {
+	if m.Label != "H1" {
+		return m
+	}
+	loc := h1PreambleRe.FindStringIndex(m.Text)
+	if loc == nil {
+		return m
+	}
+	c := *m
+	c.Text = m.Text[loc[1]:]
+	return &c
 }
 
 // AircraftAddress returns the aircraft's 24-bit ICAO address as carried by the

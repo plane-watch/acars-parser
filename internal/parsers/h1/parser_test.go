@@ -132,13 +132,6 @@ func TestDetectTruncation(t *testing.T) {
 			want:      false,
 		},
 		{
-			name:      "multi-part without terminator",
-			text:      "FPN/SN123#M1:DA:KSFO:AA:KLAX",
-			waypoints: nil,
-			route:     "",
-			want:      true,
-		},
-		{
 			name:      "multi-part with terminator",
 			text:      "FPN/SN123#M1:DA:KSFO#MD:AA:KLAX",
 			waypoints: nil,
@@ -199,5 +192,19 @@ func TestDetectTruncation(t *testing.T) {
 				t.Errorf("detectTruncation() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+// TestFPNFromFMC1IsNotTruncated checks that a flight plan from FMC 1
+// ("#M1", the sending unit, not a part number) is not taken to be
+// truncated.
+func TestFPNFromFMC1IsNotTruncated(t *testing.T) {
+	text := "#M1FPN/RP:DA:KMSP:AA:KDFW:CR:KMSPKDFW(18R)..IBAKE:A:VKTRY2.IBAKE:F:VECTOR..DISCO..ICKEL:AP:ILS 18R.ICKEL:F:LIKES102B"
+	r, ok := (&FPNParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Text: text}).(*FPNResult)
+	if !ok {
+		t.Fatal("Parse returned no flight plan")
+	}
+	if r.Truncated {
+		t.Error("Truncated = true, want false")
 	}
 }

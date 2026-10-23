@@ -50,6 +50,8 @@ The `internal/parsers/arinc` package is not a parser. It is a library that valid
 
 Within each tier, a parser runs only if its `QuickCheck` returns true. Every parser that returns a non-nil result contributes that result, so one message can produce several results.
 
+Before the tiers, an H1 message's FMC preamble is removed from the text that the parsers see (`acars.Message.ForParsing`): an optional `- `, `#`, a two-character sub-label naming the sending unit (`M1` for FMC 1, `DF`, `CF`, `10` and others) and `B`, as in `#M1BPOSN...` or `- #DFB++86501...`. Some feeders keep the preamble and some do not, so without this a report reads differently depending on the feeder. Other H1 forms keep their text, because their parsers read it whole: `- #MD/AA ...` (CPDLC and ADS-C) and `#M1FPN/...`. The stored `raw_text` is the text as transmitted, preamble included. `DispatchFirst` and the `debug` command's traces use the same text.
+
 Global parsers run after label parsers because of the order of the tiers in `Dispatch`, not because of their priority. The `pdc` parser's priority of 500 has no effect on this.
 
 ### Priority
@@ -535,7 +537,7 @@ The header is a two-character code (reported as the message type), a title padde
 
 **Description:** Parses FPN flight plan messages, including SIDs, STARs and approaches.
 
-**Extracted fields:** flight number, origin, destination, route, waypoints with coordinates, departure and departure transition, arrival and arrival transition, approach, approach type, approach runway, approach route and approach waypoints, and a truncation flag. The flag is set when a multi-part message (`#M1`) has no final part (`#MD`), or when the ARINC CRC at the end of a message with a `/WD` section does not verify.
+**Extracted fields:** flight number, origin, destination, route, waypoints with coordinates, departure and departure transition, arrival and arrival transition, approach, approach type, approach runway, approach route and approach waypoints, and a truncation flag. The flag is set when the ARINC CRC at the end of a message with a `/WD` section does not verify, or when the text ends mid-section or mid-route. `#M1` in the text names the sending unit (FMC 1), not the first part of a message, so it does not set the flag.
 
 ---
 

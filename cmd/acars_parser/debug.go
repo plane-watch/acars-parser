@@ -123,7 +123,8 @@ func runDebugCmd(args []string) {
 			continue
 		}
 
-		trace := tp.traceable.ParseWithTrace(msg)
+		// Trace what dispatch gives the parsers: the text without an H1 preamble.
+		trace := tp.traceable.ParseWithTrace(msg.ForParsing())
 		printParserTrace(trace, *showAll)
 	}
 }

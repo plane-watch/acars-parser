@@ -113,3 +113,39 @@ func TestRegisterRejectsDuplicateNames(t *testing.T) {
 	}()
 	r.Register(&fakeParser{name: "same", labels: []string{"RA"}, priority: 20})
 }
+
+// textParser records the text it is given.
+type textParser struct{ checked, parsed string }
+
+func (p *textParser) Name() string     { return "text" }
+func (p *textParser) Labels() []string { return []string{"H1"} }
+func (p *textParser) Priority() int    { return 1 }
+func (p *textParser) QuickCheck(text string) bool {
+	p.checked = text
+	return true
+}
+func (p *textParser) Parse(msg *acars.Message) Result {
+	p.parsed = msg.Text
+	return &fakeResult{typ: "text"}
+}
+
+// TestDispatchStripsH1Preamble checks that parsers are given an H1
+// message's text after its FMC preamble ("#M1B").
+func TestDispatchStripsH1Preamble(t *testing.T) {
+	p := &textParser{}
+	r := New()
+	r.Register(p)
+	msg := &acars.Message{Label: "H1", Text: "#M1BPOSN30302W097501"}
+	r.Dispatch(msg)
+	if p.checked != "POSN30302W097501" || p.parsed != "POSN30302W097501" {
+		t.Errorf("Dispatch gave %q, %q; want the text after the preamble", p.checked, p.parsed)
+	}
+	p.checked, p.parsed = "", ""
+	r.DispatchFirst(msg)
+	if p.checked != "POSN30302W097501" || p.parsed != "POSN30302W097501" {
+		t.Errorf("DispatchFirst gave %q, %q; want the text after the preamble", p.checked, p.parsed)
+	}
+	if msg.Text != "#M1BPOSN30302W097501" {
+		t.Errorf("the message's text changed to %q", msg.Text)
+	}
+}

@@ -278,3 +278,32 @@ func TestNATSWrapper_ToMessageBlockFields(t *testing.T) {
 		t.Errorf("MessageNumber, BlockEnd = %q, %v; want unset", msg.MessageNumber, msg.BlockEnd)
 	}
 }
+
+func TestForParsing(t *testing.T) {
+	tests := []struct {
+		label, text, want string
+	}{
+		{"H1", "#M1BPOSN30302W097501,RW18R", "POSN30302W097501,RW18R"},
+		{"H1", "- #DFB++86501,N8984L", "++86501,N8984L"},
+		{"H1", "-  #CFBPAGE 00001 MDC REPORT", "PAGE 00001 MDC REPORT"},
+		// Other H1 forms keep their text: their parsers read it whole.
+		{"H1", "- #MD/AA ATLXAXA.AT1.N123AB", "- #MD/AA ATLXAXA.AT1.N123AB"},
+		{"H1", "#M1FPN/SN2993/FNQFA401", "#M1FPN/SN2993/FNQFA401"},
+		{"H1", "POSN30302W097501", "POSN30302W097501"},
+		// Only H1 carries the preamble.
+		{"SA", "#M1BPOSN30302W097501", "#M1BPOSN30302W097501"},
+	}
+	for _, tt := range tests {
+		msg := &Message{Label: tt.label, Text: tt.text, Tail: "N1"}
+		got := msg.ForParsing()
+		if got.Text != tt.want {
+			t.Errorf("ForParsing(%s %q).Text = %q, want %q", tt.label, tt.text, got.Text, tt.want)
+		}
+		if got.Tail != "N1" {
+			t.Errorf("ForParsing(%q) lost the other fields", tt.text)
+		}
+		if msg.Text != tt.text {
+			t.Errorf("ForParsing changed the message's own text to %q", msg.Text)
+		}
+	}
+}

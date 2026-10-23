@@ -178,6 +178,9 @@ func (r *Registry) Dispatch(msg *acars.Message) []Match {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
+	// Parsers see the message without an H1 FMC preamble.
+	msg = msg.ForParsing()
+
 	var results []Match
 
 	// 1. Try label-specific parsers first (most efficient path)
@@ -220,6 +223,9 @@ func (r *Registry) Dispatch(msg *acars.Message) []Match {
 func (r *Registry) DispatchFirst(msg *acars.Message) Result {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+
+	// Parsers see the message without an H1 FMC preamble.
+	msg = msg.ForParsing()
 
 	// Try label-specific parsers
 	if parsers, ok := r.byLabel[msg.Label]; ok {

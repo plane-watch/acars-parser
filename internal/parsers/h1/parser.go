@@ -347,12 +347,12 @@ func splitProcedureTransition(s string) (procedure, transition string) {
 // the CRC checksum. For messages with /WD section, the last 4 hex characters are
 // the CRC which should verify to 0x1D0F when appended as bytes.
 // Returns true if the message is truncated/corrupt, false if valid or unknown.
+//
+// "#M1" in the text does not mean truncation: it names the sending unit
+// (FMC 1, as M2 and M3 are the other FMCs), not the first part of a
+// message. Treating it as a marker flagged 12,793 of the archive's flight
+// plans, all from FMC 1, as truncated.
 func detectTruncation(text string, waypoints []RouteWaypoint, route string) bool {
-	// Check for multi-part message markers without proper termination.
-	if strings.Contains(text, "#M1") && !strings.Contains(text, "#MD") {
-		return true
-	}
-
 	// For messages with /WD section, verify CRC.
 	// Format: ...data/WD,,,,XXXX where XXXX is the 4-char hex checksum.
 	if idx := strings.Index(text, "/WD"); idx >= 0 {
