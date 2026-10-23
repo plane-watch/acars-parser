@@ -58,14 +58,19 @@ func blockFields(msg *acars.Message) storage.BlockFields {
 
 // setBlockFields sets a message's block and link fields from those stored.
 // storedDirection is the direction an earlier parse of the message
-// recorded (see storage.RawMessage.StoredDirection): for a message stored
-// before the block ID and link direction were, it is used as the link
-// direction, so that parsers that need the direction (CPDLC and ADS-C)
-// parse it as live did.
+// recorded (see storage.RawMessage.StoredDirection): for an H1 message
+// stored before the block ID and link direction were, it is used as the
+// link direction, so that CPDLC relayed on H1 is decoded as live decoded
+// it. On H1 the parser has no label fallback, so a stored direction came
+// from the link fields or from the message itself (only one direction
+// decoded). It is not used for other labels: on AA and BA the label
+// decides the direction, and an earlier parser version's guess must not
+// override it.
 func setBlockFields(msg *acars.Message, b storage.BlockFields, storedDirection string) {
 	msg.MessageNumber, msg.BlockID, msg.BlockEnd = b.MessageNumber, b.BlockID, b.BlockEnd
 	msg.LinkDirection = b.LinkDirection
-	if msg.LinkDirection == "" && msg.BlockID == "" && (storedDirection == "uplink" || storedDirection == "downlink") {
+	if msg.Label == "H1" && msg.LinkDirection == "" && msg.BlockID == "" &&
+		(storedDirection == "uplink" || storedDirection == "downlink") {
 		msg.LinkDirection = storedDirection
 	}
 	msg.AssembledFrom = nil

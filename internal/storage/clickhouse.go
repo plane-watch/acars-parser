@@ -708,12 +708,16 @@ func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chun
 }
 
 // streamRange calls fn for each distinct message with an ID from lo to hi.
+// The rows of a message hold the same content; should rows of one ID hold
+// different text, the first text in order is streamed, and its fields and
+// stored direction are taken only from the rows with that text.
 func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uint64, fn func(RawMessage) error) error {
 	rows, err := d.conn.Query(ctx,
-		`SELECT id, any(timestamp), any(label), any(tail), any(flight), any(raw_text),
+		`SELECT id, any(timestamp), any(label), any(tail), any(flight), raw_text,
 			any(message_number), any(block_id), any(block_end), any(assembled_from), any(link_direction),
 			anyIf(JSONExtractString(parsed_json, 'direction'), JSONExtractString(parsed_json, 'direction') IN ('uplink', 'downlink'))
-		FROM `+table+` WHERE id >= ? AND id <= ? GROUP BY id ORDER BY id`, lo, hi)
+		FROM `+table+` WHERE id >= ? AND id <= ?
+		GROUP BY id, raw_text ORDER BY id, raw_text LIMIT 1 BY id`, lo, hi)
 	if err != nil {
 		return fmt.Errorf("query messages %d to %d: %w", lo, hi, err)
 	}

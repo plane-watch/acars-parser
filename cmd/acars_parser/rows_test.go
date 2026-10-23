@@ -53,3 +53,25 @@ func TestMessageRowsKeepBlockFields(t *testing.T) {
 		}
 	}
 }
+
+// TestSetBlockFieldsStoredDirection checks that a stored direction is used
+// only for an H1 message without link fields: for AA and BA the label
+// decides the direction, so an earlier parse's guess must not override it.
+func TestSetBlockFieldsStoredDirection(t *testing.T) {
+	tests := []struct {
+		label, blockID, stored, want string
+	}{
+		{"H1", "", "downlink", "downlink"},
+		{"H1", "", "sideways", ""},
+		{"H1", "5", "uplink", ""},
+		{"BA", "", "uplink", ""},
+		{"AA", "", "downlink", ""},
+	}
+	for _, tt := range tests {
+		msg := &acars.Message{Label: tt.label}
+		setBlockFields(msg, storage.BlockFields{BlockID: tt.blockID}, tt.stored)
+		if msg.LinkDirection != tt.want {
+			t.Errorf("%s, block %q, stored %q: LinkDirection = %q, want %q", tt.label, tt.blockID, tt.stored, msg.LinkDirection, tt.want)
+		}
+	}
+}

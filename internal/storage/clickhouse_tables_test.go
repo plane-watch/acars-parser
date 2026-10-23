@@ -221,6 +221,10 @@ func TestBlockColumns(t *testing.T) {
 		// result recorded the direction: its other row has none.
 		{ID: 13, Timestamp: ts, Label: "H1", ParserType: "envelope", RawText: "D", ParsedData: map[string]string{}},
 		{ID: 13, Timestamp: ts, Label: "H1", ParserType: "cpdlc", RawText: "D", ParsedData: map[string]string{"direction": "uplink"}},
+		// Rows of one ID with different text: the direction is taken only
+		// from the rows of the text streamed (the first in order, "E").
+		{ID: 14, Timestamp: ts, Label: "H1", ParserType: "unparsed", RawText: "E", ParsedData: map[string]string{}},
+		{ID: 14, Timestamp: ts, Label: "H1", ParserType: "cpdlc", RawText: "F", ParsedData: map[string]string{"direction": "downlink"}},
 	}
 	if err := db.InsertBatchInto(ctx, table, rows); err != nil {
 		t.Fatal(err)
@@ -238,6 +242,9 @@ func TestBlockColumns(t *testing.T) {
 	}
 	if m := got[12]; m.MessageNumber != "" || m.BlockID != "" || m.BlockEnd != nil || len(m.AssembledFrom) != 0 || m.StoredDirection != "" {
 		t.Errorf("message without block fields: %+v", m)
+	}
+	if m := got[14]; m.RawText != "E" || m.StoredDirection != "" {
+		t.Errorf("message with two texts: %+v, want text E without F's direction", m)
 	}
 	if m := got[13]; m.StoredDirection != "uplink" || m.RawText != "D" {
 		t.Errorf("message with a stored direction: %+v", m)

@@ -33,7 +33,7 @@ The enrichment API reads the same `POSTGRES_*` variables. The standalone tools i
 | ClickHouse tables | `live` (which also adds columns missing from an existing `messages` table), `migrate` |
 | PostgreSQL tables | `live`, `backfill`, `migrate` |
 
-Parsers need the block ID or the link direction to tell an uplink from a downlink (CPDLC messages relayed on H1 cannot be decoded without it). Rows stored before October 2026 have neither, so `reparse -rebuild` and the `reparse` comparison take the direction that a parse result stored for the message recorded (`direction` in a CPDLC result), which live worked out from them.
+Parsers need the block ID or the link direction to tell an uplink from a downlink (CPDLC messages relayed on H1 cannot be decoded without it). Rows stored before October 2026 have neither, so for an H1 message `reparse -rebuild` and the `reparse` comparison take the direction that a parse result stored for the message recorded (`direction` in a CPDLC result). On H1 the CPDLC parser has no label fallback, so that direction came from the link fields or from the message itself. For AA and BA the label decides the direction, so an earlier parser version's stored guess is not used.
 
 The commands that read `messages` (`query`, `debug`, `reparse`, `unparse` and `backfill`) check first that it has the block columns, and stop with an error naming the command to run if it does not; they do not change the table themselves.
 
