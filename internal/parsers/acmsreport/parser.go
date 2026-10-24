@@ -153,9 +153,20 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if corruptDestination[result.Report] {
 		result.Destination = ""
 	}
-	reg := strings.TrimLeft(c["reg_field"], ".")
-	if sameRegistration(reg, msg.Tail) {
+	// A report naming another registration than the transmitted tail is
+	// not parsed, so that its flight and route are not credited to the
+	// transmitting aircraft; without a transmitted tail, no registration
+	// is reported.
+	if reg := strings.TrimLeft(c["reg_field"], "."); reg != "" && msg.Tail != "" {
+		if !sameRegistration(reg, msg.Tail) {
+			return nil
+		}
 		result.Registration = reg
+	}
+	// A C2 block that starts like a callsign but is not one names a flight
+	// that cannot be compared with the transmitted one.
+	if m := c2CallsignStartRe.FindStringSubmatch(msg.Text); m != nil && m[1] != c["callsign"] {
+		return nil
 	}
 	if c["h01"] != "" && !parseH01(result, c["h01"], msg.Tail) {
 		return nil
@@ -190,6 +201,11 @@ func parseH01(r *Result, h01, tail string) bool {
 	}
 	return true
 }
+
+// c2CallsignStartRe matches a C2 block that starts like a callsign: three
+// letters and a digit, up to the next "," or "/". Other C2 blocks start
+// with digits, one letter or two ("C29999", "C2N522027", "C2SW0600...").
+var c2CallsignStartRe = regexp.MustCompile(`/C2([A-Z]{3}\d[^,/]*)`)
 
 // corruptDestination lists the reports whose destination is corrupted: the
 // last letter is replaced by the third ("KLAA" for KLAS, "KORR" for KORD,

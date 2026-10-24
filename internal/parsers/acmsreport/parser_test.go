@@ -204,18 +204,31 @@ func TestParse(t *testing.T) {
 	}
 }
 
-// The registration is reported only when it is the transmitted tail.
-func TestParseDoesNotReportAnotherRegistration(t *testing.T) {
-	for _, tail := range []string{"VH-VWU", ""} {
-		msg := &acars.Message{Label: "H1", Tail: tail,
-			Text: "A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0TIA05JST4R0000"}
-		got, ok := (&Parser{}).Parse(msg).(*Result)
-		if !ok {
-			t.Fatalf("tail %q: Parse returned no result", tail)
-		}
-		if got.Registration != "" {
-			t.Errorf("tail %q: Registration = %q, want none", tail, got.Registration)
-		}
+// A report naming another registration than the transmitted tail is not
+// parsed, so that its flight and route are not credited to the
+// transmitting aircraft. Without a transmitted tail, it is parsed without a
+// registration.
+func TestParseRejectsAnotherRegistration(t *testing.T) {
+	text := "A321,014057,1,1,TB000000/REP001,00,00,1/CCVH-VWT,JAN20,040543,YSSY,YBBN,0816/C0TIA05JST4R0000"
+	if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "VH-VWU", Text: text}); r != nil {
+		t.Errorf("tail VH-VWU: got %+v, want nil", r)
+	}
+	got, ok := (&Parser{}).Parse(&acars.Message{Label: "H1", Text: text}).(*Result)
+	if !ok {
+		t.Fatal("no tail: Parse returned no result")
+	}
+	if got.Registration != "" || got.Origin != "YSSY" {
+		t.Errorf("no tail: got %+v, want the route without a registration", *got)
+	}
+}
+
+// A C2 block that starts like a callsign but is not one names a flight
+// that cannot be compared with the transmitted one, so the report is not
+// parsed.
+func TestParseRejectsUnreadableCallsign(t *testing.T) {
+	text := "A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL1A2,4300,09/C3801971"
+	if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "N34562", Text: text}); r != nil {
+		t.Errorf("got %+v, want nil", r)
 	}
 }
 
