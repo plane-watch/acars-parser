@@ -277,3 +277,31 @@ func TestParseA380OtherAircraft(t *testing.T) {
 		}
 	}
 }
+
+// The CC block's registration field holds six characters, so a longer
+// registration is sent without its first characters ("Z-NS34" for
+// HZ-NS34); it is the transmitted tail, which is reported.
+func TestParseTruncatedRegistration(t *testing.T) {
+	for _, tt := range []struct{ tail, text string }{
+		{"HZ-NS34", "A320,000053,1,1,TB000000/REP001,65,02,1/CCZ-NS34,OCT02,052340,OEJN,OERK,0201/C0TWP03005030001"},
+		{"B-18103", "A321,081733,1,1,TB000000/REP003,64,01,4/CC-18103,OCT05,232510,RCTP,VHHH,0581/C0TWP03005030001"},
+	} {
+		got, ok := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: tt.tail, Text: tt.text}).(*Result)
+		if !ok {
+			t.Fatalf("tail %s: Parse returned no result", tt.tail)
+		}
+		if got.Registration != tt.tail {
+			t.Errorf("tail %s: Registration = %q, want the transmitted tail", tt.tail, got.Registration)
+		}
+	}
+	// A registration field of Xs is unset and names no aircraft.
+	unset := "A320,000053,1,1,TB000000/REP001,65,02,1/CCXXXXXX,OCT02,052340,EFHK,ESSA,0801/C0TWP03005030001"
+	if got, ok := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "OH-LZF", Text: unset}).(*Result); !ok || got.Registration != "" {
+		t.Errorf("unset registration: got %+v, want a result without a registration", got)
+	}
+	// A different registration of six characters is another aircraft.
+	text := "A321,000919,1,1,TB000000/REP020,64,01,4/CCN4062J,OCT24,045900,KJFK,KBOS,1620/C0TWP03005030001"
+	if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "N462J", Text: text}); r != nil {
+		t.Errorf("tail N462J, field N4062J: got %+v, want nil", r)
+	}
+}

@@ -157,11 +157,16 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	// not parsed, so that its flight and route are not credited to the
 	// transmitting aircraft; without a transmitted tail, no registration
 	// is reported.
-	if reg := strings.TrimLeft(c["reg_field"], "."); reg != "" && msg.Tail != "" {
-		if !sameRegistration(reg, msg.Tail) {
+	// A field of Xs ("XXXXXX") is unset and names no aircraft.
+	if reg := strings.TrimLeft(c["reg_field"], "."); strings.Trim(reg, "X") != "" && msg.Tail != "" {
+		switch {
+		case sameRegistration(reg, msg.Tail):
+			result.Registration = reg
+		case truncatedRegistration(reg, msg.Tail):
+			result.Registration = strings.TrimLeft(msg.Tail, ".")
+		default:
 			return nil
 		}
-		result.Registration = reg
 	}
 	// A C2 block that starts like a callsign but is not one names a flight
 	// that cannot be compared with the transmitted one.
@@ -328,6 +333,18 @@ func allDigits(s string) bool {
 func sameRegistration(reg, tail string) bool {
 	t := acars.NormaliseRegistration(tail)
 	return t != "" && acars.NormaliseRegistration(reg) == t
+}
+
+// ccRegistrationLen is the width of the CC block's registration field.
+const ccRegistrationLen = 6
+
+// truncatedRegistration reports whether reg is the transmitted tail cut to
+// the CC block's six characters: a longer registration is sent without its
+// first characters ("Z-NS34" for HZ-NS34, "-18103" for B-18103). In the
+// archive, about 3,200 reports from such aircraft were sent this way.
+func truncatedRegistration(reg, tail string) bool {
+	t := strings.TrimLeft(tail, ".")
+	return len(reg) == ccRegistrationLen && len(t) > ccRegistrationLen && strings.HasSuffix(t, reg)
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.
