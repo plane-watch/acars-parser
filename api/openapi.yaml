@@ -46,6 +46,8 @@ tags:
     description: Health check endpoints
   - name: Enrichment
     description: Flight enrichment data endpoints
+  - name: Routes
+    description: Observed flight routes
 
 paths:
   /health:
@@ -209,6 +211,47 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /routes/{flight}:
+    get:
+      tags:
+        - Routes
+      summary: Get a flight's routes
+      description: |
+        Returns the routes observed for a flight, looked up by its ICAO
+        callsign ("QFA1") or its IATA flight number ("QF1", "QF0001"). Routes
+        stored under either form are merged under the ICAO callsign. The
+        equivalence is learned from messages that named the flight both ways:
+        flight by flight (for callsigns that are not the flight number, such
+        as LOT49H for LO495), or by airline code pair (QF and QFA) when the
+        pair's flight numbers almost always agree and the IATA code is not
+        shared with another airline. A flight whose callsign is not known is
+        returned under its own identifier, with its own routes only, and no
+        `callsign`.
+      operationId: getRoutes
+      parameters:
+        - name: flight
+          in: path
+          required: true
+          description: ICAO callsign or IATA flight number. The value is converted to upper case.
+          schema:
+            type: string
+            example: 'QF1'
+      responses:
+        '200':
+          description: Routes found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Routes'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
 components:
   parameters:
     ICAOHex:
@@ -246,6 +289,56 @@ components:
         example: '2026-01-30'
 
   schemas:
+    Routes:
+      type: object
+      required: [query, identifiers, routes]
+      properties:
+        query:
+          type: string
+          description: The flight looked up, in upper case.
+          example: 'QF1'
+        callsign:
+          type: string
+          description: The flight's ICAO callsign; absent when it is not known.
+          example: 'QFA1'
+        identifiers:
+          type: array
+          description: The identifiers whose routes are merged, sorted.
+          items:
+            type: string
+          example: ['QF1', 'QFA1']
+        routes:
+          type: array
+          description: The routes, most observed first.
+          items:
+            type: object
+            required: [origin, destination, observations, first_seen, last_seen, observed_as]
+            properties:
+              origin:
+                type: string
+                description: ICAO airport code.
+                example: 'YSSY'
+              destination:
+                type: string
+                description: ICAO airport code.
+                example: 'WSSS'
+              observations:
+                type: integer
+                description: Observations, summed across the identifiers.
+                example: 751
+              first_seen:
+                type: string
+                format: date-time
+              last_seen:
+                type: string
+                format: date-time
+              observed_as:
+                type: array
+                description: The identifiers the route was observed under.
+                items:
+                  type: string
+                example: ['QF1', 'QFA1']
+
     HealthResponse:
       type: object
       required:

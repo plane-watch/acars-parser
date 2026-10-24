@@ -549,6 +549,11 @@ func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars
 		}
 	}
 
+	// Record a flight named in both forms (see flightroutes).
+	if a := data.FlightAlias; a != nil {
+		_ = pg.UpsertFlightAlias(ctx, a.IATA, a.ICAO, now)
+	}
+
 	// Upsert flight enrichment data for ADS-B integration, keyed only on
 	// transmitted identity: the aircraft's link-layer address and the
 	// transmitted flight number (not Airframes' airframe or flight records).

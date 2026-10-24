@@ -4,6 +4,7 @@ package extractor
 
 import (
 	"acars_parser/internal/aircrafttype"
+	"acars_parser/internal/flightid"
 	"acars_parser/internal/nnumber"
 	"encoding/json"
 	"regexp"
@@ -85,9 +86,19 @@ const (
 
 // ExtractedData is a container for all data extracted from a message.
 type ExtractedData struct {
-	Flight    *FlightUpdate     `json:"flight,omitempty"`
-	Waypoints []*WaypointUpdate `json:"waypoints,omitempty"`
-	ATIS      *ATISUpdate       `json:"atis,omitempty"`
+	Flight      *FlightUpdate     `json:"flight,omitempty"`
+	Waypoints   []*WaypointUpdate `json:"waypoints,omitempty"`
+	ATIS        *ATISUpdate       `json:"atis,omitempty"`
+	FlightAlias *FlightAlias      `json:"flight_alias,omitempty"`
+}
+
+// FlightAlias is a flight named in both forms by one message: the airline
+// flight number (IATA, "QF1") and the ATC callsign (ICAO, "QFA1"), both
+// without leading zeros. The two need not have the same number ("LO495"
+// flies as "LOT49H").
+type FlightAlias struct {
+	IATA string `json:"iata"`
+	ICAO string `json:"icao"`
 }
 
 // Extract extracts relevant data from a message and its parsed results.
@@ -163,6 +174,15 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 		extractFromResult(update, &data, msg, f.resultType, f.m)
 	}
 
+	// A message whose transmitted flight is in one form and a result's
+	// flight in the other names the flight both ways.
+	for _, f := range same {
+		if alias := flightAlias(msg.FlightNumber, resultFlight(f.m), msg.Tail); alias != nil {
+			data.FlightAlias = alias
+			break
+		}
+	}
+
 	// Normalise flight number to strip leading zeros.
 	if update.FlightNumber != "" {
 		update.FlightNumber = NormaliseFlightNumber(update.FlightNumber)
@@ -215,43 +235,18 @@ func NormaliseFlightNumber(flightNum string) string {
 	return flightNum
 }
 
-// callsignRe splits a flight identifier into its airline code, flight
-// number and suffix: an ICAO code is three letters ("SWR4WF"), and an IATA
-// code is two letters or digits ("B6123" is B6 flight 123). The two forms
-// cannot be confused, because an ICAO code's third character is a letter
-// and an IATA flight number's first character is a digit.
-var callsignRe = regexp.MustCompile(`^(?:([A-Z]{3})|([A-Z0-9]{2}))(\d{1,4})([A-Z]{0,2})$`)
-
-// flightID is a flight identifier split into its parts.
-type flightID struct {
-	airline string
-	icao    bool   // The airline code is ICAO (three letters), not IATA.
-	number  string // Without leading zeros.
-	suffix  string
-}
-
-// parseFlightID splits a flight identifier, and returns false if it is not
-// an airline code followed by a flight number. An IATA code must contain a
-// letter. An identifier that is the aircraft's tail (ignoring dashes) is a
-// registration used as the callsign, and is not split: "N123AB" would
-// otherwise read as airline N1, flight 23, suffix AB.
-func parseFlightID(s, tail string) (flightID, bool) {
-	s = strings.TrimSpace(s)
-	if t := acars.NormaliseRegistration(tail); t != "" && acars.NormaliseRegistration(s) == t {
-		return flightID{}, false
+// flightAlias returns the pair formed by two identifiers of one flight, one
+// in each form, or nil if they are not.
+func flightAlias(a, b, tail string) *FlightAlias {
+	ia, okA := flightid.Parse(a, tail)
+	ib, okB := flightid.Parse(b, tail)
+	if !okA || !okB || ia.ICAO == ib.ICAO {
+		return nil
 	}
-	m := callsignRe.FindStringSubmatch(s)
-	if m == nil {
-		return flightID{}, false
+	if ia.ICAO {
+		ia, ib = ib, ia
 	}
-	id := flightID{airline: m[1], icao: true, number: strings.TrimLeft(m[3], "0"), suffix: m[4]}
-	if m[1] == "" {
-		id.airline, id.icao = m[2], false
-		if !strings.ContainsAny(id.airline, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
-			return flightID{}, false
-		}
-	}
-	return id, true
+	return &FlightAlias{IATA: ia.String(), ICAO: ib.String()}
 }
 
 // sameFlight reports whether two flight identifiers name the same flight:
@@ -261,30 +256,30 @@ func parseFlightID(s, tail string) (flightID, bool) {
 // ("TG482" and "THA482") are taken to match: both describe the same
 // aircraft, so a different airline with the same flight number is not
 // expected. Identifiers that cannot be split match only themselves, ignoring
-// dashes. tail is the transmitted tail (see parseFlightID).
+// dashes. tail is the transmitted tail (see flightid.Parse).
 func sameFlight(a, b, tail string) bool {
 	a, b = strings.TrimSpace(a), strings.TrimSpace(b)
 	if a == "" || b == "" {
 		return false
 	}
-	ia, okA := parseFlightID(a, tail)
-	ib, okB := parseFlightID(b, tail)
+	ia, okA := flightid.Parse(a, tail)
+	ib, okB := flightid.Parse(b, tail)
 	if !okA || !okB {
 		return acars.NormaliseRegistration(a) == acars.NormaliseRegistration(b)
 	}
-	if ia.number != ib.number || ia.suffix != ib.suffix {
+	if ia.Number != ib.Number || ia.Suffix != ib.Suffix {
 		return false
 	}
-	return ia.icao != ib.icao || ia.airline == ib.airline
+	return ia.ICAO != ib.ICAO || ia.Airline == ib.Airline
 }
 
 // hasFlightNumber reports whether a flight identifier has the given flight
 // number, as a report that gives digits only ("0816") names it. The suffix
 // is not compared, since the digits cannot carry one. tail is the
-// transmitted tail (see parseFlightID).
+// transmitted tail (see flightid.Parse).
 func hasFlightNumber(digits, flight, tail string) bool {
-	id, ok := parseFlightID(flight, tail)
-	return ok && id.number == strings.TrimLeft(strings.TrimSpace(digits), "0")
+	id, ok := flightid.Parse(flight, tail)
+	return ok && id.Number == strings.TrimLeft(strings.TrimSpace(digits), "0")
 }
 
 // IsICAOCallsign checks if a flight number uses ICAO format (3-letter airline prefix).
@@ -410,7 +405,7 @@ func resultFlight(m map[string]interface{}) string {
 // route. A result that names its flight by number only (an Airbus ACMS
 // report gives "0816", without the airline code) needs the transmitted
 // flight to have that number: a flight named by another result is not
-// evidence enough. tail is the transmitted tail (see parseFlightID).
+// evidence enough. tail is the transmitted tail (see flightid.Parse).
 func routeIsFlight(m map[string]interface{}, flight, transmitted, tail string) bool {
 	if own := resultFlight(m); own != "" && flight != "" && !sameFlight(own, flight, tail) {
 		return false

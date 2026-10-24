@@ -84,9 +84,10 @@ func (r *loadsheetLike) MessageID() int64 { return 0 }
 // reportLike is a result that names its own flight and route, as a stored
 // maintenance report does.
 type reportLike struct {
-	Flight      string `json:"flight"`
-	Origin      string `json:"origin"`
-	Destination string `json:"destination"`
+	Flight       string `json:"flight"`
+	Origin       string `json:"origin"`
+	Destination  string `json:"destination"`
+	Registration string `json:"registration,omitempty"`
 }
 
 func (r *reportLike) Type() string     { return "report" }
@@ -551,5 +552,33 @@ func TestHasFlightNumber(t *testing.T) {
 		if got := hasFlightNumber(tt.digits, tt.flight, ""); got != tt.want {
 			t.Errorf("hasFlightNumber(%q, %q) = %v, want %v", tt.digits, tt.flight, got, tt.want)
 		}
+	}
+}
+
+// TestExtractFlightAlias checks that a message naming its flight in both
+// forms, the transmitted flight in one and a result's flight in the other,
+// gives the pair, normalised, whatever their numbers.
+func TestExtractFlightAlias(t *testing.T) {
+	tests := []struct {
+		name, transmitted, reported, tail, registration string
+		want                                            *FlightAlias
+	}{
+		{"IATA transmitted, ICAO reported", "QF0001", "QFA1", "VH-OQA", "", &FlightAlias{IATA: "QF1", ICAO: "QFA1"}},
+		{"ICAO transmitted, IATA reported", "UAL839", "UA0839", "N29977", "", &FlightAlias{IATA: "UA839", ICAO: "UAL839"}},
+		{"a callsign that is not the flight number", "LO0495", "LOT49H", "SP-LRA", "", &FlightAlias{IATA: "LO495", ICAO: "LOT49H"}},
+		{"both in one form", "QFA1", "QFA1", "VH-OQA", "", nil},
+		{"no transmitted flight", "", "QFA1", "VH-OQA", "", nil},
+		{"a result about another aircraft", "QF0001", "QFA1", "VH-OQA", "VH-OQB", nil},
+		{"the tail used as the callsign", "QF0001", "VHOQA", "VH-OQA", "", nil},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			msg := &acars.Message{Label: "H1", Tail: tt.tail, FlightNumber: tt.transmitted}
+			report := &reportLike{Flight: tt.reported, Registration: tt.registration}
+			got := Extract(msg, []registry.Result{report}).FlightAlias
+			if (got == nil) != (tt.want == nil) || (got != nil && *got != *tt.want) {
+				t.Errorf("FlightAlias = %+v, want %+v", got, tt.want)
+			}
+		})
 	}
 }

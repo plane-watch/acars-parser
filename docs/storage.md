@@ -114,10 +114,13 @@ This table has the same fields as `atis_current` (see below), stored as strings,
 | `flight_state` | Per-flight tracking state | `key` | `backfill`, `migrate` |
 | `golden_annotations` | Review annotations keyed by ClickHouse message ID | `message_id` | `review`, `migrate` |
 | `flight_enrichment` | Per-flight data served by the enrichment API | `(icao_hex, callsign, flight_date)` | `live` |
+| `flight_aliases` | Flights named in both forms by a message: IATA flight number and ICAO callsign, with an observation count | `(iata_flight, icao_callsign)` | `live`, `backfill` |
+| `airline_codes` (view) | Airline code pairs summed from `flight_aliases`, with how many had the same number in both forms | — | — |
 
 Some tables have only one writer:
 
-- `route_legs`, `route_aircraft` and `aircraft_callsigns` are populated only by the SQLite migration. `live` and `backfill` do not maintain them, so `routeexport` output for multi-stop routes reflects migrated data only.
+- `route_legs`, `route_aircraft` and `aircraft_callsigns` are populated only by the SQLite migration. `live` and `backfill` do not maintain them. `routeexport` builds each route from its legs, so it exports only migrated routes.
+- `routes` stores a flight under the identifier the messages gave, in either form; `flight_aliases` and `airline_codes` relate the two forms (see [flight-routes.md](flight-routes.md)).
 - `flight_state` is not written by `live`.
 
 Only transmitted data is stored. `live` and `backfill` do not take facts from Airframes' `airframe`, `flight` or `station` records (see [airframes-payload.md](airframes-payload.md)):

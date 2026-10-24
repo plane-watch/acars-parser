@@ -240,6 +240,9 @@ func (d *PostgresDB) CreateSchema(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("create schema: %w", err)
 	}
+	if _, err := d.pool.Exec(ctx, flightAliasesSchema); err != nil {
+		return fmt.Errorf("create flight aliases schema: %w", err)
+	}
 
 	// Create partial index separately (IF NOT EXISTS syntax differs).
 	_, _ = d.pool.Exec(ctx, `CREATE INDEX IF NOT EXISTS idx_golden_is_golden ON golden_annotations(is_golden) WHERE is_golden = TRUE`)

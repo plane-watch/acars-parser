@@ -345,6 +345,13 @@ func writeExtractedData(ctx context.Context, pg *storage.PostgresDB, data extrac
 		}
 	}
 
+	// Record a flight named in both forms (see flightroutes).
+	if a := data.FlightAlias; a != nil {
+		if err := pg.UpsertFlightAlias(ctx, a.IATA, a.ICAO, seenTime); err != nil {
+			return fmt.Errorf("upsert flight alias: %w", err)
+		}
+	}
+
 	// Write flight state.
 	if data.Flight != nil && (data.Flight.ICAOHex != "" || data.Flight.Registration != "") {
 		// Use ICAO hex as the key if available, otherwise registration.

@@ -186,6 +186,38 @@ Looks up enrichments for up to 100 aircraft on today's date in a single request.
 - `errors` is keyed by ICAO hex and holds the database error text for any lookup that failed. The key is omitted entirely when no lookup failed.
 - The request fails with `400` if the body is not valid JSON (`"Invalid JSON: ..."`), if `aircraft` is empty (`"No aircraft specified"`), or if it has more than 100 entries (`"Maximum 100 aircraft per batch request"`).
 
+### Get Routes
+
+```
+GET /api/v1/routes/{flight}
+```
+
+Returns the routes observed for a flight, looked up by its ICAO callsign (`QFA1`) or IATA flight number (`QF1`, `QF0001`), merged under the ICAO callsign (see [flight-routes.md](flight-routes.md)). The value is converted to upper case. It returns `404` when the flight has no routes.
+
+**Response (`200`):**
+
+```json
+{
+  "query": "QF1",
+  "callsign": "QFA1",
+  "identifiers": ["QF1", "QFA1"],
+  "routes": [
+    {
+      "origin": "YSSY",
+      "destination": "WSSS",
+      "observations": 751,
+      "first_seen": "2026-01-02T03:04:05Z",
+      "last_seen": "2026-10-24T08:00:00Z",
+      "observed_as": ["QF1", "QFA1"]
+    }
+  ]
+}
+```
+
+- `callsign` is absent when the flight's callsign is not known; the routes are then only those stored under the queried identifier.
+- `identifiers` are the identifiers whose routes are merged.
+- `routes` are most observed first; `observed_as` lists the identifiers each was stored under.
+
 ## Response Fields
 
 | Field | Type | Always present | Description |

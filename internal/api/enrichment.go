@@ -13,12 +13,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"acars_parser/internal/flightroutes"
 	"acars_parser/internal/storage"
 )
 
 // EnrichmentServer provides REST API access to flight enrichment data.
 type EnrichmentServer struct {
 	pg          *storage.PostgresDB
+	routes      flightroutes.Store // The routes lookup's store: pg, or another in tests.
 	port        int
 	authEnabled bool
 	apiKeys     map[string]bool // Simple API key auth (when enabled).
@@ -40,12 +42,16 @@ func NewEnrichmentServer(pg *storage.PostgresDB, cfg Config) *EnrichmentServer {
 		}
 	}
 
-	return &EnrichmentServer{
+	s := &EnrichmentServer{
 		pg:          pg,
 		port:        cfg.Port,
 		authEnabled: cfg.AuthEnabled,
 		apiKeys:     keys,
 	}
+	if pg != nil {
+		s.routes = pg
+	}
+	return s
 }
 
 // Run starts the HTTP server.
@@ -78,6 +84,9 @@ func (s *EnrichmentServer) Run() error {
 
 		// Batch lookup for multiple aircraft.
 		r.Post("/enrichment/batch", s.handleBatchEnrichment)
+
+		// Routes by ICAO callsign or IATA flight number.
+		r.Get("/routes/{flight}", s.handleGetRoutes)
 	})
 
 	addr := ":" + itoa(s.port)
@@ -105,6 +114,7 @@ func (s *EnrichmentServer) Router() chi.Router {
 	r.Get("/enrichment/{icao_hex}/{callsign}", s.handleGetEnrichmentByCallsign)
 	r.Get("/enrichment/{icao_hex}/{callsign}/{date}", s.handleGetEnrichmentByDate)
 	r.Post("/enrichment/batch", s.handleBatchEnrichment)
+	r.Get("/routes/{flight}", s.handleGetRoutes)
 
 	return r
 }

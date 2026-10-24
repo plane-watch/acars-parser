@@ -98,6 +98,8 @@ Every `acars_parser` subcommand takes its default connection settings from these
 │   ├── crc/                  # CRC-16/ARINC checksum (used by the H1, envelope and ADS-C parsers)
 │   ├── enrichment/           # Extracts flight enrichment data from parser results
 │   ├── extractor/            # Extracts state data (aircraft, waypoints, routes, ATIS) from results
+│   ├── flightid/             # Splits flight identifiers (QF1, QFA1) into airline, number and suffix
+│   ├── flightroutes/         # Looks routes up by ICAO callsign or IATA flight number
 │   ├── parsers/              # Parser implementations; parsers.go registers them all
 │   ├── patterns/             # Shared regex patterns, the grok-style format compiler and extractors
 │   ├── reassembly/           # Joins the blocks of multi-block downlinks
@@ -424,7 +426,7 @@ Because `messages` is a plain `MergeTree`, `OPTIMIZE ... FINAL` does not remove 
 
 ## Enrichment API
 
-A REST API that serves per-flight enrichment data from PostgreSQL `flight_enrichment`. That table is populated by `live`, keyed on the aircraft address and flight number as transmitted.
+A REST API that serves per-flight enrichment data from PostgreSQL `flight_enrichment`, populated by `live` and keyed on the aircraft address and flight number as transmitted, and flight routes from `routes`, merged across the IATA and ICAO forms of a flight.
 
 ```bash
 ./bin/enrichment-api -port 8081
@@ -438,6 +440,7 @@ curl http://localhost:8081/api/v1/enrichment/7C6CA3
 | `GET` | `/api/v1/enrichment/{icao_hex}/{callsign}` | One flight today (UTC) |
 | `GET` | `/api/v1/enrichment/{icao_hex}/{callsign}/{date}` | One flight on a date (`YYYY-MM-DD`) |
 | `POST` | `/api/v1/enrichment/batch` | Up to 100 aircraft in one request |
+| `GET` | `/api/v1/routes/{flight}` | A flight's routes, by ICAO callsign or IATA flight number (see [docs/flight-routes.md](docs/flight-routes.md)) |
 
 API key authentication is available with `-auth -api-keys key1,key2` and is off by default. See [docs/enrichment-api.md](docs/enrichment-api.md) for the flags, response format and known limitations, and [api/openapi.yaml](api/openapi.yaml) for the OpenAPI specification.
 
@@ -642,6 +645,7 @@ Multi-stop legs come from the `route_legs` table, which only `migrate` populates
 | [docs/enrichment-api.md](docs/enrichment-api.md) | Enrichment API reference |
 | [docs/nats-relay.md](docs/nats-relay.md) | NATS relay reference |
 | [docs/reassembly.md](docs/reassembly.md) | Joining the blocks of multi-block downlinks |
+| [docs/flight-routes.md](docs/flight-routes.md) | Looking routes up by ICAO callsign or IATA flight number |
 | [docs/airframes-payload.md](docs/airframes-payload.md) | The upstream Airframes NATS payload: every field, and which ones the code reads |
 | [docs/FLIGHT_MESSAGE_FLOW.md](docs/FLIGHT_MESSAGE_FLOW.md) | The ACARS messages observed across the phases of a flight |
 | [docs/investigation-notes.md](docs/investigation-notes.md) | Working notes on unparsed message formats |
