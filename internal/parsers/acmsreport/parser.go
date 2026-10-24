@@ -162,7 +162,11 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		switch {
 		case sameRegistration(reg, msg.Tail):
 			result.Registration = reg
-		case truncatedRegistration(reg, msg.Tail):
+		case truncatedRegistration(reg, msg.Tail) && (result.FlightNumberDigits != "" || result.Flight != ""):
+			// A truncated field is shared by registrations with the same
+			// ending (RA-12345 and RF-12345 are both "-12345"), so it is
+			// accepted only with a flight, which the extractor requires to
+			// be the transmitted one.
 			result.Registration = strings.TrimLeft(msg.Tail, ".")
 		default:
 			return nil
@@ -170,7 +174,8 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	}
 	// A C2 block that starts like a callsign but is not one names a flight
 	// that cannot be compared with the transmitted one.
-	if m := c2CallsignStartRe.FindStringSubmatch(msg.Text); m != nil && m[1] != c["callsign"] {
+	// The compiler matches the text in upper case, so the check does too.
+	if m := c2CallsignStartRe.FindStringSubmatch(strings.ToUpper(msg.Text)); m != nil && m[1] != c["callsign"] {
 		return nil
 	}
 	if c["h01"] != "" && !parseH01(result, c["h01"], msg.Tail) {
@@ -341,10 +346,13 @@ const ccRegistrationLen = 6
 // truncatedRegistration reports whether reg is the transmitted tail cut to
 // the CC block's six characters: a longer registration is sent without its
 // first characters ("Z-NS34" for HZ-NS34, "-18103" for B-18103). In the
-// archive, about 3,200 reports from such aircraft were sent this way.
+// archive, about 3,200 reports from such aircraft were sent this way. The
+// comparison ignores dashes, so a tail transmitted without its dash
+// (".B18103") matches as well.
 func truncatedRegistration(reg, tail string) bool {
-	t := strings.TrimLeft(tail, ".")
-	return len(reg) == ccRegistrationLen && len(t) > ccRegistrationLen && strings.HasSuffix(t, reg)
+	r := strings.ReplaceAll(reg, "-", "")
+	t := strings.ReplaceAll(strings.TrimLeft(tail, "."), "-", "")
+	return len(reg) == ccRegistrationLen && r != "" && len(t) > len(r) && strings.HasSuffix(t, r)
 }
 
 // ParseWithTrace implements registry.Traceable for detailed debugging.

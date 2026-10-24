@@ -224,11 +224,17 @@ func TestParseRejectsAnotherRegistration(t *testing.T) {
 
 // A C2 block that starts like a callsign but is not one names a flight
 // that cannot be compared with the transmitted one, so the report is not
-// parsed.
+// parsed. Case does not matter, as for the rest of the report.
 func TestParseRejectsUnreadableCallsign(t *testing.T) {
-	text := "A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL1A2,4300,09/C3801971"
-	if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "N34562", Text: text}); r != nil {
-		t.Errorf("got %+v, want nil", r)
+	for _, c2 := range []string{"UAL1A2", "ual1a2"} {
+		text := "A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2" + c2 + ",4300,09/C3801971"
+		if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "N34562", Text: text}); r != nil {
+			t.Errorf("C2 %s: got %+v, want nil", c2, r)
+		}
+	}
+	text := "A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL4wf,4300,09/C3801971"
+	if got, ok := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "N34562", Text: text}).(*Result); !ok || got.Flight != "UAL4WF" {
+		t.Errorf("C2 UAL4wf: got %+v, want flight UAL4WF", got)
 	}
 }
 
@@ -293,6 +299,18 @@ func TestParseTruncatedRegistration(t *testing.T) {
 		if got.Registration != tt.tail {
 			t.Errorf("tail %s: Registration = %q, want the transmitted tail", tt.tail, got.Registration)
 		}
+	}
+	// A transmitted tail spelt without its dash matches too.
+	dashless := "A321,081733,1,1,TB000000/REP003,64,01,4/CC-18103,OCT05,232510,RCTP,VHHH,0581/C0TWP03005030001"
+	if got, ok := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: ".B18103", Text: dashless}).(*Result); !ok || got.Registration != "B18103" {
+		t.Errorf("tail .B18103: got %+v, want registration B18103", got)
+	}
+	// A truncated field is shared by registrations with the same ending
+	// (RA-12345, RF-12345), so it is accepted only with a flight, which
+	// the extractor checks against the transmitted one.
+	noFlight := "A320,000053,1,1,TB000000/REP001,65,02,1/CC-12345,OCT02,052340,UUEE,UUDD,0000/C0TWP03005030001"
+	if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "RA-12345", Text: noFlight}); r != nil {
+		t.Errorf("truncated field without a flight: got %+v, want nil", r)
 	}
 	// A registration field of Xs is unset and names no aircraft.
 	unset := "A320,000053,1,1,TB000000/REP001,65,02,1/CCXXXXXX,OCT02,052340,EFHK,ESSA,0801/C0TWP03005030001"
