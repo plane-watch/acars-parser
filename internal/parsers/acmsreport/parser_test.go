@@ -251,3 +251,16 @@ func TestQuickCheckAfterGroundAddress(t *testing.T) {
 		t.Error("QuickCheck = false, want true")
 	}
 }
+
+// An A380 report is parsed only when its H01 block names the transmitted
+// tail as the whole registration.
+func TestParseA380OtherAircraft(t *testing.T) {
+	for _, tt := range []struct{ tail, text string }{
+		{"G-XLEI", "A380000411,1,1,TB000000;REP210,80;H0121080605100087.G-XLEL10051026045954081;H02KMIA EGLLBAW6R     S0586"},
+		{"N123", "A380000411,1,1,TB000000;REP210,80;H0121080605100087.N1234510051020045954081;H02KMIA EGLLBAW6R     S0586"},
+	} {
+		if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: tt.tail, Text: tt.text}); r != nil {
+			t.Errorf("tail %s: got %+v, want nil", tt.tail, r)
+		}
+	}
+}

@@ -201,7 +201,7 @@ or by the `/WX` block of report 281 (below).
 
 **Ground address:** some airlines put ground addresses before the report (`/QUKAXBA PARJBXH.A321,...`: the destination and the originator, then a `.`); they are skipped.
 
-**A380 reports** separate their fields with `;`. The `H01` block ends with the registration followed by two digits, the date (DDMMYY) and the time; it is read only when it starts with the transmitted tail. The `H02` block starts with the route and the callsign (reported as `flight`), or with dashes when there is none, in which case the report is not parsed:
+**A380 reports** separate their fields with `;`. The `H01` block ends with the registration followed by 17 digits: two, the date (DDMMYY), the time and three more. It is read with the transmitted tail, and a report whose `H01` block does not consist of the transmitted tail and 17 digits names another aircraft and is not parsed. The `H02` block starts with the route and the callsign (reported as `flight`), or with dashes when there is none, in which case the report is not parsed:
 
 ```
 A380000411,1,1,TB000000;REP210,80;H0121080605100087.G-XLEL10051026045954081;H02KMIA EGLLBAW6R     S0586...
@@ -962,7 +962,9 @@ abs      ABS001DA_N1811U  KSNAKSJC384
 
 **Extracted fields:** the format, the report's name, the registration, the callsign (`flight`) or the flight number's digits (`flight_number_digits`, when the report gives only digits), the origin and destination, and, where given, the date (`YYYY-MM-DD`) and time.
 
-**Registration:** in the `acm`, `engine` and `station` layouts the registration runs into the fields around it, so the transmitted tail is used to find it, and without a transmitted tail they are not parsed. In the other layouts the registration has its own field, and a report naming another aircraft than the transmitted one is not parsed, so that its flight and route are not credited to the transmitting aircraft. The `e` layout gives only part of the registration, and a blank `abs` field (`.......`) none; neither reports one.
+**Registration:** in the `acm`, `engine` and `station` layouts the registration runs into the fields around it, so the transmitted tail is used to find it, within each layout's boundaries so that a tail that is part of a longer registration is not matched: in `acm` it follows two or four letters; in `station` it follows a `.` and is followed by an airline code and a digit, or follows an airline code and a space and is followed by a digit; in `engine` it starts its line and the callsign follows it directly. Without a transmitted tail they are not parsed. In the other layouts the registration has its own field, and a report naming another aircraft than the transmitted one is not parsed, so that its flight and route are not credited to the transmitting aircraft. The `e` layout gives only part of the registration, and a blank `abs` field (`.......`) none; neither reports one.
+
+**Flight:** a flight field that holds neither a callsign, a flight number nor digits (`UAL1A2`) names a flight that cannot be compared with the transmitted one, so the report is not parsed.
 
 **Limitations:** the digits after the route in the `abs` layout are not the flight number (WN3202 sent `484`), so it gives no flight. The report bodies (engine and performance values, and in `eb` reports positions) are not parsed.
 

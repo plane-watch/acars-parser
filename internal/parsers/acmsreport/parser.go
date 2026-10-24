@@ -157,30 +157,38 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if sameRegistration(reg, msg.Tail) {
 		result.Registration = reg
 	}
-	if c["h01"] != "" {
-		parseH01(result, c["h01"], msg.Tail)
+	if c["h01"] != "" && !parseH01(result, c["h01"], msg.Tail) {
+		return nil
 	}
 	return result
 }
 
+// h01DigitsLen is the number of digits after the registration in an A380
+// report's H01 block: two, the date and time, and three more.
+const h01DigitsLen = 17
+
 // parseH01 sets the registration, date and time from an A380 report's H01
-// block ("G-XLEL10051026045954081"), which starts with the registration
-// followed by two digits, the date (DDMMYY) and the time. The registration
-// has no fixed width, so the block is read only when it starts with the
-// transmitted tail.
-func parseH01(r *Result, h01, tail string) {
-	if tail == "" || !strings.HasPrefix(h01, tail) {
-		return
+// block ("G-XLEL10051026045954081"): the registration, then 17 digits, the
+// first two followed by the date (DDMMYY) and the time. The registration
+// has no fixed width, so the block is read with the transmitted tail, and
+// parseH01 returns false if the block names another aircraft: the tail is
+// not the whole registration (17 digits must follow it), so the report's
+// flight and route are not credited to the transmitting aircraft. Without
+// a transmitted tail, nothing is set.
+func parseH01(r *Result, h01, tail string) bool {
+	if tail == "" {
+		return true
+	}
+	rest, ok := strings.CutPrefix(h01, tail)
+	if !ok || len(rest) != h01DigitsLen || !allDigits(rest) {
+		return false
 	}
 	r.Registration = tail
-	rest := h01[len(tail):]
-	if len(rest) < 14 || !allDigits(rest[:14]) {
-		return
-	}
 	if date, err := time.Parse("020106", rest[2:8]); err == nil {
 		r.ReportDate = strings.ToUpper(date.Format("Jan02"))
 		r.ReportTime = rest[8:14]
 	}
+	return true
 }
 
 // corruptDestination lists the reports whose destination is corrupted: the

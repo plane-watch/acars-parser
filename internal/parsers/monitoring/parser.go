@@ -89,9 +89,15 @@ var (
 	acmTailRe     = regexp.MustCompile(`^\s*([A-Z]{3}\d{1,4}[A-Z]{0,2})\s+([A-Z]{4})([A-Z]{4})(\d{6})`)
 	engineTailRe  = regexp.MustCompile(`^([A-Z]{3}\d{1,4}[A-Z]{0,2})\s`)
 	engineRouteRe = regexp.MustCompile(`(\d{6})(\d{6})([A-Z]{4})([A-Z]{4})|([A-Z]{4})([A-Z]{4})(\d{6})(\d{6})`)
-	// stationTailRe allows up to three characters of an airline code
-	// between the registration and the callsign ("KE3KAL234").
-	stationTailRe = regexp.MustCompile(`^[A-Z0-9]{0,3}?([A-Z]{3}\d{1,4}[A-Z]{0,2})\s+(\d{6})(\d{6})([A-Z]{4})([A-Z]{4})`)
+	// After a station report's registration: when the registration follows
+	// a ".", an airline code and a digit ("HL7624KE3KAL234"); when it follows
+	// an airline code and a space ("AM N446AM2AMX021"), a digit. Then the
+	// callsign, the date (YYMMDD) and time, and the route.
+	stationAfterDotRe   = regexp.MustCompile(`^[A-Z0-9]{2}\d([A-Z]{3}\d{1,4}[A-Z]{0,2})\s+(\d{6})(\d{6})([A-Z]{4})([A-Z]{4})`)
+	stationAfterSpaceRe = regexp.MustCompile(`^\d([A-Z]{3}\d{1,4}[A-Z]{0,2})\s+(\d{6})(\d{6})([A-Z]{4})([A-Z]{4})`)
+	// stationCodeRe matches the airline code and space before a station
+	// report's registration.
+	stationCodeRe = regexp.MustCompile(`^[A-Z0-9]{2} `)
 
 	icaoCallsignRe = regexp.MustCompile(`^[A-Z]{3}\d{1,4}[A-Z]{0,2}$`)
 	iataFlightRe   = regexp.MustCompile(`^[A-Z0-9]{2}\d{1,4}[A-Z]?$`)
@@ -104,10 +110,6 @@ const (
 	yymmdd   = "060102"
 	yyyymmdd = "2006:01:02"
 )
-
-// maxTailOffset is how far into an acm or station report's header the
-// registration may start, after the report's name.
-const maxTailOffset = 4
 
 // Parser parses monitoring report headers.
 type Parser struct{}
@@ -148,10 +150,9 @@ func parseCSV(msg *acars.Message) *Result {
 		return nil
 	}
 	r := &Result{Format: "csv", Report: m[1], Origin: m[3], Destination: m[4], Time: m[5]}
-	if !setDate(r, yyyymmdd, m[6]) || !setRegistration(r, m[2], msg.Tail) {
+	if !setDate(r, yyyymmdd, m[6]) || !setRegistration(r, m[2], msg.Tail) || !setFlight(r, m[7]) {
 		return nil
 	}
-	setFlight(r, m[7])
 	return r
 }
 
@@ -161,10 +162,9 @@ func parseAPM(msg *acars.Message) *Result {
 		return nil
 	}
 	r := &Result{Format: "apm", Report: "APM", Origin: m[3], Destination: m[4]}
-	if !setDate(r, ddmmyy, m[5]) || !setTime(r, m[6]) || !setRegistration(r, m[1], msg.Tail) {
+	if !setDate(r, ddmmyy, m[5]) || !setTime(r, m[6]) || !setRegistration(r, m[1], msg.Tail) || !setFlight(r, m[2]) {
 		return nil
 	}
-	setFlight(r, m[2])
 	return r
 }
 
@@ -174,10 +174,9 @@ func parseEB(msg *acars.Message) *Result {
 		return nil
 	}
 	r := &Result{Format: "eb", Report: m[1], Time: m[5], Origin: m[6], Destination: m[7]}
-	if !setDate(r, ddmmyy, m[4]) || !setRegistration(r, m[2], msg.Tail) {
+	if !setDate(r, ddmmyy, m[4]) || !setRegistration(r, m[2], msg.Tail) || !setFlight(r, m[3]) {
 		return nil
 	}
-	setFlight(r, m[3])
 	return r
 }
 
@@ -207,11 +206,14 @@ func parseACM(msg *acars.Message) *Result {
 	if m == nil {
 		return nil
 	}
-	rest, ok := afterTail(line[m[1]:], msg.Tail)
-	if !ok {
+	// The registration follows two or four letters ("FS", "DSEK"); a tail
+	// found after anything else is part of another registration.
+	head := line[m[1]:]
+	i := strings.Index(head, msg.Tail)
+	if msg.Tail == "" || (i != 2 && i != 4) || !isLetters(head[:i]) {
 		return nil
 	}
-	t := acmTailRe.FindStringSubmatch(rest)
+	t := acmTailRe.FindStringSubmatch(head[i+len(msg.Tail):])
 	if t == nil {
 		return nil
 	}
@@ -260,13 +262,21 @@ func parseStation(msg *acars.Message) *Result {
 		return nil
 	}
 	// The registration follows the report's name, after a "." or an
-	// airline code and a space ("CLB006AM N446AM").
+	// airline code and a space ("CLB006AM N446AM"); what comes after it
+	// depends on which (see stationAfterDotRe).
 	rest := line[m[1]:]
-	i := strings.Index(rest, msg.Tail)
-	if msg.Tail == "" || i < 0 || i > maxTailOffset {
+	var after *regexp.Regexp
+	switch {
+	case msg.Tail == "":
+		return nil
+	case strings.HasPrefix(rest, "."+msg.Tail):
+		rest, after = rest[1+len(msg.Tail):], stationAfterDotRe
+	case stationCodeRe.MatchString(rest) && strings.HasPrefix(rest[3:], msg.Tail):
+		rest, after = rest[3+len(msg.Tail):], stationAfterSpaceRe
+	default:
 		return nil
 	}
-	s := stationTailRe.FindStringSubmatch(rest[i+len(msg.Tail):])
+	s := after.FindStringSubmatch(rest)
 	if s == nil {
 		return nil
 	}
@@ -277,14 +287,13 @@ func parseStation(msg *acars.Message) *Result {
 	return r
 }
 
-// afterTail returns the text after the transmitted tail, which must start
-// within maxTailOffset characters of the text's start.
-func afterTail(text, tail string) (string, bool) {
-	i := strings.Index(text, tail)
-	if tail == "" || i < 0 || i > maxTailOffset {
-		return "", false
+func isLetters(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] < 'A' || s[i] > 'Z' {
+			return false
+		}
 	}
-	return text[i+len(tail):], true
+	return true
 }
 
 func firstLine(text string) string {
@@ -309,14 +318,21 @@ func setRegistration(r *Result, reg, tail string) bool {
 	return true
 }
 
-// setFlight sets the callsign or flight number, or its digits.
-func setFlight(r *Result, f string) {
+// setFlight sets the callsign or flight number, or its digits, and returns
+// false if the field holds something else: the report names a flight that
+// cannot be compared with the transmitted one, so its route must not be
+// credited to that flight. An empty field names none.
+func setFlight(r *Result, f string) bool {
 	switch {
+	case f == "":
 	case digitsRe.MatchString(f):
 		r.FlightNumberDigits = f
 	case icaoCallsignRe.MatchString(f), iataFlightRe.MatchString(f):
 		r.Flight = f
+	default:
+		return false
 	}
+	return true
 }
 
 // setDate sets the date from s in layout, and returns false if s is not a

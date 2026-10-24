@@ -154,6 +154,13 @@ func TestParseRejects(t *testing.T) {
 		{"invalid date", "N845MD", "APM    1 N845MD         AAL86   KORDEGLL321326001522,"},
 		{"ABS, another aircraft", "N1811V", "ABS001DA_N1811U  KSNAKSJC384\r\n 33989"},
 		{"ABS, part of a registration", "C-FNWD", "ABS011DA_C       KSFOCYYC1\r\n  37663"},
+		// A transmitted tail that is part of the report's registration.
+		{"station, tail inside the registration", "N446", "/ILNGE7X.CLB006AM N446AM2AMX021    261008040732MMMXLEMD+006050295"},
+		{"station, tail inside the registration after a dot", "HL762", "/ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+00007"},
+		{"acm, tail at the end of another registration", "N123", "ACM01ACM230F9H-N123FDX48   KMEMEBLG041026  20ER235115632673162FEDAP107"},
+		// A flight field that names no flight this parser can read.
+		{"csv, unreadable flight", "N3118J",
+			"R001V0106,180302,, N3118J,5318410-07,736738,736345,00118,KCHS,KBOS,18:31:51,2026:10:06,UAL1A2,000010"},
 		{"not a report", "N845MD", "POSN39006W075260,OYVAY,014938,340"},
 	}
 	for _, tt := range tests {
