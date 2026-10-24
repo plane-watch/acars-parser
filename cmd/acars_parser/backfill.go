@@ -17,10 +17,53 @@ import (
 )
 
 // backfillWorkItem represents a message to be processed by a worker.
+// backfillWorkItem is a stored message with its parse results.
 type backfillWorkItem struct {
 	msg       *acars.Message
-	result    registry.Result
+	results   []registry.Result
 	timestamp time.Time
+}
+
+// messageGrouper joins the archive rows of a message (one per parse result,
+// read in ID order) into one work item, so that the extractor sees each
+// message once with all its results and its transmitted flight, as it does
+// in live. "unparsed" rows add nothing.
+type messageGrouper struct {
+	cur *backfillWorkItem
+}
+
+// add adds a row and returns the previous message once a row of another
+// message arrives; otherwise nil.
+func (g *messageGrouper) add(m storage.CHMessage) *backfillWorkItem {
+	var done *backfillWorkItem
+	if g.cur != nil && uint64(g.cur.msg.ID) != m.ID {
+		done = g.flush()
+	}
+	if m.ParserType == "unparsed" {
+		return done
+	}
+	var parsed map[string]interface{}
+	if err := json.Unmarshal([]byte(m.ParsedJSON), &parsed); err != nil {
+		return done
+	}
+	if g.cur == nil {
+		// The flight column holds the transmitted flight (rows stored
+		// before February 2026, when it held Airframes' record, had it
+		// blanked by the archive rebuild).
+		g.cur = &backfillWorkItem{
+			msg:       &acars.Message{ID: acars.FlexInt64(m.ID), Tail: m.Tail, Label: m.Label, FlightNumber: m.Flight},
+			timestamp: m.Timestamp,
+		}
+	}
+	g.cur.results = append(g.cur.results, &genericResult{typeName: m.ParserType, data: parsed})
+	return done
+}
+
+// flush returns the message being collected, if any.
+func (g *messageGrouper) flush() *backfillWorkItem {
+	done := g.cur
+	g.cur = nil
+	return done
 }
 
 func runBackfillCmd(args []string) {
@@ -119,7 +162,7 @@ func runBackfillCmd(args []string) {
 	)
 
 	// Create work channel and start workers.
-	workChan := make(chan backfillWorkItem, *batchSize)
+	workChan := make(chan *backfillWorkItem, *batchSize)
 	var wg sync.WaitGroup
 
 	// Start worker goroutines.
@@ -129,7 +172,7 @@ func runBackfillCmd(args []string) {
 			defer wg.Done()
 			for item := range workChan {
 				// Extract data from the message.
-				data := extractor.Extract(item.msg, []registry.Result{item.result})
+				data := extractor.Extract(item.msg, item.results)
 
 				// Write extracted data to PostgreSQL.
 				if err := writeExtractedData(ctx, pg, data, item.timestamp); err != nil {
@@ -164,9 +207,10 @@ func runBackfillCmd(args []string) {
 		}()
 	}
 
-	// Query and process messages in batches.
+	// Query and process messages in batches, in ID order, joining each
+	// message's rows (see messageGrouper).
 	offset := 0
-	totalQueued := 0
+	var grouper messageGrouper
 
 	for offset < maxMessages {
 		currentBatch := *batchSize
@@ -192,39 +236,9 @@ func runBackfillCmd(args []string) {
 		}
 
 		for _, m := range messages {
-			// Skip unparsed messages as they have no useful data to extract.
-			if m.ParserType == "unparsed" {
-				continue
+			if item := grouper.add(m); item != nil {
+				workChan <- item
 			}
-
-			// Reconstruct a minimal acars.Message.
-			// NOTE: We deliberately do NOT populate msg.Flight from the envelope
-			// because the envelope flight number can be wrong (e.g., a generic
-			// airline code when the PDC text contains the actual flight number).
-			// The extractor will use flight_number from the parsed JSON instead.
-			msg := &acars.Message{
-				Tail:  m.Tail,
-				Label: m.Label,
-			}
-
-			// Parse the stored JSON into a generic result.
-			var parsedMap map[string]interface{}
-			if err := json.Unmarshal([]byte(m.ParsedJSON), &parsedMap); err != nil {
-				continue
-			}
-
-			// Create a generic result wrapper.
-			result := &genericResult{
-				typeName: m.ParserType,
-				data:     parsedMap,
-			}
-
-			workChan <- backfillWorkItem{
-				msg:       msg,
-				result:    result,
-				timestamp: m.Timestamp,
-			}
-			totalQueued++
 		}
 
 		offset += len(messages)
@@ -232,6 +246,10 @@ func runBackfillCmd(args []string) {
 			pct := float64(offset) / float64(maxMessages) * 100
 			fmt.Printf("\r  Queued %d / %d messages (%.1f%%)...", offset, maxMessages, pct)
 		}
+	}
+
+	if item := grouper.flush(); item != nil {
+		workChan <- item
 	}
 
 	// Close work channel and wait for workers to finish.
