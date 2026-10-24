@@ -76,8 +76,10 @@ func (p *Parser) Priority() int    { return 60 }
 // QuickCheck looks for the series prefix ("A3xx,") and a CC or C1 block,
 // or one of the reports 239, 281 and 291; or for the short header
 // ("A37/A3...", perhaps after a line of digits) and a C1, CC or WX block;
-// or for the 76401 record.
+// or for the 76401 record or an A380 report; after a ground address if
+// there is one.
 func (p *Parser) QuickCheck(text string) bool {
+	text = text[len(groundAddressRe.FindString(text)):]
 	if strings.Contains(text, "76401") {
 		return true
 	}
@@ -90,12 +92,25 @@ func (p *Parser) QuickCheck(text string) bool {
 	if len(header) > 8 && header[3] == '/' && strings.HasPrefix(header[4:], "A3") {
 		return strings.Contains(header, "C1") || strings.Contains(header, "/CC") || strings.Contains(header, "/WX")
 	}
+	if strings.HasPrefix(text, "A3") && strings.Contains(text, ";H02") {
+		return true
+	}
 	return len(text) > 5 && strings.HasPrefix(text, "A3") && text[4] == ',' &&
 		(strings.Contains(text, "/CC") || strings.Contains(text, "/C1") ||
 			strings.Contains(text, "/REP239,") || strings.Contains(text, "/REP281,") || strings.Contains(text, "/REP291,"))
 }
 
+// groundAddressRe matches the ground addresses some airlines put before a
+// report, as in "/QUKAXBA PARJBXH.A321,...": the destination and the
+// originator, then a ".".
+var groundAddressRe = regexp.MustCompile(`^/[A-Z0-9]{7} [A-Z0-9]{7}\.`)
+
 func (p *Parser) Parse(msg *acars.Message) registry.Result {
+	if a := groundAddressRe.FindString(msg.Text); a != "" {
+		body := *msg
+		body.Text = msg.Text[len(a):]
+		msg = &body
+	}
 	if !p.QuickCheck(msg.Text) {
 		return nil
 	}
@@ -142,7 +157,30 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	if sameRegistration(reg, msg.Tail) {
 		result.Registration = reg
 	}
+	if c["h01"] != "" {
+		parseH01(result, c["h01"], msg.Tail)
+	}
 	return result
+}
+
+// parseH01 sets the registration, date and time from an A380 report's H01
+// block ("G-XLEL10051026045954081"), which starts with the registration
+// followed by two digits, the date (DDMMYY) and the time. The registration
+// has no fixed width, so the block is read only when it starts with the
+// transmitted tail.
+func parseH01(r *Result, h01, tail string) {
+	if tail == "" || !strings.HasPrefix(h01, tail) {
+		return
+	}
+	r.Registration = tail
+	rest := h01[len(tail):]
+	if len(rest) < 14 || !allDigits(rest[:14]) {
+		return
+	}
+	if date, err := time.Parse("020106", rest[2:8]); err == nil {
+		r.ReportDate = strings.ToUpper(date.Format("Jan02"))
+		r.ReportTime = rest[8:14]
+	}
 }
 
 // corruptDestination lists the reports whose destination is corrupted: the

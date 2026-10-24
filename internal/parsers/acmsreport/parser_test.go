@@ -168,6 +168,27 @@ func TestParse(t *testing.T) {
 			text: "R01/A33001,1,1\r\n76401\r\n02E02VABBLSZH\r\nN47566E01233803453600M056276012GXXXX2400B8IH-\r\n",
 			want: Result{AircraftSeries: "A330", Report: "01", Origin: "VABB", Destination: "LSZH", Latitude: 47.566, Longitude: 12.338},
 		},
+		{
+			name: "C1 CSV line after a line of digits",
+			tail: "EI-EDY",
+			text: "072006100101011179212\r\nR07/A33007,1,1\r\nC1,.EI-EDY,26OCT07,18.50.39,EIDW,KORD,EIN123    ,4820,019\r\nC2,002,06.0",
+			want: Result{AircraftSeries: "A330", Report: "07", Registration: "EI-EDY", ReportDate: "OCT07",
+				ReportTime: "185039", Origin: "EIDW", Destination: "KORD", Flight: "EIN123"},
+		},
+		{
+			name: "A380 report with fields separated by semicolons",
+			tail: "G-XLEL",
+			text: "A380000411,1,1,TB000000;REP210,80;H0121080605100087.G-XLEL10051026045954081;H02KMIA EGLLBAW6R     S0586S0785-GART-0009;H03LG LEVER DOWN",
+			want: Result{AircraftSeries: "A380", Report: "210", Registration: "G-XLEL", ReportDate: "OCT05",
+				ReportTime: "045954", Origin: "KMIA", Destination: "EGLL", Flight: "BAW6R"},
+		},
+		{
+			name: "CC block after a ground address",
+			tail: "G-NEOS",
+			text: "/QUKAXBA PARJBXH.A321,021822,1,1,TB000000/REP001,85,02,1/CCG-NEOS,DEC31,174446,EGLL,LSZH,0720/C0TFC050BA030101/C106",
+			want: Result{AircraftSeries: "A321", Report: "001", Registration: "G-NEOS", ReportDate: "DEC31",
+				ReportTime: "174446", Origin: "EGLL", Destination: "LSZH", FlightNumberDigits: "0720"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -210,6 +231,8 @@ func TestParseRejectsOtherText(t *testing.T) {
 		"A321,037018,1,1,TB000000/REP239,00,00,4/239N595DT1909100426083958789N42691W 85 77350-20-48257 99AH0503 11000 268 554 0000430510B8/9WKSLCKJFK",
 		// A REP239 record without airports in the route field.
 		"A321,037018,1,1,TB000000/REP239,00,00,4/239N589DT1909100426083958789N42691W 85 77350-20-48257 99AH0503 11000 268 554 0000430510B8/9W''",
+		// An A380 report without a route.
+		"A380000792,1,1,TB000000;REP212,80;H0121280601112870.9V-SKT10051026045827110;H02-------------------S0586S0785ACMSCDAM09;H03PARK BRAKE",
 		// Not an ACMS header.
 		"A321 IS AN AIRCRAFT",
 		"RTE 1 06JAN26 0034 N37319 UAL2443 KORD/KJAX",
@@ -217,5 +240,14 @@ func TestParseRejectsOtherText(t *testing.T) {
 		if r := (&Parser{}).Parse(&acars.Message{Label: "H1", Tail: "N589DT", Text: text}); r != nil {
 			t.Errorf("Parse(%q) = %+v, want nil", text, r)
 		}
+	}
+}
+
+// The registry calls QuickCheck on the text as received, so it must look
+// past a ground address too.
+func TestQuickCheckAfterGroundAddress(t *testing.T) {
+	text := "/QUKAXBA PARJBXH.A321,021822,1,1,TB000000/REP001,85,02,1/CCG-NEOS,DEC31,174446,EGLL,LSZH,0720/C0TFC050BA030101"
+	if !(&Parser{}).QuickCheck(text) {
+		t.Error("QuickCheck = false, want true")
 	}
 }

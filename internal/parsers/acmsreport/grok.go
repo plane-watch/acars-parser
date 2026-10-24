@@ -54,7 +54,8 @@ var Formats = []patterns.Format{
 		Fields:  []string{"series_short", "report_short", "time", "origin", "dest"},
 	},
 	// A C1 line of comma-separated values follows the short header on a
-	// line of its own (A330 and A340 reports): the registration (with a
+	// line of its own (A330 and A340 reports), sometimes after a line of
+	// digits: the registration (with a
 	// leading "."), the date (YYMMMDD), the time (HH.MM.SS), the route and
 	// the ICAO callsign, padded with spaces. Example:
 	//
@@ -62,7 +63,7 @@ var Formats = []patterns.Format{
 	//	C1,.VH-EBP,25DEC31,17.03.50,WADD,YSSY,QFA044    ,5000,374
 	{
 		Name: "acms_csv",
-		Pattern: `^` + shortHeader + `\r?\nC1,(?P<reg_field>\.?[A-Z0-9-]{2,8}),\d{2}(?P<month>[A-Z]{3})(?P<day>\d{2}),` +
+		Pattern: `^(?:\d+\r?\n)?` + shortHeader + `\r?\nC1,(?P<reg_field>\.?[A-Z0-9-]{2,8}),\d{2}(?P<month>[A-Z]{3})(?P<day>\d{2}),` +
 			`(?P<hour>\d{2})\.(?P<minute>\d{2})\.(?P<second>\d{2}),(?P<origin>{ICAO}),(?P<dest>{ICAO}),` +
 			`(?P<callsign>[A-Z]{3}\d[A-Z0-9]{0,4})[ \t]*,`,
 		Fields: []string{"series_short", "report_short", "reg_field", "month", "day", "hour", "minute", "second", "origin", "dest", "callsign"},
@@ -102,6 +103,19 @@ var Formats = []patterns.Format{
 			`(?P<record>76401)\r?\n\d{2}E\d{2}(?P<origin>{ICAO})(?P<dest>{ICAO})[ \t]*` +
 			`(?:\r?\n(?P<lat_hemi>[NS])(?P<lat>\d{5})(?P<lon_hemi>[EW])(?P<lon>\d{6}))?`,
 		Fields: []string{"series", "report", "series_short", "report_short", "record", "origin", "dest", "lat_hemi", "lat", "lon_hemi", "lon"},
+	},
+	// A380 reports separate their fields with ";". The H01 block ends with
+	// the registration followed by digits (two, then the date as DDMMYY
+	// and the time, then others), so it is read with the transmitted tail
+	// (see parseH01); the H02 block starts with the route and the
+	// callsign, or with dashes when there is none. Example:
+	//
+	//	A380000411,1,1,TB000000;REP210,80;H0121080605100087.G-XLEL10051026045954081;H02KMIA EGLLBAW6R     S0586...
+	{
+		Name: "acms_a380",
+		Pattern: `^(?P<series>A3\d{2})\d{6},\d,\d,TB\d+;REP(?P<report>\d{3}),[^;]*;H01\d+\.(?P<h01>[A-Z0-9-]+);` +
+			`H02(?P<origin>{ICAO}) (?P<dest>{ICAO})(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]{0,2})\s`,
+		Fields: []string{"series", "report", "h01", "origin", "dest", "callsign"},
 	},
 	// Report 291 is a trajectory report: the route on the "TRP" line, then
 	// timed samples (A1, A2, ...) that are not parsed. Example:

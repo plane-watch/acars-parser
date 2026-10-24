@@ -67,7 +67,7 @@ Most parsers that own a label use priority 100. Lower numbers are used where sev
 | Label | Parsers (priority) |
 |-------|--------------------|
 | RA | dispatcher (45), weather (50), delay_summary (50), parking_info (50), crew_list (55), pax_bag (55), pax_conn_status (55), takeoff_data (55), gateassign (60), loadsheet (60), ualuplink (60), fuel_delivery (100) |
-| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60), ohma (60), progress (60), swareport (60) |
+| H1 | fpn (10), h1pos (20), pwi (30), mdc (40), dispatcher (45), adscrequest (50), afn (50), cpdlc (50), trajectory (50), weather (50), takeoff_data (55), acmsreport (60), asflightdata (60), cmcreport (60), hazard_alert (60), loadsheet (60), monitoring (60), ohma (60), progress (60), swareport (60) |
 | C1 | weather (50), takeoff_data (55), loadsheet (60), turbulence (65), landingdata (70) |
 | 3E | delay_summary (50), pax_conn_status (55), fuel_delivery (100) |
 | AA | cpdlc (50), envelope (100) |
@@ -149,6 +149,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [landingdata](#landingdata) | landingdata | C1 | 70 | `landing_data` | Hand-written regex | No |
 | [loadsheet](#loadsheet) | loadsheet | 10, 13, 14, 22, 2A, 30, 31, 35, 3S, 42, 45, C1, H1, RA | 60 | `loadsheet` | Own format engine | Yes |
 | [mediaadv](#mediaadv) | mediaadv | SA | 100 | `media_advisory` | Grok | Yes |
+| [monitoring](#monitoring) | monitoring | H1 | 60 | `monitoring_report` | Hand-written regex | Yes |
 | [ohma](#ohma) | ohma | H1 | 60 | `ohma` | Base64, zlib and JSON decoding | Yes |
 | [parking_info](#parking_info) | parking | 1E, RA | 50 | `parking_info` | Hand-written regex | Yes |
 | [pax_bag](#pax_bag) | paxbag | RA | 55 | `pax_bag` | Hand-written regex | Yes |
@@ -161,7 +162,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [unitedheader](#unitedheader) | unitedheader | 11–19, 1E, 1G, 1M, 1R, 22, 23, 27, 2R, 33 | 60 | `united_header` | Hand-written regex | Yes |
 | [weather](#weather) | weather | RA, C1, 21, H1, 3W, 27, 31, 34, 3T, 23 | 50 | `weather` | Hand-written regex | No |
 
-That is 55 parsers in 49 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`; the `label10` package registers two, `label10` and `ldr`.
+That is 56 parsers in 50 packages. The `h1` package registers six parsers: `fpn`, `h1pos`, `pwi`, `mdc`, `progress` and `trajectory`; the `label10` package registers two, `label10` and `ldr`.
 
 ---
 
@@ -173,7 +174,7 @@ The parsers are listed in alphabetical order of package.
 
 **Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
 
-**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_csv`, `acms_281`, `acms_76401` and `acms_291`), and hand-written code for the fixed-width record of report 239.
+**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_csv`, `acms_281`, `acms_76401`, `acms_a380` and `acms_291`), and hand-written code for the fixed-width record of report 239.
 
 **Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
 
@@ -187,7 +188,7 @@ A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL78
 
 **Short header:** reports also come with a short header, `A37/A31937,1,1/`: a letter and the report number, then the series (`A319`) and the report number again. Its report number has two digits and is kept as sent (`37`, not `037`). With this header, a CC or C1 block is parsed as above, and a `C1TRP` block (reports 38 and 39, `C1TRP,180234,KDFW,KRIC,...`) gives the time and route of a trajectory report whose samples are not parsed.
 
-**A330 and A340 reports:** the short header can also stand on a line of its own, sometimes after a line of digits. It is then followed by a C1 line of comma-separated values, giving the registration, the date (`25DEC31`, reported as `DEC31`), the time (`17.03.50`, reported as `170350`), the route and the ICAO callsign (reported as `flight`):
+**A330 and A340 reports:** the short header can also stand on a line of its own, sometimes after a line of digits (with the C1 line and with the WX block). It is then followed by a C1 line of comma-separated values, giving the registration, the date (`25DEC31`, reported as `DEC31`), the time (`17.03.50`, reported as `170350`), the route and the ICAO callsign (reported as `flight`):
 
 ```
 R01/A33001,1,1
@@ -197,6 +198,14 @@ C1,.VH-EBP,25DEC31,17.03.50,WADD,YSSY,QFA044    ,5000,374
 or by the `/WX` block of report 281 (below).
 
 **Corrupted destinations:** reports 032 and 037 replace the destination's last letter with its third (`KLAA` for KLAS, `KORR` for KORD, `MMUU` for MMUN). In the archive most of their destinations, from several airlines, were corrupted this way, while their origins were real airports. Their destination is not reported, so they give no route. The rule applies only to the three-digit report numbers of the long header: with the short header, reports `32` and `37` had real destinations.
+
+**Ground address:** some airlines put ground addresses before the report (`/QUKAXBA PARJBXH.A321,...`: the destination and the originator, then a `.`); they are skipped.
+
+**A380 reports** separate their fields with `;`. The `H01` block ends with the registration followed by two digits, the date (DDMMYY) and the time; it is read only when it starts with the transmitted tail. The `H02` block starts with the route and the callsign (reported as `flight`), or with dashes when there is none, in which case the report is not parsed:
+
+```
+A380000411,1,1,TB000000;REP210,80;H0121080605100087.G-XLEL10051026045954081;H02KMIA EGLLBAW6R     S0586...
+```
 
 **Report 239:** a fixed-width record that is wrapped across lines:
 
@@ -928,6 +937,34 @@ The header is `01`, a four-letter report code (ERDC, TATO, DCAP, ICCL and others
 **Description:** Parses passenger connection status messages. The quick check looks for `PAX CONN STATUS`.
 
 **Extracted fields:** current flight, connecting flights (flight number, date, time, destination, gate, wait decision, class, passengers and bags), and counts of missed, pending, will-wait and total connecting passengers.
+
+---
+
+### monitoring
+
+**Package:** `internal/parsers/monitoring` · **Labels:** H1 · **Priority:** 60 · **Type:** `monitoring_report`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the headers of engine and performance monitoring reports, in eight layouts (the `format` field):
+
+```
+csv      R001V0106,180302,, N3118J,5318410-07,736738,736345,00118,KCHS,KBOS,18:31:51,2026:10:06,JBU568  ,...
+apm      APM    1 N845MD         AAL86   KORDEGLL241026001522,
+acm      ACM01ACM230FSN873FD  FDX48   KMEMEBLG041026  20ER...
+engine   <330>KEG
+         8  N27908UAL109    CL  41051026103207EDDMKIAD  1605  2
+station  /ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+...
+eb       EB0116AB_9 , 56, N29977,UAL7      ,   6,081026,19:09:41,KIAH,RJAA,...
+e        E23C01209L819KIAHSAEZ  ...
+abs      ABS001DA_N1811U  KSNAKSJC384
+```
+
+**Extracted fields:** the format, the report's name, the registration, the callsign (`flight`) or the flight number's digits (`flight_number_digits`, when the report gives only digits), the origin and destination, and, where given, the date (`YYYY-MM-DD`) and time.
+
+**Registration:** in the `acm`, `engine` and `station` layouts the registration runs into the fields around it, so the transmitted tail is used to find it, and without a transmitted tail they are not parsed. In the other layouts the registration has its own field, and a report naming another aircraft than the transmitted one is not parsed, so that its flight and route are not credited to the transmitting aircraft. The `e` layout gives only part of the registration, and a blank `abs` field (`.......`) none; neither reports one.
+
+**Limitations:** the digits after the route in the `abs` layout are not the flight number (WN3202 sent `484`), so it gives no flight. The report bodies (engine and performance values, and in `eb` reports positions) are not parsed.
 
 ---
 
