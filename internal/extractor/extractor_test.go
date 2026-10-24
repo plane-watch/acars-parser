@@ -613,3 +613,9 @@ func TestNormaliseFlightNumberNumericAirline(t *testing.T) {
 		}
 	}
 }
+
+func TestHasFlightNumberZero(t *testing.T) {
+	if !hasFlightNumber("0000", "DL000", "N123AB") {
+		t.Error(`hasFlightNumber("0000", "DL000") = false, want true`)
+	}
+}

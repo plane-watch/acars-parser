@@ -265,14 +265,10 @@ func flightAlias(a, b, tail string, current bool) *FlightAlias {
 	return &FlightAlias{IATA: ia.String(), ICAO: ib.String()}
 }
 
-// sameFlight reports whether two flight identifiers name the same flight:
-// the same flight number and suffix, and the same airline when both use the
-// same form of airline code. There is no table of IATA and ICAO airline
-// codes, so an IATA and an ICAO form with the same number and suffix
-// ("TG482" and "THA482") are taken to match: both describe the same
-// aircraft, so a different airline with the same flight number is not
-// expected. Identifiers that cannot be split match only themselves, ignoring
-// dashes. tail is the transmitted tail (see flightid.Parse).
+// sameFlight reports whether two flight identifiers name the same flight
+// (see flightid.Same; "TG482" and "THA482" match, since both describe the
+// same aircraft). Identifiers that cannot be split match only themselves,
+// ignoring dashes. tail is the transmitted tail (see flightid.Parse).
 func sameFlight(a, b, tail string) bool {
 	a, b = strings.TrimSpace(a), strings.TrimSpace(b)
 	if a == "" || b == "" {
@@ -283,10 +279,7 @@ func sameFlight(a, b, tail string) bool {
 	if !okA || !okB {
 		return acars.NormaliseRegistration(a) == acars.NormaliseRegistration(b)
 	}
-	if ia.Number != ib.Number || ia.Suffix != ib.Suffix {
-		return false
-	}
-	return ia.ICAO != ib.ICAO || ia.Airline == ib.Airline
+	return flightid.Same(ia, ib)
 }
 
 // hasFlightNumber reports whether a flight identifier has the given flight
@@ -295,7 +288,11 @@ func sameFlight(a, b, tail string) bool {
 // transmitted tail (see flightid.Parse).
 func hasFlightNumber(digits, flight, tail string) bool {
 	id, ok := flightid.Parse(flight, tail)
-	return ok && id.Number == strings.TrimLeft(strings.TrimSpace(digits), "0")
+	d := strings.TrimLeft(strings.TrimSpace(digits), "0")
+	if d == "" && strings.TrimSpace(digits) != "" {
+		d = "0" // Flight 0, as flightid writes it.
+	}
+	return ok && id.Number == d
 }
 
 // IsICAOCallsign checks if a flight number uses ICAO format (3-letter airline prefix).

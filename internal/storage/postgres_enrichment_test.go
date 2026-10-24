@@ -244,3 +244,48 @@ func TestUpsertFlightEnrichment_MissingKey(t *testing.T) {
 		t.Errorf("expected nil error for missing flight_date, got: %v", err)
 	}
 }
+
+// TestFlightEnrichmentMatchesWholeFlightNumbers checks that an enrichment
+// is merged with the same flight in the other form (QF1255 and QFA1255),
+// and not with another flight whose number ends the same way (B61, which
+// is B6 flight 1, and JBU61), and that a lookup ignores leading zeros.
+func TestFlightEnrichmentMatchesWholeFlightNumbers(t *testing.T) {
+	pg := setupTestPostgres(t)
+	if pg == nil {
+		t.Skip("No PostgreSQL connection available")
+	}
+	defer pg.Close()
+	ctx := context.Background()
+	day := time.Date(2026, 10, 24, 0, 0, 0, 0, time.UTC)
+	const hex = "AB12CD"
+	cleanup := func() { _, _ = pg.pool.Exec(ctx, "DELETE FROM flight_enrichment WHERE icao_hex = $1", hex) }
+	cleanup()
+	defer cleanup()
+
+	for _, u := range []FlightEnrichmentUpdate{
+		{ICAOHex: hex, Callsign: "JBU61", FlightDate: day, Origin: stringPtr("KJFK")},
+		{ICAOHex: hex, Callsign: "B61", FlightDate: day, Origin: stringPtr("KBOS")},
+		{ICAOHex: hex, Callsign: "QF1255", FlightDate: day, Origin: stringPtr("YSSY")},
+		{ICAOHex: hex, Callsign: "QFA1255", FlightDate: day, Destination: stringPtr("YMML")},
+	} {
+		if err := pg.UpsertFlightEnrichment(ctx, u); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var n int
+	if err := pg.pool.QueryRow(ctx, "SELECT count(*) FROM flight_enrichment WHERE icao_hex = $1", hex).Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	if n != 3 {
+		t.Errorf("%d rows, want 3 (JBU61, B61, and QF1255 merged with QFA1255)", n)
+	}
+	for callsign, origin := range map[string]string{"JBU0061": "KJFK", "B6001": "KBOS", "QFA1255": "YSSY"} {
+		e, err := pg.GetFlightEnrichment(ctx, hex, callsign, day)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if e == nil || e.Origin != origin {
+			t.Errorf("GetFlightEnrichment(%s) = %+v, want origin %s", callsign, e, origin)
+		}
+	}
+}

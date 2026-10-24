@@ -54,6 +54,20 @@ func Parse(s, tail string) (ID, bool) {
 	return id, true
 }
 
+// Same reports whether two identifiers name the same flight: the same
+// number and suffix, and the same airline when both use the same form of
+// airline code. An IATA and an ICAO form with the same number and suffix
+// ("QF1255" and "QFA1255") are taken to match, without a table of codes:
+// callers compare identifiers of one aircraft, which does not fly two
+// airlines' flights with the same number. The whole number is compared,
+// so B61 (B6 flight 1) is not JBU61.
+func Same(a, b ID) bool {
+	if a.Number != b.Number || a.Suffix != b.Suffix {
+		return false
+	}
+	return a.ICAO != b.ICAO || a.Airline == b.Airline
+}
+
 // String returns the identifier without leading zeros in its number, as
 // routes are stored: "QFA1", "QF1".
 func (id ID) String() string {

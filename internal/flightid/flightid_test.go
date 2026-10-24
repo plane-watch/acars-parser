@@ -36,3 +36,29 @@ func TestString(t *testing.T) {
 		}
 	}
 }
+
+func TestSame(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want bool
+	}{
+		{"QF1255", "QFA1255", true},
+		{"QFA008", "QFA8", true},
+		{"QF1", "QF01", true},
+		// Another number, or the same number of another airline in the
+		// same form.
+		{"B61", "JBU61", false},
+		{"QF11", "QF1", false},
+		{"QFA1", "UAL1", false},
+		{"LOT49H", "LOT49", false},
+		// Not flight identifiers.
+		{"N123AB", "N123AB", false},
+	}
+	for _, tt := range tests {
+		a, okA := Parse(tt.a, "N123AB")
+		b, okB := Parse(tt.b, "N123AB")
+		if got := okA && okB && Same(a, b); got != tt.want {
+			t.Errorf("Same(%s, %s) = %v, want %v", tt.a, tt.b, got, tt.want)
+		}
+	}
+}

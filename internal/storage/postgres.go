@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+
+	"acars_parser/internal/flightid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -653,19 +655,34 @@ type FlightEnrichmentUpdate struct {
 	PaxBreakdown    map[string]int
 }
 
-// extractFlightNumber extracts the numeric suffix from an airline callsign.
-// Examples: "QF1255" -> "1255", "QFA1255" -> "1255", "UAL123" -> "123"
-// Returns empty string if no numeric suffix found.
-func extractFlightNumber(callsign string) string {
-	// Find where the digits start from the end.
-	i := len(callsign)
-	for i > 0 && callsign[i-1] >= '0' && callsign[i-1] <= '9' {
-		i--
+// findEnrichment returns the ID and callsign of the aircraft's enrichment
+// row on the day that is the same flight as callsign (see flightid.Same:
+// QF1255 and QFA1255 are, B61 and JBU61 are not), preferring the row with
+// the exact callsign; or 0 if there is none. An aircraft has few rows a
+// day, so they are compared here rather than in SQL.
+func (d *PostgresDB) findEnrichment(ctx context.Context, icaoHex, callsign string, day time.Time) (int, string, error) {
+	rows, err := d.pool.Query(ctx, `SELECT id, callsign FROM flight_enrichment WHERE icao_hex = $1 AND flight_date = $2 ORDER BY id`, icaoHex, day)
+	if err != nil {
+		return 0, "", err
 	}
-	if i == len(callsign) {
-		return "" // No digits found.
+	defer rows.Close()
+	want, parsed := flightid.Parse(callsign, "")
+	var id int
+	var found string
+	for rows.Next() {
+		var rowID int
+		var c string
+		if err := rows.Scan(&rowID, &c); err != nil {
+			return 0, "", err
+		}
+		if c == callsign {
+			return rowID, c, nil
+		}
+		if got, ok := flightid.Parse(c, ""); id == 0 && parsed && ok && flightid.Same(want, got) {
+			id, found = rowID, c
+		}
 	}
-	return callsign[i:]
+	return id, found, rows.Err()
 }
 
 // UpsertFlightEnrichment inserts or updates enrichment data.
@@ -676,8 +693,8 @@ func extractFlightNumber(callsign string) string {
 //   - IATA: QF1255 (Qantas), ET507 (Ethiopian), MS774 (EgyptAir)
 //   - ICAO: QFA1255 (Qantas), ETH507 (Ethiopian), MSR774 (EgyptAir)
 //
-// To avoid duplicate enrichment records for the same flight, we match on the numeric
-// flight number suffix rather than the exact callsign. This is safe because:
+// To avoid duplicate enrichment records for the same flight, a row of the same
+// flight in either form is updated (see findEnrichment). This is safe because:
 //  1. We also match on icao_hex (unique aircraft identifier)
 //  2. We also match on flight_date
 //  3. The same physical aircraft cannot fly for two different airlines on the same day
@@ -687,31 +704,16 @@ func extractFlightNumber(callsign string) string {
 // specific and standardised for ATC communications.
 //
 // Validated against corpus: 1,096 duplicate rows (5%) were caused by IATA/ICAO
-// format differences, with zero false positives detected.
+// format differences.
 func (d *PostgresDB) UpsertFlightEnrichment(ctx context.Context, u FlightEnrichmentUpdate) error {
 	if u.ICAOHex == "" || u.FlightDate.IsZero() {
 		return nil // Can't upsert without key fields.
 	}
 
-	// Extract flight number for fuzzy callsign matching.
-	flightNum := extractFlightNumber(u.Callsign)
-
-	// Try to find an existing row with matching icao_hex, flight_date, and flight number suffix.
-	// This allows QF1255 and QFA1255 to match and be merged into the same record.
-	// TODO: The suffix regex is unanchored at the start, so "1$" also matches
-	// QF11, QF21 and QF101. Two different flights on the same aircraft and day can
-	// be merged into one row. Anchoring on the airline prefix
-	// ('^[A-Z0-9]{2,3}' || num || '$') would restrict it to IATA/ICAO variants.
-	var existingID int
-	var existingCallsign string
-	if flightNum != "" {
-		findQuery := `
-			SELECT id, callsign FROM flight_enrichment
-			WHERE icao_hex = $1 AND flight_date = $2 AND callsign ~ ($3 || '$')
-			LIMIT 1
-		`
-		// The regex pattern matches callsigns ending with the flight number.
-		_ = d.pool.QueryRow(ctx, findQuery, u.ICAOHex, u.FlightDate, flightNum).Scan(&existingID, &existingCallsign)
+	// An existing row of the same flight, in either form.
+	existingID, existingCallsign, err := d.findEnrichment(ctx, u.ICAOHex, u.Callsign, u.FlightDate)
+	if err != nil {
+		return err
 	}
 
 	// Determine which callsign to use. Prefer the longer (ICAO) format as it's more specific.
@@ -877,43 +879,25 @@ func (d *PostgresDB) UpsertFlightEnrichment(ctx context.Context, u FlightEnrichm
 		ON CONFLICT (icao_hex, callsign, flight_date) DO UPDATE SET %s
 	`, strings.Join(columns, ", "), strings.Join(placeholders, ", "), strings.Join(setClauses, ", "))
 
-	_, err := d.pool.Exec(ctx, query, args...)
+	_, err = d.pool.Exec(ctx, query, args...)
 	return err
 }
 
-// GetFlightEnrichment retrieves enrichment data for a specific flight.
-// Uses fuzzy callsign matching (by flight number suffix) to handle IATA/ICAO variants.
-// See UpsertFlightEnrichment for details on the matching strategy.
+// GetFlightEnrichment retrieves enrichment data for a specific flight: the
+// aircraft's row on the day that is the same flight, in either form and
+// ignoring leading zeros (see findEnrichment).
 func (d *PostgresDB) GetFlightEnrichment(ctx context.Context, icaoHex, callsign string, flightDate time.Time) (*FlightEnrichment, error) {
-	// Extract flight number for fuzzy matching.
-	flightNum := extractFlightNumber(callsign)
-
-	var query string
-	var args []interface{}
-
-	if flightNum != "" {
-		// Use fuzzy matching on flight number suffix to find IATA/ICAO variants.
-		// TODO: Same unanchored-suffix problem as UpsertFlightEnrichment, and with
-		// no ORDER BY an arbitrary row is returned when several match. The caller
-		// also passes the callsign without stripping leading zeros, so QFA008
-		// never matches the stored QFA8.
-		query = `
-			SELECT icao_hex, callsign, flight_date, origin, destination, route,
-			       eta, departure_runway, arrival_runway, sid, squawk, pax_count, pax_breakdown, updated_at
-			FROM flight_enrichment
-			WHERE icao_hex = $1 AND flight_date = $2 AND callsign ~ ($3 || '$')
-		`
-		args = []interface{}{icaoHex, flightDate, flightNum}
-	} else {
-		// No flight number extracted - fall back to exact callsign match.
-		query = `
-			SELECT icao_hex, callsign, flight_date, origin, destination, route,
-			       eta, departure_runway, arrival_runway, sid, squawk, pax_count, pax_breakdown, updated_at
-			FROM flight_enrichment
-			WHERE icao_hex = $1 AND callsign = $2 AND flight_date = $3
-		`
-		args = []interface{}{icaoHex, callsign, flightDate}
+	id, _, err := d.findEnrichment(ctx, icaoHex, callsign, flightDate)
+	if err != nil || id == 0 {
+		return nil, err
 	}
+	query := `
+		SELECT icao_hex, callsign, flight_date, origin, destination, route,
+		       eta, departure_runway, arrival_runway, sid, squawk, pax_count, pax_breakdown, updated_at
+		FROM flight_enrichment
+		WHERE id = $1
+	`
+	args := []interface{}{id}
 
 	var e FlightEnrichment
 	var routeJSON, breakdownJSON []byte
@@ -921,7 +905,7 @@ func (d *PostgresDB) GetFlightEnrichment(ctx context.Context, icaoHex, callsign 
 	var paxCount *int
 	var eta *time.Time
 
-	err := d.pool.QueryRow(ctx, query, args...).Scan(
+	err = d.pool.QueryRow(ctx, query, args...).Scan(
 		&e.ICAOHex, &e.Callsign, &e.FlightDate,
 		&origin, &destination, &routeJSON,
 		&eta, &depRunway, &arrRunway, &sid, &squawk, &paxCount, &breakdownJSON, &e.UpdatedAt,
