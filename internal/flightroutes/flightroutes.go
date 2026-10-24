@@ -19,6 +19,7 @@ package flightroutes
 import (
 	"context"
 	"sort"
+	"sync"
 	"time"
 
 	"acars_parser/internal/flightid"
@@ -150,6 +151,80 @@ func own(ctx context.Context, s Store, ident string) (Flight, error) {
 		return Flight{}, err
 	}
 	return Flight{Identifiers: []string{ident}, Routes: merge(routes)}, nil
+}
+
+// Resolver gives flights' ICAO callsigns from the same evidence as Lookup,
+// for callers that compare identifiers often (such as an update per
+// message). It keeps the code pairs for a time, since they change slowly
+// and are aggregated over every alias; flight aliases are read each time.
+// A Resolver is safe for concurrent use.
+type Resolver struct {
+	store Store
+	ttl   time.Duration
+	now   func() time.Time
+
+	mu      sync.Mutex
+	codes   *codes
+	fetched time.Time
+}
+
+// NewResolver returns a Resolver that reads the code pairs again once they
+// are older than ttl.
+func NewResolver(s Store, ttl time.Duration) *Resolver {
+	return &Resolver{store: s, ttl: ttl, now: time.Now}
+}
+
+// pairs returns the code pairs, read again if they are older than the TTL.
+func (r *Resolver) pairs(ctx context.Context) (*codes, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.codes != nil && r.now().Sub(r.fetched) < r.ttl {
+		return r.codes, nil
+	}
+	pairs, err := r.store.AirlinePairs(ctx)
+	if err != nil {
+		return nil, err
+	}
+	r.codes, r.fetched = newCodes(pairs), r.now()
+	return r.codes, nil
+}
+
+// Callsigns returns the ICAO callsign of each identifier whose callsign is
+// known (see Lookup), keyed by the identifier as given. An identifier in
+// the ICAO form is its own callsign, without leading zeros.
+func (r *Resolver) Callsigns(ctx context.Context, idents []string) (map[string]string, error) {
+	out := map[string]string{}
+	parsed := map[string]flightid.ID{}
+	var iata []string
+	for _, ident := range idents {
+		id, ok := flightid.Parse(ident, "")
+		switch {
+		case !ok:
+		case id.ICAO:
+			out[ident] = id.String()
+		default:
+			parsed[ident] = id
+			iata = append(iata, id.String())
+		}
+	}
+	if len(iata) == 0 {
+		return out, nil
+	}
+	c, err := r.pairs(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// The aliases of each IATA flight, all of which trustedAlias weighs.
+	aliases, err := r.store.FlightAliases(ctx, iata)
+	if err != nil {
+		return nil, err
+	}
+	for ident, id := range parsed {
+		if callsign, ok := canonical(id, aliases, c); ok {
+			out[ident] = callsign
+		}
+	}
+	return out, nil
 }
 
 // codes holds the code pairs that convert flight numbers.

@@ -9,9 +9,10 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"acars_parser/internal/flightid"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"acars_parser/internal/flightroutes"
 )
 
 // PostgresConfig holds PostgreSQL connection settings.
@@ -27,7 +28,15 @@ type PostgresConfig struct {
 // PostgresDB wraps a PostgreSQL connection pool for state storage.
 type PostgresDB struct {
 	pool *pgxpool.Pool
+
+	// flights resolves flight identifiers to ICAO callsigns from this
+	// database's flight aliases, for matching enrichment rows.
+	flights *flightroutes.Resolver
 }
+
+// codePairsTTL is how long the airline code pairs are kept before they are
+// read again (see flightroutes.Resolver).
+const codePairsTTL = 10 * time.Minute
 
 // OpenPostgres opens a connection pool to PostgreSQL.
 func OpenPostgres(ctx context.Context, cfg PostgresConfig) (*PostgresDB, error) {
@@ -63,7 +72,9 @@ func OpenPostgres(ctx context.Context, cfg PostgresConfig) (*PostgresDB, error) 
 		return nil, fmt.Errorf("ping postgres: %w", err)
 	}
 
-	return &PostgresDB{pool: pool}, nil
+	d := &PostgresDB{pool: pool}
+	d.flights = flightroutes.NewResolver(d, codePairsTTL)
+	return d, nil
 }
 
 // Close closes the PostgreSQL connection pool.
@@ -656,33 +667,86 @@ type FlightEnrichmentUpdate struct {
 }
 
 // findEnrichment returns the ID and callsign of the aircraft's enrichment
-// row on the day that is the same flight as callsign (see flightid.Same:
-// QF1255 and QFA1255 are, B61 and JBU61 are not), preferring the row with
-// the exact callsign; or 0 if there is none. An aircraft has few rows a
-// day, so they are compared here rather than in SQL.
+// row on the day that is the same flight as callsign, or 0 if there is
+// none. The row with the exact callsign is preferred. Otherwise a row is
+// the same flight when:
+//   - both identifiers use the same form of airline code, and flightid.Same
+//     holds: the leading zeros differ (QFA008 and QFA8), and B61 (B6
+//     flight 1) is not JBU61;
+//   - they use different forms, and both resolve to the same ICAO callsign
+//     from the learned code pairs and flight aliases (see flightroutes):
+//     QF1255 and QFA1255 once QF and QFA are known to pair. Without that
+//     evidence they are kept apart, since an aircraft's registration used
+//     as its callsign also reads as an IATA flight ("N123AB" as N1 flight
+//     23AB, which would otherwise match SWR23AB).
+//
+// Rows with no callsign are ignored. An aircraft has few rows a day, so
+// they are compared here rather than in SQL.
 func (d *PostgresDB) findEnrichment(ctx context.Context, icaoHex, callsign string, day time.Time) (int, string, error) {
-	rows, err := d.pool.Query(ctx, `SELECT id, callsign FROM flight_enrichment WHERE icao_hex = $1 AND flight_date = $2 ORDER BY id`, icaoHex, day)
+	rows, err := d.pool.Query(ctx, `SELECT id, callsign FROM flight_enrichment
+		WHERE icao_hex = $1 AND flight_date = $2 AND callsign IS NOT NULL ORDER BY id`, icaoHex, day)
 	if err != nil {
 		return 0, "", err
 	}
-	defer rows.Close()
-	want, parsed := flightid.Parse(callsign, "")
-	var id int
-	var found string
+	type row struct {
+		id       int
+		callsign string
+	}
+	var candidates []row
 	for rows.Next() {
-		var rowID int
-		var c string
-		if err := rows.Scan(&rowID, &c); err != nil {
+		var r row
+		if err := rows.Scan(&r.id, &r.callsign); err != nil {
+			rows.Close()
 			return 0, "", err
 		}
-		if c == callsign {
-			return rowID, c, nil
+		if r.callsign == callsign {
+			rows.Close()
+			return r.id, r.callsign, nil
 		}
-		if got, ok := flightid.Parse(c, ""); id == 0 && parsed && ok && flightid.Same(want, got) {
-			id, found = rowID, c
+		candidates = append(candidates, r)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return 0, "", err
+	}
+
+	want, ok := flightid.Parse(callsign, "")
+	if !ok {
+		return 0, "", nil
+	}
+	var otherForm []row
+	for _, r := range candidates {
+		got, ok := flightid.Parse(r.callsign, "")
+		switch {
+		case !ok:
+		case got.ICAO == want.ICAO:
+			if flightid.Same(want, got) {
+				return r.id, r.callsign, nil
+			}
+		default:
+			otherForm = append(otherForm, r)
 		}
 	}
-	return id, found, rows.Err()
+	if len(otherForm) == 0 {
+		return 0, "", nil
+	}
+
+	idents := []string{callsign}
+	for _, r := range otherForm {
+		idents = append(idents, r.callsign)
+	}
+	callsigns, err := d.flights.Callsigns(ctx, idents)
+	if err != nil {
+		return 0, "", err
+	}
+	if wantCallsign := callsigns[callsign]; wantCallsign != "" {
+		for _, r := range otherForm {
+			if callsigns[r.callsign] == wantCallsign {
+				return r.id, r.callsign, nil
+			}
+		}
+	}
+	return 0, "", nil
 }
 
 // UpsertFlightEnrichment inserts or updates enrichment data.
@@ -693,12 +757,10 @@ func (d *PostgresDB) findEnrichment(ctx context.Context, icaoHex, callsign strin
 //   - IATA: QF1255 (Qantas), ET507 (Ethiopian), MS774 (EgyptAir)
 //   - ICAO: QFA1255 (Qantas), ETH507 (Ethiopian), MSR774 (EgyptAir)
 //
-// To avoid duplicate enrichment records for the same flight, a row of the same
-// flight in either form is updated (see findEnrichment). This is safe because:
-//  1. We also match on icao_hex (unique aircraft identifier)
-//  2. We also match on flight_date
-//  3. The same physical aircraft cannot fly for two different airlines on the same day
-//     with the same flight number
+// To avoid duplicate enrichment records for the same flight, the aircraft's row
+// of the same flight on the day, in either form, is updated (see findEnrichment).
+// The two forms are matched only on learned evidence that they name the same
+// flight, so a row may stay separate until that evidence exists.
 //
 // When a match is found, we prefer the longer (ICAO) callsign format as it's more
 // specific and standardised for ATC communications.

@@ -245,10 +245,14 @@ func TestUpsertFlightEnrichment_MissingKey(t *testing.T) {
 	}
 }
 
-// TestFlightEnrichmentMatchesWholeFlightNumbers checks that an enrichment
-// is merged with the same flight in the other form (QF1255 and QFA1255),
-// and not with another flight whose number ends the same way (B61, which
-// is B6 flight 1, and JBU61), and that a lookup ignores leading zeros.
+// TestFlightEnrichmentMatchesWholeFlightNumbers checks which rows an
+// enrichment is merged with: the same flight in the other form once the
+// airline codes are known to pair (Q81255 and QQB1255), but not another
+// flight whose number ends the same way (B61, which is B6 flight 1, and
+// JBU61), not a registration that reads as a flight number (N123AB as N1
+// flight 23AB, and SWR23AB), and not the other form without evidence
+// (Q71255 and QQC1255). It also checks that a lookup ignores leading zeros
+// and rows with no callsign.
 func TestFlightEnrichmentMatchesWholeFlightNumbers(t *testing.T) {
 	pg := setupTestPostgres(t)
 	if pg == nil {
@@ -258,28 +262,48 @@ func TestFlightEnrichmentMatchesWholeFlightNumbers(t *testing.T) {
 	ctx := context.Background()
 	day := time.Date(2026, 10, 24, 0, 0, 0, 0, time.UTC)
 	const hex = "AB12CD"
-	cleanup := func() { _, _ = pg.pool.Exec(ctx, "DELETE FROM flight_enrichment WHERE icao_hex = $1", hex) }
+	cleanup := func() {
+		_, _ = pg.pool.Exec(ctx, "DELETE FROM flight_enrichment WHERE icao_hex = $1", hex)
+		_, _ = pg.pool.Exec(ctx, "DELETE FROM flight_aliases WHERE iata_flight LIKE 'Q8%'")
+	}
 	cleanup()
 	defer cleanup()
 
+	// Q8 and QQB pair with the same flight numbers (see flightroutes).
+	for i := 0; i < 25; i++ {
+		if err := pg.UpsertFlightAlias(ctx, fmt.Sprintf("Q8%d", i), fmt.Sprintf("QQB%d", i), day); err != nil {
+			t.Fatal(err)
+		}
+	}
+	// A row with no callsign, which the lookups must pass over.
+	if _, err := pg.pool.Exec(ctx, "INSERT INTO flight_enrichment (icao_hex, callsign, flight_date) VALUES ($1, NULL, $2)", hex, day); err != nil {
+		t.Fatal(err)
+	}
 	for _, u := range []FlightEnrichmentUpdate{
 		{ICAOHex: hex, Callsign: "JBU61", FlightDate: day, Origin: stringPtr("KJFK")},
 		{ICAOHex: hex, Callsign: "B61", FlightDate: day, Origin: stringPtr("KBOS")},
-		{ICAOHex: hex, Callsign: "QF1255", FlightDate: day, Origin: stringPtr("YSSY")},
-		{ICAOHex: hex, Callsign: "QFA1255", FlightDate: day, Destination: stringPtr("YMML")},
+		{ICAOHex: hex, Callsign: "Q81255", FlightDate: day, Origin: stringPtr("YSSY")},
+		{ICAOHex: hex, Callsign: "QQB1255", FlightDate: day, Destination: stringPtr("YMML")},
+		{ICAOHex: hex, Callsign: "N123AB", FlightDate: day, Origin: stringPtr("KSFO")},
+		{ICAOHex: hex, Callsign: "SWR23AB", FlightDate: day, Origin: stringPtr("LSZH")},
+		{ICAOHex: hex, Callsign: "Q71255", FlightDate: day, Origin: stringPtr("YBBN")},
+		{ICAOHex: hex, Callsign: "QQC1255", FlightDate: day, Origin: stringPtr("YPPH")},
 	} {
 		if err := pg.UpsertFlightEnrichment(ctx, u); err != nil {
 			t.Fatal(err)
 		}
 	}
 	var n int
-	if err := pg.pool.QueryRow(ctx, "SELECT count(*) FROM flight_enrichment WHERE icao_hex = $1", hex).Scan(&n); err != nil {
+	if err := pg.pool.QueryRow(ctx, "SELECT count(*) FROM flight_enrichment WHERE icao_hex = $1 AND callsign IS NOT NULL", hex).Scan(&n); err != nil {
 		t.Fatal(err)
 	}
-	if n != 3 {
-		t.Errorf("%d rows, want 3 (JBU61, B61, and QF1255 merged with QFA1255)", n)
+	if n != 7 {
+		t.Errorf("%d rows, want 7 (only Q81255 merged with QQB1255)", n)
 	}
-	for callsign, origin := range map[string]string{"JBU0061": "KJFK", "B6001": "KBOS", "QFA1255": "YSSY"} {
+	for callsign, origin := range map[string]string{
+		"JBU0061": "KJFK", "B6001": "KBOS", "QQB1255": "YSSY", "Q81255": "YSSY",
+		"N123AB": "KSFO", "SWR23AB": "LSZH", "Q71255": "YBBN", "QQC1255": "YPPH",
+	} {
 		e, err := pg.GetFlightEnrichment(ctx, hex, callsign, day)
 		if err != nil {
 			t.Fatal(err)

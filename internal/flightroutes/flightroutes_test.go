@@ -176,3 +176,58 @@ func TestLookupUnknown(t *testing.T) {
 		t.Errorf("got %+v, want nothing", got)
 	}
 }
+
+func TestResolverCallsigns(t *testing.T) {
+	r := NewResolver(testStore, time.Hour)
+	got, err := r.Callsigns(context.Background(), []string{
+		"QF0001",  // By the QF/QFA code pair, without leading zeros.
+		"QFA0001", // The ICAO form is its own callsign.
+		"LO495",   // By its flight alias.
+		"QF9",     // Its alias wins over the code pair.
+		"XY12",    // XY is used by two airlines: not known.
+		"N123AB",  // A registration reads as N1 flight 23AB: not known.
+		"G-ABCD",  // Not a flight identifier.
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]string{"QF0001": "QFA1", "QFA0001": "QFA1", "LO495": "LOT49H", "QF9": "QFA9X"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Callsigns = %v, want %v", got, want)
+	}
+}
+
+// countingStore counts the reads of the code pairs.
+type countingStore struct {
+	*store
+	pairReads int
+}
+
+func (s *countingStore) AirlinePairs(ctx context.Context) ([]Pair, error) {
+	s.pairReads++
+	return s.store.AirlinePairs(ctx)
+}
+
+func TestResolverCachesPairs(t *testing.T) {
+	s := &countingStore{store: testStore}
+	r := NewResolver(s, time.Minute)
+	now := t1
+	r.now = func() time.Time { return now }
+	ctx := context.Background()
+	for _, step := range []struct {
+		advance time.Duration
+		reads   int
+	}{
+		{0, 1},                // Read on first use.
+		{30 * time.Second, 1}, // Kept within the TTL.
+		{time.Minute, 2},      // Read again once older than the TTL.
+	} {
+		now = now.Add(step.advance)
+		if _, err := r.Callsigns(ctx, []string{"QF1"}); err != nil {
+			t.Fatal(err)
+		}
+		if s.pairReads != step.reads {
+			t.Errorf("after %v: %d reads of the code pairs, want %d", step.advance, s.pairReads, step.reads)
+		}
+	}
+}

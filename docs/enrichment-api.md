@@ -119,7 +119,7 @@ curl http://localhost:8081/api/v1/enrichment/7C6CA3
 GET /api/v1/enrichment/{icao_hex}/{callsign}
 ```
 
-Returns a single enrichment **object** for the flight on today's date, or `404` with `{"error": "No enrichment data found"}`. The callsign is matched on its numeric suffix (see [Callsign Matching](#callsign-matching)), so `QF9` and `QFA9` find the same record.
+Returns a single enrichment **object** for the flight on today's date, or `404` with `{"error": "No enrichment data found"}`. The callsign is matched as a flight, in either form (see [Callsign Matching](#callsign-matching)): `QFA009` finds `QFA9`, and `QF9` finds `QFA9` once QF and QFA are known to pair.
 
 ```bash
 curl http://localhost:8081/api/v1/enrichment/7C6CA3/QFA9
@@ -320,20 +320,20 @@ Airlines use both IATA (2-letter) and ICAO (3-letter) prefixes in ACARS messages
 | Ethiopian | ET507 | ETH507 |
 | EgyptAir | MS774 | MSR774 |
 
-To avoid holding two records for one flight, both writes and reads match on the numeric suffix of the callsign together with `icao_hex` and `flight_date`:
+To avoid holding two records for one flight, writes and reads look among the aircraft's records for the day (the same `icao_hex` and `flight_date`, with a callsign) for the same flight:
 
-1. The trailing digits are extracted from the callsign (for example, `1255` from `QF1255`).
-2. A row is looked up with the same `icao_hex` and `flight_date` whose callsign matches the regular expression `<digits>$`.
-3. On write, if such a row exists, it is updated and its callsign is replaced if the new callsign is longer (so an ICAO form replaces an IATA form). Otherwise a new row is inserted.
-4. If the callsign has no trailing digits, an exact callsign match is used instead.
+1. A record with the exact callsign is used.
+2. Otherwise, a record whose callsign uses the same form of airline code, with the same flight number (ignoring leading zeros) and suffix, and the same airline: `QFA008` finds `QFA8`, and `B6001` (B6 flight 1) does not find `JBU61`.
+3. Otherwise, a record in the other form that resolves to the same ICAO callsign from the airline code pairs and flight aliases learned from messages (see [flight-routes.md](flight-routes.md)): `QF1255` finds `QFA1255` once QF and QFA are known to pair, and `LO495` finds `LOT49H` through its flight alias. Without that evidence the two forms are kept as separate records, because a registration used as the callsign also reads as an IATA flight (`N123AB` as N1 flight 23AB) and would otherwise match an unrelated callsign (`SWR23AB`).
+4. On write, a record found this way is updated, and its callsign is replaced if the new callsign is longer (so an ICAO form replaces an IATA form). Otherwise a new record is inserted.
+
+The code pairs are read again at most every 10 minutes; flight aliases are read on each match.
 
 The stored callsign is therefore whichever form was seen, upgraded to the longer form when one arrives later. It is not guaranteed to be in ICAO format.
 
 ## Known Limitations
 
-- **Suffix matching is not anchored to the airline prefix.** The pattern `<digits>$` matches any callsign that ends in those digits, so `123` matches `QF1123`, and `1` matches `QF11`, `QF21` and `QF101`. Two different flights by the same aircraft on the same day can therefore be merged into one record on write, or the wrong one returned on read.
-- **Single-flight lookups are not deterministic when several rows match.** The callsign and date lookups (and batch entries with a callsign) take the first matching row without an ordering.
-- **Requested callsigns are not normalised.** Stored callsigns have leading zeros removed, but the callsign in a request is only upper-cased. A request for `QFA008` searches for the suffix `008` and does not find the stored `QFA8`.
+- **The forms of a flight are merged only on learned evidence.** Until messages have paired an airline's codes (or the flight's two identifiers), its IATA and ICAO forms are separate records, and a lookup in one form does not find the other.
 - **`flight_date` from `live` uses the host's local date.** `live` takes the date of the local clock and labels it as a UTC date. On a host that is not running in UTC, records written near midnight can be given a date that differs from the UTC date the API uses for "today".
 - **`flight_date` is the date the data was received, not the scheduled departure date.** A flight whose messages span UTC midnight can be split across two dates, and lookups for "today" after midnight UTC do not return the previous day's record.
 - **`eta`, `arrival_runway` and `pax_breakdown` are never populated.**
