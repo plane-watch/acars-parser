@@ -251,8 +251,8 @@ func TestUpsertFlightEnrichment_MissingKey(t *testing.T) {
 // flight whose number ends the same way (B61, which is B6 flight 1, and
 // JBU61), not a registration that reads as a flight number (N123AB as N1
 // flight 23AB, and SWR23AB), and not the other form without evidence
-// (Q71255 and QQC1255). It also checks that a lookup ignores leading zeros
-// and rows with no callsign.
+// (Q71255 and QQC1255). It also checks that lookups, by callsign and by
+// aircraft, ignore leading zeros and rows with no callsign.
 func TestFlightEnrichmentMatchesWholeFlightNumbers(t *testing.T) {
 	pg := setupTestPostgres(t)
 	if pg == nil {
@@ -299,6 +299,13 @@ func TestFlightEnrichmentMatchesWholeFlightNumbers(t *testing.T) {
 	}
 	if n != 7 {
 		t.Errorf("%d rows, want 7 (only Q81255 merged with QQB1255)", n)
+	}
+	all, err := pg.GetFlightEnrichmentsByAircraft(ctx, hex, day)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(all) != 7 {
+		t.Errorf("GetFlightEnrichmentsByAircraft returned %d rows, want 7", len(all))
 	}
 	for callsign, origin := range map[string]string{
 		"JBU0061": "KJFK", "B6001": "KBOS", "QQB1255": "YSSY", "Q81255": "YSSY",

@@ -1015,12 +1015,13 @@ func (d *PostgresDB) GetFlightEnrichment(ctx context.Context, icaoHex, callsign 
 
 // GetFlightEnrichmentsByAircraft returns all enrichments for an aircraft on a given date.
 // This is useful when an aircraft may have multiple flights (callsigns) on the same day.
+// Rows with no callsign are not flights, and are skipped (as findEnrichment does).
 func (d *PostgresDB) GetFlightEnrichmentsByAircraft(ctx context.Context, icaoHex string, flightDate time.Time) ([]FlightEnrichment, error) {
 	query := `
 		SELECT icao_hex, callsign, flight_date, origin, destination, route,
 		       eta, departure_runway, arrival_runway, sid, squawk, pax_count, pax_breakdown, updated_at
 		FROM flight_enrichment
-		WHERE icao_hex = $1 AND flight_date = $2
+		WHERE icao_hex = $1 AND flight_date = $2 AND callsign IS NOT NULL
 		ORDER BY updated_at DESC
 	`
 

@@ -333,7 +333,7 @@ The stored callsign is therefore whichever form was seen, upgraded to the longer
 
 ## Known Limitations
 
-- **The forms of a flight are merged only on learned evidence.** Until messages have paired an airline's codes (or the flight's two identifiers), its IATA and ICAO forms are separate records, and a lookup in one form does not find the other.
+- **The forms of a flight are merged only on learned evidence.** Until messages have paired an airline's codes (or the flight's two identifiers), its IATA and ICAO forms are separate records, and a lookup in one form does not find the other. Records written in both forms before the evidence arrives stay separate for that day; a lookup returns the record of the requested form when there is one.
 - **`flight_date` from `live` uses the host's local date.** `live` takes the date of the local clock and labels it as a UTC date. On a host that is not running in UTC, records written near midnight can be given a date that differs from the UTC date the API uses for "today".
 - **`flight_date` is the date the data was received, not the scheduled departure date.** A flight whose messages span UTC midnight can be split across two dates, and lookups for "today" after midnight UTC do not return the previous day's record.
 - **`eta`, `arrival_runway` and `pax_breakdown` are never populated.**
