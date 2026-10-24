@@ -177,7 +177,7 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 	// A message whose transmitted flight is in one form and a result's
 	// flight in the other names the flight both ways.
 	for _, f := range same {
-		if alias := flightAlias(msg.FlightNumber, resultFlight(f.m), msg.Tail); alias != nil {
+		if alias := flightAlias(msg.FlightNumber, resultFlight(f.m), msg.Tail, currentFlightResults[f.resultType]); alias != nil {
 			data.FlightAlias = alias
 			break
 		}
@@ -218,6 +218,11 @@ func NormaliseFlightNumber(flightNum string) string {
 	if flightNum == "" {
 		return ""
 	}
+	// An airline code followed by a number is normalised as flightid does,
+	// so that stored identifiers match lookups: "B6001" is B6 flight 1.
+	if id, ok := flightid.Parse(flightNum, ""); ok {
+		return id.String()
+	}
 
 	// Find where the numeric part starts.
 	for i, r := range flightNum {
@@ -235,12 +240,23 @@ func NormaliseFlightNumber(flightNum string) string {
 	return flightNum
 }
 
+// currentFlightResults are the result types that are about the flight in
+// progress when they are sent: a departure clearance, an FMS progress
+// report and a flight plan. Other reports may be about an earlier leg
+// (ELY315 was reported while LY316 was transmitted).
+var currentFlightResults = map[string]bool{"pdc": true, "progress_report": true, "flight_plan": true}
+
 // flightAlias returns the pair formed by two identifiers of one flight, one
-// in each form, or nil if they are not.
-func flightAlias(a, b, tail string) *FlightAlias {
+// in each form, or nil if they are not. A pair whose numbers differ (LO495
+// and LOT49H) is taken only from a result about the current flight
+// (current), since a report about an adjacent leg gives the same shape.
+func flightAlias(a, b, tail string, current bool) *FlightAlias {
 	ia, okA := flightid.Parse(a, tail)
 	ib, okB := flightid.Parse(b, tail)
 	if !okA || !okB || ia.ICAO == ib.ICAO {
+		return nil
+	}
+	if (ia.Number != ib.Number || ia.Suffix != ib.Suffix) && !current {
 		return nil
 	}
 	if ia.ICAO {

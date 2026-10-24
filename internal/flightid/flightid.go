@@ -22,7 +22,7 @@ var identifierRe = regexp.MustCompile(`^(?:([A-Z]{3})|([A-Z0-9]{2}))(\d{1,4})([A
 type ID struct {
 	Airline string
 	ICAO    bool   // The airline code is ICAO (three letters), not IATA.
-	Number  string // Without leading zeros.
+	Number  string // Without leading zeros ("0" for flight 0).
 	Suffix  string
 }
 
@@ -40,7 +40,11 @@ func Parse(s, tail string) (ID, bool) {
 	if m == nil {
 		return ID{}, false
 	}
-	id := ID{Airline: m[1], ICAO: true, Number: strings.TrimLeft(m[3], "0"), Suffix: m[4]}
+	number := strings.TrimLeft(m[3], "0")
+	if number == "" {
+		number = "0" // Flight 0, as in "QF000".
+	}
+	id := ID{Airline: m[1], ICAO: true, Number: number, Suffix: m[4]}
 	if m[1] == "" {
 		id.Airline, id.ICAO = m[2], false
 		if !strings.ContainsAny(id.Airline, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {

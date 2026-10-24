@@ -21,9 +21,9 @@ var testPairs = []Pair{
 	{IATA: "DL", ICAO: "DAL", Observations: 8428, SameNumber: 8300},
 	// LOT's callsigns are not its flight numbers.
 	{IATA: "LO", ICAO: "LOT", Observations: 2294, SameNumber: 1193},
-	// An IATA code used by two airlines.
-	{IATA: "XY", ICAO: "KNE", Observations: 400, SameNumber: 400},
-	{IATA: "XY", ICAO: "NAS", Observations: 300, SameNumber: 300},
+	// An IATA code used by two airlines, one of them seldom.
+	{IATA: "XY", ICAO: "KNE", Observations: 95, SameNumber: 95},
+	{IATA: "XY", ICAO: "NAS", Observations: 5, SameNumber: 5},
 	// Too few observations to trust.
 	{IATA: "ZZ", ICAO: "ZZA", Observations: 5, SameNumber: 5},
 }
@@ -65,6 +65,9 @@ var testStore = &store{
 	aliases: []Alias{
 		{IATA: "LO495", ICAO: "LOT49H", Observations: 7},
 		{IATA: "LO495", ICAO: "LOT495", Observations: 1},
+		// LO777 is mostly LOT777: a lookup of LOT77A must not take it.
+		{IATA: "LO777", ICAO: "LOT77A", Observations: 2},
+		{IATA: "LO777", ICAO: "LOT777", Observations: 20},
 		// One observation is not enough.
 		{IATA: "LO123", ICAO: "LOT12A", Observations: 1},
 		// A flight number whose callsign differs from the code's rule.
@@ -82,6 +85,7 @@ var testStore = &store{
 		{Flight: "DL1", Origin: "KATL", Destination: "EGLL", Observations: 9, FirstSeen: t1, LastSeen: t2},
 		{Flight: "NW1", Origin: "KATL", Destination: "EGLL", Observations: 4, FirstSeen: t1, LastSeen: t2},
 		{Flight: "XY12", Origin: "OERK", Destination: "OEJN", Observations: 6, FirstSeen: t1, LastSeen: t2},
+		{Flight: "LO777", Origin: "EPWA", Destination: "KJFK", Observations: 9, FirstSeen: t1, LastSeen: t2},
 	},
 }
 
@@ -113,6 +117,13 @@ func TestLookup(t *testing.T) {
 		// are not converted: the flight keeps only its own routes.
 		{"XY12", "", []string{"XY12"}, map[string]int{"OERK-OEJN": 6}},
 		{"ZZ1", "", []string{"ZZ1"}, map[string]int{}},
+		{"KNE12", "KNE12", []string{"KNE12"}, map[string]int{}},
+		// An IATA flight is merged into a callsign only if that is its
+		// trusted alias among all its aliases.
+		{"LOT77A", "LOT77A", []string{"LOT77A"}, map[string]int{}},
+		{"LO777", "LOT777", []string{"LO777", "LOT777"}, map[string]int{"EPWA-KJFK": 9}},
+		// An IATA code with a digit.
+		{"B60001", "", []string{"B61"}, map[string]int{}},
 		{"LO123", "", []string{"LO123"}, map[string]int{}},
 	}
 	for _, tt := range tests {

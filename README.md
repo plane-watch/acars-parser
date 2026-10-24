@@ -339,6 +339,8 @@ Normalises message text into token templates and groups messages by template. Th
 
 Rebuilds the PostgreSQL state from the `parsed_json` stored in ClickHouse, using a pool of workers. It updates `aircraft`, `waypoints`, `routes`, `atis_current` and `flight_state`. It does not update `flight_enrichment`.
 
+It adds to the existing rows: a route's or alias's observation count grows by each observation it reads, whether or not an earlier run counted it. To rebuild the counts exactly, empty `routes` and `flight_aliases` first (they are derived from the archive alone).
+
 It gives the extractor each message as live does: once, with all its parse results (the archive's rows of the message, read in ID order) and the transmitted flight stored with it. Rows with `-type` are the only ones read when it is set, so a message's other results are then missing.
 
 ```bash

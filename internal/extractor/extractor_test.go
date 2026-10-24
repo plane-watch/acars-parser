@@ -565,7 +565,10 @@ func TestExtractFlightAlias(t *testing.T) {
 	}{
 		{"IATA transmitted, ICAO reported", "QF0001", "QFA1", "VH-OQA", "", &FlightAlias{IATA: "QF1", ICAO: "QFA1"}},
 		{"ICAO transmitted, IATA reported", "UAL839", "UA0839", "N29977", "", &FlightAlias{IATA: "UA839", ICAO: "UAL839"}},
-		{"a callsign that is not the flight number", "LO0495", "LOT49H", "SP-LRA", "", &FlightAlias{IATA: "LO495", ICAO: "LOT49H"}},
+		// A report giving another number may be about another leg, so it
+		// teaches no alias (see TestExtractFlightAliasOfCurrentFlight).
+		{"a callsign that is not the flight number", "LO0495", "LOT49H", "SP-LRA", "", nil},
+		{"an adjacent leg", "LY0316", "ELY315", "4X-EKA", "", nil},
 		{"both in one form", "QFA1", "QFA1", "VH-OQA", "", nil},
 		{"no transmitted flight", "", "QFA1", "VH-OQA", "", nil},
 		{"a result about another aircraft", "QF0001", "QFA1", "VH-OQA", "VH-OQB", nil},
@@ -580,5 +583,33 @@ func TestExtractFlightAlias(t *testing.T) {
 				t.Errorf("FlightAlias = %+v, want %+v", got, tt.want)
 			}
 		})
+	}
+}
+
+// TestExtractFlightAliasOfCurrentFlight checks that a callsign with another
+// number than the flight number is learned from a result about the current
+// flight, such as a departure clearance.
+// pdcLike is a departure clearance result.
+type pdcLike struct {
+	Flight string `json:"flight"`
+}
+
+func (r *pdcLike) Type() string     { return "pdc" }
+func (r *pdcLike) MessageID() int64 { return 0 }
+
+func TestExtractFlightAliasOfCurrentFlight(t *testing.T) {
+	msg := &acars.Message{Label: "H1", Tail: "SP-LRA", FlightNumber: "LO0495"}
+	pdc := &pdcLike{Flight: "LOT49H"}
+	got := Extract(msg, []registry.Result{pdc}).FlightAlias
+	if got == nil || *got != (FlightAlias{IATA: "LO495", ICAO: "LOT49H"}) {
+		t.Errorf("FlightAlias = %+v, want LO495/LOT49H", got)
+	}
+}
+
+func TestNormaliseFlightNumberNumericAirline(t *testing.T) {
+	for in, want := range map[string]string{"B6001": "B61", "B60568": "B6568", "5J0679": "5J679", "QF0001": "QF1", "QFA001": "QFA1"} {
+		if got := NormaliseFlightNumber(in); got != want {
+			t.Errorf("NormaliseFlightNumber(%q) = %q, want %q", in, got, want)
+		}
 	}
 }

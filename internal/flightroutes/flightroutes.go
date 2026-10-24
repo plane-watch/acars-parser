@@ -84,9 +84,11 @@ const (
 	minPairObservations = 20
 	// ...with the same number in both forms this often...
 	minPairSameNumber = 0.95
-	// ...and accounts for this share of the IATA code's observations
-	// (an IATA code used by two airlines does not).
+	// ...and accounts for this share of the IATA code's observations,
 	minPairShare = 0.9
+	// ...and no other ICAO code was paired with the IATA code this often:
+	// an IATA code that two airlines use is not converted.
+	minCompetingObservations = 5
 	// A flight alias is used when seen this often, and as this share of
 	// its IATA flight's aliases (some reports are about an adjacent leg).
 	minAliasObservations = 2
@@ -121,6 +123,17 @@ func Lookup(ctx context.Context, s Store, query string) (Flight, error) {
 	if err != nil {
 		return Flight{}, err
 	}
+	// Whether an IATA flight is aliased to the callsign depends on all its
+	// aliases, so those of the IATA flights found are fetched too.
+	var iata []string
+	for _, a := range aliases {
+		iata = append(iata, a.IATA)
+	}
+	if len(iata) > 0 {
+		if aliases, err = s.FlightAliases(ctx, append(append([]string{callsign}, byCode...), iata...)); err != nil {
+			return Flight{}, err
+		}
+	}
 	ids := equivalents(cs, byCode, aliases)
 	routes, err := s.Routes(ctx, ids)
 	if err != nil {
@@ -148,13 +161,18 @@ type codes struct {
 func newCodes(pairs []Pair) *codes {
 	c := &codes{icaoFor: map[string]string{}, iataFor: map[string][]string{}}
 	iataTotal := map[string]int{}
+	competitors := map[string]int{} // IATA code to the ICAO codes seen with it credibly.
 	for _, p := range pairs {
 		iataTotal[p.IATA] += p.Observations
+		if p.Observations >= minCompetingObservations {
+			competitors[p.IATA]++
+		}
 	}
 	for _, p := range pairs {
 		if p.Observations < minPairObservations ||
 			float64(p.SameNumber) < minPairSameNumber*float64(p.Observations) ||
-			float64(p.Observations) < minPairShare*float64(iataTotal[p.IATA]) {
+			float64(p.Observations) < minPairShare*float64(iataTotal[p.IATA]) ||
+			competitors[p.IATA] > 1 {
 			continue
 		}
 		c.icaoFor[p.IATA] = p.ICAO

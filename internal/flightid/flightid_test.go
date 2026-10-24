@@ -29,7 +29,7 @@ func TestParse(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	for in, want := range map[string]string{"QFA001": "QFA1", "QF0001": "QF1", "LOT049H": "LOT49H"} {
+	for in, want := range map[string]string{"QFA001": "QFA1", "QF0001": "QF1", "LOT049H": "LOT49H", "QF000": "QF0"} {
 		id, _ := Parse(in, "")
 		if got := id.String(); got != want {
 			t.Errorf("Parse(%q).String() = %q, want %q", in, got, want)
