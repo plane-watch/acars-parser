@@ -38,7 +38,8 @@ type batchInserter interface {
 // would make the retry skip rows that were never stored.)
 //
 // Batches hold at most batchSize rows, and at most maxRetainedRows rows are
-// kept; beyond it the oldest batches are dropped and counted.
+// kept, checked at each flush (so the rows that arrive during one flush can
+// exceed it); beyond it the oldest batches are dropped and counted.
 //
 // add never inserts: a full buffer signals the flush loop, so that the
 // message handler is not held up by ClickHouse.

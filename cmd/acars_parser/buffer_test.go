@@ -11,11 +11,13 @@ import (
 )
 
 // fakeInserter records the rows stored, in order. It fails while down, and
-// while block is set, each insert waits for a value on it.
+// while block is set, each insert signals entered and waits for a value on
+// block.
 type fakeInserter struct {
 	mu       sync.Mutex
 	down     bool
 	block    chan struct{}
+	entered  chan struct{}
 	attempts int
 	ids      []uint64 // The rows stored, in order.
 }
@@ -23,9 +25,10 @@ type fakeInserter struct {
 func (f *fakeInserter) InsertBatch(ctx context.Context, rows []storage.CHInsertParams) error {
 	f.mu.Lock()
 	f.attempts++
-	block, down := f.block, f.down
+	block, entered, down := f.block, f.entered, f.down
 	f.mu.Unlock()
 	if block != nil {
+		entered <- struct{}{}
 		select {
 		case <-block:
 		case <-ctx.Done():
@@ -168,17 +171,28 @@ func TestMessageBufferDrainRetries(t *testing.T) {
 // flush loop, busy sending retained batches, stops after its current
 // insert, and drain sends the rest, with the rows added meanwhile, in order.
 func TestMessageBufferShutdown(t *testing.T) {
-	db := &fakeInserter{block: make(chan struct{})}
+	db := &fakeInserter{block: make(chan struct{}), entered: make(chan struct{})}
 	b := newMessageBuffer(db, 2, time.Millisecond)
 	addRows(b, 0, 6) // Three batches.
 
+	// step waits for an insert to start, within a bound.
+	step := func(what string) {
+		t.Helper()
+		select {
+		case <-db.entered:
+		case <-time.After(5 * time.Second):
+			t.Fatalf("%s: no insert started", what)
+		}
+	}
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		b.flushLoop(context.Background())
 	}()
+	step("first batch")
 	db.block <- struct{}{} // The first batch's insert completes.
+	step("second batch")
 	addRows(b, 6, 7)
 	b.stop()
 	db.block <- struct{}{} // The insert in progress completes.
