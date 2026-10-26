@@ -190,7 +190,7 @@ The output has this shape:
 Subscribes to the NATS feed and parses each message.
 
 - It prints one line per result.
-- Unless `-no-store` is set, it batch-inserts results into ClickHouse `messages` (every 1,000 rows or 5 seconds).
+- Unless `-no-store` is set, it batch-inserts results into ClickHouse `messages` (every 1,000 rows or 5 seconds). NATS does not replay messages, so a batch whose insert fails is kept and retried, oldest first, with a deduplication token (the table remembers its last 1,000 inserts, so a retry of an insert that did reach the server is not stored twice). Up to 100,000 rows, about an hour of traffic, are kept; beyond that the oldest batches are dropped and counted. At shutdown, the final flush retries them for up to 30 seconds.
 - Unless `-no-store` is set, it also updates the PostgreSQL `aircraft`, `waypoints`, `routes`, `atis_current` and `flight_enrichment` tables.
 - It joins the blocks of multi-block downlinks once all have arrived, and parses and stores the joined message as well as each block (see [docs/reassembly.md](docs/reassembly.md)).
 - On start, it creates the ClickHouse and PostgreSQL tables if they do not exist, and adds missing columns to `messages`.

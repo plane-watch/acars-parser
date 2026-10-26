@@ -454,3 +454,32 @@ func TestPageEnd(t *testing.T) {
 		}
 	}
 }
+
+// TestInsertBatchWithToken checks that a batch inserted again with its
+// deduplication token, as live retries a failed insert, is stored once,
+// and that another token stores it again.
+func TestInsertBatchWithToken(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	if err := db.CreateSchema(ctx); err != nil {
+		t.Fatal(err)
+	}
+	// The test database's messages table holds only these rows.
+	clear := func() { _ = db.conn.Exec(context.Background(), "TRUNCATE TABLE messages") }
+	clear()
+	t.Cleanup(clear)
+
+	batch := []CHInsertParams{{ID: 1, Timestamp: time.Date(2026, 10, 26, 10, 0, 0, 0, time.UTC), Label: "Q7", ParserType: "a", RawText: "x", ParsedData: map[string]string{}}}
+	for _, token := range []string{"t1", "t1", "t2"} {
+		if err := db.InsertBatchWithToken(ctx, token, batch); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var n uint64
+	if err := db.conn.QueryRow(ctx, "SELECT count() FROM messages").Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	if n != 2 {
+		t.Errorf("%d rows, want 2 (t1 once, t2 once)", n)
+	}
+}

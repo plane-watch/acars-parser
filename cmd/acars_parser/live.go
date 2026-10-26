@@ -270,10 +270,10 @@ func runLiveCmd(args []string) {
 		// Wait for the flush loop to exit.
 		flushWg.Wait()
 
-		// Do a final flush with a short timeout context.
-		flushCtx, flushCancel := context.WithTimeout(context.Background(), 10*time.Second)
+		// A final flush, which also retries the batches not yet stored.
+		flushCtx, flushCancel := context.WithTimeout(context.Background(), finalFlushLimit)
 		if err := msgBuffer.flush(flushCtx); err != nil {
-			fmt.Fprintf(os.Stderr, "Error flushing final messages: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error flushing final messages: %v; %d rows not stored\n", err, msgBuffer.retained())
 		}
 		flushCancel()
 	}
@@ -293,7 +293,8 @@ func runLiveCmd(args []string) {
 
 	// Print storage stats.
 	if msgBuffer != nil {
-		fmt.Printf("  stored: %d\n", msgBuffer.stored)
+		stored, dropped := msgBuffer.counts()
+		fmt.Printf("  stored: %d rows (%d dropped while ClickHouse was unavailable)\n", stored, dropped)
 	}
 
 	// Print state tracker stats if enabled.
@@ -305,85 +306,6 @@ func runLiveCmd(args []string) {
 		fmt.Printf("ATIS updated: %d\n", stateStats.atisUpdated)
 		fmt.Printf("Enrichments upserted: %d\n", stateStats.enrichmentsUpserted)
 	}
-}
-
-// messageBuffer batches messages for efficient ClickHouse insertion.
-type messageBuffer struct {
-	db        *storage.ClickHouseDB
-	messages  []storage.CHInsertParams
-	mu        sync.Mutex
-	batchSize int
-	interval  time.Duration
-	stopCh    chan struct{}
-	stored    int
-}
-
-func newMessageBuffer(db *storage.ClickHouseDB, batchSize int, interval time.Duration) *messageBuffer {
-	return &messageBuffer{
-		db:        db,
-		messages:  make([]storage.CHInsertParams, 0, batchSize),
-		batchSize: batchSize,
-		interval:  interval,
-		stopCh:    make(chan struct{}),
-	}
-}
-
-// autoFlushTimeout bounds the insert that add makes when the buffer is
-// full, which runs while the handler's lock is held.
-const autoFlushTimeout = 30 * time.Second
-
-func (b *messageBuffer) add(msg storage.CHInsertParams) {
-	b.mu.Lock()
-	b.messages = append(b.messages, msg)
-	shouldFlush := len(b.messages) >= b.batchSize
-	b.mu.Unlock()
-
-	if shouldFlush {
-		ctx, cancel := context.WithTimeout(context.Background(), autoFlushTimeout)
-		defer cancel()
-		if err := b.flush(ctx); err != nil {
-			fmt.Fprintf(os.Stderr, "Error auto-flushing messages: %v\n", err)
-		}
-	}
-}
-
-func (b *messageBuffer) flush(ctx context.Context) error {
-	b.mu.Lock()
-	if len(b.messages) == 0 {
-		b.mu.Unlock()
-		return nil
-	}
-	toFlush := b.messages
-	b.messages = make([]storage.CHInsertParams, 0, b.batchSize)
-	b.mu.Unlock()
-
-	err := b.db.InsertBatch(ctx, toFlush)
-	if err == nil {
-		b.mu.Lock()
-		b.stored += len(toFlush)
-		b.mu.Unlock()
-	}
-	return err
-}
-
-func (b *messageBuffer) flushLoop(ctx context.Context) {
-	ticker := time.NewTicker(b.interval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ticker.C:
-			if err := b.flush(ctx); err != nil {
-				fmt.Fprintf(os.Stderr, "Error flushing messages: %v\n", err)
-			}
-		case <-b.stopCh:
-			return
-		}
-	}
-}
-
-func (b *messageBuffer) stop() {
-	close(b.stopCh)
 }
 
 type liveStats struct {
@@ -612,6 +534,11 @@ type liveHandler struct {
 // received to be processed. Docker must allow longer before it kills the
 // container (stop_grace_period in deployments/docker-compose.yml).
 const drainLimit = 2 * time.Minute
+
+// finalFlushLimit bounds the final flush at shutdown, which also retries
+// the batches not yet stored. With drainLimit it must be within Docker's
+// stop_grace_period.
+const finalFlushLimit = 30 * time.Second
 
 // stateUpdateTimeout bounds a message's PostgreSQL state update, so that a
 // blocked update cannot hold the handler's lock indefinitely.
