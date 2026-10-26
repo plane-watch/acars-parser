@@ -62,6 +62,22 @@ func (g *messageGrouper) add(m storage.CHMessage) *backfillWorkItem {
 	return done
 }
 
+// firstMessages returns the rows of the first n messages of rows (in the
+// order MessagesAfter returns them: a message's rows together) and how many
+// messages they are.
+func firstMessages(rows []storage.CHMessage, n int) ([]storage.CHMessage, int) {
+	count := 0
+	for i, m := range rows {
+		if i == 0 || m.ID != rows[i-1].ID || !m.Timestamp.Equal(rows[i-1].Timestamp) {
+			if count == n {
+				return rows[:i], count
+			}
+			count++
+		}
+	}
+	return rows, count
+}
+
 // storedResult returns a row's parse result as a field map. A 5L route is
 // parsed again from the raw text, since archived ones report the 5L
 // designator (always "JST" and the flight number) as their callsign (see
@@ -176,18 +192,19 @@ func runBackfillCmd(args []string) {
 		os.Exit(1)
 	}
 
-	// Get total count for progress reporting.
-	totalCount, err := ch.Count(ctx, *parserType)
+	// Count the archive's rows (one per parse result) for progress
+	// reporting.
+	totalRows, err := ch.Count(ctx, *parserType)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error counting messages: %v\n", err)
 		os.Exit(1)
 	}
-	maxMessages := int(totalCount)
-	if *limit > 0 && *limit < maxMessages {
-		maxMessages = *limit
-	}
 
-	fmt.Printf("Backfilling up to %d messages with %d workers...\n", maxMessages, *workers)
+	if *limit > 0 {
+		fmt.Printf("Backfilling up to %d messages with %d workers...\n", *limit, *workers)
+	} else {
+		fmt.Printf("Backfilling %d archive rows with %d workers...\n", totalRows, *workers)
+	}
 	fmt.Printf("Source: ClickHouse @ %s:%d/%s\n", *chHost, *chPort, *chDatabase)
 	fmt.Printf("Destination: PostgreSQL @ %s:%d/%s\n", *pgHost, *pgPort, *pgDatabase)
 
@@ -261,12 +278,12 @@ func runBackfillCmd(args []string) {
 	// meanwhile neither repeat nor skip a message (see MessagesAfter).
 	// Each message's rows are joined into one work item (see
 	// messageGrouper).
-	read := 0
+	read, queued := 0, 0 // Rows read and messages queued.
 	var key storage.MessageKey
 	var grouper messageGrouper
 
-	for read < maxMessages {
-		messages, next, err := ch.MessagesAfter(ctx, key, *parserType, min(*batchSize, maxMessages-read))
+	for *limit <= 0 || queued < *limit {
+		messages, next, err := ch.MessagesAfter(ctx, key, *parserType, *batchSize)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error querying messages after %v (id %d): %v\n", key.Timestamp, key.ID, err)
 			break
@@ -275,6 +292,11 @@ func runBackfillCmd(args []string) {
 			break
 		}
 		key = next
+		n := len(messages)
+		if *limit > 0 {
+			messages, n = firstMessages(messages, *limit-queued)
+		}
+		queued += n
 
 		for _, m := range messages {
 			if item := grouper.add(m); item != nil {
@@ -284,8 +306,8 @@ func runBackfillCmd(args []string) {
 
 		read += len(messages)
 		if !*verbose {
-			pct := min(float64(read)/float64(maxMessages)*100, 100)
-			fmt.Printf("\r  Queued %d / %d messages (%.1f%%)...", read, maxMessages, pct)
+			pct := min(float64(read)/float64(max(totalRows, 1))*100, 100)
+			fmt.Printf("\r  Read %d / %d archive rows (%.1f%%)...", read, totalRows, pct)
 		}
 	}
 

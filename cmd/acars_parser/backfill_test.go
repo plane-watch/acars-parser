@@ -113,3 +113,18 @@ func TestMessageGrouperTimestamp(t *testing.T) {
 		t.Errorf("got %+v and %+v, want two messages of one result", first, second)
 	}
 }
+
+// TestFirstMessages checks that -limit counts messages, not their rows.
+func TestFirstMessages(t *testing.T) {
+	t0 := time.Date(2026, 10, 26, 10, 0, 0, 0, time.UTC)
+	rows := []storage.CHMessage{
+		{ID: 1, Timestamp: t0, ParserType: "a"}, {ID: 1, Timestamp: t0, ParserType: "b"},
+		{ID: 2, Timestamp: t0}, {ID: 2, Timestamp: t0.Add(time.Second)},
+	}
+	for _, tt := range []struct{ n, rows, count int }{{1, 2, 1}, {2, 3, 2}, {3, 4, 3}, {9, 4, 3}} {
+		got, count := firstMessages(rows, tt.n)
+		if len(got) != tt.rows || count != tt.count {
+			t.Errorf("first %d: %d rows, %d messages; want %d, %d", tt.n, len(got), count, tt.rows, tt.count)
+		}
+	}
+}

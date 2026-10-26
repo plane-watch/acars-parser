@@ -403,8 +403,17 @@ func TestMessagesAfter(t *testing.T) {
 		t.Errorf("pages %v, want %v", got, want)
 	}
 
+	// Messages at the same time on separate pages: after 4, only 6.
+	msgs, next, err := db.MessagesAfter(ctx, MessageKey{t0.Add(ms(30500)), 3}, "", 1)
+	if err != nil || len(msgs) != 1 || msgs[0].ID != 4 {
+		t.Fatalf("after 3: %+v, %v; want message 4", msgs, err)
+	}
+	if msgs, _, err = db.MessagesAfter(ctx, next, "", 1); err != nil || len(msgs) != 1 || msgs[0].ID != 6 {
+		t.Errorf("after 4: %+v, %v; want message 6", msgs, err)
+	}
+
 	// With a parser type, only its rows are read.
-	msgs, _, err := db.MessagesAfter(ctx, MessageKey{}, "p3", 10)
+	msgs, _, err = db.MessagesAfter(ctx, MessageKey{}, "p3", 10)
 	if err != nil {
 		t.Fatal(err)
 	}
