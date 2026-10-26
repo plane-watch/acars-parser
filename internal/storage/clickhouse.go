@@ -441,11 +441,15 @@ type MessageKey struct {
 // a message live joins from its blocks, which carries its first block's
 // time) is not read.
 func (d *ClickHouseDB) MessagesAfter(ctx context.Context, after MessageKey, parserType string, limit int) ([]CHMessage, MessageKey, error) {
+	limit = max(limit, 1)
 	var conditions []string
 	var args []interface{}
 	if after != (MessageKey{}) {
-		conditions = append(conditions, "(timestamp, id) > (?, ?)")
-		args = append(args, after.Timestamp, after.ID)
+		// The key's time is bound as text at the column's millisecond
+		// precision: a time.Time parameter is bound at whole seconds, which
+		// would read the key's message again.
+		conditions = append(conditions, "(timestamp, id) > (toDateTime64(?, 3, 'UTC'), ?)")
+		args = append(args, after.Timestamp.UTC().Format("2006-01-02 15:04:05.000"), after.ID)
 	}
 	if parserType != "" {
 		conditions = append(conditions, "parser_type = ?")
@@ -462,24 +466,40 @@ func (d *ClickHouseDB) MessagesAfter(ctx context.Context, after MessageKey, pars
 		if err != nil || len(rows) == 0 {
 			return nil, after, err
 		}
-		if len(rows) < n {
-			// The last message: all its rows are here.
-			last := rows[len(rows)-1]
-			return rows, MessageKey{last.Timestamp, last.ID}, nil
-		}
-		// The last message's rows may continue past the limit; it is left
-		// for the next page.
-		last := rows[len(rows)-1]
-		end := len(rows)
-		for end > 0 && rows[end-1].ID == last.ID && rows[end-1].Timestamp.Equal(last.Timestamp) {
-			end--
-		}
-		if end > 0 {
+		if end := pageEnd(rows, len(rows) < n, limit); end > 0 {
 			m := rows[end-1]
 			return rows[:end], MessageKey{m.Timestamp, m.ID}, nil
 		}
-		// One message has more rows than n: read more.
+		// The first message has more rows than n: read more.
 	}
+}
+
+// pageEnd returns how many of rows (in time order, read with a limit that
+// all reached unless atEnd) form whole messages within limit rows, or the
+// first message alone if it has more; or 0 if the first message may
+// continue past rows. A message is the rows sharing an ID and timestamp.
+func pageEnd(rows []CHMessage, atEnd bool, limit int) int {
+	same := func(a, b CHMessage) bool { return a.ID == b.ID && a.Timestamp.Equal(b.Timestamp) }
+	// The rows of whole messages: the last message's may continue past
+	// rows unless they reached the end.
+	whole := len(rows)
+	if !atEnd {
+		for whole > 0 && same(rows[whole-1], rows[len(rows)-1]) {
+			whole--
+		}
+	}
+	end := 0
+	for end < whole {
+		next := end + 1
+		for next < whole && same(rows[next], rows[end]) {
+			next++
+		}
+		if end > 0 && next > limit {
+			break
+		}
+		end = next
+	}
+	return end
 }
 
 // GetByID retrieves a single message by ID.

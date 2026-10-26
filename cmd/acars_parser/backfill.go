@@ -27,7 +27,8 @@ type backfillWorkItem struct {
 }
 
 // messageGrouper joins the archive rows of a message (one per parse result,
-// read together, in time order) into one work item, so that the extractor
+// read together, in time order; the rows sharing an ID and timestamp) into
+// one work item, so that the extractor
 // sees each message once with all its results and its transmitted flight,
 // as it does in live. "unparsed" rows add nothing.
 type messageGrouper struct {
@@ -38,7 +39,7 @@ type messageGrouper struct {
 // message arrives; otherwise nil.
 func (g *messageGrouper) add(m storage.CHMessage) *backfillWorkItem {
 	var done *backfillWorkItem
-	if g.cur != nil && uint64(g.cur.msg.ID) != m.ID {
+	if g.cur != nil && (uint64(g.cur.msg.ID) != m.ID || !g.cur.timestamp.Equal(m.Timestamp)) {
 		done = g.flush()
 	}
 	if m.ParserType == "unparsed" {

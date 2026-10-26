@@ -100,3 +100,16 @@ func TestBackfillArchived5L(t *testing.T) {
 		t.Errorf("flight %q, route %q-%q; want QF1701, YNWN-YPPH", f.FlightNumber, f.Origin, f.Destination)
 	}
 }
+
+// TestMessageGrouperTimestamp checks that rows sharing an ID but not a
+// time are separate messages, as MessagesAfter pages them.
+func TestMessageGrouperTimestamp(t *testing.T) {
+	t0 := time.Date(2026, 10, 26, 10, 0, 0, 0, time.UTC)
+	var g messageGrouper
+	g.add(storage.CHMessage{ID: 7, Timestamp: t0, Label: "H1", ParserType: "a", Tail: "VH-OQA", ParsedJSON: `{}`})
+	first := g.add(storage.CHMessage{ID: 7, Timestamp: t0.Add(time.Second), Label: "H1", ParserType: "b", Tail: "VH-OQA", ParsedJSON: `{}`})
+	second := g.flush()
+	if first == nil || second == nil || len(first.results) != 1 || len(second.results) != 1 || !second.timestamp.Equal(t0.Add(time.Second)) {
+		t.Errorf("got %+v and %+v, want two messages of one result", first, second)
+	}
+}
