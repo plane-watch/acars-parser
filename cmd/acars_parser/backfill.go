@@ -13,6 +13,7 @@ import (
 
 	"acars_parser/internal/acars"
 	"acars_parser/internal/extractor"
+	"acars_parser/internal/parsers/label5l"
 	"acars_parser/internal/registry"
 	"acars_parser/internal/storage"
 )
@@ -26,9 +27,9 @@ type backfillWorkItem struct {
 }
 
 // messageGrouper joins the archive rows of a message (one per parse result,
-// read in ID order) into one work item, so that the extractor sees each
-// message once with all its results and its transmitted flight, as it does
-// in live. "unparsed" rows add nothing.
+// read together, in time order) into one work item, so that the extractor
+// sees each message once with all its results and its transmitted flight,
+// as it does in live. "unparsed" rows add nothing.
 type messageGrouper struct {
 	cur *backfillWorkItem
 }
@@ -43,8 +44,8 @@ func (g *messageGrouper) add(m storage.CHMessage) *backfillWorkItem {
 	if m.ParserType == "unparsed" {
 		return done
 	}
-	var parsed map[string]interface{}
-	if err := json.Unmarshal([]byte(m.ParsedJSON), &parsed); err != nil {
+	parsed, ok := storedResult(m)
+	if !ok {
 		return done
 	}
 	if g.cur == nil {
@@ -58,6 +59,31 @@ func (g *messageGrouper) add(m storage.CHMessage) *backfillWorkItem {
 	}
 	g.cur.results = append(g.cur.results, &genericResult{typeName: m.ParserType, data: parsed})
 	return done
+}
+
+// storedResult returns a row's parse result as a field map. A 5L route is
+// parsed again from the raw text, since archived ones report the 5L
+// designator (always "JST" and the flight number) as their callsign (see
+// label5l), which would teach false flight aliases.
+// TODO: Read the stored result for 5L too once the archive has been rebuilt
+// (reparse -rebuild) with the current label5l parser.
+func storedResult(m storage.CHMessage) (map[string]interface{}, bool) {
+	data := []byte(m.ParsedJSON)
+	if m.Label == "5L" && m.ParserType == "route" {
+		r := (&label5l.Parser{}).Parse(&acars.Message{ID: acars.FlexInt64(m.ID), Label: m.Label, Text: m.RawText})
+		if r == nil {
+			return nil, false
+		}
+		var err error
+		if data, err = json.Marshal(r); err != nil {
+			return nil, false
+		}
+	}
+	var parsed map[string]interface{}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		return nil, false
+	}
+	return parsed, true
 }
 
 // flush returns the message being collected, if any.
@@ -176,7 +202,7 @@ func runBackfillCmd(args []string) {
 	)
 
 	// Start the workers. Each aircraft's messages go to one worker (see
-	// workerFor), in ID order, so that the worker's callsign memory sees
+	// workerFor), in time order, so that the worker's callsign memory sees
 	// them in order (see extractor.CallsignMemory).
 	if *workers < 1 {
 		*workers = 1
@@ -228,7 +254,7 @@ func runBackfillCmd(args []string) {
 		}(workChans[i])
 	}
 
-	// Query and process messages in batches, in ID order, joining each
+	// Query and process messages in batches, in time order, joining each
 	// message's rows (see messageGrouper).
 	offset := 0
 	var grouper messageGrouper
@@ -239,10 +265,14 @@ func runBackfillCmd(args []string) {
 			currentBatch = maxMessages - offset
 		}
 
+		// In time order, so that each aircraft's callsign memory sees its
+		// messages in order: a joined message's ID (see reassembly) sorts
+		// after every received one, but its time is its first block's.
 		params := storage.CHQueryParams{
 			ParserType: *parserType,
 			Limit:      currentBatch,
 			Offset:     offset,
+			OrderBy:    "timestamp",
 			OrderDesc:  false,
 		}
 

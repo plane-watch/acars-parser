@@ -341,7 +341,7 @@ Rebuilds the PostgreSQL state from the `parsed_json` stored in ClickHouse, using
 
 It adds to the existing rows: a route's or alias's observation count grows by each observation it reads, whether or not an earlier run counted it. To rebuild the counts exactly, empty `routes` and `flight_aliases` first (they are derived from the archive alone).
 
-It gives the extractor each message as live does: once, with all its parse results (the archive's rows of the message, read in ID order) and the transmitted flight stored with it. Each aircraft's messages go to one worker, in ID order, so that a message without a callsign is keyed by the callsign its aircraft last gave for the flight (see [docs/storage.md](docs/storage.md), "Flight"). Rows with `-type` are the only ones read when it is set, so a message's other results are then missing.
+It gives the extractor each message as live does: once, with all its parse results (the archive's rows of the message, read together in time order) and the transmitted flight stored with it. Archived 5L routes are parsed again from their raw text, because they were stored with the 5L designator as their callsign (see [docs/parsers.md](docs/parsers.md), label5l). Each aircraft's messages go to one worker, in time order, so that a message without a callsign is keyed by the callsign its aircraft last gave for the flight (see [docs/storage.md](docs/storage.md), "Flight"). Rows with `-type` are the only ones read when it is set, so a message's other results are then missing.
 
 ```bash
 ./bin/acars_parser backfill -type flight_plan -workers 16

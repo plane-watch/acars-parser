@@ -196,7 +196,9 @@ func TestExtract(t *testing.T) {
 		}{
 			// A Qatar 777 transmitting Virgin's prefix while flying QTR869.
 			{"another airline's callsign", "VA0869", &mockResult{typeStr: "progress_report", FlightNumber: "QTR869"}, "QTR869", "QTR869"},
-			{"the same airline's callsign", "VA0869", &mockResult{typeStr: "cmc_report", FlightNumber: "VOZ869"}, "VOZ869", "VOZ869"},
+			// From a report that may be about an earlier leg, the callsign
+			// keys the message but is not learned (ExtractedData.Callsign).
+			{"same number, other report", "VA0869", &mockResult{typeStr: "cmc_report", FlightNumber: "VOZ869"}, "VOZ869", ""},
 			// A callsign whose number differs, from a result about the
 			// flight in progress.
 			{"another number, current flight", "LO495", &mockResult{typeStr: "progress_report", FlightNumber: "LOT49H"}, "LOT49H", "LOT49H"},

@@ -14,6 +14,11 @@ import (
 // flight again.
 const CallsignTTL = 12 * time.Hour
 
+// callsignGrace is how long after a message a callsign may have been given
+// and still apply to it: a joined message is processed after its blocks
+// settle (see reassembly), carrying its first block's time.
+const callsignGrace = 5 * time.Minute
+
 // CallsignMemory remembers, per aircraft and transmitted flight, the
 // callsign that the aircraft's messages gave for it (ExtractedData.Callsign),
 // so that its messages that give none (position reports, for instance) are
@@ -22,9 +27,17 @@ const CallsignTTL = 12 * time.Hour
 // memory, their routes would be stored under VA869, which Virgin Australia
 // also flies.
 //
-// Messages are expected roughly in time order, per aircraft. A message out
-// of order (a joined message, archived after its neighbours) uses the
-// newest callsign within the TTL, and does not replace it.
+// Only a callsign given before a message (or within callsignGrace after
+// it) is applied to it, so messages are expected in time order per
+// aircraft: live receives them so, and backfill reads them so. A joined
+// message carries its first block's time and is processed after its last
+// block arrives, hence the grace. A message older than the callsign
+// remembered does not replace it.
+//
+// The aircraft is identified as transmitted (the tail, or without one the
+// link-layer address), not by a registration a result names, so that
+// backfill can send each aircraft's messages to one worker before
+// extracting them.
 //
 // A CallsignMemory is safe for concurrent use.
 type CallsignMemory struct {
@@ -36,8 +49,8 @@ type CallsignMemory struct {
 	pruned  time.Time // When expired entries were last removed.
 }
 
-// callsignKey is an aircraft (its registration, or without one its
-// address) and a transmitted flight, without leading zeros.
+// callsignKey is an aircraft (its transmitted tail, or without one its
+// link-layer address) and a transmitted flight, without leading zeros.
 type callsignKey struct {
 	aircraft, flight string
 }
@@ -62,13 +75,14 @@ func (c *CallsignMemory) Len() int {
 }
 
 // Apply records the callsign that data, extracted from msg at the time at,
-// gives for the transmitted flight; or, when data gives none, keys data's
-// flight by the callsign remembered for the aircraft's transmitted flight.
+// gives for the transmitted flight; or, when data's flight is not keyed by
+// a callsign, keys it by the callsign remembered for the aircraft's
+// transmitted flight.
 func (c *CallsignMemory) Apply(msg *acars.Message, data *ExtractedData, at time.Time) {
 	if data.Flight == nil {
 		return
 	}
-	k := callsignKey{aircraft: aircraftKey(data.Flight), flight: NormaliseFlightNumber(msg.FlightNumber)}
+	k := callsignKey{aircraft: transmittedAircraft(msg), flight: NormaliseFlightNumber(msg.FlightNumber)}
 	if k.aircraft == "" || k.flight == "" {
 		return
 	}
@@ -83,7 +97,7 @@ func (c *CallsignMemory) Apply(msg *acars.Message, data *ExtractedData, at time.
 		}
 		return
 	}
-	if ok && absDuration(at.Sub(e.seen)) < c.ttl {
+	if ok && !data.keyedByCallsign && !at.Add(callsignGrace).Before(e.seen) && at.Sub(e.seen) < c.ttl {
 		data.Flight.FlightNumber = e.callsign
 	}
 }
@@ -105,21 +119,14 @@ func (c *CallsignMemory) prune(at time.Time) {
 	c.pruned = c.newest
 }
 
-// aircraftKey identifies the aircraft of a flight update: its registration
-// (ignoring case and dashes), or without one its address.
-func aircraftKey(f *FlightUpdate) string {
-	if reg := acars.NormaliseRegistration(f.Registration); reg != "" {
+// transmittedAircraft identifies the aircraft that sent a message: its
+// tail (ignoring case and dashes), or without one its link-layer address.
+func transmittedAircraft(msg *acars.Message) string {
+	if reg := acars.NormaliseRegistration(msg.Tail); reg != "" {
 		return reg
 	}
-	if f.ICAOHex != "" {
-		return "hex:" + f.ICAOHex
+	if addr, ok := msg.AircraftAddress(); ok {
+		return "hex:" + addr
 	}
 	return ""
-}
-
-func absDuration(d time.Duration) time.Duration {
-	if d < 0 {
-		return -d
-	}
-	return d
 }

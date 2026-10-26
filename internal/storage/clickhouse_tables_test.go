@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -283,5 +284,51 @@ func TestCreateSchemaAddsBlockColumns(t *testing.T) {
 	}
 	if n != 5 {
 		t.Errorf("%d of the 5 block columns exist", n)
+	}
+}
+
+// TestQueryTimeOrder checks the order backfill reads the archive in: by
+// time, with a joined message (whose ID sorts after every received one) at
+// its first block's time, and ties broken by ID so that a message's rows
+// stay together.
+func TestQueryTimeOrder(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	if err := db.CreateSchema(ctx); err != nil {
+		t.Fatal(err)
+	}
+	const label = "Q9" // Not a real label, so that only these rows are read.
+	clear := func() {
+		_ = db.conn.Exec(context.Background(), "ALTER TABLE messages DELETE WHERE label = ? SETTINGS mutations_sync = 1", label)
+	}
+	clear()
+	t.Cleanup(clear)
+
+	t0 := time.Date(2026, 10, 26, 10, 0, 0, 0, time.UTC)
+	row := func(id uint64, at time.Time, parser string) CHInsertParams {
+		return CHInsertParams{ID: id, Timestamp: at, Label: label, ParserType: parser, RawText: "x", ParsedData: map[string]string{}}
+	}
+	rows := []CHInsertParams{
+		row(5, t0.Add(time.Minute), "b"),
+		row(2, t0.Add(time.Second), "a"),
+		row(3, t0.Add(time.Minute), "a"),
+		row(5, t0.Add(time.Minute), "a"),
+		row(1|1<<62, t0, "a"),
+		row(3, t0.Add(time.Minute), "b"),
+	}
+	if err := db.InsertBatchInto(ctx, "messages", rows); err != nil {
+		t.Fatal(err)
+	}
+	got, err := db.Query(ctx, CHQueryParams{Label: label, OrderBy: "timestamp", Limit: 100})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var ids []uint64
+	for _, m := range got {
+		ids = append(ids, m.ID)
+	}
+	want := []uint64{1 | 1<<62, 2, 3, 3, 5, 5}
+	if fmt.Sprint(ids) != fmt.Sprint(want) {
+		t.Errorf("IDs %v, want %v", ids, want)
 	}
 }

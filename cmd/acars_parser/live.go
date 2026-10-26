@@ -489,7 +489,9 @@ func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars
 	now := time.Now()
 	data := extractor.Extract(msg, results)
 	if callsigns != nil {
-		callsigns.Apply(msg, &data, now)
+		// The message's own time: a joined message is processed after its
+		// blocks settle (see extractor.CallsignMemory).
+		callsigns.Apply(msg, &data, parseTimestamp(msg.Timestamp))
 	}
 
 	// Upsert aircraft if we have identity information.

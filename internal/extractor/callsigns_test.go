@@ -33,6 +33,17 @@ func TestCallsignMemory(t *testing.T) {
 		}
 	})
 
+	t.Run("the aircraft is the transmitted one", func(t *testing.T) {
+		// A message without a tail is not matched by a registration a
+		// result names, which backfill cannot see when it assigns workers.
+		c := NewCallsignMemory(12 * time.Hour)
+		apply(c, "A7-BAE", "VA0869", withCallsign, t0)
+		named := []registry.Result{&reportLike{Registration: "A7-BAE", Origin: "ZSPD", Destination: "OTHH"}}
+		if got := apply(c, "", "VA0869", named, t0.Add(time.Hour)); got != "VA869" {
+			t.Errorf("no tail: %q, want VA869", got)
+		}
+	})
+
 	t.Run("only for the same aircraft and transmitted flight", func(t *testing.T) {
 		c := NewCallsignMemory(12 * time.Hour)
 		apply(c, "A7-BAE", "VA0869", withCallsign, t0)
@@ -44,6 +55,19 @@ func TestCallsignMemory(t *testing.T) {
 		}
 	})
 
+	t.Run("a report that may be about an earlier leg is not learned", func(t *testing.T) {
+		// LO495 flies as LOT49H; a CMC report stored on an earlier LO495
+		// leg flown as LOT495 keys only its own message.
+		c := NewCallsignMemory(12 * time.Hour)
+		apply(c, "SP-LWA", "LO495", []registry.Result{&mockResult{typeStr: "progress_report", FlightNumber: "LOT49H"}}, t0)
+		if got := apply(c, "SP-LWA", "LO495", []registry.Result{&mockResult{typeStr: "cmc_report", FlightNumber: "LOT495"}}, t0.Add(time.Hour)); got != "LOT495" {
+			t.Errorf("the report: %q, want LOT495", got)
+		}
+		if got := apply(c, "SP-LWA", "LO495", position, t0.Add(2*time.Hour)); got != "LOT49H" {
+			t.Errorf("after the report: %q, want LOT49H", got)
+		}
+	})
+
 	t.Run("forgotten after the TTL", func(t *testing.T) {
 		c := NewCallsignMemory(12 * time.Hour)
 		apply(c, "A7-BAE", "VA0869", withCallsign, t0)
@@ -52,13 +76,17 @@ func TestCallsignMemory(t *testing.T) {
 		}
 	})
 
-	t.Run("a message out of order uses and keeps the newest callsign", func(t *testing.T) {
-		// A joined message is archived after its blocks' neighbours (see
-		// reassembly), so backfill reads it out of order.
+	t.Run("a callsign applies only to later messages", func(t *testing.T) {
 		c := NewCallsignMemory(12 * time.Hour)
 		apply(c, "A7-BAE", "VA0869", withCallsign, t0)
-		if got := apply(c, "A7-BAE", "VA0869", position, t0.Add(-time.Hour)); got != "QTR869" {
-			t.Errorf("earlier message: %q, want QTR869", got)
+		// An earlier message may be of another operation of the flight.
+		if got := apply(c, "A7-BAE", "VA0869", position, t0.Add(-time.Hour)); got != "VA869" {
+			t.Errorf("an hour earlier: %q, want VA869", got)
+		}
+		// A joined message carries its first block's time (see
+		// callsignGrace).
+		if got := apply(c, "A7-BAE", "VA0869", position, t0.Add(-time.Minute)); got != "QTR869" {
+			t.Errorf("a minute earlier: %q, want QTR869", got)
 		}
 		older := []registry.Result{&mockResult{typeStr: "progress_report", FlightNumber: "VOZ869"}}
 		apply(c, "A7-BAE", "VA0869", older, t0.Add(-2*time.Hour))

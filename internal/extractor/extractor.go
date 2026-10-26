@@ -92,10 +92,16 @@ type ExtractedData struct {
 	FlightAlias *FlightAlias      `json:"flight_alias,omitempty"`
 
 	// Callsign is the ATC callsign (ICAO form, without leading zeros) that
-	// a result gives for the transmitted flight, when the transmitted
-	// flight is in the IATA form (see messageCallsign). Flight.FlightNumber
-	// is then this callsign.
+	// a result about the flight in progress gives for the transmitted
+	// flight, when the transmitted flight is in the IATA form (see
+	// messageCallsign). Flight.FlightNumber is then this callsign.
+	// CallsignMemory learns from it.
 	Callsign string `json:"callsign,omitempty"`
+
+	// keyedByCallsign is set when Flight.FlightNumber is a callsign a
+	// result gave (Callsign, or one from another report; see
+	// messageCallsign), which CallsignMemory then leaves in place.
+	keyedByCallsign bool
 }
 
 // FlightAlias is a flight named in both forms by one message: the airline
@@ -164,10 +170,14 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 	// result's route is checked against the same flight: the callsign a
 	// result gives for the transmitted flight, else the transmitted flight,
 	// or without one, the first flight a result names.
-	data.Callsign = messageCallsign(msg.FlightNumber, msg.Tail, same)
+	callsign, current := messageCallsign(msg.FlightNumber, msg.Tail, same)
+	if current {
+		data.Callsign = callsign
+	}
 	update.FlightNumber = msg.FlightNumber
-	if data.Callsign != "" {
-		update.FlightNumber = data.Callsign
+	if callsign != "" {
+		update.FlightNumber = callsign
+		data.keyedByCallsign = true
 	}
 	for _, f := range same {
 		if update.FlightNumber != "" {
@@ -222,8 +232,9 @@ type fields struct {
 }
 
 // messageCallsign returns the ATC callsign that a result gives for the
-// transmitted flight, without leading zeros, or "" if none does or the
-// transmitted flight is not in the IATA form.
+// transmitted flight, without leading zeros, and whether that result is
+// about the flight in progress; or "" if none does or the transmitted
+// flight is not in the IATA form.
 //
 // The transmitted flight comes from the aircraft's ACARS unit and can carry
 // another airline's code: Qatar Airways 777s that Virgin Australia wet
@@ -231,25 +242,32 @@ type fields struct {
 // number Virgin also flies (as VOZ869). The callsign a result gives (the
 // flight entered in the FMS, as ATC and ADS-B receivers see it) is the
 // flight's identity, so routes are keyed by it rather than by the
-// transmitted flight. A result's ICAO-form flight is that callsign when it
-// has the transmitted flight's number and suffix, or, whatever its number
-// (LO495 flies as LOT49H), when the result is about the flight in progress
-// (see currentFlightResults); otherwise it may describe another leg.
-func messageCallsign(transmitted, tail string, results []fields) string {
+// transmitted flight. A result's ICAO-form flight is that callsign when the
+// result is about the flight in progress (see currentFlightResults),
+// whatever its number (LO495 flies as LOT49H). Another result's flight
+// (such as a CMC report's, which can be stored on an earlier leg) is used
+// only when it has the transmitted flight's number and suffix, and keys
+// only its own message: an earlier leg with the same number may have flown
+// under another callsign, so CallsignMemory does not learn from it.
+func messageCallsign(transmitted, tail string, results []fields) (string, bool) {
 	t, ok := flightid.Parse(transmitted, tail)
 	if !ok || t.ICAO {
-		return ""
+		return "", false
 	}
+	sameNumber := ""
 	for _, f := range results {
 		id, ok := flightid.Parse(resultFlight(f.m), tail)
 		if !ok || !id.ICAO {
 			continue
 		}
-		if (id.Number == t.Number && id.Suffix == t.Suffix) || currentFlightResults[f.resultType] {
-			return id.String()
+		if currentFlightResults[f.resultType] {
+			return id.String(), true
+		}
+		if sameNumber == "" && id.Number == t.Number && id.Suffix == t.Suffix {
+			sameNumber = id.String()
 		}
 	}
-	return ""
+	return sameNumber, false
 }
 
 // NormaliseFlightNumber strips leading zeros from flight numbers for consistent matching.

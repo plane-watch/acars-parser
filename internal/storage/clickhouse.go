@@ -376,6 +376,11 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 		direction = "DESC"
 	}
 	query += fmt.Sprintf(" ORDER BY %s %s", orderField, direction)
+	if orderField != "id" {
+		// The ID breaks ties, so that the order is stable across pages
+		// and a message's rows (one per parse result) stay together.
+		query += " , id " + direction
+	}
 
 	// Limit and offset.
 	limit := 100
