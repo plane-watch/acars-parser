@@ -218,8 +218,7 @@ func runBackfillCmd(args []string) {
 			callsigns := extractor.NewCallsignMemory(extractor.CallsignTTL)
 			for item := range work {
 				// Extract data from the message.
-				data := extractor.Extract(item.msg, item.results)
-				callsigns.Apply(item.msg, &data, item.timestamp)
+				data := callsigns.Extract(item.msg, item.results, item.timestamp)
 
 				// Write extracted data to PostgreSQL.
 				if err := writeExtractedData(ctx, pg, data, item.timestamp); err != nil {
@@ -254,37 +253,27 @@ func runBackfillCmd(args []string) {
 		}(workChans[i])
 	}
 
-	// Query and process messages in batches, in time order, joining each
-	// message's rows (see messageGrouper).
-	offset := 0
+	// Read the messages in pages of whole messages, in time order, so that
+	// each aircraft's callsign memory sees its messages in order (a joined
+	// message's ID, see reassembly, sorts after every received one, but its
+	// time is its first block's), and by key, so that rows live inserts
+	// meanwhile neither repeat nor skip a message (see MessagesAfter).
+	// Each message's rows are joined into one work item (see
+	// messageGrouper).
+	read := 0
+	var key storage.MessageKey
 	var grouper messageGrouper
 
-	for offset < maxMessages {
-		currentBatch := *batchSize
-		if offset+currentBatch > maxMessages {
-			currentBatch = maxMessages - offset
-		}
-
-		// In time order, so that each aircraft's callsign memory sees its
-		// messages in order: a joined message's ID (see reassembly) sorts
-		// after every received one, but its time is its first block's.
-		params := storage.CHQueryParams{
-			ParserType: *parserType,
-			Limit:      currentBatch,
-			Offset:     offset,
-			OrderBy:    "timestamp",
-			OrderDesc:  false,
-		}
-
-		messages, err := ch.Query(ctx, params)
+	for read < maxMessages {
+		messages, next, err := ch.MessagesAfter(ctx, key, *parserType, min(*batchSize, maxMessages-read))
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error querying messages at offset %d: %v\n", offset, err)
+			fmt.Fprintf(os.Stderr, "Error querying messages after %v (id %d): %v\n", key.Timestamp, key.ID, err)
 			break
 		}
-
 		if len(messages) == 0 {
 			break
 		}
+		key = next
 
 		for _, m := range messages {
 			if item := grouper.add(m); item != nil {
@@ -292,10 +281,10 @@ func runBackfillCmd(args []string) {
 			}
 		}
 
-		offset += len(messages)
+		read += len(messages)
 		if !*verbose {
-			pct := float64(offset) / float64(maxMessages) * 100
-			fmt.Printf("\r  Queued %d / %d messages (%.1f%%)...", offset, maxMessages, pct)
+			pct := min(float64(read)/float64(maxMessages)*100, 100)
+			fmt.Printf("\r  Queued %d / %d messages (%.1f%%)...", read, maxMessages, pct)
 		}
 	}
 

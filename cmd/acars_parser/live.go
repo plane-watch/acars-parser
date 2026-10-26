@@ -487,11 +487,13 @@ func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars
 	// its calendar fields and treats it as UTC. On a non-UTC host, messages near
 	// midnight get the wrong flight_date and the API's UTC "today" misses them.
 	now := time.Now()
-	data := extractor.Extract(msg, results)
+	var data extractor.ExtractedData
 	if callsigns != nil {
 		// The message's own time: a joined message is processed after its
 		// blocks settle (see extractor.CallsignMemory).
-		callsigns.Apply(msg, &data, parseTimestamp(msg.Timestamp))
+		data = callsigns.Extract(msg, results, parseTimestamp(msg.Timestamp))
+	} else {
+		data = extractor.Extract(msg, results)
 	}
 
 	// Upsert aircraft if we have identity information.

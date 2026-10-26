@@ -332,3 +332,79 @@ func TestQueryTimeOrder(t *testing.T) {
 		t.Errorf("IDs %v, want %v", ids, want)
 	}
 }
+
+// TestMessagesAfter checks the paging backfill reads the archive with:
+// whole messages in time order, none repeated or skipped when a row is
+// inserted before the key between pages (a message live joined from its
+// blocks), and a message with more rows than the limit read whole.
+func TestMessagesAfter(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	if err := db.CreateSchema(ctx); err != nil {
+		t.Fatal(err)
+	}
+	const label = "Q8"
+	// The test database's messages table holds only these rows.
+	clear := func() {
+		_ = db.conn.Exec(context.Background(), "TRUNCATE TABLE messages")
+	}
+	clear()
+	t.Cleanup(clear)
+
+	t0 := time.Date(2026, 10, 26, 10, 0, 0, 0, time.UTC)
+	rows := func(id uint64, at time.Time, n int) []CHInsertParams {
+		var out []CHInsertParams
+		for i := 0; i < n; i++ {
+			out = append(out, CHInsertParams{ID: id, Timestamp: at, Label: label, ParserType: fmt.Sprintf("p%d", i), RawText: "x", ParsedData: map[string]string{}})
+		}
+		return out
+	}
+	var all []CHInsertParams
+	all = append(all, rows(1, t0.Add(10*time.Second), 2)...) // A
+	all = append(all, rows(2, t0.Add(20*time.Second), 2)...) // B
+	all = append(all, rows(3, t0.Add(30*time.Second), 4)...) // C, more rows than the limit
+	all = append(all, rows(4, t0.Add(40*time.Second), 1)...) // D
+	if err := db.InsertBatchInto(ctx, "messages", all); err != nil {
+		t.Fatal(err)
+	}
+
+	var got []string
+	var key MessageKey
+	for page := 0; page < 10; page++ {
+		ms, next, err := db.MessagesAfter(ctx, key, "", 3)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(ms) == 0 {
+			break
+		}
+		ids := ""
+		for _, m := range ms {
+			ids += fmt.Sprint(m.ID)
+		}
+		got = append(got, ids)
+		key = next
+		if page == 0 {
+			// A joined message, inserted after the first page with an
+			// earlier time than the key.
+			if err := db.InsertBatchInto(ctx, "messages", rows(5|1<<62, t0.Add(5*time.Second), 1)); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	// Message 3's page is read with a doubled limit, which reaches the end
+	// of the table, so message 4 comes whole with it.
+	want := []string{"11", "22", "33334"}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Errorf("pages %v, want %v", got, want)
+	}
+
+	// With a parser type, only its rows are read.
+	ms, _, err := db.MessagesAfter(ctx, MessageKey{}, "p3", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(ms) != 1 || ms[0].ID != 3 {
+		t.Errorf("p3 rows: %+v, want message 3's", ms)
+	}
+}

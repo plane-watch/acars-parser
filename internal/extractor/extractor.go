@@ -97,11 +97,6 @@ type ExtractedData struct {
 	// messageCallsign). Flight.FlightNumber is then this callsign.
 	// CallsignMemory learns from it.
 	Callsign string `json:"callsign,omitempty"`
-
-	// keyedByCallsign is set when Flight.FlightNumber is a callsign a
-	// result gave (Callsign, or one from another report; see
-	// messageCallsign), which CallsignMemory then leaves in place.
-	keyedByCallsign bool
 }
 
 // FlightAlias is a flight named in both forms by one message: the airline
@@ -117,6 +112,14 @@ type FlightAlias struct {
 // This function is database-agnostic and returns all extracted data for the
 // caller to process as needed.
 func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
+	return extract(msg, results, "")
+}
+
+// extract is Extract with the callsign remembered for the aircraft's
+// transmitted flight (see CallsignMemory), or "". The remembered callsign
+// keys the flight when no result gives one, and is resolved before any
+// route is read, so that routes are checked against it.
+func extract(msg *acars.Message, results []registry.Result, remembered string) ExtractedData {
 	data := ExtractedData{}
 
 	// Build the base flight update from the message metadata.
@@ -175,9 +178,11 @@ func Extract(msg *acars.Message, results []registry.Result) ExtractedData {
 		data.Callsign = callsign
 	}
 	update.FlightNumber = msg.FlightNumber
-	if callsign != "" {
+	switch {
+	case callsign != "":
 		update.FlightNumber = callsign
-		data.keyedByCallsign = true
+	case remembered != "":
+		update.FlightNumber = remembered
 	}
 	for _, f := range same {
 		if update.FlightNumber != "" {

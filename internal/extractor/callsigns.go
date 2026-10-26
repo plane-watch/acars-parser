@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/registry"
 )
 
 // CallsignTTL is how long a callsign is remembered for an aircraft's
@@ -74,32 +75,30 @@ func (c *CallsignMemory) Len() int {
 	return len(c.entries)
 }
 
-// Apply records the callsign that data, extracted from msg at the time at,
-// gives for the transmitted flight; or, when data's flight is not keyed by
-// a callsign, keys it by the callsign remembered for the aircraft's
-// transmitted flight.
-func (c *CallsignMemory) Apply(msg *acars.Message, data *ExtractedData, at time.Time) {
-	if data.Flight == nil {
-		return
-	}
+// Extract extracts a message received at the time at, as Extract does,
+// keying its flight, when no result gives a callsign, by the callsign
+// remembered for the aircraft's transmitted flight; and records the
+// callsign a result about the flight in progress gives
+// (ExtractedData.Callsign).
+func (c *CallsignMemory) Extract(msg *acars.Message, results []registry.Result, at time.Time) ExtractedData {
 	k := callsignKey{aircraft: transmittedAircraft(msg), flight: NormaliseFlightNumber(msg.FlightNumber)}
 	if k.aircraft == "" || k.flight == "" {
-		return
+		return Extract(msg, results)
 	}
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.prune(at)
 	e, ok := c.entries[k]
-	if data.Callsign != "" {
-		if !ok || !at.Before(e.seen) {
-			c.entries[k] = callsignEntry{callsign: data.Callsign, seen: at}
-		}
-		return
+	remembered := ""
+	if ok && !at.Add(callsignGrace).Before(e.seen) && at.Sub(e.seen) < c.ttl {
+		remembered = e.callsign
 	}
-	if ok && !data.keyedByCallsign && !at.Add(callsignGrace).Before(e.seen) && at.Sub(e.seen) < c.ttl {
-		data.Flight.FlightNumber = e.callsign
+	data := extract(msg, results, remembered)
+	if data.Callsign != "" && (!ok || !at.Before(e.seen)) {
+		c.entries[k] = callsignEntry{callsign: data.Callsign, seen: at}
 	}
+	return data
 }
 
 // prune removes the entries not given for the TTL before the newest time

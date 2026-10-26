@@ -357,8 +357,7 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 		args = append(args, "%"+p.FullText+"%")
 	}
 
-	query := `SELECT id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence, created_at,
-		message_number, block_id, block_end, assembled_from, link_direction FROM messages`
+	query := `SELECT ` + messageColumns + ` FROM messages`
 	if len(conditions) > 0 {
 		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
@@ -389,6 +388,16 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 	}
 	query += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, p.Offset)
 
+	return d.queryMessages(ctx, query, args...)
+}
+
+// messageColumns are the columns of a CHMessage, in the order
+// queryMessages scans them.
+const messageColumns = `id, timestamp, label, parser_type, flight, tail, origin, destination, raw_text, parsed_json, missing_fields, confidence, created_at,
+	message_number, block_id, block_end, assembled_from, link_direction`
+
+// queryMessages runs a query selecting messageColumns and returns its rows.
+func (d *ClickHouseDB) queryMessages(ctx context.Context, query string, args ...interface{}) ([]CHMessage, error) {
 	rows, err := d.conn.Query(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("query messages: %w", err)
@@ -412,6 +421,65 @@ func (d *ClickHouseDB) Query(ctx context.Context, p CHQueryParams) ([]CHMessage,
 	}
 
 	return messages, nil
+}
+
+// MessageKey is a message's place in time order: its timestamp, then its
+// ID. The zero key is before every message.
+type MessageKey struct {
+	Timestamp time.Time
+	ID        uint64
+}
+
+// MessagesAfter returns the rows of the messages after the key, in time
+// order, with parserType's rows only when it is set: whole messages (all
+// of a message's rows, one per parse result), as many as fit in limit rows
+// (or the first message's, if it alone has more), and the key of the last.
+// It returns no rows after the last message.
+//
+// Paging by key, unlike by offset, neither repeats nor skips a message
+// when rows are inserted meanwhile: a row inserted before the key (such as
+// a message live joins from its blocks, which carries its first block's
+// time) is not read.
+func (d *ClickHouseDB) MessagesAfter(ctx context.Context, after MessageKey, parserType string, limit int) ([]CHMessage, MessageKey, error) {
+	var conditions []string
+	var args []interface{}
+	if after != (MessageKey{}) {
+		conditions = append(conditions, "(timestamp, id) > (?, ?)")
+		args = append(args, after.Timestamp, after.ID)
+	}
+	if parserType != "" {
+		conditions = append(conditions, "parser_type = ?")
+		args = append(args, parserType)
+	}
+	query := `SELECT ` + messageColumns + ` FROM messages`
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+	query += " ORDER BY timestamp, id LIMIT %d"
+
+	for n := limit; ; n *= 2 {
+		rows, err := d.queryMessages(ctx, fmt.Sprintf(query, n), args...)
+		if err != nil || len(rows) == 0 {
+			return nil, after, err
+		}
+		if len(rows) < n {
+			// The last message: all its rows are here.
+			last := rows[len(rows)-1]
+			return rows, MessageKey{last.Timestamp, last.ID}, nil
+		}
+		// The last message's rows may continue past the limit; it is left
+		// for the next page.
+		last := rows[len(rows)-1]
+		end := len(rows)
+		for end > 0 && rows[end-1].ID == last.ID && rows[end-1].Timestamp.Equal(last.Timestamp) {
+			end--
+		}
+		if end > 0 {
+			m := rows[end-1]
+			return rows[:end], MessageKey{m.Timestamp, m.ID}, nil
+		}
+		// One message has more rows than n: read more.
+	}
 }
 
 // GetByID retrieves a single message by ID.

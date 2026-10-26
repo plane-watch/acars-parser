@@ -13,13 +13,10 @@ func TestCallsignMemory(t *testing.T) {
 	withCallsign := []registry.Result{&mockResult{typeStr: "progress_report", FlightNumber: "QTR869"}}
 	position := []registry.Result{&mockResult{typeStr: "position", Origin: "ZSPD", Destination: "OTHH"}}
 
-	// apply extracts a message and applies the memory to it, returning the
-	// flight's key.
+	// apply extracts a message with the memory, returning the flight's key.
 	apply := func(c *CallsignMemory, tail, flight string, results []registry.Result, at time.Time) string {
 		msg := &acars.Message{ID: 1, Label: "H1", Tail: tail, FlightNumber: flight}
-		data := Extract(msg, results)
-		c.Apply(msg, &data, at)
-		return data.Flight.FlightNumber
+		return c.Extract(msg, results, at).Flight.FlightNumber
 	}
 
 	t.Run("a message without a callsign takes the one remembered", func(t *testing.T) {
@@ -65,6 +62,18 @@ func TestCallsignMemory(t *testing.T) {
 		}
 		if got := apply(c, "SP-LWA", "LO495", position, t0.Add(2*time.Hour)); got != "LOT49H" {
 			t.Errorf("after the report: %q, want LOT49H", got)
+		}
+	})
+
+	t.Run("routes are checked against the remembered callsign", func(t *testing.T) {
+		// A report naming LOT49H describes LO495's flight once the memory
+		// has it as LOT49H, though the numbers differ.
+		c := NewCallsignMemory(12 * time.Hour)
+		apply(c, "SP-LWA", "LO495", []registry.Result{&mockResult{typeStr: "progress_report", FlightNumber: "LOT49H"}}, t0)
+		msg := &acars.Message{ID: 1, Label: "H1", Tail: "SP-LWA", FlightNumber: "LO495"}
+		f := c.Extract(msg, []registry.Result{&reportLike{Flight: "LOT49H", Origin: "EPWA", Destination: "ENGM"}}, t0.Add(time.Hour)).Flight
+		if f.FlightNumber != "LOT49H" || f.Origin != "EPWA" || f.Destination != "ENGM" {
+			t.Errorf("flight %q, route %q-%q; want LOT49H, EPWA-ENGM", f.FlightNumber, f.Origin, f.Destination)
 		}
 	})
 
