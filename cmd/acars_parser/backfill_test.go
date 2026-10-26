@@ -51,3 +51,26 @@ func TestMessageGrouper(t *testing.T) {
 		}
 	}
 }
+
+// TestWorkerFor checks that an aircraft's messages go to one worker, so
+// that its callsign memory sees them in order.
+func TestWorkerFor(t *testing.T) {
+	const n = 4
+	if a, b := workerFor("A7-BAE", n), workerFor("a7bae", n); a != b {
+		t.Errorf("A7-BAE to worker %d, a7bae to %d; want the same", a, b)
+	}
+	if w := workerFor("", n); w != 0 {
+		t.Errorf("no tail to worker %d, want 0", w)
+	}
+	used := map[int]bool{}
+	for _, tail := range []string{"A7-BAE", "A7-BEF", "VH-8VG", "VH-UVQ", "N123AB", "G-XLEA", "JA731A", "9V-SMA"} {
+		w := workerFor(tail, n)
+		if w < 0 || w >= n {
+			t.Fatalf("%s to worker %d, out of range", tail, w)
+		}
+		used[w] = true
+	}
+	if len(used) < 2 {
+		t.Errorf("8 tails used %d of %d workers", len(used), n)
+	}
+}

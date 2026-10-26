@@ -158,7 +158,8 @@ func TestExtract(t *testing.T) {
 			name, transmitted, wantFlight, wantOrigin string
 		}{
 			{"same callsign", "THA482", "THA482", "YPPH"},
-			{"same flight in IATA form", "TG482", "TG482", "YPPH"},
+			// The report's callsign is the flight's key (see messageCallsign).
+			{"same flight in IATA form", "TG482", "THA482", "YPPH"},
 			{"no transmitted flight", "", "THA482", "YPPH"},
 			// A report stored on an earlier flight and sent on this one.
 			{"another flight", "THA661", "THA661", ""},
@@ -182,6 +183,36 @@ func TestExtract(t *testing.T) {
 		f := Extract(msg, results).Flight
 		if f.FlightNumber != "THA661" || f.Origin != "" || f.Destination != "" {
 			t.Errorf("flight %q, route %q-%q; want THA661 and no route", f.FlightNumber, f.Origin, f.Destination)
+		}
+	})
+
+	t.Run("the callsign a result gives is the flight's key", func(t *testing.T) {
+		tests := []struct {
+			name        string
+			transmitted string
+			result      registry.Result
+			want        string // The flight's key.
+			callsign    string // ExtractedData.Callsign.
+		}{
+			// A Qatar 777 transmitting Virgin's prefix while flying QTR869.
+			{"another airline's callsign", "VA0869", &mockResult{typeStr: "progress_report", FlightNumber: "QTR869"}, "QTR869", "QTR869"},
+			{"the same airline's callsign", "VA0869", &mockResult{typeStr: "cmc_report", FlightNumber: "VOZ869"}, "VOZ869", "VOZ869"},
+			// A callsign whose number differs, from a result about the
+			// flight in progress.
+			{"another number, current flight", "LO495", &mockResult{typeStr: "progress_report", FlightNumber: "LOT49H"}, "LOT49H", "LOT49H"},
+			// From another report, it may describe another leg.
+			{"another number, other report", "LO495", &mockResult{typeStr: "cmc_report", FlightNumber: "LOT49H"}, "LO495", ""},
+			// The transmitted flight is already a callsign.
+			{"transmitted callsign", "QFA0001", &mockResult{typeStr: "progress_report", FlightNumber: "QFA1"}, "QFA1", ""},
+			// A flight named by its number only is not a callsign.
+			{"number only", "QF1701", &digitsReport{FlightNumberDigits: "1701"}, "QF1701", ""},
+		}
+		for _, tt := range tests {
+			msg := &acars.Message{ID: 1, Label: "H1", Tail: "A7-BAE", FlightNumber: tt.transmitted}
+			data := Extract(msg, []registry.Result{tt.result})
+			if data.Flight.FlightNumber != tt.want || data.Callsign != tt.callsign {
+				t.Errorf("%s: flight %q, callsign %q; want %q, %q", tt.name, data.Flight.FlightNumber, data.Callsign, tt.want, tt.callsign)
+			}
 		}
 	})
 

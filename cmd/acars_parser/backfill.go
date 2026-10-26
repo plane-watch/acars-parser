@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"hash/fnv"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -64,6 +65,19 @@ func (g *messageGrouper) flush() *backfillWorkItem {
 	done := g.cur
 	g.cur = nil
 	return done
+}
+
+// workerFor returns the worker, of n, that processes an aircraft's
+// messages: the same for every message with the tail, ignoring case and
+// dashes. Messages without a tail all go to the first worker.
+func workerFor(tail string, n int) int {
+	reg := acars.NormaliseRegistration(tail)
+	if reg == "" {
+		return 0
+	}
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(reg))
+	return int(h.Sum32() % uint32(n))
 }
 
 func runBackfillCmd(args []string) {
@@ -161,18 +175,25 @@ func runBackfillCmd(args []string) {
 		errorCount       int64
 	)
 
-	// Create work channel and start workers.
-	workChan := make(chan *backfillWorkItem, *batchSize)
+	// Start the workers. Each aircraft's messages go to one worker (see
+	// workerFor), in ID order, so that the worker's callsign memory sees
+	// them in order (see extractor.CallsignMemory).
+	if *workers < 1 {
+		*workers = 1
+	}
+	workChans := make([]chan *backfillWorkItem, *workers)
 	var wg sync.WaitGroup
 
-	// Start worker goroutines.
-	for i := 0; i < *workers; i++ {
+	for i := range workChans {
+		workChans[i] = make(chan *backfillWorkItem, *batchSize / *workers + 1)
 		wg.Add(1)
-		go func() {
+		go func(work <-chan *backfillWorkItem) {
 			defer wg.Done()
-			for item := range workChan {
+			callsigns := extractor.NewCallsignMemory(extractor.CallsignTTL)
+			for item := range work {
 				// Extract data from the message.
 				data := extractor.Extract(item.msg, item.results)
+				callsigns.Apply(item.msg, &data, item.timestamp)
 
 				// Write extracted data to PostgreSQL.
 				if err := writeExtractedData(ctx, pg, data, item.timestamp); err != nil {
@@ -204,7 +225,7 @@ func runBackfillCmd(args []string) {
 					fmt.Printf("  Processed %d messages...\n", count)
 				}
 			}
-		}()
+		}(workChans[i])
 	}
 
 	// Query and process messages in batches, in ID order, joining each
@@ -237,7 +258,7 @@ func runBackfillCmd(args []string) {
 
 		for _, m := range messages {
 			if item := grouper.add(m); item != nil {
-				workChan <- item
+				workChans[workerFor(item.msg.Tail, len(workChans))] <- item
 			}
 		}
 
@@ -249,11 +270,13 @@ func runBackfillCmd(args []string) {
 	}
 
 	if item := grouper.flush(); item != nil {
-		workChan <- item
+		workChans[workerFor(item.msg.Tail, len(workChans))] <- item
 	}
 
-	// Close work channel and wait for workers to finish.
-	close(workChan)
+	// Close the work channels and wait for the workers to finish.
+	for _, c := range workChans {
+		close(c)
+	}
 	wg.Wait()
 	fmt.Println()
 

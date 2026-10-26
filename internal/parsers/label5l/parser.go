@@ -1,7 +1,16 @@
 // Package label5l parses Label 5L route messages.
+//
+// 5L is the route report of Jetstar's ground system. Its first field is the
+// flight with the system's own airline prefix, which is always "JST": the
+// QF flights that Jetstar aircraft (and others reporting through the
+// system) operate are reported as "JST1701" for QF1701, so the field is not
+// the flight's callsign. It is reported as the designator, with its digits
+// as the flight number (flight_number_digits), which the extractor checks
+// against the transmitted flight.
 package label5l
 
 import (
+	"regexp"
 	"strings"
 	"sync"
 
@@ -12,24 +21,31 @@ import (
 
 // Result represents a parsed route from label 5L messages.
 type Result struct {
-	MsgID      int64  `json:"message_id"`
-	Timestamp  string `json:"timestamp"`
-	Callsign   string `json:"callsign"`
-	Tail       string `json:"tail,omitempty"`
-	OriginIATA string `json:"origin_iata,omitempty"`
-	OriginICAO string `json:"origin_icao"`
-	DestIATA   string `json:"dest_iata,omitempty"`
-	DestICAO   string `json:"dest_icao"`
-	FlightID   string `json:"flight_id,omitempty"`
-	Date       string `json:"date,omitempty"`
-	DepSched   string `json:"dep_sched,omitempty"`
-	DepActual  string `json:"dep_actual,omitempty"`
-	ArrSched   string `json:"arr_sched,omitempty"`
-	ArrActual  string `json:"arr_actual,omitempty"`
+	MsgID     int64  `json:"message_id"`
+	Timestamp string `json:"timestamp"`
+	// Designator is the first field as transmitted ("JST0372"), and
+	// FlightNumberDigits its flight number ("0372").
+	Designator         string `json:"designator"`
+	FlightNumberDigits string `json:"flight_number_digits,omitempty"`
+	Tail               string `json:"tail,omitempty"`
+	OriginIATA         string `json:"origin_iata,omitempty"`
+	OriginICAO         string `json:"origin_icao"`
+	DestIATA           string `json:"dest_iata,omitempty"`
+	DestICAO           string `json:"dest_icao"`
+	FlightID           string `json:"flight_id,omitempty"`
+	Date               string `json:"date,omitempty"`
+	DepSched           string `json:"dep_sched,omitempty"`
+	DepActual          string `json:"dep_actual,omitempty"`
+	ArrSched           string `json:"arr_sched,omitempty"`
+	ArrActual          string `json:"arr_actual,omitempty"`
 }
 
 func (r *Result) Type() string     { return "route" }
 func (r *Result) MessageID() int64 { return r.MsgID }
+
+// designatorDigitsRe captures the flight number of a designator: the digits
+// before an optional suffix of up to two letters, after the airline prefix.
+var designatorDigitsRe = regexp.MustCompile(`^[A-Z0-9]{2}[A-Z]?(\d{1,4})[A-Z]{0,2}$`)
 
 // Parser parses Label 5L route messages.
 type Parser struct{}
@@ -91,7 +107,7 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 	result := &Result{
 		MsgID:      int64(msg.ID),
 		Timestamp:  msg.Timestamp,
-		Callsign:   match.Captures["callsign"],
+		Designator: match.Captures["designator"],
 		Tail:       match.Captures["tail"],
 		OriginIATA: strings.TrimSpace(match.Captures["origin_iata"]),
 		OriginICAO: strings.TrimSpace(match.Captures["origin_icao"]),
@@ -102,6 +118,10 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		DepActual:  strings.TrimSpace(match.Captures["dep_actual"]),
 		ArrSched:   strings.TrimSpace(match.Captures["arr_sched"]),
 		ArrActual:  strings.TrimSpace(match.Captures["arr_actual"]),
+	}
+
+	if m := designatorDigitsRe.FindStringSubmatch(result.Designator); m != nil {
+		result.FlightNumberDigits = m[1]
 	}
 
 	// Handle destination IATA (may be "---").

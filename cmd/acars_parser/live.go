@@ -186,6 +186,7 @@ func runLiveCmd(args []string) {
 		showAll: *showAll, showRaw: *showRaw, showEmpty: *showEmpty, verbose: *verbose,
 		debugLabels: debugMap, excludeTypes: excludeMap,
 		assembler: reassembly.New(reassemblySettle, reassemblyIdle, reassemblyMaxPending),
+		callsigns: extractor.NewCallsignMemory(extractor.CallsignTTL),
 		now:       time.Now,
 	}
 
@@ -478,13 +479,18 @@ type liveStateStats struct {
 	enrichmentsUpserted int
 }
 
-// updateStatePostgres extracts data from the message and upserts it to PostgreSQL.
-func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars.Message, results []registry.Result, stats *liveStateStats) {
-	data := extractor.Extract(msg, results)
+// updateStatePostgres extracts data from the message and upserts it to
+// PostgreSQL. callsigns, if not nil, keys the flight of a message that gives
+// no callsign (see extractor.CallsignMemory).
+func updateStatePostgres(ctx context.Context, pg *storage.PostgresDB, msg *acars.Message, results []registry.Result, callsigns *extractor.CallsignMemory, stats *liveStateStats) {
 	// TODO: This is local time, but enrichment.Extract builds flight_date from
 	// its calendar fields and treats it as UTC. On a non-UTC host, messages near
 	// midnight get the wrong flight_date and the API's UTC "today" misses them.
 	now := time.Now()
+	data := extractor.Extract(msg, results)
+	if callsigns != nil {
+		callsigns.Apply(msg, &data, now)
+	}
 
 	// Upsert aircraft if we have identity information.
 	if data.Flight != nil && data.Flight.ICAOHex != "" {
@@ -590,6 +596,10 @@ type liveHandler struct {
 	// assembler joins multi-block downlinks.
 	assembler *reassembly.Assembler
 
+	// callsigns keys the flights of messages that give no callsign (see
+	// extractor.CallsignMemory).
+	callsigns *extractor.CallsignMemory
+
 	// now returns the current time; tests replace it.
 	now func() time.Time
 }
@@ -672,7 +682,7 @@ func (h *liveHandler) process(ctx context.Context, msg *acars.Message) {
 	// Update state in PostgreSQL with parsed data.
 	if h.pg != nil {
 		stateCtx, cancel := context.WithTimeout(ctx, stateUpdateTimeout)
-		updateStatePostgres(stateCtx, h.pg, msg, results, h.stateStats)
+		updateStatePostgres(stateCtx, h.pg, msg, results, h.callsigns, h.stateStats)
 		cancel()
 	}
 

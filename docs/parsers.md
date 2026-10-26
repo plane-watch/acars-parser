@@ -800,9 +800,9 @@ The header is `01`, a four-letter report code (ERDC, TATO, DCAP, ICCL and others
 
 **Technique:** Grok (format `route`).
 
-**Description:** Parses Label 5L route messages.
+**Description:** Parses Label 5L route messages, the route report of Jetstar's ground system. Its first field is the flight with the system's own prefix, always `JST`, including for the QF flights Jetstar aircraft operate (`JST1701` for QF1701). It is therefore reported as a designator, with its digits as `flight_number_digits`, and is not used as the flight's callsign.
 
-**Extracted fields:** callsign, origin and destination (IATA and ICAO), flight ID, date, and scheduled and actual departure and arrival times.
+**Extracted fields:** designator and its flight number, origin and destination (IATA and ICAO), flight ID, date, and scheduled and actual departure and arrival times.
 
 ---
 
