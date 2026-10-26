@@ -270,9 +270,9 @@ func runLiveCmd(args []string) {
 		// Wait for the flush loop to exit.
 		flushWg.Wait()
 
-		// A final flush, which also retries the batches not yet stored.
+		// Send the rows not yet stored, retrying while ClickHouse fails.
 		flushCtx, flushCancel := context.WithTimeout(context.Background(), finalFlushLimit)
-		if err := msgBuffer.flush(flushCtx); err != nil {
+		if err := msgBuffer.drain(flushCtx); err != nil {
 			fmt.Fprintf(os.Stderr, "Error flushing final messages: %v; %d rows not stored\n", err, msgBuffer.retained())
 		}
 		flushCancel()
@@ -535,10 +535,10 @@ type liveHandler struct {
 // container (stop_grace_period in deployments/docker-compose.yml).
 const drainLimit = 2 * time.Minute
 
-// finalFlushLimit bounds the final flush at shutdown, which also retries
-// the batches not yet stored. With drainLimit it must be within Docker's
-// stop_grace_period.
-const finalFlushLimit = 30 * time.Second
+// finalFlushLimit bounds the final drain of the message buffer at
+// shutdown. With drainLimit and the insert the flush loop may be finishing
+// (insertTimeout), it must be within Docker's stop_grace_period.
+const finalFlushLimit = 20 * time.Second
 
 // stateUpdateTimeout bounds a message's PostgreSQL state update, so that a
 // blocked update cannot hold the handler's lock indefinitely.

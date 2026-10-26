@@ -7,8 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
-
 	"acars_parser/internal/storage"
 )
 
@@ -20,21 +18,27 @@ const (
 	// oldest batches are dropped.
 	maxRetainedRows = 100000
 	// insertTimeout bounds one batch's insert.
-	insertTimeout = 30 * time.Second
+	insertTimeout = 15 * time.Second
+	// drainRetryEvery is how often drain retries while ClickHouse fails.
+	drainRetryEvery = time.Second
 )
 
-// batchInserter stores a batch of messages with a deduplication token
-// (storage.ClickHouseDB.InsertBatchWithToken).
+// batchInserter stores a batch of messages (storage.ClickHouseDB).
 type batchInserter interface {
-	InsertBatchWithToken(ctx context.Context, token string, messages []storage.CHInsertParams) error
+	InsertBatch(ctx context.Context, messages []storage.CHInsertParams) error
 }
 
 // messageBuffer batches messages for ClickHouse. Messages arrive over NATS
 // without replay, so a batch whose insert fails is kept and retried, in
-// order, at the next flush. Each batch keeps the deduplication token it was
-// first sent with, so that a retry of an insert that did reach the server
-// is not stored twice. At most maxRetainedRows rows are kept; beyond it the
-// oldest batches are dropped and counted.
+// order, at the next flush. An insert that reached the server but reported
+// a failure (a timeout) is stored again by its retry: the duplicate rows
+// have the message's ID and time, and backfill reads them as one message.
+// (ClickHouse's insert deduplication tokens would avoid the duplicates,
+// but a server crash between recording a token and committing its rows
+// would make the retry skip rows that were never stored.)
+//
+// Batches hold at most batchSize rows, and at most maxRetainedRows rows are
+// kept; beyond it the oldest batches are dropped and counted.
 //
 // add never inserts: a full buffer signals the flush loop, so that the
 // message handler is not held up by ClickHouse.
@@ -48,17 +52,10 @@ type messageBuffer struct {
 	sendMu sync.Mutex // Serialises flushes, so that batches are sent in order.
 
 	mu       sync.Mutex
-	messages []storage.CHInsertParams // Not yet in a batch.
-	pending  []pendingBatch           // Batches not yet stored, oldest first.
-	stored   int                      // Rows stored.
-	dropped  int                      // Rows dropped beyond maxRetainedRows.
-}
-
-// pendingBatch is a batch of rows with the deduplication token it is sent
-// with.
-type pendingBatch struct {
-	token string
-	rows  []storage.CHInsertParams
+	messages []storage.CHInsertParams   // Not yet in a batch.
+	pending  [][]storage.CHInsertParams // Batches not yet stored, oldest first.
+	stored   int                        // Rows stored.
+	dropped  int                        // Rows dropped beyond maxRetainedRows.
 }
 
 func newMessageBuffer(db batchInserter, batchSize int, interval time.Duration) *messageBuffer {
@@ -87,32 +84,65 @@ func (b *messageBuffer) add(msg storage.CHInsertParams) {
 	}
 }
 
-// flush makes a batch of the buffered rows and sends the batches not yet
-// stored, oldest first, stopping at the first that fails; it is kept for
-// the next flush. It returns that failure.
+// flush makes batches of the buffered rows and sends the batches not yet
+// stored, oldest first, stopping at the first that fails (it is kept for
+// the next flush) or once the buffer is stopped (drain sends the rest). It
+// returns that failure.
 func (b *messageBuffer) flush(ctx context.Context) error {
+	return b.send(ctx, true)
+}
+
+// drain sends every row not yet stored, retrying failures until ctx ends.
+// It is used at shutdown, after stop. It returns the last failure.
+func (b *messageBuffer) drain(ctx context.Context) error {
+	for {
+		err := b.send(ctx, false)
+		if err == nil {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return err
+		case <-time.After(drainRetryEvery):
+		}
+	}
+}
+
+// send makes batches of the buffered rows and sends the batches not yet
+// stored, oldest first, until one fails or, with untilStopped, the buffer
+// is stopped.
+func (b *messageBuffer) send(ctx context.Context, untilStopped bool) error {
 	b.sendMu.Lock()
 	defer b.sendMu.Unlock()
 
 	b.mu.Lock()
-	if len(b.messages) > 0 {
-		b.pending = append(b.pending, pendingBatch{token: uuid.NewString(), rows: b.messages})
-		b.messages = make([]storage.CHInsertParams, 0, b.batchSize)
+	for len(b.messages) > 0 {
+		n := min(len(b.messages), b.batchSize)
+		b.pending = append(b.pending, b.messages[:n:n])
+		b.messages = b.messages[n:]
 	}
+	b.messages = make([]storage.CHInsertParams, 0, b.batchSize)
 	b.dropBeyondLimit()
-	batches := append([]pendingBatch(nil), b.pending...)
+	batches := append([][]storage.CHInsertParams(nil), b.pending...)
 	b.mu.Unlock()
 
 	for _, batch := range batches {
+		if untilStopped {
+			select {
+			case <-b.stopCh:
+				return nil
+			default:
+			}
+		}
 		insertCtx, cancel := context.WithTimeout(ctx, insertTimeout)
-		err := b.db.InsertBatchWithToken(insertCtx, batch.token, batch.rows)
+		err := b.db.InsertBatch(insertCtx, batch)
 		cancel()
 		if err != nil {
 			return fmt.Errorf("%w (%d rows kept to retry)", err, b.retained())
 		}
 		b.mu.Lock()
 		b.pending = b.pending[1:]
-		b.stored += len(batch.rows)
+		b.stored += len(batch)
 		b.mu.Unlock()
 	}
 	return nil
@@ -123,10 +153,10 @@ func (b *messageBuffer) flush(ctx context.Context) error {
 func (b *messageBuffer) dropBeyondLimit() {
 	retained := 0
 	for _, batch := range b.pending {
-		retained += len(batch.rows)
+		retained += len(batch)
 	}
-	for retained > maxRetainedRows && len(b.pending) > 1 {
-		n := len(b.pending[0].rows)
+	for retained > maxRetainedRows && len(b.pending) > 0 {
+		n := len(b.pending[0])
 		b.pending = b.pending[1:]
 		retained -= n
 		b.dropped += n
@@ -140,7 +170,7 @@ func (b *messageBuffer) retained() int {
 	defer b.mu.Unlock()
 	n := len(b.messages)
 	for _, batch := range b.pending {
-		n += len(batch.rows)
+		n += len(batch)
 	}
 	return n
 }
@@ -171,6 +201,8 @@ func (b *messageBuffer) flushLoop(ctx context.Context) {
 	}
 }
 
+// stop ends the flush loop; a flush in progress stops after its current
+// insert. drain sends the rest.
 func (b *messageBuffer) stop() {
 	close(b.stopCh)
 }

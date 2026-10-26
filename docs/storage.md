@@ -82,10 +82,9 @@ A message that `live` joins from its blocks (see [reassembly.md](reassembly.md))
 | `created_at` | `DateTime64(3)` | Defaults to `now64(3)` |
 
 - **Engine:** `MergeTree()`, partitioned by `toYYYYMM(timestamp)`, ordered by `(parser_type, label, timestamp, id)`.
-- **Insert deduplication:** `non_replicated_deduplication_window = 1000`: the table remembers its last 1,000 inserts, and ignores an insert with the deduplication token of one of them. `live` sends each batch with a token and retries a failed batch with the same one, so a retry of an insert that did reach the server is not stored twice. Inserts without a token (`reparse`, `unparse`) are deduplicated only if their data is identical to a recent insert's.
 - **Index:** a token bloom filter index (`idx_raw_text_bloom`, `tokenbf_v1(32768, 3, 0)`) on `raw_text`. It supports `query -search`, which is a `LIKE '%text%'` match.
 
-**Row replacement does not happen.** `MergeTree` never deduplicates rows already stored, but two commands write a new row intended to replace an existing one:
+**Row replacement does not happen.** `MergeTree` never deduplicates, but two commands write a new row intended to replace an existing one:
 
 - `reparse -update`
 - `unparse`

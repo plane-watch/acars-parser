@@ -108,14 +108,8 @@ func messagesDDL(name string) string {
 		ENGINE = MergeTree()
 		PARTITION BY toYYYYMM(timestamp)
 		ORDER BY (parser_type, label, timestamp, id)
-		SETTINGS index_granularity = 8192, non_replicated_deduplication_window = ` + fmt.Sprint(deduplicationWindow)
+		SETTINGS index_granularity = 8192`
 }
-
-// deduplicationWindow is how many recent inserts the messages table
-// remembers, so that a retried insert with the same deduplication token is
-// not stored again (see InsertBatchWithToken). live inserts about one batch
-// every five seconds, so 1,000 covers more than an hour.
-const deduplicationWindow = 1000
 
 // blockColumns are the definitions of the block columns, which CreateSchema
 // adds to an archive created before them; messagesDDL has them too.
@@ -214,12 +208,6 @@ func (d *ClickHouseDB) CreateSchema(ctx context.Context) error {
 		}
 	}
 
-	// Remember recent inserts, for an archive created before the setting
-	// (see deduplicationWindow).
-	if err := d.conn.Exec(ctx, fmt.Sprintf(`ALTER TABLE messages MODIFY SETTING non_replicated_deduplication_window = %d`, deduplicationWindow)); err != nil {
-		return fmt.Errorf("set deduplication window: %w", err)
-	}
-
 	// Add bloom filter index for full-text search (ignore error if already exists).
 	_ = d.conn.Exec(ctx, `ALTER TABLE messages ADD INDEX IF NOT EXISTS idx_raw_text_bloom raw_text TYPE tokenbf_v1(32768, 3, 0) GRANULARITY 1`)
 
@@ -285,16 +273,6 @@ func (d *ClickHouseDB) Insert(ctx context.Context, p CHInsertParams) error {
 
 // InsertBatch stores multiple messages in ClickHouse efficiently.
 func (d *ClickHouseDB) InsertBatch(ctx context.Context, messages []CHInsertParams) error {
-	return d.InsertBatchInto(ctx, MessagesTable, messages)
-}
-
-// InsertBatchWithToken stores multiple messages in the messages table with
-// a deduplication token: an insert with the token of one of the table's
-// recent inserts (see deduplicationWindow) is ignored, so a batch whose
-// insert failed can be retried with its token without being stored twice
-// if the failed insert did reach the server.
-func (d *ClickHouseDB) InsertBatchWithToken(ctx context.Context, token string, messages []CHInsertParams) error {
-	ctx = clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"insert_deduplication_token": token}))
 	return d.InsertBatchInto(ctx, MessagesTable, messages)
 }
 
