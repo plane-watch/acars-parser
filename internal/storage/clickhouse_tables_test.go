@@ -471,3 +471,46 @@ func TestPageEnd(t *testing.T) {
 		}
 	}
 }
+
+// TestMessagesAfterInsertedBefore checks the bound backfill reads the
+// archive with: rows stored before it, at millisecond precision, whatever
+// the bound's time zone.
+func TestMessagesAfterInsertedBefore(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	if err := db.CreateSchema(ctx); err != nil {
+		t.Fatal(err)
+	}
+	// The test database's messages table holds only these rows.
+	clear := func() { _ = db.conn.Exec(context.Background(), "TRUNCATE TABLE messages") }
+	clear()
+	t.Cleanup(clear)
+
+	for id, stored := range map[int]string{1: "2026-10-27 01:00:00.122", 2: "2026-10-27 01:00:00.123", 3: "2026-10-27 01:00:00.124"} {
+		q := fmt.Sprintf(`INSERT INTO messages (id, timestamp, label, parser_type, raw_text, parsed_json, created_at)
+			VALUES (%d, toDateTime64('2026-10-27 00:00:00', 3, 'UTC'), 'Q6', 'a', 'x', '{}', toDateTime64('%s', 3, 'UTC'))`, id, stored)
+		if err := db.conn.Exec(ctx, q); err != nil {
+			t.Fatal(err)
+		}
+	}
+	bound := time.Date(2026, 10, 27, 1, 0, 0, 123_000_000, time.UTC)
+	perth := time.FixedZone("AWST", 8*3600)
+	for _, b := range []time.Time{bound, bound.In(perth)} {
+		msgs, _, err := db.MessagesAfter(ctx, MessageKey{}, "", b, 10)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(msgs) != 1 || msgs[0].ID != 1 {
+			t.Errorf("before %v: %+v, want message 1 only", b, msgs)
+		}
+	}
+
+	// The server's time has milliseconds.
+	now, err := db.ServerTime(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if time.Since(now) > time.Minute || time.Until(now) > time.Minute {
+		t.Errorf("server time %v, want about now", now)
+	}
+}

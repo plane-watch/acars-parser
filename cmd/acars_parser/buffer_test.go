@@ -210,3 +210,13 @@ func TestMessageBufferShutdown(t *testing.T) {
 		t.Errorf("stored %v, want 0 to 6 in order", ids)
 	}
 }
+
+// TestBatchEnd checks that a batch never splits a message's rows.
+func TestBatchEnd(t *testing.T) {
+	rows := []storage.CHInsertParams{{ID: 1}, {ID: 2}, {ID: 2}, {ID: 2}, {ID: 3}}
+	for _, tt := range []struct{ size, want int }{{1, 1}, {2, 4}, {3, 4}, {4, 4}, {9, 5}} {
+		if got := batchEnd(rows, tt.size); got != tt.want {
+			t.Errorf("batch size %d: %d rows, want %d", tt.size, got, tt.want)
+		}
+	}
+}

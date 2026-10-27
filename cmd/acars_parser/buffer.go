@@ -37,7 +37,8 @@ type batchInserter interface {
 // but a server crash between recording a token and committing its rows
 // would make the retry skip rows that were never stored.)
 //
-// Batches hold at most batchSize rows, and at most maxRetainedRows rows are
+// Batches hold batchSize rows, or a few more to end at a message's last
+// row (see batchEnd), and at most maxRetainedRows rows are
 // kept, checked at each flush (so the rows that arrive during one flush can
 // exceed it); beyond it the oldest batches are dropped and counted.
 //
@@ -118,7 +119,7 @@ func (b *messageBuffer) send(ctx context.Context, untilStopped bool) error {
 
 	b.mu.Lock()
 	for len(b.messages) > 0 {
-		n := min(len(b.messages), b.batchSize)
+		n := batchEnd(b.messages, b.batchSize)
 		b.pending = append(b.pending, b.messages[:n:n])
 		b.messages = b.messages[n:]
 	}
@@ -147,6 +148,18 @@ func (b *messageBuffer) send(ctx context.Context, untilStopped bool) error {
 		b.mu.Unlock()
 	}
 	return nil
+}
+
+// batchEnd returns how many of rows form the next batch: batchSize rows,
+// extended to the end of the last message's rows (a message's parse
+// results are added together), so that a message is never split between
+// batches, which backfill could read on either side of its start time.
+func batchEnd(rows []storage.CHInsertParams, batchSize int) int {
+	n := min(len(rows), batchSize)
+	for n < len(rows) && rows[n].ID == rows[n-1].ID {
+		n++
+	}
+	return n
 }
 
 // dropBeyondLimit drops the oldest batches while more than maxRetainedRows
