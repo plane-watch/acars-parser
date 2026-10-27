@@ -377,7 +377,7 @@ func TestMessagesAfter(t *testing.T) {
 		if page == 10 {
 			t.Fatalf("no empty page after %v", got)
 		}
-		msgs, next, err := db.MessagesAfter(ctx, key, "", 3)
+		msgs, next, err := db.MessagesAfter(ctx, key, "", time.Time{}, 3)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -404,16 +404,33 @@ func TestMessagesAfter(t *testing.T) {
 	}
 
 	// Messages at the same time on separate pages: after 4, only 6.
-	msgs, next, err := db.MessagesAfter(ctx, MessageKey{t0.Add(ms(30500)), 3}, "", 1)
+	msgs, next, err := db.MessagesAfter(ctx, MessageKey{t0.Add(ms(30500)), 3}, "", time.Time{}, 1)
 	if err != nil || len(msgs) != 1 || msgs[0].ID != 4 {
 		t.Fatalf("after 3: %+v, %v; want message 4", msgs, err)
 	}
-	if msgs, _, err = db.MessagesAfter(ctx, next, "", 1); err != nil || len(msgs) != 1 || msgs[0].ID != 6 {
+	if msgs, _, err = db.MessagesAfter(ctx, next, "", time.Time{}, 1); err != nil || len(msgs) != 1 || msgs[0].ID != 6 {
 		t.Errorf("after 4: %+v, %v; want message 6", msgs, err)
 	}
 
+	// Only the rows stored before a time: message 7, stored after it, is
+	// not read.
+	before, err := db.ServerTime(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(5 * time.Millisecond) // created_at is at millisecond precision.
+	if err := db.InsertBatchInto(ctx, "messages", rows(7, t0.Add(time.Hour), 1)); err != nil {
+		t.Fatal(err)
+	}
+	if msgs, _, err = db.MessagesAfter(ctx, MessageKey{t0.Add(ms(40001)), 6}, "", before, 10); err != nil || len(msgs) != 0 {
+		t.Errorf("stored before: %+v, %v; want none", msgs, err)
+	}
+	if msgs, _, err = db.MessagesAfter(ctx, MessageKey{t0.Add(ms(40001)), 6}, "", time.Time{}, 10); err != nil || len(msgs) != 1 || msgs[0].ID != 7 {
+		t.Errorf("without a bound: %+v, %v; want message 7", msgs, err)
+	}
+
 	// With a parser type, only its rows are read.
-	msgs, _, err = db.MessagesAfter(ctx, MessageKey{}, "p3", 10)
+	msgs, _, err = db.MessagesAfter(ctx, MessageKey{}, "p3", time.Time{}, 10)
 	if err != nil {
 		t.Fatal(err)
 	}

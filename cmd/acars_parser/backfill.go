@@ -278,12 +278,21 @@ func runBackfillCmd(args []string) {
 	// meanwhile neither repeat nor skip a message (see MessagesAfter).
 	// Each message's rows are joined into one work item (see
 	// messageGrouper).
+	// Only the rows stored before the backfill started are read: live
+	// counts the messages it stores meanwhile itself, and reading them too
+	// would count them twice.
+	started, err := ch.ServerTime(ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading the ClickHouse time: %v\n", err)
+		os.Exit(1)
+	}
+
 	read, queued := 0, 0 // Rows read and messages queued.
 	var key storage.MessageKey
 	var grouper messageGrouper
 
 	for *limit <= 0 || queued < *limit {
-		messages, next, err := ch.MessagesAfter(ctx, key, *parserType, *batchSize)
+		messages, next, err := ch.MessagesAfter(ctx, key, *parserType, started, *batchSize)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error querying messages after %v (id %d): %v\n", key.Timestamp, key.ID, err)
 			break

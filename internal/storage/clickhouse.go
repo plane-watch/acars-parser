@@ -430,8 +430,17 @@ type MessageKey struct {
 	ID        uint64
 }
 
+// ServerTime returns the ClickHouse server's current time, the clock that
+// fills created_at.
+func (d *ClickHouseDB) ServerTime(ctx context.Context) (time.Time, error) {
+	var t time.Time
+	err := d.conn.QueryRow(ctx, "SELECT now64(3)").Scan(&t)
+	return t, err
+}
+
 // MessagesAfter returns the rows of the messages after the key, in time
-// order, with parserType's rows only when it is set: whole messages (all
+// order, with parserType's rows only when it is set, and only rows stored
+// (created_at) before insertedBefore when it is not zero: whole messages (all
 // of a message's rows, one per parse result), as many as fit in limit rows
 // (or the first message's, if it alone has more), and the key of the last.
 // It returns no rows after the last message.
@@ -440,10 +449,15 @@ type MessageKey struct {
 // when rows are inserted meanwhile: a row inserted before the key (such as
 // a message live joins from its blocks, which carries its first block's
 // time) is not read.
-func (d *ClickHouseDB) MessagesAfter(ctx context.Context, after MessageKey, parserType string, limit int) ([]CHMessage, MessageKey, error) {
+func (d *ClickHouseDB) MessagesAfter(ctx context.Context, after MessageKey, parserType string, insertedBefore time.Time, limit int) ([]CHMessage, MessageKey, error) {
 	limit = max(limit, 1)
 	var conditions []string
 	var args []interface{}
+	if !insertedBefore.IsZero() {
+		// Bound as text at millisecond precision, as the key is.
+		conditions = append(conditions, "created_at < toDateTime64(?, 3, 'UTC')")
+		args = append(args, insertedBefore.UTC().Format("2006-01-02 15:04:05.000"))
+	}
 	if after != (MessageKey{}) {
 		// The key's time is bound as text at the column's millisecond
 		// precision: a time.Time parameter is bound at whole seconds, which
