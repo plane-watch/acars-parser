@@ -8,6 +8,7 @@ import (
 
 	"acars_parser/internal/acars"
 	"acars_parser/internal/flightid"
+	"acars_parser/internal/nnumber"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
@@ -148,7 +149,7 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	// Parse the header: Southwest's or an ABS report's.
 	var reg string
 	if h := trajectoryHeaderRe.FindStringSubmatch(text); h != nil {
-		if !southwestAircraft(h[2], msg.Tail) {
+		if !southwestAircraft(h[2], msg) {
 			// Another aircraft's report: its type and route are not the
 			// transmitting aircraft's.
 			return nil
@@ -158,7 +159,7 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	} else if h := absHeaderRe.FindStringSubmatch(text); h != nil {
 		result.Report, reg, result.Date = h[1], h[2], h[4]
 		result.Origin, result.Destination, result.SystemID = h[6], h[7], h[9]
-		if !absAircraft(h[2], msg.Tail) {
+		if !absAircraft(h[2], msg) {
 			// Another aircraft's report: its type and route are not the
 			// transmitting aircraft's.
 			return nil
@@ -169,8 +170,14 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 		if !patterns.IsValidICAO(result.Origin) || !patterns.IsValidICAO(result.Destination) {
 			return nil
 		}
-		flight, ok := absFlight(strings.TrimSpace(h[5]))
+		field := strings.TrimSpace(h[5])
+		flight, ok := absFlight(field)
 		result.FlightNumber = flight
+		// A field naming only the airline must be the transmitted flight's
+		// airline, when that is in the IATA form ("UA" for UA1234).
+		if t, tok := flightid.Parse(msg.FlightNumber, msg.Tail); tok && !t.ICAO && absAirlineRe.MatchString(field) && t.Airline != field {
+			ok = false
+		}
 		if !ok {
 			// The route is of a flight that cannot be compared with the
 			// transmitted one; the samples are kept.
@@ -226,17 +233,38 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	return result
 }
 
+// southwestFieldWidth is the width of Southwest's registration field: a
+// six-character registration after a space is cut to its first five
+// (" N8852" for N8852Q).
+const southwestFieldWidth = 6
+
 // southwestAircraft reports whether a Southwest report's registration field
-// is the transmitted tail's: blank, unset ("XXX"), a fleet number ("201"),
-// the tail, or the tail's start after a space (" N8852" for N8852Q, the
-// field cut to its width). Without a transmitted tail it cannot be
-// checked, and is accepted.
-func southwestAircraft(field, tail string) bool {
+// is the transmitting aircraft's: blank, unset ("XXX"), a fleet number
+// ("201"), the tail, or the tail cut to the field's width after a space
+// (" N8852" for N8852Q). Without a transmitted tail, see addressConsistent.
+func southwestAircraft(field string, msg *acars.Message) bool {
 	f := strings.TrimSpace(field)
-	if tail == "" || strings.Trim(f, "X") == "" || allDigits(f) || isTransmittedTail(f, tail) {
+	if msg.Tail == "" {
+		return addressConsistent(f, msg)
+	}
+	if strings.Trim(f, "X") == "" || allDigits(f) || isTransmittedTail(f, msg.Tail) {
 		return true
 	}
-	return strings.HasPrefix(field, " ") && strings.HasPrefix(acars.NormaliseRegistration(tail), acars.NormaliseRegistration(f))
+	t := acars.NormaliseRegistration(msg.Tail)
+	return len(field) == southwestFieldWidth && field[0] == ' ' &&
+		len(t) == southwestFieldWidth && strings.HasPrefix(t, acars.NormaliseRegistration(f))
+}
+
+// addressConsistent reports whether a report's registration field can be
+// the aircraft that sent a message without a tail: unless it is a US
+// registration whose address (derived from it) is not the link-layer one.
+func addressConsistent(field string, msg *acars.Message) bool {
+	addr, ok := msg.AircraftAddress()
+	if !ok {
+		return true
+	}
+	derived, ok := nnumber.ICAOAddress(acars.NormaliseRegistration(field))
+	return !ok || derived == addr
 }
 
 func allDigits(s string) bool {
@@ -250,13 +278,16 @@ func allDigits(s string) bool {
 
 // absAircraft reports whether an ABS report's registration field is the
 // transmitted tail's: blank, the tail, or a truncation of it (see
-// acars.TruncatedRegistrationOf). Without a transmitted tail it cannot be
-// checked, and is accepted.
-func absAircraft(field, tail string) bool {
+// acars.TruncatedRegistrationOf). Without a transmitted tail, see
+// addressConsistent.
+func absAircraft(field string, msg *acars.Message) bool {
 	f := strings.TrimSpace(field)
-	return tail == "" || strings.Trim(f, ". ") == "" ||
-		acars.NormaliseRegistration(f) == acars.NormaliseRegistration(tail) ||
-		acars.TruncatedRegistrationOf(field, tail)
+	if msg.Tail == "" {
+		return addressConsistent(f, msg)
+	}
+	return strings.Trim(f, ". ") == "" ||
+		acars.NormaliseRegistration(f) == acars.NormaliseRegistration(msg.Tail) ||
+		acars.TruncatedRegistrationOf(field, msg.Tail)
 }
 
 // isTransmittedTail reports whether a registration field is the transmitted

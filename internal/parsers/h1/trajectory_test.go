@@ -345,3 +345,38 @@ func TestABSHeaderOtherAircraft(t *testing.T) {
 		}
 	}
 }
+
+// TestTrajectoryAircraftChecks checks the remaining ways a report could be
+// credited to another aircraft or flight: a header registration whose US
+// address is not the link-layer one (without a transmitted tail), a
+// Southwest field that is a short registration rather than the tail cut to
+// the field's width, and an ABS airline that is not the transmitted
+// flight's (its route is dropped).
+func TestTrajectoryAircraftChecks(t *testing.T) {
+	samples := "\r\nN3634.3,W08035.5,041542,35999,-52.0,213,045,ER,00000,0,\r\n"
+	southwest := func(field string) string {
+		return "++86501," + field + ",B7378MAX,260107,WN0057,KDAL,KHOU,0208,SMX34-2502-F320" + samples
+	}
+	// N8747Q's address is not A00001 (N1's).
+	other := &acars.Message{ID: 1, Label: "H1", FlightNumber: "WN0057", FromHex: "A00001", LinkDirection: "downlink", Text: southwest("N8747Q")}
+	if r := (&TrajectoryParser{}).Parse(other); r != nil {
+		t.Errorf("another aircraft's address: got %+v, want nil", r)
+	}
+	if r := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "N12345", Text: southwest(" N12")}); r != nil {
+		t.Errorf("short registration: got %+v, want nil", r)
+	}
+	if r := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "N8848Q", Text: southwest(" N8848")}); r == nil {
+		t.Error("registration cut to the field's width: got nil")
+	}
+
+	abs := "ABS023AA_N37534,B737   -,261031,WS    ,KMCO,KSFO,1687,BCG2E-S200-0009" + samples
+	r, ok := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "N37534", FlightNumber: "UA1234", Text: abs}).(*TrajectoryResult)
+	if !ok || r.Origin != "" || r.Destination != "" {
+		t.Errorf("another airline: got %+v, want no route", r)
+	}
+	united := "ABS023AA_N37534,B737   -,261031,UA    ,KMCO,KSFO,1687,BCG2E-S200-0009" + samples
+	r, ok = (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: "N37534", FlightNumber: "UA1234", Text: united}).(*TrajectoryResult)
+	if !ok || r.Origin != "KMCO" || r.Destination != "KSFO" {
+		t.Errorf("the transmitted airline: got %+v, want KMCO-KSFO", r)
+	}
+}
