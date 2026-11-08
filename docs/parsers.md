@@ -650,7 +650,7 @@ The header is the report code, Southwest's fleet number, the aircraft type, the 
 
 **Technique:** Hand-written regex.
 
-**Description:** Parses Southwest Airlines flight data reports, which start with `++86501` (737 MAX) or `++76502` (737 NG), and United's ABS reports (`ABS0nnAA_`), which carry the same samples under another header. For example:
+**Description:** Parses Southwest Airlines flight data reports, which start with `++86501` (737 MAX) or `++76502` (737 NG), and the ABS reports of 737s (`ABS0nnAA_`, United; `ABS0nnBA_`, the 737 MAX of several airlines), which carry the same samples under another header. For example:
 
 ```
 ++86501,N8960L,B7378MAX,260109,WN0712,KABQ,KAUS,0196,SMX34-2502-F320
@@ -659,9 +659,17 @@ N3117.8,W09949.1,091932,32880,-46.5,229,110,ER,00000,0,
 :
 ```
 
-**Extracted fields:** report (e.g. `86501`, `ABS026`), registration, aircraft type (Southwest only, as transmitted, e.g. `B7378MAX`, `B737-800`), date (YYMMDD), flight number, origin, destination, system ID, and a list of samples, each with latitude, longitude, time (DDHHMM), altitude (feet), outside air temperature (°C), wind direction and wind speed (knots), and flight phase (TO, IC, CL, CR, ER, DC, AP).
+**Extracted fields:** report (e.g. `86501`, `ABS026`), registration, aircraft type (as transmitted, e.g. `B7378MAX`, `B737-800`; only when it names a model), date (YYMMDD), flight number, origin, destination, system ID, and a list of samples, each with latitude, longitude, time (DDHHMM), altitude (feet), outside air temperature (°C), wind direction and wind speed (knots), and flight phase (TO, IC, CL, CR, ER, DC, AP).
 
-**United ABS reports:** The header (`ABS026AA_N37510,B737N37-1260104,UA    ,KPHX,KIAH,0878,BCG2E-S200-0009`) gives the report, the registration, a field ending in the date (YYMMDD), the airline, origin, destination, an unidentified number and the system ID. It names no flight. The field before the date is `B737` followed by part of the registration; `B737` is the family rather than the model (N37510 is a 737-900ER, designator B739, while `B737` designates the 737-700), so no type is reported. The `ABS0nnDA_` reports, whose samples are packed differently, are not parsed.
+**ABS reports:** The header gives the report, the registration field, the type field, the date (YYMMDD), the flight field, origin, destination, an unidentified number and the system ID:
+
+```
+ABS026AA_N37510,B737N37-1260104,UA    ,KPHX,KIAH,0878,BCG2E-S200-0009
+ABS023AA_N37534,B737   -,261031,UA    ,KMCO,KSFO,1687,BCG2E-S200-0009
+ABS026BA_C      ,B7378MAX ,261104,WS2134,CYYZ,MMUN,0526,BCG27-S200-0011
+```
+
+United's `AA` header runs the date on from the type field or gives it its own field, and its flight field names only the airline (`UA`). Its type field is `B737`, the family rather than the model (N37510 is a 737-900ER, designator B739, while `B737` designates the 737-700), so no type is reported; a type is reported only when it names a model (`B7378MAX`, `B737-800`). The `BA` header's registration field may be truncated (`C      ` for C-FGVN), and is reported only when it is the transmitted tail. Its flight field is reported only when it is a flight number (`WS2134`); some airlines give the airline's code with the callsign's suffix (`LO4MU` for LOT's LO234), which is not. The `ABS0nnDA_` reports, whose samples are packed differently, are parsed by `monitoring` (headers only).
 
 **Registration:** The header's registration field is reported as the registration only when it is the transmitted tail. It also holds fleet numbers (`201`), `XXX` and truncated registrations (` N8852` for N8852Q).
 
@@ -967,15 +975,17 @@ station  /ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+...
 eb       EB0116AB_9 , 56, N29977,UAL7      ,   6,081026,19:09:41,KIAH,RJAA,...
 e        E23C01209L819KIAHSAEZ  ...
 abs      ABS001DA_N1811U  KSNAKSJC384
+         ABS071BA_
+         N806AK  0764KSMFKSEA0311262092ER033030  554
 ```
 
 **Extracted fields:** the format, the report's name, the registration, the callsign (`flight`) or the flight number's digits (`flight_number_digits`, when the report gives only digits), the origin and destination, and, where given, the date (`YYYY-MM-DD`) and time.
 
-**Registration:** in the `acm`, `engine` and `station` layouts the registration runs into the fields around it, so the transmitted tail is used to find it, within each layout's boundaries so that a tail that is part of a longer registration is not matched: in `acm` it follows two or four letters; in `station` it follows a `.` and is followed by an airline code and a digit, or follows an airline code and a space and is followed by a digit; in `engine` it starts its line and the callsign follows it directly. Without a transmitted tail they are not parsed. In the other layouts the registration has its own field, and a report naming another aircraft than the transmitted one is not parsed, so that its flight and route are not credited to the transmitting aircraft. The `e` layout gives only part of the registration, and a blank `abs` field (`.......`) none; neither reports one.
+**Registration:** in the `acm`, `engine` and `station` layouts the registration runs into the fields around it, so the transmitted tail is used to find it, within each layout's boundaries so that a tail that is part of a longer registration is not matched: in `acm` it follows two or four letters; in `station` it follows a `.` and is followed by an airline code and a digit, or follows an airline code and a space and is followed by a digit; in `engine` it starts its line and the callsign follows it directly. Without a transmitted tail they are not parsed. In the other layouts the registration has its own field, and a report naming another aircraft than the transmitted one is not parsed, so that its flight and route are not credited to the transmitting aircraft. The `e` layout gives only part of the registration, and a blank `abs` field (`.......`) none; neither reports one. The `abs` registration field is eight characters wide; some aircraft truncate it to the registration's first character and last ones (`C   IP` for C-FFIP, `    FR` for TC-VFR, `V......` for VH-8VG), and Alaska sends the 24-bit address instead (`A2F584` for N290AK). Such a field, when consistent with the transmitted tail (its leading part begins the tail and a part after a blank ends it, or it is the address derived from a US registration), is accepted without reporting a registration; one that is not is another aircraft's, and the report is not parsed.
 
 **Flight:** a flight field that holds neither a callsign, a flight number nor digits (`UAL1A2`) names a flight that cannot be compared with the transmitted one, so the report is not parsed.
 
-**Limitations:** the digits after the route in the `abs` layout are not the flight number (WN3202 sent `484`), so it gives no flight. The report bodies (engine and performance values, and in `eb` reports positions) are not parsed.
+**Limitations:** the digits after the route in the `abs` layout are not the flight number (WN3202 sent `484`), so it gives no flight; report 071 (`ABS071BA_`, with the header on its second line) gives the flight number's digits (`0764` for AS0764) and the date (DDMMYY). The report bodies (engine and performance values, and in `eb` reports positions) are not parsed.
 
 ---
 

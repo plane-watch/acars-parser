@@ -110,6 +110,70 @@ func TestParse(t *testing.T) {
 			want: &Result{Format: "abs", Report: "SB0122BA", Registration: "F-GSQL", Origin: "KIAD", Destination: "LFPG"},
 		},
 		{
+			// Live traffic (November 2026): a space before the digits.
+			name: "ABS report with a space before the digits",
+			tail: "N8906K",
+			text: "ABS001DA_N8906K  KDALKBWI 72\r\n 38702 -767840301009613+05-214004X2005Z0110130000--\r\n",
+			want: &Result{Format: "abs", Report: "ABS001DA", Registration: "N8906K", Origin: "KDAL", Destination: "KBWI"},
+		},
+		{
+			// Live traffic (November 2026): a space before the registration.
+			name: "ABS report with a space before the registration",
+			tail: "N8756S",
+			text: "ABS001DA_ N8756S KDALKAUS727\r\n 30313 -975671424006592+09-266018XA8YY,0210360000--\r\n",
+			want: &Result{Format: "abs", Report: "ABS001DA", Registration: "N8756S", Origin: "KDAL", Destination: "KAUS"},
+		},
+		{
+			// A truncated field (the first character and the last ones)
+			// consistent with the tail is the tail's, but gives no
+			// registration (live traffic, November 2026).
+			name: "ABS report with a truncated registration",
+			tail: "C-FFIP",
+			text: "ABS001DA_C   IP  MMTLCYYZ970\r\n  37663",
+			want: &Result{Format: "abs", Report: "ABS001DA", Origin: "MMTL", Destination: "CYYZ"},
+		},
+		{
+			name: "ABS report with the last characters of the registration",
+			tail: "TC-VFR",
+			text: "ABS001DA_    FR  LFSBLTFJ 68\r\n 46554  140431708036997-52-068010XA0/9W0",
+			want: &Result{Format: "abs", Report: "ABS001DA", Origin: "LFSB", Destination: "LTFJ"},
+		},
+		{
+			name: "ABS report with the first character of the registration",
+			tail: "C-FNWD",
+			text: "ABS011DA_C       KSFOCYYC1\r\n  37663",
+			want: &Result{Format: "abs", Report: "ABS011DA", Origin: "KSFO", Destination: "CYYC"},
+		},
+		{
+			name: "ABS report with dots after the first character",
+			tail: "VH-8VG",
+			text: "ABS001DA_V...... YBCGYMML159\r\n  37663",
+			want: &Result{Format: "abs", Report: "ABS001DA", Origin: "YBCG", Destination: "YMML"},
+		},
+		{
+			// Alaska sends the 24-bit address, here N290AK's.
+			name: "ABS report with the aircraft address",
+			tail: "N290AK",
+			text: "ABS001DA_A2F584  KLAXKPDX833\r\n  37663",
+			want: &Result{Format: "abs", Report: "ABS001DA", Origin: "KLAX", Destination: "KPDX"},
+		},
+		{
+			// Live traffic (November 2026): report 071, the header on the
+			// second line.
+			name: "ABS report 071",
+			tail: "N806AK",
+			text: "ABS071BA_\r\nN806AK  0764KSMFKSEA0311262092ER033030  554\r\nBCG2F-S200-0008 26002+\r\n",
+			want: &Result{Format: "abs", Report: "ABS071BA", Registration: "N806AK", FlightNumberDigits: "0764",
+				Origin: "KSMF", Destination: "KSEA", Date: "2026-11-03"},
+		},
+		{
+			name: "ABS report 071 with a truncated registration",
+			tail: "TC-SLA",
+			text: "ABS071BA_\r\nT   LA  0003LTAUEHAM081126 231ER101033 2564\r\nBCG27-S200-0011 33981+\r\n",
+			want: &Result{Format: "abs", Report: "ABS071BA", FlightNumberDigits: "0003",
+				Origin: "LTAU", Destination: "EHAM", Date: "2026-11-08"},
+		},
+		{
 			// A blank registration field names no aircraft.
 			name: "ABS report without a registration",
 			tail: "G-EUPA",
@@ -153,7 +217,8 @@ func TestParseRejects(t *testing.T) {
 		{"invalid airport", "N29977", "EB0116AB_9 , 56, N29977,UAL7      ,   6,081026,19:09:41,KIAH,QQQQ,13198"},
 		{"invalid date", "N845MD", "APM    1 N845MD         AAL86   KORDEGLL321326001522,"},
 		{"ABS, another aircraft", "N1811V", "ABS001DA_N1811U  KSNAKSJC384\r\n 33989"},
-		{"ABS, part of a registration", "C-FNWD", "ABS011DA_C       KSFOCYYC1\r\n  37663"},
+		{"ABS, a truncated field of another aircraft", "C-FNWD", "ABS001DA_C   IP  MMTLCYYZ970\r\n  37663"},
+		{"ABS, another aircraft's address", "N290AK", "ABS001DA_A3133C  KLAXKSEA494\r\n  37663"},
 		// A transmitted tail that is part of the report's registration.
 		{"station, tail inside the registration", "N446", "/ILNGE7X.CLB006AM N446AM2AMX021    261008040732MMMXLEMD+006050295"},
 		{"station, tail inside the registration after a dot", "HL762", "/ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+00007"},

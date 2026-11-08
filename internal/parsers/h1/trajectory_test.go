@@ -1,6 +1,7 @@
 package h1
 
 import (
+	"reflect"
 	"testing"
 
 	"acars_parser/internal/acars"
@@ -253,5 +254,60 @@ func TestTrajectoryParser_UnitedABS(t *testing.T) {
 	}
 	if p := r.Positions[0]; p.Time != "041759" || p.WindDirection != 256 || p.WindSpeed != 66 || p.Phase != "DC" {
 		t.Errorf("first sample %+v", p)
+	}
+}
+
+// TestABSHeaders checks the other ABS headers, from live traffic (October
+// and November 2026): the BA header of 737 MAX reports, with a model type
+// and a flight field, and United's AA header with the date in a field of
+// its own. A family type ("B737") is not a model, and a flight field that
+// is not a flight number ("LO4MU", the airline's code and the callsign's
+// suffix) is not reported.
+func TestABSHeaders(t *testing.T) {
+	samples := "\r\nN3634.3,W08035.5,041542,35999,-52.0,213,045,ER,00000,0,\r\n" +
+		"N3613.5,W08036.2,041545,36000,-51.8,215,041,ER,00000,0,\r\n"
+	tests := []struct {
+		name, tail, header string
+		want               TrajectoryResult
+	}{
+		{
+			name: "BA header, truncated registration", tail: "C-GFVN",
+			header: "ABS026BA_C      ,B7378MAX ,261104,WS2134,CYYZ,MMUN,0526,BCG27-S200-0011",
+			want: TrajectoryResult{Report: "ABS026", AircraftType: "B7378MAX", Date: "261104", FlightNumber: "WS2134",
+				Origin: "CYYZ", Destination: "MMUN", SystemID: "BCG27-S200-0011"},
+		},
+		{
+			name: "BA header with the registration", tail: "N824NV",
+			header: "ABS025BA_N824NV ,B7378MAX ,261029,G42844,KSFB,KALB,0030,BCG27-S200-0011",
+			want: TrajectoryResult{Report: "ABS025", Registration: "N824NV", AircraftType: "B7378MAX", Date: "261029",
+				FlightNumber: "G42844", Origin: "KSFB", Destination: "KALB", SystemID: "BCG27-S200-0011"},
+		},
+		{
+			name: "BA header with a callsign suffix", tail: "SP-LVP",
+			header: "ABS022BA_S   VP ,B7378MAX ,261102,LO4MU ,EBBR,EPWA,0197,BCG27-S200-0011",
+			want: TrajectoryResult{Report: "ABS022", AircraftType: "B7378MAX", Date: "261102",
+				Origin: "EBBR", Destination: "EPWA", SystemID: "BCG27-S200-0011"},
+		},
+		{
+			name: "AA header with the date in its own field", tail: "N37534",
+			header: "ABS023AA_N37534,B737   -,261031,UA    ,KMCO,KSFO,1687,BCG2E-S200-0009",
+			want: TrajectoryResult{Report: "ABS023", Registration: "N37534", Date: "261031",
+				Origin: "KMCO", Destination: "KSFO", SystemID: "BCG2E-S200-0009"},
+		},
+	}
+	for _, tt := range tests {
+		r, ok := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: tt.tail, Text: tt.header + samples}).(*TrajectoryResult)
+		if !ok {
+			t.Errorf("%s: Parse returned no result", tt.name)
+			continue
+		}
+		if len(r.Positions) != 2 {
+			t.Errorf("%s: %d samples, want 2", tt.name, len(r.Positions))
+		}
+		r.MsgID, r.Positions = 0, nil
+		tt.want.Positions = nil
+		if !reflect.DeepEqual(*r, tt.want) {
+			t.Errorf("%s:\n got %+v\nwant %+v", tt.name, *r, tt.want)
+		}
 	}
 }

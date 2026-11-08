@@ -14,6 +14,10 @@
 //	eb       EB0116AB_9 , 56, N29977,UAL7      ,   6,081026,19:09:41,KIAH,RJAA,...
 //	e        E23C01209L819KIAHSAEZ  ...
 //	abs      ABS001DA_N1811U  KSNAKSJC384
+//	         ABS001DA_ N8756S KDALKAUS727 (the registration field is 8 wide)
+//	         ABS001DA_N8906K  KDALKBWI 72 (a space before the digits)
+//	         ABS071BA_
+//	         N806AK  0764KSMFKSEA0311262092ER033030  554
 //	         SB0122BA_F-GSQL  KIADLFPG176
 //
 // In the acm, engine and station layouts the registration runs into the
@@ -25,7 +29,9 @@
 // aircraft. The e layout gives only part of the registration, which is not
 // reported. The abs layout's digits after the route are not the flight
 // number (WN3202 sent 484), so it gives no flight; a blank registration
-// field ("......."), which names no aircraft, gives no registration.
+// field ("......."), which names no aircraft, gives no registration, and
+// neither does a truncated field ("C   IP" for C-FFIP) or the aircraft
+// address ("A2F584" for N290AK) consistent with the transmitted tail.
 package monitoring
 
 import (
@@ -34,6 +40,7 @@ import (
 	"time"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/nnumber"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
@@ -72,7 +79,11 @@ var (
 	ebRe = regexp.MustCompile(`^(EB\d{4}AB)_\s*\d+\s*,\s*\d+\s*,\s*([A-Z0-9-]{2,8})\s*,\s*([A-Z0-9]{2,8})\s*,\s*\d+\s*,` +
 		`(\d{6}),(\d\d:\d\d:\d\d),([A-Z]{4}),([A-Z]{4}),`)
 	eRe   = regexp.MustCompile(`^(E\d{2}C)\d{5}L(\d{1,4})([A-Z]{4})([A-Z]{4})`)
-	absRe = regexp.MustCompile(`^(ABS\d{3}DA|SB\d{3,4}BA)_([A-Z0-9.-]*)\s+([A-Z]{4})([A-Z]{4})\d*[ \t]*(?:\r?\n|$)`)
+	absRe = regexp.MustCompile(`^(ABS\d{3}DA|SB\d{3,4}BA)_([A-Z0-9. -]{8})([A-Z]{4})([A-Z]{4})[ \t]*\d*[ \t]*(?:\r?\n|$)`)
+	// abs071Re matches report 071's header, on the second line: the
+	// registration field (eight wide), the flight number's digits, the
+	// route and the date (DDMMYY).
+	abs071Re = regexp.MustCompile(`^(ABS071BA)_\r?\n([A-Z0-9. -]{8})(\d{4})([A-Z]{4})([A-Z]{4})(\d{6})`)
 
 	// acmRe matches the start of an acm report; the registration follows
 	// within a few letters.
@@ -189,12 +200,31 @@ func parseE(msg *acars.Message) *Result {
 }
 
 func parseABS(msg *acars.Message) *Result {
-	m := absRe.FindStringSubmatch(msg.Text)
-	if m == nil {
+	var r *Result
+	var field string
+	if m := absRe.FindStringSubmatch(msg.Text); m != nil {
+		r = &Result{Format: "abs", Report: m[1], Origin: m[3], Destination: m[4]}
+		field = m[2]
+	} else if m := abs071Re.FindStringSubmatch(msg.Text); m != nil {
+		r = &Result{Format: "abs", Report: m[1], Origin: m[4], Destination: m[5]}
+		field = m[2]
+		if !setDate(r, ddmmyy, m[6]) || !setFlight(r, m[3]) {
+			return nil
+		}
+	} else {
 		return nil
 	}
-	r := &Result{Format: "abs", Report: m[1], Origin: m[3], Destination: m[4]}
-	if strings.Trim(m[2], ".") != "" && !setRegistration(r, m[2], msg.Tail) {
+	// The registration field is eight characters wide; its leading blanks
+	// show where a truncated registration resumes.
+	trimmed := strings.TrimSpace(field)
+	switch {
+	case strings.Trim(trimmed, ". ") == "":
+		// A blank field names no aircraft.
+	case msg.Tail == "" || acars.NormaliseRegistration(trimmed) == acars.NormaliseRegistration(msg.Tail):
+		setRegistration(r, trimmed, msg.Tail)
+	case truncatedOfTail(field, msg.Tail) || addressOfTail(trimmed, msg.Tail):
+		// The tail's, but the field does not give the registration.
+	default:
 		return nil
 	}
 	return r
@@ -316,6 +346,39 @@ func setRegistration(r *Result, reg, tail string) bool {
 	}
 	r.Registration = reg
 	return true
+}
+
+// truncatedOfTail reports whether an ABS registration field is the tail's
+// registration truncated: some aircraft keep its first character and its
+// last ones, and blank the rest with spaces or dots ("C   IP" for C-FFIP,
+// "    FR" for TC-VFR, "V......" for VH-8VG, "C" for C-FNWD). The leading
+// part must begin the tail, and a part after a blank must end it.
+func truncatedOfTail(field, tail string) bool {
+	t := acars.NormaliseRegistration(tail)
+	field = strings.TrimRight(field, " .")
+	if t == "" || field == "" {
+		return false
+	}
+	isBlank := func(r rune) bool { return r == ' ' || r == '.' }
+	parts := strings.FieldsFunc(field, isBlank)
+	if len(parts) > 2 {
+		return false
+	}
+	if !isBlank(rune(field[0])) {
+		if !strings.HasPrefix(t, parts[0]) {
+			return false
+		}
+		parts = parts[1:]
+	}
+	return len(parts) == 0 || strings.HasSuffix(t, parts[0])
+}
+
+// addressOfTail reports whether an ABS registration field is the aircraft
+// address (Alaska sends it: "A2F584" for N290AK) of a US registration,
+// derived from the tail.
+func addressOfTail(field, tail string) bool {
+	addr, ok := nnumber.ICAOAddress(acars.NormaliseRegistration(tail))
+	return ok && field == addr
 }
 
 // setFlight sets the callsign or flight number, or its digits, and returns

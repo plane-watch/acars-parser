@@ -13,7 +13,7 @@ import (
 
 // TrajectoryResult represents a parsed flight data report: Southwest
 // Airlines' (737 NG and 737 MAX), with the aircraft's type and the flight,
-// or United's ABS reports (see unitedABSHeaderRe); both give the route and
+// or United's ABS reports (see absHeaderRe); both give the route and
 // a series of samples in the same format.
 //
 // The meanings of the sample fields were established from the January 2026
@@ -61,16 +61,33 @@ func (r *TrajectoryResult) MessageID() int64 { return r.MsgID }
 // Also handles: ++76502,XXX,B737-800,260111,WN0297,KMDW,KLAX,1175,SW2501
 var trajectoryHeaderRe = regexp.MustCompile(`^\+\+(\d+),\s*([A-Z0-9-]+),([A-Z0-9-]+),(\d{6}),([A-Z0-9]*),([A-Z]{4}),([A-Z]{4}),(\d+),([A-Z0-9-]+)`)
 
-// unitedABSHeaderRe matches the header of United's ABS reports, which carry
-// the same samples: the report, the registration, a field ending in the date
-// (YYMMDD), the airline, origin, destination, an unidentified number and
-// the system ID. Example:
-// ABS026AA_N37510,B737N37-1260104,UA    ,KPHX,KIAH,0878,BCG2E-S200-0009
-// The field before the date ("B737N37-1") is "B737" and part of the
-// registration; "B737" is the family, not the model (N37510 is a 737-900ER,
-// whose designator is B739, while B737 designates the 737-700), so no type
-// is reported. The header names no flight.
-var unitedABSHeaderRe = regexp.MustCompile(`^(ABS\d{3})AA_\s*([A-Z0-9-]+),[^,]*?(\d{6}),UA\s*,([A-Z]{4}),([A-Z]{4}),(\d+),([A-Z0-9-]+)`)
+// absHeaderRe matches the header of the ABS reports of 737s, which carry
+// the same samples: the report, an AA or BA layout, the registration field,
+// the type field, the date (YYMMDD; in United's AA reports it may run on
+// from the type field), the flight field, origin, destination, an
+// unidentified number and the system ID. Examples:
+//
+//	ABS026AA_N37510,B737N37-1260104,UA    ,KPHX,KIAH,0878,BCG2E-S200-0009
+//	ABS023AA_N37534,B737   -,261031,UA    ,KMCO,KSFO,1687,BCG2E-S200-0009
+//	ABS026BA_C      ,B7378MAX ,261104,WS2134,CYYZ,MMUN,0526,BCG27-S200-0011
+//	ABS022BA_S   VP ,B7378MAX ,261102,LO4MU ,EBBR,EPWA,0197,BCG27-S200-0011
+//
+// The registration field may be truncated ("C      " for C-GFVN, "S   VP"
+// for SP-LVP); it is reported only when it is the transmitted tail.
+var absHeaderRe = regexp.MustCompile(`^(ABS\d{3})(?:AA|BA)_([^,\r\n]*),([A-Z0-9 -]*?)\s*,?(\d{6}),([A-Z0-9 ]*),([A-Z]{4}),([A-Z]{4}),(\d+),([A-Z0-9-]+)`)
+
+// absModelRe matches an ABS type field that names a model ("B7378MAX",
+// "B737-800"). United's field names only the family ("B737", with part of
+// the registration or a dash): B737 is itself the designator of the
+// 737-700, while N37510 is a 737-900ER, so the family is not reported.
+var absModelRe = regexp.MustCompile(`^B737(?:[789]MAX|-[6-9]00(?:ER)?)$`)
+
+// absFlightRe matches an ABS flight field that is a flight number: the
+// airline's IATA code and the number, with an optional suffix ("WS2134",
+// "TK30W"). Some airlines give the airline's code with the callsign's
+// suffix ("LO4MU" for LOT's LO234, flown as LOT4MU), and United only the
+// airline ("UA"); those are not flight numbers and are not reported.
+var absFlightRe = regexp.MustCompile(`^[A-Z0-9]{2}\d{1,4}[A-Z]?$`)
 
 // Position pattern: N3702.1,W09921.8,120918,39000,-64.3,256,037,ER,00000,0,
 // Note: Temperature may have leading space for positive values (e.g., " 05.3" vs "-48.3").
@@ -97,7 +114,7 @@ func (p *TrajectoryParser) Priority() int { return 50 }
 func (p *TrajectoryParser) QuickCheck(text string) bool {
 	return strings.HasPrefix(text, "++86501") ||
 		strings.HasPrefix(text, "++76502") ||
-		(strings.HasPrefix(text, "ABS0") && strings.Contains(text, "AA_"))
+		(strings.HasPrefix(text, "ABS0") && (strings.Contains(text, "AA_") || strings.Contains(text, "BA_")))
 }
 
 // Parse extracts trajectory data from the message.
@@ -114,14 +131,20 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	text := strings.ReplaceAll(msg.Text, "\r\n", "\n")
 	text = strings.ReplaceAll(text, "\r", "\n")
 
-	// Parse the header: Southwest's or United's.
+	// Parse the header: Southwest's or an ABS report's.
 	var reg string
 	if h := trajectoryHeaderRe.FindStringSubmatch(text); h != nil {
 		result.Report, reg, result.AircraftType, result.Date = h[1], h[2], h[3], h[4]
 		result.FlightNumber, result.Origin, result.Destination, result.SystemID = h[5], h[6], h[7], h[9]
-	} else if h := unitedABSHeaderRe.FindStringSubmatch(text); h != nil {
-		result.Report, reg, result.Date = h[1], h[2], h[3]
-		result.Origin, result.Destination, result.SystemID = h[4], h[5], h[7]
+	} else if h := absHeaderRe.FindStringSubmatch(text); h != nil {
+		result.Report, reg, result.Date = h[1], h[2], h[4]
+		result.Origin, result.Destination, result.SystemID = h[6], h[7], h[9]
+		if t := strings.TrimSpace(h[3]); absModelRe.MatchString(t) {
+			result.AircraftType = t
+		}
+		if f := strings.TrimSpace(h[5]); absFlightRe.MatchString(f) {
+			result.FlightNumber = f
+		}
 	} else {
 		return nil
 	}
@@ -191,7 +214,7 @@ func (p *TrajectoryParser) ParseWithTrace(msg *acars.Message) *registry.TraceRes
 	}
 
 	if !quickCheckPassed {
-		trace.QuickCheck.Reason = "No ++86501, ++76502 or United ABS prefix found"
+		trace.QuickCheck.Reason = "No ++86501, ++76502 or ABS prefix found"
 		return trace
 	}
 
@@ -200,11 +223,11 @@ func (p *TrajectoryParser) ParseWithTrace(msg *acars.Message) *registry.TraceRes
 	// Add extractor for header pattern.
 	headerMatch := trajectoryHeaderRe.FindStringSubmatch(text)
 	if headerMatch == nil {
-		headerMatch = unitedABSHeaderRe.FindStringSubmatch(text)
+		headerMatch = absHeaderRe.FindStringSubmatch(text)
 	}
 	trace.Extractors = append(trace.Extractors, registry.Extractor{
 		Name:    "header",
-		Pattern: trajectoryHeaderRe.String() + " or " + unitedABSHeaderRe.String(),
+		Pattern: trajectoryHeaderRe.String() + " or " + absHeaderRe.String(),
 		Matched: headerMatch != nil,
 		Value: func() string {
 			if len(headerMatch) > 1 {
