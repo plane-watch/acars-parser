@@ -174,7 +174,7 @@ The parsers are listed in alphabetical order of package.
 
 **Package:** `internal/parsers/acmsreport` · **Labels:** H1 · **Priority:** 60 · **Type:** `acms_report`
 
-**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_csv`, `acms_281`, `acms_76401`, `acms_a380` and `acms_291`), and hand-written code for the fixed-width record of report 239.
+**Technique:** Grok (formats `acms_cc`, `acms_trp`, `acms_csv`, `acms_281`, `acms_76401`, `acms_a380`, `acms_291`, `acms_table`, `acms_c2` and `acms_fuel_request`), and hand-written code for the fixed-width record of report 239.
 
 **Description:** Parses the header and CC block of Airbus aircraft condition monitoring system (ACMS) reports. For example:
 
@@ -186,7 +186,16 @@ A321,000460,1,1,TB000000/REP032,00,00,4/C1N34562,JAN,03,055354,KIAH,KORR/C2UAL78
 
 **Extracted fields:** the aircraft series (`A321`), the report number (`001`), and from the CC block (named `CC` or `C1`) the registration, report date (MMMDD, no year; some reports separate the month and day with a comma) and time (HHMMSS; left out or blanked as `XXXXXX` in some reports), origin, destination and the flight number's digits (`0816`; left out in some reports, and not reported when `0000`). A report without the digits may give the ICAO callsign at the start of a C2 block (`UAL787`), reported as `flight`. The serial number and the `TB000000` block are not captured, because their meaning is not established.
 
-**Short header:** reports also come with a short header, `A37/A31937,1,1/`: a letter and the report number, then the series (`A319`) and the report number again. Its report number has two digits and is kept as sent (`37`, not `037`). With this header, a CC or C1 block is parsed as above, and a `C1TRP` block (reports 38 and 39, `C1TRP,180234,KDFW,KRIC,...`) gives the time and route of a trajectory report whose samples are not parsed.
+**Short header:** reports also come with a short header, `A37/A31937,1,1/`: a letter and the report number, then the series (`A319`) and the report number again. Its report number has two digits and is kept as sent (`37`, not `037`). With this header, a CC or C1 block is parsed as above, and a `C1TRP` block (reports 38 and 39, `C1TRP,180234,KDFW,KRIC,...`) gives the time and route of a trajectory report whose samples are not parsed. Some reports send both headers: the long one, then `-  ` and the short one, with the C1 block on a line of its own and the flight number padded (`/-  A37/A31937,1,1/` then `C1N882UA,NOV02,224945,KATL,KORD,324 /`).
+
+**Other route records, under the long header of any report:**
+
+- The weather record `//WX02EN08KLASKAUS` (reports 281 and 286), with a position on the next line, and the trajectory record `TRP KPHL KRSW` (reports 291 and 191).
+- The C1 line of the APU report tables (reports 229, 230, 250 and others): `C1 VH-VQS NOV04 21.33.45 YPPH YIBO 2930`, with the time as `HH.MM.SS` or `HHMMSS`.
+- A C2 block after a C1 block naming the report (report 035, an APU run): `C2N778XF,261030220100,220100,KSTL,KDCA,AAL2030,`, giving the registration, the time, the route and the ICAO callsign.
+- Wizz Air's fuel request (report 057): `A/C: 9H-WDN  ETA:0530z`, then `WMT0106, LRCV-EDLW, 08NOV26, 05:12:32z`.
+
+An APU run on the ground reports a route from an airport to itself (`YMML YMML`); the extractor drops it.
 
 **A330 and A340 reports:** the short header can also stand on a line of its own, sometimes after a line of digits (with the C1 line and with the WX block). It is then followed by a C1 line of comma-separated values, giving the registration, the date (`25DEC31`, reported as `DEC31`), the time (`17.03.50`, reported as `170350`), the route and the ICAO callsign (reported as `flight`):
 

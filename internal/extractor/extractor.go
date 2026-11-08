@@ -220,6 +220,11 @@ func extract(msg *acars.Message, results []registry.Result, remembered string) E
 	if update.AircraftTypeRaw != "" {
 		update.AircraftType, _ = aircrafttype.Normalise(update.AircraftTypeRaw)
 	}
+	// A route from an airport to itself is not a flight's route: an APU
+	// run or a test on the ground reports one ("YMML YMML").
+	if update.Origin != "" && update.Origin == update.Destination {
+		update.Origin, update.Destination = "", ""
+	}
 	update.AirportCodes = airportCodes(update.Origin, update.Destination)
 
 	// Only include the flight update if we have identity info.

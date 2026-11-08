@@ -1,7 +1,9 @@
 // Package acmsreport parses aircraft condition monitoring system (ACMS)
 // reports sent on label H1: the header and CC block of Airbus reports, the
-// fixed-width record of report 239, and the route records of reports 281
-// and 291 and the 76401 record (which Southwest's 737s also send alone).
+// fixed-width record of report 239, the weather (WX) and trajectory (TRP)
+// route records, the C1 line of the APU report tables, the C2 block with a
+// callsign, the header of Wizz Air's fuel request (report 057), and the
+// 76401 record (which Southwest's 737s also send alone).
 package acmsreport
 
 import "acars_parser/internal/patterns"
@@ -21,7 +23,12 @@ const shortHeader = `[A-Z]\d{2}/(?P<series_short>A3\d{2})(?P<report_short>\d{2})
 //
 // Reports also come with a short header, "A37/A31937,1,1/": a letter and
 // the report number, then the series (A319) followed by the report number
-// again (37). Its report number has two digits and is kept as sent.
+// again (37). Its report number has two digits and is kept as sent. Some
+// send both: the long header, then "-  " and the short one, and the block
+// on a line of its own, with the flight number padded:
+//
+//	A319,161174,1,1,TB000000/REP998,00,00,4/-  A37/A31937,1,1/
+//	C1N882UA,NOV02,224945,KATL,KORD,324 /
 //
 // Groups: the aircraft series (A319, A320, A321, ...), the report number,
 // and from the block (named CC or C1) the registration (sometimes with a
@@ -37,7 +44,7 @@ var Formats = []patterns.Format{
 	{
 		Name: "acms_cc",
 		Pattern: `^(?:(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*|` + shortHeader + `)/` +
-			`C[C1](?P<reg_field>\.?[A-Z0-9-]{2,8}),(?P<month>[A-Z]{3}),?(?P<day>\d{2}),` +
+			`(?:-\s*[A-Z]\d{2}/A3\d{4},\d,\d/)?\s*C[C1](?P<reg_field>\.?[A-Z0-9-]{2,8}),(?P<month>[A-Z]{3}),?(?P<day>\d{2}),` +
 			`(?:(?:(?P<time>\d{6})|X{6}),)?(?P<origin>{ICAO}),(?P<dest>{ICAO})` +
 			`(?:,(?P<flight_digits>\d{1,4}))?(?:/C2(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]{0,2}),|/|\s|$)`,
 		Fields: []string{"series", "report", "series_short", "report_short", "reg_field", "month", "day", "time", "origin", "dest", "flight_digits", "callsign"},
@@ -68,7 +75,8 @@ var Formats = []patterns.Format{
 			`(?P<callsign>[A-Z]{3}\d[A-Z0-9]{0,4})[ \t]*,`,
 		Fields: []string{"series_short", "report_short", "reg_field", "month", "day", "hour", "minute", "second", "origin", "dest", "callsign"},
 	},
-	// Report 281 gives the route after "//WX02EN04" and, on the next line,
+	// Report 281 (and others, such as 286) gives the route after
+	// "//WX02EN04" and, on the next line,
 	// usually a position in thousandths of a degree ("N42191W072884" is
 	// 42.191, -72.884, just after leaving KBDL for KDTW). The rest of the
 	// report is not parsed. Example:
@@ -85,7 +93,7 @@ var Formats = []patterns.Format{
 	//	N43582W09558218422749M3903161020XXXX250030ERV
 	{
 		Name: "acms_281",
-		Pattern: `^(?:(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>281),[^/]*/|(?:\d+\r?\n)?` + shortHeader + `\r?\n)/WX\d{2}EN\d{2}` +
+		Pattern: `^(?:(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*/|(?:\d+\r?\n)?` + shortHeader + `\r?\n)/WX\d{2}EN\d{2}` +
 			`(?P<origin>{ICAO})(?P<dest>{ICAO})[ \t]*(?:\r?\n(?P<lat_hemi>[NS])(?P<lat>\d{5})(?P<lon_hemi>[EW])(?P<lon>\d{6}))?`,
 		Fields: []string{"series", "report", "series_short", "report_short", "origin", "dest", "lat_hemi", "lat", "lon_hemi", "lon"},
 	},
@@ -117,16 +125,58 @@ var Formats = []patterns.Format{
 			`H02(?P<origin>{ICAO}) (?P<dest>{ICAO})(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]{0,2})\s`,
 		Fields: []string{"series", "report", "h01", "origin", "dest", "callsign"},
 	},
-	// Report 291 is a trajectory report: the route on the "TRP" line, then
-	// timed samples (A1, A2, ...) that are not parsed. Example:
+	// Reports 291 and 191 are trajectory reports: the route on the "TRP"
+	// line, then timed samples (A1, A2, ...) that are not parsed. Example:
 	//
 	//	A321,147316,1,1,TB000000/REP291,00,00,4/
 	//	TRP KPHL KPBI  8 8
 	//	/A1 175021, 32.3356,- 80.3872,339,167.0,437,0.001984,
 	{
 		Name: "acms_291",
-		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>291),[^/]*/\s*` +
+		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*/\s*` +
 			`TRP (?P<origin>{ICAO}) (?P<dest>{ICAO})\s`,
 		Fields: []string{"series", "report", "origin", "dest"},
+	},
+	// The APU reports (229, 230, 250) are tables: a title, a line of
+	// column names, then the C1 line, with the registration, the date
+	// (MMMDD), the time (HH.MM.SS or HHMMSS), the route and the flight
+	// number's digits, separated by spaces. Example:
+	//
+	//	A320,042194,1,1,TB000000/REP230,00,00,1/
+	//	          APU USAGE REPORT <230>
+	//	   ACID   DATE  UTC      FROM TO   FLT
+	//	C1 VH-VQS NOV04 21.33.45 YPPH YIBO 2930
+	{
+		Name: "acms_table",
+		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*/[\s\S]{0,400}?\nC1 (?P<reg_field>[A-Z0-9-]{2,8}) ` +
+			`(?P<month>[A-Z]{3})(?P<day>\d{2}) (?:(?P<hour>\d{2})\.(?P<minute>\d{2})\.(?P<second>\d{2})|(?P<time>\d{6})) ` +
+			`(?P<origin>{ICAO}) (?P<dest>{ICAO}) (?P<flight_digits>\d{1,4})\b`,
+		Fields: []string{"series", "report", "reg_field", "month", "day", "hour", "minute", "second", "time", "origin", "dest", "flight_digits"},
+	},
+	// Some reports (035, an APU run) name the report in a C1 block and give
+	// the registration, a date and time (YYMMDDHHMMSS), the time again, the
+	// route and the ICAO callsign in the C2 block. Example:
+	//
+	//	A319,023431,1,1,TB000000/REP035,00,00,4//C1035,APU RUN/C2N778XF,261030220100,220100,KSTL,KDCA,AAL2030,4200/...
+	{
+		Name: "acms_c2",
+		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*//C1\d{3},[^/]*/` +
+			`C2(?P<reg_field>\.?[A-Z0-9-]{2,8}),\d{12},(?P<time>\d{6}),(?P<origin>{ICAO}),(?P<dest>{ICAO}),` +
+			`(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]{0,2}),`,
+		Fields: []string{"series", "report", "reg_field", "time", "origin", "dest", "callsign"},
+	},
+	// Wizz Air's fuel request (report 057) is free text: after the station
+	// and the series, the registration and the ETA, then the callsign, the
+	// route, the date (DDMMMYY) and the time. Example:
+	//
+	//	A321,024847,1,1,TB000000/REP057,00,00,1/kmEDLW / A321 A/C: 9H-WDN  ETA:0530z
+	//
+	//	 WMT0106, LRCV-EDLW, 08NOV26, 05:12:32z
+	{
+		Name: "acms_fuel_request",
+		Pattern: `^(?P<series>A3\d{2}),\d+,\d,\d,TB\d+/REP(?P<report>\d{3}),[^/]*/[^\n]*A/C: (?P<reg_field>[A-Z0-9-]{2,8})\s+ETA:\d{4}Z\s+` +
+			`(?P<callsign>[A-Z]{3}\d{1,4}[A-Z]{0,2}), (?P<origin>{ICAO})-(?P<dest>{ICAO}), (?P<day>\d{2})(?P<month>[A-Z]{3})\d{2}, ` +
+			`(?P<hour>\d{2}):(?P<minute>\d{2}):(?P<second>\d{2})Z`,
+		Fields: []string{"series", "report", "reg_field", "callsign", "origin", "dest", "day", "month", "hour", "minute", "second"},
 	},
 }

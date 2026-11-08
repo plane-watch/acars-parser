@@ -218,6 +218,15 @@ func TestExtract(t *testing.T) {
 		}
 	})
 
+	t.Run("a route from an airport to itself is not a route", func(t *testing.T) {
+		// An APU run on the ground reports "YMML YMML".
+		msg := &acars.Message{ID: 1, Label: "H1", Tail: "VH-X3E", FlightNumber: "JQ0216"}
+		f := Extract(msg, []registry.Result{&mockResult{typeStr: "acms_report", Origin: "YMML", Destination: "YMML"}}).Flight
+		if f.Origin != "" || f.Destination != "" {
+			t.Errorf("route %q-%q; want none", f.Origin, f.Destination)
+		}
+	})
+
 	t.Run("a registration used as the callsign is not split", func(t *testing.T) {
 		// N123AB would otherwise split as airline N1, flight 23, suffix AB,
 		// and match SWR23AB.

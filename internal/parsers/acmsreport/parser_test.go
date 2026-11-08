@@ -189,6 +189,59 @@ func TestParse(t *testing.T) {
 			want: Result{AircraftSeries: "A321", Report: "001", Registration: "G-NEOS", ReportDate: "DEC31",
 				ReportTime: "174446", Origin: "EGLL", Destination: "LSZH", FlightNumberDigits: "0720"},
 		},
+		// The reports below are from live traffic (October and November
+		// 2026), shortened after the blocks parsed.
+		{
+			// The weather block of report 281, in another report.
+			name: "weather block of report 286",
+			tail: "N343NB",
+			text: "A319,101619,1,1,TB000000/REP286,00,00,4//WX02EN08KLASKAUS\r\nN30634W09824403161440M0472450160XXXX22::2PNXW\r\n",
+			want: Result{AircraftSeries: "A319", Report: "286", Origin: "KLAS", Destination: "KAUS", Latitude: 30.634, Longitude: -98.244},
+		},
+		{
+			// The trajectory block of report 291, in another report.
+			name: "trajectory block of report 191",
+			tail: "N771XF",
+			text: "A319,024420,1,1,TB000000/REP191,00,00,4/\r\nTRP KPHL KRSW  8 0\r\n195205, 29.0809,- 83.3795,330,133.2,470,0.006410,0.003933,  5.14,\r\n",
+			want: Result{AircraftSeries: "A319", Report: "191", Origin: "KPHL", Destination: "KRSW"},
+		},
+		{
+			// The short header after the long one, the C1 block on a line
+			// of its own, and the flight number padded.
+			name: "short header after the long one",
+			tail: "N882UA",
+			text: "A319,161174,1,1,TB000000/REP998,00,00,4/-  A37/A31937,1,1/\r\nC1N882UA,NOV02,224945,KATL,KORD,324 /\r\nC29999,xx0515, 9, 10358, 11291/\r\n",
+			want: Result{AircraftSeries: "A319", Report: "998", Registration: "N882UA", ReportDate: "NOV02",
+				ReportTime: "224945", Origin: "KATL", Destination: "KORD", FlightNumberDigits: "324"},
+		},
+		{
+			name: "APU report table with a dotted time",
+			tail: "VH-VQS",
+			text: "A320,042194,1,1,TB000000/REP230,00,00,1/\r\n\r\n\r\n          APU USAGE REPORT <230>\r\n\r\n   ACID   DATE  UTC      FROM TO   FLT\r\nC1 VH-VQS NOV04 21.33.45 YPPH YIBO 2930\r\n\r\nC2 ASN   AHRS  ACYC  APU START APU STOP\r\n",
+			want: Result{AircraftSeries: "A320", Report: "230", Registration: "VH-VQS", ReportDate: "NOV04",
+				ReportTime: "213345", Origin: "YPPH", Destination: "YIBO", FlightNumberDigits: "2930"},
+		},
+		{
+			name: "APU report table with a plain time",
+			tail: "N366FR",
+			text: "A320,006622,1,1,TB000000/REP250,00,00,4/    A320 APU START  <50>                \r\n                                        \r\n   A/C ID DATE  UTC    FROM TO   FLT    \r\nC1 N366FR OCT28 030610 KATL KTPA 3054   ",
+			want: Result{AircraftSeries: "A320", Report: "250", Registration: "N366FR", ReportDate: "OCT28",
+				ReportTime: "030610", Origin: "KATL", Destination: "KTPA", FlightNumberDigits: "3054"},
+		},
+		{
+			name: "C2 block with the callsign",
+			tail: "N778XF",
+			text: "A319,023431,1,1,TB000000/REP035,00,00,4//C1035,APU RUN/C2N778XF,261030220100,220100,KSTL,KDCA,AAL2030,4200/C3261030220100,261030,220100, 2,D13SACF06CAAL03.01.00",
+			want: Result{AircraftSeries: "A319", Report: "035", Registration: "N778XF", ReportTime: "220100",
+				Origin: "KSTL", Destination: "KDCA", Flight: "AAL2030"},
+		},
+		{
+			name: "fuel request of report 057",
+			tail: "9H-WDN",
+			text: "A321,024847,1,1,TB000000/REP057,00,00,1/kmEDLW / A321 A/C: 9H-WDN  ETA:0530z\r\n\r\n WMT0106, LRCV-EDLW, 08NOV26, 05:12:32z\r\n\r\nDear EDLW GH,we need the below Fuel Qty\r\n",
+			want: Result{AircraftSeries: "A321", Report: "057", Registration: "9H-WDN", ReportDate: "NOV08",
+				ReportTime: "051232", Origin: "LRCV", Destination: "EDLW", Flight: "WMT0106"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

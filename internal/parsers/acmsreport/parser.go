@@ -73,8 +73,9 @@ func (p *Parser) Name() string     { return "acmsreport" }
 func (p *Parser) Labels() []string { return []string{"H1"} }
 func (p *Parser) Priority() int    { return 60 }
 
-// QuickCheck looks for the series prefix ("A3xx,") and a CC or C1 block,
-// or one of the reports 239, 281 and 291; or for the short header
+// QuickCheck looks for the series prefix ("A3xx,") and a CC, C1 or C2
+// block, a WX or TRP record, the fuel request's "A/C:", or report 239; or
+// for the short header
 // ("A37/A3...", perhaps after a line of digits) and a C1, CC or WX block;
 // or for the 76401 record or an A380 report; after a ground address if
 // there is one.
@@ -96,8 +97,9 @@ func (p *Parser) QuickCheck(text string) bool {
 		return true
 	}
 	return len(text) > 5 && strings.HasPrefix(text, "A3") && text[4] == ',' &&
-		(strings.Contains(text, "/CC") || strings.Contains(text, "/C1") ||
-			strings.Contains(text, "/REP239,") || strings.Contains(text, "/REP281,") || strings.Contains(text, "/REP291,"))
+		(strings.Contains(text, "/CC") || strings.Contains(text, "C1") || strings.Contains(text, "/C2") ||
+			strings.Contains(text, "/WX") || strings.Contains(text, "TRP ") || strings.Contains(text, "A/C:") ||
+			strings.Contains(text, "/REP239,"))
 }
 
 // groundAddressRe matches the ground addresses some airlines put before a
