@@ -73,3 +73,40 @@ func Same(a, b ID) bool {
 func (id ID) String() string {
 	return id.Airline + id.Number + id.Suffix
 }
+
+// headerDigitsRe matches a header flight field that is the flight number's
+// digits, with an optional suffix.
+var headerDigitsRe = regexp.MustCompile(`^(\d{1,4})([A-Z]{0,2})$`)
+
+// headerCallsignRe matches a header flight field that is an ICAO callsign:
+// three letters, a digit, and up to three more letters or digits ("UAE0069",
+// "UAE8UW").
+var headerCallsignRe = regexp.MustCompile(`^[A-Z]{3}\d[A-Z0-9]{0,3}$`)
+
+// HeaderFlight reads the flight field of a downlink header ("0800",
+// "038A", "UAE0069"): the flight number's digits or the ICAO callsign. It
+// returns false when the field names a flight that cannot be compared with
+// the transmitted one: a field of another shape, or a suffixed number
+// ("038A") whose number and suffix are not the transmitted flight's (the
+// extractor compares only the digits). transmitted and tail are the
+// message's (see Parse).
+func HeaderFlight(field, transmitted, tail string) (digits, callsign string, ok bool) {
+	if headerCallsignRe.MatchString(field) {
+		return "", field, true
+	}
+	d := headerDigitsRe.FindStringSubmatch(field)
+	if d == nil {
+		return "", "", false
+	}
+	if d[2] != "" {
+		number := strings.TrimLeft(d[1], "0")
+		if number == "" {
+			number = "0" // Flight 0, as Parse writes it.
+		}
+		t, ok := Parse(transmitted, tail)
+		if !ok || t.Suffix != d[2] || t.Number != number {
+			return "", "", false
+		}
+	}
+	return d[1], "", true
+}

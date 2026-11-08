@@ -7,30 +7,36 @@ import (
 	"sync"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/flightid"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
 
 // Result represents position data from label 80 messages.
 type Result struct {
-	MsgID       int64   `json:"message_id"`
-	Timestamp   string  `json:"timestamp"`
-	Tail        string  `json:"tail,omitempty"`
-	MsgType     string  `json:"msg_type"`
-	FlightNum   string  `json:"flight_num,omitempty"`
-	OriginICAO  string  `json:"origin_icao,omitempty"`
-	DestICAO    string  `json:"dest_icao,omitempty"`
-	Latitude    float64 `json:"latitude,omitempty"`
-	Longitude   float64 `json:"longitude,omitempty"`
-	Altitude    int     `json:"altitude,omitempty"`
-	Mach        string  `json:"mach,omitempty"`
-	TAS         int     `json:"tas,omitempty"`
-	FuelOnBoard int     `json:"fuel_on_board,omitempty"`
-	ETA         string  `json:"eta,omitempty"`
-	OutTime     string  `json:"out_time,omitempty"`
-	OffTime     string  `json:"off_time,omitempty"`
-	OnTime      string  `json:"on_time,omitempty"`
-	InTime      string  `json:"in_time,omitempty"`
+	MsgID     int64  `json:"message_id"`
+	Timestamp string `json:"timestamp"`
+	Tail      string `json:"tail,omitempty"`
+	MsgType   string `json:"msg_type"`
+	FlightNum string `json:"flight_num,omitempty"`
+
+	// FlightNumberDigits is the header's flight number without its airline
+	// code ("0254"); the extractor uses the route only for a transmitted
+	// flight with this number. A header's ICAO callsign is in FlightNum.
+	FlightNumberDigits string  `json:"flight_number_digits,omitempty"`
+	OriginICAO         string  `json:"origin_icao,omitempty"`
+	DestICAO           string  `json:"dest_icao,omitempty"`
+	Latitude           float64 `json:"latitude,omitempty"`
+	Longitude          float64 `json:"longitude,omitempty"`
+	Altitude           int     `json:"altitude,omitempty"`
+	Mach               string  `json:"mach,omitempty"`
+	TAS                int     `json:"tas,omitempty"`
+	FuelOnBoard        int     `json:"fuel_on_board,omitempty"`
+	ETA                string  `json:"eta,omitempty"`
+	OutTime            string  `json:"out_time,omitempty"`
+	OffTime            string  `json:"off_time,omitempty"`
+	OnTime             string  `json:"on_time,omitempty"`
+	InTime             string  `json:"in_time,omitempty"`
 }
 
 func (r *Result) Type() string     { return "position" }
@@ -96,8 +102,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		switch match.FormatName {
 		case "header_format":
 			result.MsgType = match.Captures["msg_type"]
-			result.OriginICAO = match.Captures["origin"]
-			result.DestICAO = match.Captures["dest"]
+			// The route is reported only with a flight that the extractor
+			// can compare with the transmitted one (see flightid.HeaderFlight).
+			if digits, callsign, ok := flightid.HeaderFlight(match.Captures["flight_field"], msg.FlightNumber, msg.Tail); ok {
+				result.FlightNumberDigits, result.FlightNum = digits, callsign
+				result.OriginICAO = match.Captures["origin"]
+				result.DestICAO = match.Captures["dest"]
+			}
 			result.Tail = strings.TrimLeft(match.Captures["tail"], ".")
 			foundHeader = true
 

@@ -62,3 +62,27 @@ func TestSame(t *testing.T) {
 		}
 	}
 }
+
+func TestHeaderFlight(t *testing.T) {
+	tests := []struct {
+		field, transmitted, digits, callsign string
+		ok                                   bool
+	}{
+		{"0800", "G90800", "0800", "", true},
+		{"UAE0069", "EK0069", "", "UAE0069", true},
+		{"UAE8UW", "EK08UW", "", "UAE8UW", true},
+		{"038A", "LS038A", "038", "", true},
+		{"038A", "LS038B", "", "", false},
+		{"038A", "", "", "", false},
+		{"000A", "XX000A", "000", "", true},
+		{"ABCDEFGH", "EY0071", "", "", false},
+		{"VH-ABC", "QF0001", "", "", false},
+	}
+	for _, tt := range tests {
+		digits, callsign, ok := HeaderFlight(tt.field, tt.transmitted, "")
+		if digits != tt.digits || callsign != tt.callsign || ok != tt.ok {
+			t.Errorf("HeaderFlight(%q, %q) = %q, %q, %v; want %q, %q, %v",
+				tt.field, tt.transmitted, digits, callsign, ok, tt.digits, tt.callsign, tt.ok)
+		}
+	}
+}

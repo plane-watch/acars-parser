@@ -6,13 +6,14 @@ import "acars_parser/internal/patterns"
 // Formats defines the known Label 80 message formats.
 var Formats = []patterns.Format{
 	// Main header format.
-	// Example: 01 POS VH-ABC YSSY/YMML .VH-ABC
-	// Groups: msg_type, origin, dest, tail
+	// Example: 3N01 POSRPT 0254/04 SKBO/CYYZ .HK-5365
+	// Groups: msg_type, flight_field (the flight before the "/" and the
+	// day), origin, dest, tail
 	{
 		Name: "header_format",
-		Pattern: `\d+\s+(?P<msg_type>\w+)\s+\S+\s+` +
+		Pattern: `\d+\s+(?P<msg_type>\w+)\s+(?P<flight_field>[^\s/]+)(?:/\S*)?\s+` +
 			`(?P<origin>{ICAO})/(?P<dest>{ICAO})\s+\.*(?P<tail>[A-Z0-9-]+)(?:/|\s|$)`,
-		Fields: []string{"msg_type", "origin", "dest", "tail"},
+		Fields: []string{"msg_type", "flight_field", "origin", "dest", "tail"},
 	},
 	// Alternative header format.
 	// Example: QFA123,YSSY,YMML

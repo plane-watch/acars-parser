@@ -155,6 +155,39 @@ func NormaliseRegistration(s string) string {
 	return strings.ToUpper(strings.ReplaceAll(s, "-", ""))
 }
 
+// TruncatedRegistrationOf reports whether a report's registration field is
+// the tail's registration truncated, as some aircraft send it: its first
+// character, then blanks (spaces or dots) and its last two or three
+// characters, either part possibly missing ("C   IP" for C-FFIP, "    FR"
+// for TC-VFR, "V......" and "V" for VH-8VG). A field with more of the
+// registration ("N1234") is a complete registration, not a truncation, even
+// when the tail starts with it.
+func TruncatedRegistrationOf(field, tail string) bool {
+	t := NormaliseRegistration(tail)
+	field = strings.TrimRight(field, " .")
+	if t == "" || field == "" {
+		return false
+	}
+	isBlank := func(r rune) bool { return r == ' ' || r == '.' }
+	parts := strings.FieldsFunc(field, isBlank)
+	lead := ""
+	if !isBlank(rune(field[0])) {
+		lead, parts = parts[0], parts[1:]
+		if len(lead) != 1 || t[:1] != lead {
+			return false
+		}
+	}
+	switch len(parts) {
+	case 0:
+		return lead != ""
+	case 1:
+		end := parts[0]
+		return len(end) >= 2 && len(end) <= 3 && len(t) > len(lead)+len(end) && strings.HasSuffix(t, end)
+	default:
+		return false
+	}
+}
+
 // IsICAOAddress reports whether s is a usable 24-bit ICAO aircraft address:
 // six upper-case hex digits, and neither all zeros nor all ones (which are
 // not assigned to aircraft).

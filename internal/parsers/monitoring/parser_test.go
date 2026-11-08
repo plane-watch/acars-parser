@@ -259,11 +259,14 @@ func TestParseRejects(t *testing.T) {
 		{"ABS, another aircraft", "N1811V", "ABS001DA_N1811U  KSNAKSJC384\r\n 33989"},
 		{"ABS, a truncated field of another aircraft", "C-FNWD", "ABS001DA_C   IP  MMTLCYYZ970\r\n  37663"},
 		{"ABS, another aircraft's address", "N290AK", "ABS001DA_A3133C  KLAXKSEA494\r\n  37663"},
+		// A complete registration that begins the tail is another aircraft's.
+		{"ABS, a registration that begins the tail", "N12345", "ABS071BA_\r\nN1234   0764KSMFKSEA0311262092ER033030 554"},
 		// A transmitted tail that is part of the report's registration.
 		{"station, tail inside the registration", "N446", "/ILNGE7X.CLB006AM N446AM2AMX021    261008040732MMMXLEMD+006050295"},
 		{"station, tail inside the registration after a dot", "HL762", "/ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+00007"},
 		{"station, tail inside the registration after a code", "HZ-AR2", "/ILNGE7X.SCR005SVHZ-AR221SVA123    261102071957OEJNEGCC-026070"},
 		{"station, tail inside the registration after a ground address", "C-FHC", "/ILNGE7X PARJBXH.6029631WSC-FHCM WJA2267 MPTOCYYC000028FF046PFS"},
+		{"station, tail ending a registration after a ground address", "B-1234", "/ILNGE7X PARJBXH.6029631WSHB-1234 SWR123 MPTOCYYC000028FF"},
 		{"GE, tail inside the registration", "N826A", "/ILNGE7X.<102>HEG9   1\r\n N826ANAAL169    KLAXRJTT1449TA261026081422  759"},
 		{"GE, tail inside the registration before a space", "VN-A86", "/ILNGE7X.<103>GEG\r\n9   1VN-A862 HVN30     EDDFVVTS041126 392"},
 		{"acm, tail at the end of another registration", "N123", "ACM01ACM230F9H-N123FDX48   KMEMEBLG041026  20ER235115632673162FEDAP107"},

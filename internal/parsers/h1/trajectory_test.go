@@ -283,10 +283,17 @@ func TestABSHeaders(t *testing.T) {
 				FlightNumber: "G42844", Origin: "KSFB", Destination: "KALB", SystemID: "BCG27-S200-0011"},
 		},
 		{
+			// A flight field that is not a flight number names a flight that
+			// cannot be compared with the transmitted one: no route.
 			name: "BA header with a callsign suffix", tail: "SP-LVP",
 			header: "ABS022BA_S   VP ,B7378MAX ,261102,LO4MU ,EBBR,EPWA,0197,BCG27-S200-0011",
-			want: TrajectoryResult{Report: "ABS022", AircraftType: "B7378MAX", Date: "261102",
-				Origin: "EBBR", Destination: "EPWA", SystemID: "BCG27-S200-0011"},
+			want:   TrajectoryResult{Report: "ABS022", AircraftType: "B7378MAX", Date: "261102", SystemID: "BCG27-S200-0011"},
+		},
+		{
+			name: "BA header with an all-digit flight field", tail: "N824NV",
+			header: "ABS025BA_N824NV ,B7378MAX ,261029,123456,KSFB,KALB,0030,BCG27-S200-0011",
+			want: TrajectoryResult{Report: "ABS025", Registration: "N824NV", AircraftType: "B7378MAX", Date: "261029",
+				SystemID: "BCG27-S200-0011"},
 		},
 		{
 			name: "AA header with the date in its own field", tail: "N37534",
@@ -308,6 +315,23 @@ func TestABSHeaders(t *testing.T) {
 		tt.want.Positions = nil
 		if !reflect.DeepEqual(*r, tt.want) {
 			t.Errorf("%s:\n got %+v\nwant %+v", tt.name, *r, tt.want)
+		}
+	}
+}
+
+// TestABSHeaderOtherAircraft checks that an ABS report naming another
+// aircraft than the transmitted tail, completely or by a truncation that
+// does not fit the tail, is not parsed: its type and route are that
+// aircraft's.
+func TestABSHeaderOtherAircraft(t *testing.T) {
+	samples := "\r\nN3634.3,W08035.5,041542,35999,-52.0,213,045,ER,00000,0,\r\n"
+	for _, tt := range []struct{ tail, header string }{
+		{"N12345", "ABS025BA_N824NV ,B7378MAX ,261029,G42844,KSFB,KALB,0030,BCG27-S200-0011"},
+		{"C-GFVN", "ABS026BA_G      ,B7378MAX ,261104,WS2134,CYYZ,MMUN,0526,BCG27-S200-0011"},
+		{"N37511", "ABS023AA_N37534,B737   -,261031,UA    ,KMCO,KSFO,1687,BCG2E-S200-0009"},
+	} {
+		if r := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: tt.tail, Text: tt.header + samples}); r != nil {
+			t.Errorf("tail %s: got %+v, want nil", tt.tail, r)
 		}
 	}
 }

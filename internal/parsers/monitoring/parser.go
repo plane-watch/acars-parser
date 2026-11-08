@@ -240,7 +240,7 @@ func parseABS(msg *acars.Message) *Result {
 		// A blank field names no aircraft.
 	case msg.Tail == "" || acars.NormaliseRegistration(trimmed) == acars.NormaliseRegistration(msg.Tail):
 		setRegistration(r, trimmed, msg.Tail)
-	case truncatedOfTail(field, msg.Tail) || addressOfTail(trimmed, msg.Tail):
+	case acars.TruncatedRegistrationOf(field, msg.Tail) || addressOfTail(trimmed, msg.Tail):
 		// The tail's, but the field does not give the registration.
 	default:
 		return nil
@@ -347,19 +347,23 @@ func parseStation(msg *acars.Message) *Result {
 	return r
 }
 
-// maxGroundStationPrefix bounds the characters between a ground address
-// and the registration ("6029631WS" before C-FHCM).
-const maxGroundStationPrefix = 12
+// groundStationPrefixLen is the length of the field between a ground
+// address and the registration: seven characters and the airline's IATA
+// code ("6029631" and "WS" before C-FHCM). In every report seen in live
+// traffic (October and November 2026) it had this length.
+const groundStationPrefixLen = 9
 
-// parseGroundStation parses a station report after a ground address: some
-// characters, the registration, then the callsign and the route, as in
-// "6029631WSC-FHCM WJA2267 MPTOCYYC...". It names no report.
+// parseGroundStation parses a station report after a ground address: a
+// fixed field, the registration, then the callsign and the route, as in
+// "6029631WSC-FHCM WJA2267 MPTOCYYC...". It names no report. The fixed
+// field keeps a tail from matching the end of a longer registration
+// ("...WSHB-1234" for B-1234).
 func parseGroundStation(rest, tail string) *Result {
-	i := strings.Index(rest, tail)
-	if i < 1 || i > maxGroundStationPrefix || !isAlnum(rest[:i]) {
+	if len(rest) < groundStationPrefixLen || !isAlnum(rest[:groundStationPrefixLen]) ||
+		!strings.HasPrefix(rest[groundStationPrefixLen:], tail) {
 		return nil
 	}
-	s := stationCallsignRouteRe.FindStringSubmatch(rest[i+len(tail):])
+	s := stationCallsignRouteRe.FindStringSubmatch(rest[groundStationPrefixLen+len(tail):])
 	if s == nil {
 		return nil
 	}
@@ -428,31 +432,6 @@ func setRegistration(r *Result, reg, tail string) bool {
 	}
 	r.Registration = reg
 	return true
-}
-
-// truncatedOfTail reports whether an ABS registration field is the tail's
-// registration truncated: some aircraft keep its first character and its
-// last ones, and blank the rest with spaces or dots ("C   IP" for C-FFIP,
-// "    FR" for TC-VFR, "V......" for VH-8VG, "C" for C-FNWD). The leading
-// part must begin the tail, and a part after a blank must end it.
-func truncatedOfTail(field, tail string) bool {
-	t := acars.NormaliseRegistration(tail)
-	field = strings.TrimRight(field, " .")
-	if t == "" || field == "" {
-		return false
-	}
-	isBlank := func(r rune) bool { return r == ' ' || r == '.' }
-	parts := strings.FieldsFunc(field, isBlank)
-	if len(parts) > 2 {
-		return false
-	}
-	if !isBlank(rune(field[0])) {
-		if !strings.HasPrefix(t, parts[0]) {
-			return false
-		}
-		parts = parts[1:]
-	}
-	return len(parts) == 0 || strings.HasSuffix(t, parts[0])
 }
 
 // addressOfTail reports whether an ABS registration field is the aircraft

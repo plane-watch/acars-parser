@@ -8,8 +8,8 @@
 // The header is a sequence code, the message type (a weather request, a
 // position report, an off report, ...), the flight, the day of the month,
 // the origin and destination, and the registration after a ".". The flight
-// is the flight number's digits, sometimes with a suffix ("038A"), or the
-// ICAO callsign ("UAE0069"). The body after the header differs by type and
+// is the flight number's digits, sometimes with a suffix ("038A", kept only
+// when the transmitted flight has it), or the ICAO callsign ("UAE0069"). The body after the header differs by type and
 // is not parsed.
 package msgheader
 
@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/flightid"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
@@ -52,15 +53,6 @@ func (r *Result) MessageID() int64 { return r.MsgID }
 // the registration, which may be followed by other fields after a space, a
 // "," (",2135") or a "/" ("/01F 02:03").
 var headerRe = regexp.MustCompile(`^\s*([0-9A-Z]{2,4})\s+([A-Z]{3,6})\s+([A-Z0-9]{1,7})\s*/(\d{2})\s+([A-Z]{4})/([A-Z]{4})\s+\.([A-Z0-9-]{3,8})(?:[\s,/]|$)`)
-
-// digitsRe matches a flight field that is the flight number's digits, with
-// an optional suffix, which is not kept.
-var digitsRe = regexp.MustCompile(`^(\d{1,4})[A-Z]{0,2}$`)
-
-// callsignRe matches a flight field that is an ICAO callsign: three letters
-// and a number, with an optional suffix, or a letter and a digit after the
-// first digit ("UAE8UW").
-var callsignRe = regexp.MustCompile(`^[A-Z]{3}\d[A-Z0-9]{0,3}$`)
 
 // Parser parses downlink header lines.
 type Parser struct{}
@@ -108,16 +100,13 @@ func (p *Parser) Parse(msg *acars.Message) registry.Result {
 		Origin:      m[5],
 		Destination: m[6],
 	}
-	switch flight := m[3]; {
-	case digitsRe.MatchString(flight):
-		r.FlightNumberDigits = digitsRe.FindStringSubmatch(flight)[1]
-	case callsignRe.MatchString(flight):
-		r.Flight = flight
-	default:
-		// A field that is not a flight names one that cannot be compared
-		// with the transmitted flight.
+	// A field that is not a flight, or a suffixed number of another flight,
+	// names a flight that cannot be compared with the transmitted one.
+	digits, callsign, ok := flightid.HeaderFlight(m[3], msg.FlightNumber, msg.Tail)
+	if !ok {
 		return nil
 	}
+	r.FlightNumberDigits, r.Flight = digits, callsign
 	// A header naming another aircraft than the transmitted tail is not
 	// parsed, so that its route is not credited to the transmitting
 	// aircraft; without a transmitted tail, no registration is reported.

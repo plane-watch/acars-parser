@@ -11,6 +11,7 @@ import (
 func TestParse(t *testing.T) {
 	tests := []struct {
 		name, label, tail, text string
+		flight                  string // The transmitted flight.
 		want                    Result
 	}{
 		{
@@ -20,8 +21,9 @@ func TestParse(t *testing.T) {
 				Origin: "OMSJ", Destination: "WMKK", Registration: "A6-ATC"},
 		},
 		{
-			// The flight field with a suffix gives its digits.
-			name: "flight number with a suffix", label: "5U", tail: "G-JZBF",
+			// The flight field with a suffix gives its digits, when the
+			// transmitted flight has that suffix.
+			name: "flight number with a suffix", label: "5U", tail: "G-JZBF", flight: "LS038A",
 			text: "  01 WXRQ   038A/26 EGGD/LMML .G-JZBF\r\n/TYP 1/STA LMML/STA LICB/STA LICC",
 			want: Result{Sequence: "01", MessageType: "WXRQ", FlightNumberDigits: "038", DayOfMonth: 26,
 				Origin: "EGGD", Destination: "LMML", Registration: "G-JZBF"},
@@ -53,7 +55,7 @@ func TestParse(t *testing.T) {
 				Origin: "KIAD", Destination: "MSLP", Registration: "N632AV"},
 		},
 		{
-			name: "registration followed by a comma", label: "80", tail: "A6-APF",
+			name: "registration followed by a comma", label: "80", tail: "A6-APF", flight: "EY071M",
 			text: "3J01 DSPTCH 071M/25 EGLL/OMAA .A6-APF,2135\r\nThanks, will give you an update.",
 			want: Result{Sequence: "3J01", MessageType: "DSPTCH", FlightNumberDigits: "071", DayOfMonth: 25,
 				Origin: "EGLL", Destination: "OMAA", Registration: "A6-APF"},
@@ -67,7 +69,7 @@ func TestParse(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		got, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: tt.label, Tail: tt.tail, Text: tt.text}).(*Result)
+		got, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: tt.label, Tail: tt.tail, FlightNumber: tt.flight, Text: tt.text}).(*Result)
 		if !ok {
 			t.Errorf("%s: Parse returned no result", tt.name)
 			continue
@@ -84,13 +86,17 @@ func TestParse(t *testing.T) {
 func TestParseRejects(t *testing.T) {
 	tests := []struct{ name, tail, text string }{
 		{"another aircraft", "A6-ATD", "  01 WXRQ   0800/06 OMSJ/WMKK .A6-ATC"},
+		// The suffix is not compared by the extractor, so the parser
+		// compares it: without the transmitted flight's, it is another
+		// flight's (the transmitted flight below is LS038B).
+		{"another suffix", "G-JZBF", "  01 WXRQ   038A/26 EGGD/LMML .G-JZBF"},
 		{"not a flight", "A6-ATC", "  01 WXRQ   ABCDEF/06 OMSJ/WMKK .A6-ATC"},
 		{"invalid airport", "A6-ATC", "  01 WXRQ   0800/06 QQQQ/WMKK .A6-ATC"},
 		{"invalid day", "A6-ATC", "  01 WXRQ   0800/36 OMSJ/WMKK .A6-ATC"},
 		{"other text", "A6-ATC", "POS N510404W0002938/ALT 035"},
 	}
 	for _, tt := range tests {
-		if r := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "5U", Tail: tt.tail, Text: tt.text}); r != nil {
+		if r := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "5U", Tail: tt.tail, FlightNumber: "LS038B", Text: tt.text}); r != nil {
 			t.Errorf("%s: got %+v, want nil", tt.name, r)
 		}
 	}

@@ -28,3 +28,33 @@ func TestParseRejectsAMalformedTail(t *testing.T) {
 		t.Errorf("Tail = %q, want none", r.Tail)
 	}
 }
+
+// TestParseHeaderFlight checks that the header's flight field is reported,
+// so that the extractor uses the route only for the transmitted flight: the
+// number's digits, a suffix checked against the transmitted flight, or the
+// ICAO callsign. A field that is not a flight gives no route.
+func TestParseHeaderFlight(t *testing.T) {
+	tests := []struct {
+		name, flight, text string
+		digits, callsign   string
+		route              bool
+	}{
+		{"digits", "AV0254", "3N01 POSRPT 0254/04 SKBO/CYYZ .HK-5365", "0254", "", true},
+		{"digits without the day", "FZ1574", "3N01 POSRPT 1574/ OMDB/OKBK .A6-FEC", "1574", "", true},
+		{"callsign", "XABAH1", "3N01 POSRPT BAH1/03 OBBI/EGLL .A9C-HMH", "", "BAH1", true},
+		{"suffix of the transmitted flight", "EY071M", "3J01 DSPTCH 071M/25 EGLL/OMAA .A6-APF", "071", "", true},
+		{"suffix of another flight", "EY071N", "3J01 DSPTCH 071M/25 EGLL/OMAA .A6-APF", "", "", false},
+		{"not a flight", "EY0071", "3J01 DSPTCH ABCDEFGH/25 EGLL/OMAA .A6-APF", "", "", false},
+	}
+	for _, tt := range tests {
+		r, ok := (&Parser{}).Parse(&acars.Message{ID: 1, Label: "80", FlightNumber: tt.flight, Text: tt.text}).(*Result)
+		if !ok {
+			t.Errorf("%s: Parse returned no result", tt.name)
+			continue
+		}
+		if r.FlightNumberDigits != tt.digits || r.FlightNum != tt.callsign || (r.OriginICAO != "") != tt.route {
+			t.Errorf("%s: digits %q, flight %q, route %q-%q; want %q, %q, route %v",
+				tt.name, r.FlightNumberDigits, r.FlightNum, r.OriginICAO, r.DestICAO, tt.digits, tt.callsign, tt.route)
+		}
+	}
+}

@@ -307,3 +307,36 @@ func TestForParsing(t *testing.T) {
 		}
 	}
 }
+
+// TestTruncatedRegistrationOf checks the truncations some reports make of a
+// registration: its first character, then blanks and its last two or three
+// characters, either part possibly missing.
+func TestTruncatedRegistrationOf(t *testing.T) {
+	tests := []struct {
+		field, tail string
+		want        bool
+	}{
+		{"C   IP", "C-FFIP", true},
+		{"    FR", "TC-VFR", true},
+		{"    LVQ", "SP-LVQ", true},
+		{"S   VP", "SP-LVP", true},
+		{"V......", "VH-8VG", true},
+		{"C", "C-FNWD", true},
+		// Another aircraft's.
+		{"C   IP", "C-FFIQ", false},
+		{"G", "C-FNWD", false},
+		// A complete registration is not a truncation of a longer one.
+		{"N1234", "N12345", false},
+		{"N8906K", "N8906K", false},
+		// Too little or too much kept.
+		{"    P", "C-FFIP", false},
+		{"C   FFIP", "C-FFIP", false},
+		{"", "C-FFIP", false},
+		{"C   IP", "", false},
+	}
+	for _, tt := range tests {
+		if got := TruncatedRegistrationOf(tt.field, tt.tail); got != tt.want {
+			t.Errorf("TruncatedRegistrationOf(%q, %q) = %v, want %v", tt.field, tt.tail, got, tt.want)
+		}
+	}
+}

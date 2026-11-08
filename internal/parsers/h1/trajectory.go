@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"acars_parser/internal/acars"
+	"acars_parser/internal/flightid"
 	"acars_parser/internal/patterns"
 	"acars_parser/internal/registry"
 )
@@ -82,12 +83,25 @@ var absHeaderRe = regexp.MustCompile(`^(ABS\d{3})(?:AA|BA)_([^,\r\n]*),([A-Z0-9 
 // 737-700, while N37510 is a 737-900ER, so the family is not reported.
 var absModelRe = regexp.MustCompile(`^B737(?:[789]MAX|-[6-9]00(?:ER)?)$`)
 
-// absFlightRe matches an ABS flight field that is a flight number: the
-// airline's IATA code and the number, with an optional suffix ("WS2134",
-// "TK30W"). Some airlines give the airline's code with the callsign's
-// suffix ("LO4MU" for LOT's LO234, flown as LOT4MU), and United only the
-// airline ("UA"); those are not flight numbers and are not reported.
-var absFlightRe = regexp.MustCompile(`^[A-Z0-9]{2}\d{1,4}[A-Z]?$`)
+// absAirlineRe matches an ABS flight field that names only the airline
+// (United's "UA").
+var absAirlineRe = regexp.MustCompile(`^[A-Z0-9]{2}$`)
+
+// absFlight returns an ABS flight field as a flight number, and false if
+// the field names a flight that is not one: a flight number is the
+// airline's IATA code (with a letter) and the number, with at most a
+// one-letter suffix ("WS2134", "TK30W"). Some airlines give the airline's
+// code with the callsign's suffix ("LO4MU" for LOT's LO234, flown as
+// LOT4MU). A blank field or the airline alone names no flight.
+func absFlight(field string) (string, bool) {
+	if field == "" || absAirlineRe.MatchString(field) {
+		return "", true
+	}
+	if id, ok := flightid.Parse(field, ""); ok && !id.ICAO && len(id.Suffix) <= 1 {
+		return field, true
+	}
+	return "", false
+}
 
 // Position pattern: N3702.1,W09921.8,120918,39000,-64.3,256,037,ER,00000,0,
 // Note: Temperature may have leading space for positive values (e.g., " 05.3" vs "-48.3").
@@ -139,16 +153,28 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	} else if h := absHeaderRe.FindStringSubmatch(text); h != nil {
 		result.Report, reg, result.Date = h[1], h[2], h[4]
 		result.Origin, result.Destination, result.SystemID = h[6], h[7], h[9]
+		if !absAircraft(h[2], msg.Tail) {
+			// Another aircraft's report: its type and route are not the
+			// transmitting aircraft's.
+			return nil
+		}
 		if t := strings.TrimSpace(h[3]); absModelRe.MatchString(t) {
 			result.AircraftType = t
 		}
-		if f := strings.TrimSpace(h[5]); absFlightRe.MatchString(f) {
-			result.FlightNumber = f
+		if !patterns.IsValidICAO(result.Origin) || !patterns.IsValidICAO(result.Destination) {
+			return nil
+		}
+		flight, ok := absFlight(strings.TrimSpace(h[5]))
+		result.FlightNumber = flight
+		if !ok {
+			// The route is of a flight that cannot be compared with the
+			// transmitted one; the samples are kept.
+			result.Origin, result.Destination = "", ""
 		}
 	} else {
 		return nil
 	}
-	if !patterns.IsValidICAO(result.Origin) || !patterns.IsValidICAO(result.Destination) {
+	if result.Origin != "" && (!patterns.IsValidICAO(result.Origin) || !patterns.IsValidICAO(result.Destination)) {
 		return nil
 	}
 	if reg = strings.TrimSpace(reg); isTransmittedTail(reg, msg.Tail) {
@@ -193,6 +219,17 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	return result
+}
+
+// absAircraft reports whether an ABS report's registration field is the
+// transmitted tail's: blank, the tail, or a truncation of it (see
+// acars.TruncatedRegistrationOf). Without a transmitted tail it cannot be
+// checked, and is accepted.
+func absAircraft(field, tail string) bool {
+	f := strings.TrimSpace(field)
+	return tail == "" || strings.Trim(f, ". ") == "" ||
+		acars.NormaliseRegistration(f) == acars.NormaliseRegistration(tail) ||
+		acars.TruncatedRegistrationOf(field, tail)
 }
 
 // isTransmittedTail reports whether a registration field is the transmitted
