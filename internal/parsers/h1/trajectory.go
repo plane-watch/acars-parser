@@ -60,7 +60,7 @@ func (r *TrajectoryResult) MessageID() int64 { return r.MsgID }
 
 // Header pattern: ++86501,N8967Q,B7378MAX,260112,WN2085,KLAS,KBNA,0261,SMX34-2502-F320
 // Also handles: ++76502,XXX,B737-800,260111,WN0297,KMDW,KLAX,1175,SW2501
-var trajectoryHeaderRe = regexp.MustCompile(`^\+\+(\d+),\s*([A-Z0-9-]+),([A-Z0-9-]+),(\d{6}),([A-Z0-9]*),([A-Z]{4}),([A-Z]{4}),(\d+),([A-Z0-9-]+)`)
+var trajectoryHeaderRe = regexp.MustCompile(`^\+\+(\d+),(\s*[A-Z0-9-]+),([A-Z0-9-]+),(\d{6}),([A-Z0-9]*),([A-Z]{4}),([A-Z]{4}),(\d+),([A-Z0-9-]+)`)
 
 // absHeaderRe matches the header of the ABS reports of 737s, which carry
 // the same samples: the report, an AA or BA layout, the registration field,
@@ -84,8 +84,8 @@ var absHeaderRe = regexp.MustCompile(`^(ABS\d{3})(?:AA|BA)_([^,\r\n]*),([A-Z0-9 
 var absModelRe = regexp.MustCompile(`^B737(?:[789]MAX|-[6-9]00(?:ER)?)$`)
 
 // absAirlineRe matches an ABS flight field that names only the airline
-// (United's "UA").
-var absAirlineRe = regexp.MustCompile(`^[A-Z0-9]{2}$`)
+// (United's "UA"): an IATA code, which has a letter.
+var absAirlineRe = regexp.MustCompile(`^(?:[A-Z][A-Z0-9]|[0-9][A-Z])$`)
 
 // absFlight returns an ABS flight field as a flight number, and false if
 // the field names a flight that is not one: a flight number is the
@@ -148,6 +148,11 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	// Parse the header: Southwest's or an ABS report's.
 	var reg string
 	if h := trajectoryHeaderRe.FindStringSubmatch(text); h != nil {
+		if !southwestAircraft(h[2], msg.Tail) {
+			// Another aircraft's report: its type and route are not the
+			// transmitting aircraft's.
+			return nil
+		}
 		result.Report, reg, result.AircraftType, result.Date = h[1], h[2], h[3], h[4]
 		result.FlightNumber, result.Origin, result.Destination, result.SystemID = h[5], h[6], h[7], h[9]
 	} else if h := absHeaderRe.FindStringSubmatch(text); h != nil {
@@ -219,6 +224,28 @@ func (p *TrajectoryParser) Parse(msg *acars.Message) registry.Result {
 	}
 
 	return result
+}
+
+// southwestAircraft reports whether a Southwest report's registration field
+// is the transmitted tail's: blank, unset ("XXX"), a fleet number ("201"),
+// the tail, or the tail's start after a space (" N8852" for N8852Q, the
+// field cut to its width). Without a transmitted tail it cannot be
+// checked, and is accepted.
+func southwestAircraft(field, tail string) bool {
+	f := strings.TrimSpace(field)
+	if tail == "" || strings.Trim(f, "X") == "" || allDigits(f) || isTransmittedTail(f, tail) {
+		return true
+	}
+	return strings.HasPrefix(field, " ") && strings.HasPrefix(acars.NormaliseRegistration(tail), acars.NormaliseRegistration(f))
+}
+
+func allDigits(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] < '0' || s[i] > '9' {
+			return false
+		}
+	}
+	return s != ""
 }
 
 // absAircraft reports whether an ABS report's registration field is the

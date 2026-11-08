@@ -180,6 +180,7 @@ func TestTrajectoryParser_RegistrationField(t *testing.T) {
 		{"N8951S", "N8951S", "N8951S"},
 		{"N8951S", "", ""},
 		{"201", "N201LV", ""},
+		{"XXX", "N201LV", ""},
 		{" N8852", "N8852Q", ""},
 	}
 	for _, tt := range tests {
@@ -290,6 +291,12 @@ func TestABSHeaders(t *testing.T) {
 			want:   TrajectoryResult{Report: "ABS022", AircraftType: "B7378MAX", Date: "261102", SystemID: "BCG27-S200-0011"},
 		},
 		{
+			name: "BA header with a two-digit flight field", tail: "N824NV",
+			header: "ABS025BA_N824NV ,B7378MAX ,261029,12    ,KSFB,KALB,0030,BCG27-S200-0011",
+			want: TrajectoryResult{Report: "ABS025", Registration: "N824NV", AircraftType: "B7378MAX", Date: "261029",
+				SystemID: "BCG27-S200-0011"},
+		},
+		{
 			name: "BA header with an all-digit flight field", tail: "N824NV",
 			header: "ABS025BA_N824NV ,B7378MAX ,261029,123456,KSFB,KALB,0030,BCG27-S200-0011",
 			want: TrajectoryResult{Report: "ABS025", Registration: "N824NV", AircraftType: "B7378MAX", Date: "261029",
@@ -329,6 +336,9 @@ func TestABSHeaderOtherAircraft(t *testing.T) {
 		{"N12345", "ABS025BA_N824NV ,B7378MAX ,261029,G42844,KSFB,KALB,0030,BCG27-S200-0011"},
 		{"C-GFVN", "ABS026BA_G      ,B7378MAX ,261104,WS2134,CYYZ,MMUN,0526,BCG27-S200-0011"},
 		{"N37511", "ABS023AA_N37534,B737   -,261031,UA    ,KMCO,KSFO,1687,BCG2E-S200-0009"},
+		// Southwest's header naming another aircraft.
+		{"N8951S", "++86501,N8747Q,B7378MAX,260107,WN0057,KDAL,KHOU,0208,SMX34-2502-F320"},
+		{"N8951S", "++86501, N8852,B7378MAX,260107,WN0057,KDAL,KHOU,0208,SMX34-2502-F320"},
 	} {
 		if r := (&TrajectoryParser{}).Parse(&acars.Message{ID: 1, Label: "H1", Tail: tt.tail, Text: tt.header + samples}); r != nil {
 			t.Errorf("tail %s: got %+v, want nil", tt.tail, r)
