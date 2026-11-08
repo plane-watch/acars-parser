@@ -964,7 +964,7 @@ The header is `01`, a four-letter report code (ERDC, TATO, DCAP, ICCL and others
 
 **Technique:** Hand-written regex.
 
-**Description:** Parses the headers of engine and performance monitoring reports, in eight layouts (the `format` field):
+**Description:** Parses the headers of engine and performance monitoring reports, in nine layouts (the `format` field):
 
 ```
 csv      R001V0106,180302,, N3118J,5318410-07,736738,736345,00118,KCHS,KBOS,18:31:51,2026:10:06,JBU568  ,...
@@ -973,6 +973,11 @@ acm      ACM01ACM230FSN873FD  FDX48   KMEMEBLG041026  20ER...
 engine   <330>KEG
          8  N27908UAL109    CL  41051026103207EDDMKIAD  1605  2
 station  /ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+...
+         /ILNGE7X.SCR005SVHZ-AR221SVA123    261102071957OEJNEGCC-...
+         /ILNGE7X.TOF103..B-LJCCX1CPA020    261102031356YSSYYMML+...
+         /ILNGE7X PARJBXH.6029631WSC-FHCM WJA2267 MPTOCYYC000028FF...
+ge       /ILNGE7X.<103>GEG
+         9   1VN-A862 HVN30     EDDFVVTS041126 392 6123313 1537
 eb       EB0116AB_9 , 56, N29977,UAL7      ,   6,081026,19:09:41,KIAH,RJAA,...
 e        E23C01209L819KIAHSAEZ  ...
 abs      ABS001DA_N1811U  KSNAKSJC384
@@ -982,7 +987,7 @@ abs      ABS001DA_N1811U  KSNAKSJC384
 
 **Extracted fields:** the format, the report's name, the registration, the callsign (`flight`) or the flight number's digits (`flight_number_digits`, when the report gives only digits), the origin and destination, and, where given, the date (`YYYY-MM-DD`) and time.
 
-**Registration:** in the `acm`, `engine` and `station` layouts the registration runs into the fields around it, so the transmitted tail is used to find it, within each layout's boundaries so that a tail that is part of a longer registration is not matched: in `acm` it follows two or four letters; in `station` it follows a `.` and is followed by an airline code and a digit, or follows an airline code and a space and is followed by a digit; in `engine` it starts its line and the callsign follows it directly. Without a transmitted tail they are not parsed. In the other layouts the registration has its own field, and a report naming another aircraft than the transmitted one is not parsed, so that its flight and route are not credited to the transmitting aircraft. The `e` layout gives only part of the registration, and a blank `abs` field (`.......`) none; neither reports one. The `abs` registration field is eight characters wide; some aircraft truncate it to the registration's first character and last ones (`C   IP` for C-FFIP, `    FR` for TC-VFR, `V......` for VH-8VG), and Alaska sends the 24-bit address instead (`A2F584` for N290AK). Such a field, when consistent with the transmitted tail (its leading part begins the tail and a part after a blank ends it, or it is the address derived from a US registration), is accepted without reporting a registration; one that is not is another aircraft's, and the report is not parsed.
+**Registration:** in the `acm`, `engine`, `station` and `ge` layouts the registration runs into the fields around it, so the transmitted tail is used to find it, within each layout's boundaries so that a tail that is part of a longer registration is not matched: in `acm` it follows two or four letters; in `station` it follows a `.` or two and is followed by an airline code and a digit, or follows an airline code (with or without a space) and is followed by a digit, and after a ground address (`/ILNGE7X PARJBXH.`) it follows up to twelve letters and digits and is followed by at most a space, the callsign and the route; in `ge` it starts the second line after digits and spaces and is followed by at most a space, the callsign and the route; in `engine` it starts its line and the callsign follows it directly. A `station` report after a ground address names no report, and a `ge` report gives its number (`103`) as the report. Without a transmitted tail they are not parsed. In the other layouts the registration has its own field, and a report naming another aircraft than the transmitted one is not parsed, so that its flight and route are not credited to the transmitting aircraft. The `e` layout gives only part of the registration, and a blank `abs` field (`.......`) none; neither reports one. The `abs` registration field is eight characters wide; some aircraft truncate it to the registration's first character and last ones (`C   IP` for C-FFIP, `    FR` for TC-VFR, `V......` for VH-8VG), and Alaska sends the 24-bit address instead (`A2F584` for N290AK). Such a field, when consistent with the transmitted tail (its leading part begins the tail and a part after a blank ends it, or it is the address derived from a US registration), is accepted without reporting a registration; one that is not is another aircraft's, and the report is not parsed.
 
 **Flight:** a flight field that holds neither a callsign, a flight number nor digits (`UAL1A2`) names a flight that cannot be compared with the transmitted one, so the report is not parsed.
 

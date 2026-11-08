@@ -90,6 +90,46 @@ func TestParse(t *testing.T) {
 			want: &Result{Format: "station", Report: "CLB006", Registration: "N446AM", Flight: "AMX021",
 				Origin: "MMMX", Destination: "LEMD", Date: "2026-10-08", Time: "04:07:32"},
 		},
+		// Live traffic (October and November 2026).
+		{
+			name: "station report with an airline code right before the tail",
+			tail: "HZ-AR22",
+			text: "/ILNGE7X.SCR005SVHZ-AR221SVA123    261102071957OEJNEGCC-026070295690373000013000022447M85P04",
+			want: &Result{Format: "station", Report: "SCR005", Registration: "HZ-AR22", Flight: "SVA123",
+				Origin: "OEJN", Destination: "EGCC", Date: "2026-11-02", Time: "07:19:57"},
+		},
+		{
+			name: "station report with two dots before the tail",
+			tail: "B-LJC",
+			text: "/ILNGE7X.TOF103..B-LJCCX1CPA020    261102031356YSSYYMML+00005  8F959356670001000022124M70P04",
+			want: &Result{Format: "station", Report: "TOF103", Registration: "B-LJC", Flight: "CPA020",
+				Origin: "YSSY", Destination: "YMML", Date: "2026-11-02", Time: "03:13:56"},
+		},
+		{
+			name: "station report named with four digits",
+			tail: "LX-VCN",
+			text: "/ILNGE7X.EL1101.LX-VCNCV2CLX5485   261030090453ZHCCRJNK+00014  8F959219670000E00022124M70P04",
+			want: &Result{Format: "station", Report: "EL1101", Registration: "LX-VCN", Flight: "CLX5485",
+				Origin: "ZHCC", Destination: "RJNK", Date: "2026-10-30", Time: "09:04:53"},
+		},
+		{
+			name: "station report after a ground address",
+			tail: "C-FHCM",
+			text: "/ILNGE7X PARJBXH.6029631WSC-FHCM WJA2267 MPTOCYYC000028FF046PFS57409092611012233442628M86P12",
+			want: &Result{Format: "station", Registration: "C-FHCM", Flight: "WJA2267", Origin: "MPTO", Destination: "CYYC"},
+		},
+		{
+			name: "GE engine report",
+			tail: "VN-A862",
+			text: "/ILNGE7X.<103>GEG\r\n9   1VN-A862 HVN30     EDDFVVTS041126 392 6123313 1537\r\nBSM5A70990054\r\n",
+			want: &Result{Format: "ge", Report: "103", Registration: "VN-A862", Flight: "HVN30", Origin: "EDDF", Destination: "VVTS"},
+		},
+		{
+			name: "GE engine report with the callsign after the tail",
+			tail: "N826AN",
+			text: "/ILNGE7X.<102>HEG9   1\r\n N826ANAAL169    KLAXRJTT1449TA261026081422  759\r\nAAL46ACMF0102524806\r\n",
+			want: &Result{Format: "ge", Report: "102", Registration: "N826AN", Flight: "AAL169", Origin: "KLAX", Destination: "RJTT"},
+		},
 		{
 			name: "EB report",
 			tail: "N29977",
@@ -222,6 +262,10 @@ func TestParseRejects(t *testing.T) {
 		// A transmitted tail that is part of the report's registration.
 		{"station, tail inside the registration", "N446", "/ILNGE7X.CLB006AM N446AM2AMX021    261008040732MMMXLEMD+006050295"},
 		{"station, tail inside the registration after a dot", "HL762", "/ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+00007"},
+		{"station, tail inside the registration after a code", "HZ-AR2", "/ILNGE7X.SCR005SVHZ-AR221SVA123    261102071957OEJNEGCC-026070"},
+		{"station, tail inside the registration after a ground address", "C-FHC", "/ILNGE7X PARJBXH.6029631WSC-FHCM WJA2267 MPTOCYYC000028FF046PFS"},
+		{"GE, tail inside the registration", "N826A", "/ILNGE7X.<102>HEG9   1\r\n N826ANAAL169    KLAXRJTT1449TA261026081422  759"},
+		{"GE, tail inside the registration before a space", "VN-A86", "/ILNGE7X.<103>GEG\r\n9   1VN-A862 HVN30     EDDFVVTS041126 392"},
 		{"acm, tail at the end of another registration", "N123", "ACM01ACM230F9H-N123FDX48   KMEMEBLG041026  20ER235115632673162FEDAP107"},
 		// A flight field that names no flight this parser can read.
 		{"csv, unreadable flight", "N3118J",

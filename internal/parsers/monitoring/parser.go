@@ -11,6 +11,10 @@
 //	engine   <330>KEG
 //	         8  N27908UAL109    CL  41051026103207EDDMKIAD  1605  2
 //	station  /ILNGE7X.CLB103.HL7624KE3KAL234    261023131018KSEARKSI+...
+//	         /ILNGE7X.SCR005SVHZ-AR221SVA123    261102071957OEJNEGCC-...
+//	         /ILNGE7X PARJBXH.6029631WSC-FHCM WJA2267 MPTOCYYC000028FF...
+//	ge       /ILNGE7X.<103>GEG
+//	         9   1VN-A862 HVN30     EDDFVVTS041126 392 6123313 1537
 //	eb       EB0116AB_9 , 56, N29977,UAL7      ,   6,081026,19:09:41,KIAH,RJAA,...
 //	e        E23C01209L819KIAHSAEZ  ...
 //	abs      ABS001DA_N1811U  KSNAKSJC384
@@ -20,7 +24,7 @@
 //	         N806AK  0764KSMFKSEA0311262092ER033030  554
 //	         SB0122BA_F-GSQL  KIADLFPG176
 //
-// In the acm, engine and station layouts the registration runs into the
+// In the acm, engine, station and ge layouts the registration runs into the
 // fields around it, so the transmitted tail is used to find it: without a
 // tail, or when the report does not contain it where expected, they are not
 // parsed. In the csv, apm and eb layouts the registration has its own
@@ -49,7 +53,7 @@ import (
 type Result struct {
 	MsgID     int64  `json:"message_id"`
 	Timestamp string `json:"timestamp"`
-	Format    string `json:"format"` // csv, apm, acm, engine, station, eb, e or abs.
+	Format    string `json:"format"` // csv, apm, acm, engine, station, ge, eb, e or abs.
 	Report    string `json:"report"` // The report's name, e.g. R001V0106, ACM230, <330>KEG.
 
 	// Registration is the transmitted tail, which the report names.
@@ -70,7 +74,7 @@ func (r *Result) Type() string     { return "monitoring_report" }
 func (r *Result) MessageID() int64 { return r.MsgID }
 
 var (
-	quickRe = regexp.MustCompile(`^(?:R\d{3}V|APM |B03A|ACM\d|<\d|/[A-Z0-9]{7}\.|EB\d|E\d{2}C|ABS\d|SB\d)`)
+	quickRe = regexp.MustCompile(`^(?:R\d{3}V|APM |B03A|ACM\d|<\d|/[A-Z0-9]{7}[ .]|EB\d|E\d{2}C|ABS\d|SB\d)`)
 
 	csvRe = regexp.MustCompile(`^(R\d{3}V\d{4}),[^,]*,[^,]*,\s*([A-Z0-9-]{2,8})\s*,[^,]*,[^,]*,[^,]*,[^,]*,` +
 		`([A-Z]{4}),([A-Z]{4}),(\d\d:\d\d:\d\d),(\d{4}:\d\d:\d\d),\s*([A-Z0-9]*?)\s*,`)
@@ -94,7 +98,18 @@ var (
 	engineLeadRe = regexp.MustCompile(`^\s*\d{0,2}\s*`)
 	// stationRe matches the start of a station report: the station's
 	// address and the report's name.
-	stationRe = regexp.MustCompile(`^/[A-Z0-9]{7}\.([A-Z]{3}\d{3})`)
+	stationRe = regexp.MustCompile(`^/[A-Z0-9]{7}\.([A-Z]{2,3}\d{3,4})`)
+	// geRe matches the first line of a GE engine report sent to a station:
+	// the station's address and the report's number in angle brackets.
+	geRe = regexp.MustCompile(`^/[A-Z0-9]{7}\.<(\d{3})>`)
+	// groundStationRe matches a station report after a ground address: the
+	// station's address and the originator, then a ".".
+	groundStationRe = regexp.MustCompile(`^/[A-Z0-9]{7} [A-Z0-9]{7}\.`)
+	// stationCallsignRouteRe matches what follows the registration in a GE
+	// report and after a ground address: at most a space, the callsign,
+	// then the route. The callsign must follow the registration directly,
+	// so that a tail that is part of a longer registration is not matched.
+	stationCallsignRouteRe = regexp.MustCompile(`^ ?([A-Z]{3}\d{1,4}[A-Z]{0,2})\s+([A-Z]{4})([A-Z]{4})`)
 
 	// After the registration: the callsign and the route with the date.
 	acmTailRe     = regexp.MustCompile(`^\s*([A-Z]{3}\d{1,4}[A-Z]{0,2})\s+([A-Z]{4})([A-Z]{4})(\d{6})`)
@@ -109,6 +124,9 @@ var (
 	// stationCodeRe matches the airline code and space before a station
 	// report's registration.
 	stationCodeRe = regexp.MustCompile(`^[A-Z0-9]{2} `)
+	// stationCodeNoSpaceRe matches the airline code right before a station
+	// report's registration ("SCR005SVHZ-AR22").
+	stationCodeNoSpaceRe = regexp.MustCompile(`^[A-Z0-9]{2}`)
 
 	icaoCallsignRe = regexp.MustCompile(`^[A-Z]{3}\d{1,4}[A-Z]{0,2}$`)
 	iataFlightRe   = regexp.MustCompile(`^[A-Z0-9]{2}\d{1,4}[A-Z]?$`)
@@ -286,23 +304,35 @@ func parseEngine(msg *acars.Message) *Result {
 }
 
 func parseStation(msg *acars.Message) *Result {
+	if msg.Tail == "" {
+		return nil
+	}
 	line := firstLine(msg.Text)
+	if g := groundStationRe.FindStringIndex(line); g != nil {
+		return parseGroundStation(line[g[1]:], msg.Tail)
+	}
+	if g := geRe.FindStringSubmatch(line); g != nil {
+		return parseGE(msg.Text, g[1], msg.Tail)
+	}
 	m := stationRe.FindStringSubmatchIndex(line)
 	if m == nil {
 		return nil
 	}
-	// The registration follows the report's name, after a "." or an
-	// airline code and a space ("CLB006AM N446AM"); what comes after it
+	// The registration follows the report's name, after a "." or two
+	// ("TOF103..B-LJC"), or after an airline code and a space ("CLB006AM
+	// N446AM") or no space ("SCR005SVHZ-AR22"); what comes after it
 	// depends on which (see stationAfterDotRe).
 	rest := line[m[1]:]
 	var after *regexp.Regexp
 	switch {
-	case msg.Tail == "":
-		return nil
 	case strings.HasPrefix(rest, "."+msg.Tail):
 		rest, after = rest[1+len(msg.Tail):], stationAfterDotRe
+	case strings.HasPrefix(rest, ".."+msg.Tail):
+		rest, after = rest[2+len(msg.Tail):], stationAfterDotRe
 	case stationCodeRe.MatchString(rest) && strings.HasPrefix(rest[3:], msg.Tail):
 		rest, after = rest[3+len(msg.Tail):], stationAfterSpaceRe
+	case stationCodeNoSpaceRe.MatchString(rest) && strings.HasPrefix(rest[2:], msg.Tail):
+		rest, after = rest[2+len(msg.Tail):], stationAfterSpaceRe
 	default:
 		return nil
 	}
@@ -315,6 +345,58 @@ func parseStation(msg *acars.Message) *Result {
 		return nil
 	}
 	return r
+}
+
+// maxGroundStationPrefix bounds the characters between a ground address
+// and the registration ("6029631WS" before C-FHCM).
+const maxGroundStationPrefix = 12
+
+// parseGroundStation parses a station report after a ground address: some
+// characters, the registration, then the callsign and the route, as in
+// "6029631WSC-FHCM WJA2267 MPTOCYYC...". It names no report.
+func parseGroundStation(rest, tail string) *Result {
+	i := strings.Index(rest, tail)
+	if i < 1 || i > maxGroundStationPrefix || !isAlnum(rest[:i]) {
+		return nil
+	}
+	s := stationCallsignRouteRe.FindStringSubmatch(rest[i+len(tail):])
+	if s == nil {
+		return nil
+	}
+	return &Result{Format: "station", Registration: tail, Flight: s[1], Origin: s[2], Destination: s[3]}
+}
+
+// parseGE parses a GE engine report sent to a station: the report's number
+// on the first line ("<103>GEG"), then on the second the registration,
+// after digits and spaces, followed by the callsign and the route, as in
+// "9   1VN-A862 HVN30     EDDFVVTS041126".
+func parseGE(text, report, tail string) *Result {
+	lines := strings.FieldsFunc(text, func(r rune) bool { return r == '\r' || r == '\n' })
+	if len(lines) < 2 {
+		return nil
+	}
+	second := lines[1]
+	// The registration may start with a digit ("9H-WDN"), so each start
+	// within the leading digits and spaces is tried.
+	lead := len(second) - len(strings.TrimLeft(second, "0123456789 "))
+	for j := 0; j <= lead; j++ {
+		if !strings.HasPrefix(second[j:], tail) {
+			continue
+		}
+		if s := stationCallsignRouteRe.FindStringSubmatch(second[j+len(tail):]); s != nil {
+			return &Result{Format: "ge", Report: report, Registration: tail, Flight: s[1], Origin: s[2], Destination: s[3]}
+		}
+	}
+	return nil
+}
+
+func isAlnum(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if (s[i] < 'A' || s[i] > 'Z') && (s[i] < '0' || s[i] > '9') {
+			return false
+		}
+	}
+	return true
 }
 
 func isLetters(s string) bool {
