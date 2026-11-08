@@ -150,6 +150,7 @@ The "Tests" column records whether the package has `_test.go` files that exercis
 | [loadsheet](#loadsheet) | loadsheet | 10, 13, 14, 22, 2A, 30, 31, 35, 3S, 42, 45, C1, H1, RA | 60 | `loadsheet` | Own format engine | Yes |
 | [mediaadv](#mediaadv) | mediaadv | SA | 100 | `media_advisory` | Grok | Yes |
 | [monitoring](#monitoring) | monitoring | H1 | 60 | `monitoring_report` | Hand-written regex | Yes |
+| [msgheader](#msgheader) | msgheader | (all) | 90 | `message_header` | Hand-written regex | Yes |
 | [ohma](#ohma) | ohma | H1 | 60 | `ohma` | Base64, zlib and JSON decoding | Yes |
 | [parking_info](#parking_info) | parking | 1E, RA | 50 | `parking_info` | Hand-written regex | Yes |
 | [pax_bag](#pax_bag) | paxbag | RA | 55 | `pax_bag` | Hand-written regex | Yes |
@@ -986,6 +987,32 @@ abs      ABS001DA_N1811U  KSNAKSJC384
 **Flight:** a flight field that holds neither a callsign, a flight number nor digits (`UAL1A2`) names a flight that cannot be compared with the transmitted one, so the report is not parsed.
 
 **Limitations:** the digits after the route in the `abs` layout are not the flight number (WN3202 sent `484`), so it gives no flight; report 071 (`ABS071BA_`, with the header on its second line) gives the flight number's digits (`0764` for AS0764) and the date (DDMMYY). The report bodies (engine and performance values, and in `eb` reports positions) are not parsed.
+
+---
+
+### msgheader
+
+**Package:** `internal/parsers/msgheader` · **Labels:** all · **Priority:** 90 · **Type:** `message_header`
+
+**Technique:** Hand-written regex.
+
+**Description:** Parses the header line that many airlines' aircraft put on their downlinks, on any label (5U, 80, 10, 82, 88, 28, 3E and others). For example:
+
+```
+  01 WXRQ   0800/06 OMSJ/WMKK .A6-ATC
+3N01 POSRPT UAE0069   /05 OMDB/EGKK .A6-JHB
+1103 OFFRP  7953  /07 KLAX/EHAM .9V-SFP 9999 07112026 0748
+```
+
+**Extracted fields:** the sequence code (`01`, `3N01`), the message type (`WXRQ` weather request, `POSRPT`, `OFFRP`, `DEPMSG`, `DSPTCH` and others), the flight, the day of the month, the origin and destination, and the registration after the `.` (followed by a space, a `,` or a `/`). The flight is the flight number's digits, as `flight_number_digits` (a suffix, as in `038A`, is not kept), or the ICAO callsign (`UAE0069`, `UAE8UW`), as `flight`; a field that is neither is not a flight, and the header is not parsed. The body after the header differs by type and is not parsed.
+
+**Registration:** reported only when it is the transmitted tail; a header naming another aircraft is not parsed, so that its route is not credited to the transmitting aircraft. Without a transmitted tail, no registration is reported.
+
+**Flight:** the header is not taken to be about the flight in progress, so the extractor uses its route only for a transmitted flight with the same number (and its callsign only with the transmitted flight's number). Emirates transmits an internal flight identifier (`EK030Y`) while the header gives the callsign (`UAE241`); such routes are not used, and no alias is learned from them.
+
+**Validation:** both airports must be plausible ICAO codes and the day 1 to 31. Label 80 headers that the label80 parser also reads give a `message_header` result as well.
+
+**Coverage (live traffic, October and November 2026):** 399 of 400 sampled headers; about 31,000 a week.
 
 ---
 

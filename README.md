@@ -520,6 +520,7 @@ A parser contributes a result when its quick check passes and `Parse` returns a 
 | `loadsheet` | Loadsheets (18 formats) | 10, 13, 14, 22, 2A, 30, 31, 35, 3S, 42, 45, C1, H1, RA |
 | `media_advisory` | Data link media advisory | SA |
 | `monitoring_report` | Engine and performance monitoring report headers: registration, callsign, route, date and time | H1 |
+| `message_header` | Downlink header line (`01 WXRQ 0800/06 OMSJ/WMKK .A6-ATC`): message type, flight, day, route and registration | all |
 | `ohma` | Boeing OHMA health reports: registration, callsign and route | H1 |
 | `parking_info` | Parking and gate information | 1E, RA |
 | `pax_bag` | Passenger and baggage details | RA |

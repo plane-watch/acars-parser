@@ -42,6 +42,7 @@ import (
 	_ "acars_parser/internal/parsers/loadsheet"
 	_ "acars_parser/internal/parsers/mediaadv"
 	_ "acars_parser/internal/parsers/monitoring"
+	_ "acars_parser/internal/parsers/msgheader"
 	_ "acars_parser/internal/parsers/ohma"
 	_ "acars_parser/internal/parsers/parking"
 	_ "acars_parser/internal/parsers/paxbag"

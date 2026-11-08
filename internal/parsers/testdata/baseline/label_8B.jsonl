@@ -35,7 +35,7 @@
 {"id":4884686,"timestamp":"2026-01-09T17:12:12.776Z","label":"8B","tail":"G-EZUN","text":"1715,LSGG,93,EZY73TP\r\n\r\n","stratum":"8B/unparsed","expected":[]}
 {"id":4978921,"timestamp":"2026-01-09T20:09:22.215Z","label":"8B","tail":"SE-RUD","text":"V08CA/OFFRP/EHAM/ENGM/09/1909/ETA2037/","stratum":"8B/unparsed","expected":[]}
 {"id":5128347,"timestamp":"2026-01-09T22:54:55.360Z","label":"8B","tail":"EI-SIE","text":"V08CA/OFFRP/ESSA/EKCH/09/2011/ETA2110/","stratum":"8B/unparsed","expected":[]}
-{"id":5305860,"timestamp":"2026-01-10T05:09:33.064Z","label":"8B","tail":"OY-KAS","text":"11H3 OFFRP  1415/10 ESSA/EKCH .OY-KAS\r\n/OUT 0459/OFF 0509/ETA 0612","stratum":"8B/unparsed","expected":[]}
+{"id":5305860,"timestamp":"2026-01-10T05:09:33.064Z","label":"8B","tail":"OY-KAS","text":"11H3 OFFRP  1415/10 ESSA/EKCH .OY-KAS\r\n/OUT 0459/OFF 0509/ETA 0612","stratum":"8B/unparsed","expected":[{"parser":"msgheader","type":"message_header","result":{"message_id":5305860,"timestamp":"2026-01-10T05:09:33.064Z","sequence":"11H3","message_type":"OFFRP","flight_number_digits":"1415","day_of_month":10,"origin":"ESSA","destination":"EKCH","registration":"OY-KAS"}}]}
 {"id":5311570,"timestamp":"2026-01-10T05:16:55.959Z","label":"8B","tail":"SE-RUC","text":"V08CA/OFFRP/ESSA/LEPA/10/0516/ETA0839/","stratum":"8B/unparsed","expected":[]}
 {"id":5360770,"timestamp":"2026-01-10T06:20:37.386Z","label":"8B","tail":"SE-ROF","text":"V08CA/OFFRP/ESSA/LEAL/10/0620/ETA0955/","stratum":"8B/unparsed","expected":[]}
 {"id":5379508,"timestamp":"2026-01-10T06:43:15.876Z","label":"8B","tail":"EI-SIB","text":"V08CA/OFFRP/ESSA/LPFR/10/0642/ETA1049/","stratum":"8B/unparsed","expected":[]}
