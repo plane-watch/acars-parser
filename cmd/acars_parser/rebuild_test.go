@@ -57,13 +57,9 @@ func openTestClickHouse(t *testing.T) *storage.ClickHouseDB {
 	return db
 }
 
-// noSettle makes rebuilds in the test not wait for inserts in progress
-// (none are), and waits so that the rows stored before it were stored
-// before the rebuild starts (created_at is at millisecond precision).
-func noSettle(t *testing.T) {
-	settle := rebuildSettle
-	rebuildSettle = 0
-	t.Cleanup(func() { rebuildSettle = settle })
+// storedBeforeRebuild waits so that the rows stored before it were stored
+// before a rebuild started next (created_at is at millisecond precision).
+func storedBeforeRebuild() {
 	time.Sleep(5 * time.Millisecond)
 }
 
@@ -109,7 +105,7 @@ func TestRebuildArchive(t *testing.T) {
 	if err := db.InsertBatch(ctx, seed); err != nil {
 		t.Fatal(err)
 	}
-	noSettle(t)
+	storedBeforeRebuild()
 
 	stats, err := rebuildArchive(ctx, db, registry.Default(), time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC), 2)
 	if err != nil {
@@ -268,7 +264,7 @@ func TestRebuildKeepsMessagesStoredMeanwhile(t *testing.T) {
 		}
 	}
 	store(storage.MessagesTable, row(1, "old_a"), row(1, "old_b"), row(2, "old_a"))
-	noSettle(t)
+	storedBeforeRebuild()
 
 	rebuildHooks.afterRead = func() {
 		// Live stores a message, and a retried insert stores message 2 again.

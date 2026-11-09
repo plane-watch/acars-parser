@@ -210,6 +210,46 @@ func TestStoredBeforeAndCopy(t *testing.T) {
 	}
 }
 
+// TestInsertsStartedBefore checks the barrier a rebuild waits on: an insert
+// running since before a time is counted until it ends, and one started
+// after it is not.
+func TestInsertsStartedBefore(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	const table = "inserts_test"
+	_ = db.DropTable(ctx, table)
+	if err := db.CreateMessagesTable(ctx, table); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = db.DropTable(context.Background(), table) })
+
+	// An insert that takes about two seconds (sleepEachRow sleeps a second
+	// for each row).
+	done := make(chan error, 1)
+	go func() {
+		done <- db.conn.Exec(ctx, `INSERT INTO `+table+` (id, timestamp, label, parser_type, raw_text, parsed_json)
+			SELECT number, now64(3), 'H1', 'a', 'x', '{}' FROM numbers(2) WHERE sleepEachRow(1) = 0
+			SETTINGS max_block_size = 1`)
+	}()
+	time.Sleep(500 * time.Millisecond)
+	before, err := db.ServerTime(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n, err := db.InsertsStartedBefore(ctx, before); err != nil || n != 1 {
+		t.Errorf("while the insert runs: %d, %v; want 1", n, err)
+	}
+	if n, err := db.InsertsStartedBefore(ctx, before.Add(-time.Minute)); err != nil || n != 0 {
+		t.Errorf("before the insert started: %d, %v; want 0", n, err)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+	if n, err := db.InsertsStartedBefore(ctx, before); err != nil || n != 0 {
+		t.Errorf("after the insert: %d, %v; want 0", n, err)
+	}
+}
+
 func TestTableNamesAreChecked(t *testing.T) {
 	for _, name := range []string{"messages; DROP TABLE x", "Messages", "", "a b"} {
 		if err := checkTableName(name); err == nil {

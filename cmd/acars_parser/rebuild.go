@@ -22,12 +22,9 @@ const (
 // rebuildChunk is the number of message IDs each read query covers.
 const rebuildChunk = 200000
 
-// rebuildSettle is how long a rebuild waits for the inserts in progress to
-// end: after it takes its start time, so that every row stored before then
-// is visible when the archive is read, and after the swap, so that an insert
-// into the old archive in progress at the exchange has ended before its
-// rows are copied. It is longer than live's insert timeout.
-var rebuildSettle = insertTimeout + 5*time.Second
+// insertPollEvery is how often a rebuild checks whether the inserts it
+// waits for have ended.
+const insertPollEvery = time.Second
 
 // rebuildHooks are called at points of a rebuild, so that tests can store
 // messages there as live would; they are nil otherwise.
@@ -65,14 +62,18 @@ type rebuildStats struct {
 // (zero keeps every flight).
 //
 // Live keeps storing messages meanwhile. The rebuild reads only the rows
-// stored (created_at, the server's clock) before it started, after waiting
-// rebuildSettle for the inserts in progress then to end. The messages stored
-// since are copied as stored: those in the archive before the swap, then,
-// after the swap and another wait, those an insert in progress at the
-// exchange stored in the old archive. Live parsed them, so live must run the
-// same parsers as the rebuild (deploy it first). A message is copied by its
-// ID, whole and once: a retried insert's duplicates of a rebuilt message are
-// not.
+// stored (created_at, the server's clock) before it started, once the
+// server has finished every insert started before then (so that all of
+// those rows are committed). The messages stored since are copied as
+// stored: those in the archive before the swap, then, once the server has
+// finished the inserts started before the exchange, those such an insert
+// stored in the old archive. Live parsed them, so live must run the same
+// parsers as the rebuild (deploy it first). A message is copied by its ID,
+// whole and once: a retried insert's duplicates of a rebuilt message are
+// not. A retry that live completes while the last copy runs can still
+// store a message twice, as a retry after a lost acknowledgement can at any
+// time (see messageBuffer); backfill reads the duplicate rows as one
+// message.
 func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry.Registry, dropFlightBefore time.Time, batchSize int) (rebuildStats, error) {
 	var stats rebuildStats
 	if batchSize <= 0 {
@@ -89,7 +90,8 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 	if err != nil {
 		return stats, err
 	}
-	if err := sleepContext(ctx, rebuildSettle); err != nil {
+	fmt.Printf("  reading the messages stored before %s\n", formatStored(started))
+	if err := waitForInserts(ctx, db, started); err != nil {
 		return stats, err
 	}
 	source, err := db.CountDistinctIDs(ctx, storage.MessagesTable, started)
@@ -158,6 +160,9 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 	}
 
 	// The messages stored since the start, up to now.
+	// The error after the exchange says where messages stored meanwhile may
+	// be; from here, every error does.
+	lost := fmt.Sprintf("messages stored since %s (during the rebuild) may be only in the old archive: keep it until they are in %s", formatStored(started), storage.MessagesTable)
 	if stats.Copied, err = copyStoredSince(ctx, db, storage.MessagesTable, rebuildTable, started); err != nil {
 		return stats, fmt.Errorf("copy the messages stored during the rebuild: %w (the archive is unchanged; %s holds the partial rebuild: drop it before retrying)", err, rebuildTable)
 	}
@@ -173,9 +178,9 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 	}
 	if err := db.SwapInTable(ctx, storage.MessagesTable, rebuildTable, previousTable); err != nil {
 		if errors.Is(err, storage.ErrSwapRename) {
-			return stats, fmt.Errorf("%w: %s holds the rebuilt archive (UUID %s); the old archive (UUID %s) is %s or %s, so rename %s to %s if it exists; messages stored during the swap may be only in the old archive (stored since %s)", err, storage.MessagesTable, newUUID, oldUUID, rebuildTable, previousTable, rebuildTable, previousTable, started.UTC().Format("2006-01-02 15:04:05.000"))
+			return stats, fmt.Errorf("%w: %s holds the rebuilt archive (UUID %s); the old archive (UUID %s) is %s or %s, so rename %s to %s if it exists; %s", err, storage.MessagesTable, newUUID, oldUUID, rebuildTable, previousTable, rebuildTable, previousTable, lost)
 		}
-		return stats, fmt.Errorf("%w: the exchange is atomic, but if its reply was lost it may have happened; the rebuilt archive is the table with UUID %s and the old one UUID %s (SELECT name, uuid FROM system.tables WHERE database = currentDatabase()); check before dropping either", err, newUUID, oldUUID)
+		return stats, fmt.Errorf("%w: the exchange is atomic, but if its reply was lost it may have happened; the rebuilt archive is the table with UUID %s and the old one UUID %s (SELECT name, uuid FROM system.tables WHERE database = currentDatabase()); check before dropping either; %s", err, newUUID, oldUUID, lost)
 	}
 	if rebuildHooks.afterExchange != nil {
 		rebuildHooks.afterExchange()
@@ -183,21 +188,26 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 
 	// The messages stored in the old archive since the first copy: until
 	// the exchange, and by an insert in progress at it.
-	lost := fmt.Sprintf("the rebuilt archive is in place, but messages stored during the swap may be only in %s (stored since %s): keep it until they are copied", previousTable, started.UTC().Format("2006-01-02 15:04:05.000"))
-	if err := sleepContext(ctx, rebuildSettle); err != nil {
-		return stats, fmt.Errorf("%w: %s", err, lost)
+	exchanged, err := db.ServerTime(ctx)
+	if err == nil {
+		err = waitForInserts(ctx, db, exchanged)
+	}
+	if err != nil {
+		return stats, fmt.Errorf("%w: the rebuilt archive is in place, but %s", err, lost)
 	}
 	n, err := copyStoredSince(ctx, db, previousTable, storage.MessagesTable, started)
 	stats.Copied += n
 	if err != nil {
-		return stats, fmt.Errorf("%w: %s", err, lost)
+		// A copy that fails part-way may have stored some of a message's
+		// rows, after which its ID counts as present.
+		return stats, fmt.Errorf("%w: the rebuilt archive is in place, but %s (a message may be partly copied)", err, lost)
 	}
 	left, err := db.MessagesMissingSince(ctx, previousTable, storage.MessagesTable, started)
 	if err != nil {
-		return stats, fmt.Errorf("check the copy: %w: %s", err, lost)
+		return stats, fmt.Errorf("check the copy: %w: the rebuilt archive is in place, but %s", err, lost)
 	}
 	if left != 0 {
-		return stats, fmt.Errorf("%d messages not copied: %s", left, lost)
+		return stats, fmt.Errorf("%d messages not copied: the rebuilt archive is in place, but %s", left, lost)
 	}
 	return stats, nil
 }
@@ -212,12 +222,23 @@ func copyStoredSince(ctx context.Context, db *storage.ClickHouseDB, from, to str
 	return n, db.CopyMessagesMissingSince(ctx, from, to, since)
 }
 
-// sleepContext waits for d, or until ctx ends.
-func sleepContext(ctx context.Context, d time.Duration) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-time.After(d):
-		return nil
+// waitForInserts waits until the server has finished every insert that
+// started before t, or until ctx ends.
+func waitForInserts(ctx context.Context, db *storage.ClickHouseDB, t time.Time) error {
+	for {
+		n, err := db.InsertsStartedBefore(ctx, t)
+		if err != nil || n == 0 {
+			return err
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(insertPollEvery):
+		}
 	}
+}
+
+// formatStored formats a created_at bound as the column stores it.
+func formatStored(t time.Time) string {
+	return t.UTC().Format("2006-01-02 15:04:05.000")
 }

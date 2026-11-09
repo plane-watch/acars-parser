@@ -764,6 +764,22 @@ func (d *ClickHouseDB) CountDistinctIDs(ctx context.Context, table string, store
 	return n, err
 }
 
+// InsertsStartedBefore returns the number of inserts into the connection's
+// database that the server is running and that started before t. Unlike a
+// client's timeout, which only closes its connection, an insert's absence
+// here means the server has finished it: its rows are committed or never
+// will be.
+func (d *ClickHouseDB) InsertsStartedBefore(ctx context.Context, t time.Time) (uint64, error) {
+	var n uint64
+	// system.processes gives each query's running time, not its start; a
+	// query running for longer than the time since t started before t.
+	err := d.conn.QueryRow(ctx, `SELECT count() FROM system.processes
+		WHERE query_kind = 'Insert' AND current_database = currentDatabase()
+			AND elapsed * 1000 > dateDiff('millisecond', toDateTime64(?, 3, 'UTC'), now64(3))`,
+		t.UTC().Format("2006-01-02 15:04:05.000")).Scan(&n)
+	return n, err
+}
+
 // missingSinceCondition selects the rows of from stored (created_at) at or
 // after since whose message ID is not in to. The IDs looked up in to are
 // only those stored in from since then, so that the set held in memory is
