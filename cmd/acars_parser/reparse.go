@@ -49,7 +49,7 @@ func runReparseCmd(args []string) {
 	dumpFile := fs.String("dump", "", "Dump regressed messages to file (includes raw text)")
 	updateDB := fs.Bool("update", false, "Update ClickHouse with new parse results")
 	batchSize := fs.Int("batch", 10000, "Batch size for updates")
-	rebuild := fs.Bool("rebuild", false, "Reparse every message into a new archive table and swap it in (stop live first); the old archive is kept as "+previousTable)
+	rebuild := fs.Bool("rebuild", false, "Reparse every message into a new archive table and swap it in (live may keep running: deploy it with the same parsers first); the old archive is kept as "+previousTable)
 	dropFlightBefore := fs.String("drop-flight-before", "", "With -rebuild: blank the stored flight of messages before this date (YYYY-MM-DD), stored by code that used Airframes' flight record")
 
 	if err := fs.Parse(args); err != nil {
@@ -86,14 +86,14 @@ func runReparseCmd(args []string) {
 				os.Exit(1)
 			}
 		}
-		fmt.Println("Rebuilding the message archive (live must be stopped)...")
+		fmt.Println("Rebuilding the message archive (live may keep running, with the same parsers)...")
 		stats, err := rebuildArchive(ctx, chDB, registry.Default(), cutoff, *batchSize)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("Rebuilt: %d messages, %d rows. The previous archive is in %s; drop it once the rebuilt archive is checked.\n",
-			stats.Messages, stats.Rows, previousTable)
+		fmt.Printf("Rebuilt: %d messages, %d rows; %d messages stored meanwhile copied as stored. The previous archive is in %s; drop it once the rebuilt archive is checked.\n",
+			stats.Messages, stats.Rows, stats.Copied, previousTable)
 		return
 	}
 

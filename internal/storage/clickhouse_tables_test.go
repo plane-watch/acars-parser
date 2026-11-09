@@ -83,14 +83,14 @@ func TestMessagesTableRebuildPrimitives(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	n, err := db.CountDistinctIDs(ctx, a)
+	n, err := db.CountDistinctIDs(ctx, a, time.Time{})
 	if err != nil || n != 2 {
 		t.Fatalf("CountDistinctIDs = %d, %v; want 2", n, err)
 	}
 
 	got := map[uint64]RawMessage{}
 	// A chunk of one message reads each message in its own range.
-	if err := db.StreamRawMessages(ctx, a, 1, func(m RawMessage) error {
+	if err := db.StreamRawMessages(ctx, a, 1, time.Time{}, func(m RawMessage) error {
 		if _, dup := got[m.ID]; dup {
 			t.Errorf("message %d streamed twice", m.ID)
 		}
@@ -106,10 +106,10 @@ func TestMessagesTableRebuildPrimitives(t *testing.T) {
 	if err := db.ExchangeTables(ctx, a, b); err != nil {
 		t.Fatal(err)
 	}
-	if n, _ := db.CountDistinctIDs(ctx, b); n != 2 {
+	if n, _ := db.CountDistinctIDs(ctx, b, time.Time{}); n != 2 {
 		t.Errorf("after the exchange, %s has %d messages, want 2", b, n)
 	}
-	if n, _ := db.CountDistinctIDs(ctx, a); n != 0 {
+	if n, _ := db.CountDistinctIDs(ctx, a, time.Time{}); n != 0 {
 		t.Errorf("after the exchange, %s has %d messages, want 0", a, n)
 	}
 
@@ -122,6 +122,91 @@ func TestMessagesTableRebuildPrimitives(t *testing.T) {
 	t.Cleanup(func() { _ = db.DropTable(context.Background(), "rebuild_test_c") })
 	if exists, _ := db.TableExists(ctx, b); exists {
 		t.Errorf("%s still exists after the rename", b)
+	}
+}
+
+// TestStoredBeforeAndCopy checks the functions a rebuild uses while live
+// keeps storing messages: reading and counting only the rows stored before
+// a time, and copying the messages stored since it that the target lacks,
+// whole and once, without the later rows of a message the target has (a
+// retried insert's duplicates).
+func TestStoredBeforeAndCopy(t *testing.T) {
+	db := setupTestClickHouse(t)
+	ctx := context.Background()
+	const src, dst = "stored_test_src", "stored_test_dst"
+	for _, name := range []string{src, dst} {
+		_ = db.DropTable(ctx, name)
+		if err := db.CreateMessagesTable(ctx, name); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = db.DropTable(context.Background(), name) })
+	}
+	insert := func(table string, id int, parser, stored string) {
+		t.Helper()
+		q := fmt.Sprintf(`INSERT INTO %s (id, timestamp, label, parser_type, raw_text, parsed_json, created_at)
+			VALUES (%d, toDateTime64('2026-10-27 00:00:00', 3, 'UTC'), 'H1', '%s', 'x', '{}', toDateTime64('%s', 3, 'UTC'))`, table, id, parser, stored)
+		if err := db.conn.Exec(ctx, q); err != nil {
+			t.Fatal(err)
+		}
+	}
+	insert(src, 1, "a", "2026-10-27 01:00:00.122")
+	insert(src, 1, "b", "2026-10-27 01:00:00.122")
+	insert(src, 1, "a", "2026-10-27 01:00:00.125") // A retry's duplicate.
+	insert(src, 2, "a", "2026-10-27 01:00:00.123")
+	insert(src, 3, "a", "2026-10-27 01:00:00.124")
+	insert(src, 3, "b", "2026-10-27 01:00:00.124")
+	bound := time.Date(2026, 10, 27, 1, 0, 0, 123_000_000, time.UTC)
+
+	if n, err := db.CountDistinctIDs(ctx, src, bound); err != nil || n != 1 {
+		t.Errorf("CountDistinctIDs before the bound = %d, %v; want 1", n, err)
+	}
+	if n, err := db.CountDistinctIDs(ctx, src, time.Time{}); err != nil || n != 3 {
+		t.Errorf("CountDistinctIDs without a bound = %d, %v; want 3", n, err)
+	}
+	var streamed []uint64
+	if err := db.StreamRawMessages(ctx, src, 10, bound, func(m RawMessage) error {
+		streamed = append(streamed, m.ID)
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if fmt.Sprint(streamed) != "[1]" {
+		t.Errorf("streamed %v, want [1]", streamed)
+	}
+
+	// The target has message 1 (rebuilt): messages 2 and 3 are copied.
+	insert(dst, 1, "c", "2026-10-27 02:00:00.000")
+	if n, err := db.MessagesMissingSince(ctx, src, dst, bound); err != nil || n != 2 {
+		t.Errorf("MessagesMissingSince = %d, %v; want 2", n, err)
+	}
+	if err := db.CopyMessagesMissingSince(ctx, src, dst, bound); err != nil {
+		t.Fatal(err)
+	}
+	// Copying again changes nothing.
+	if err := db.CopyMessagesMissingSince(ctx, src, dst, bound); err != nil {
+		t.Fatal(err)
+	}
+	if n, err := db.MessagesMissingSince(ctx, src, dst, bound); err != nil || n != 0 {
+		t.Errorf("after the copy, MessagesMissingSince = %d, %v; want 0", n, err)
+	}
+	var got []string
+	r, err := db.conn.Query(ctx, "SELECT id, parser_type, toString(created_at) FROM "+dst+" ORDER BY id, parser_type")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = r.Close() }()
+	for r.Next() {
+		var id uint64
+		var parser, stored string
+		if err := r.Scan(&id, &parser, &stored); err != nil {
+			t.Fatal(err)
+		}
+		got = append(got, fmt.Sprintf("%d%s %s", id, parser, stored))
+	}
+	// The copied rows keep the time they were stored.
+	want := []string{"1c 2026-10-27 02:00:00.000", "2a 2026-10-27 01:00:00.123", "3a 2026-10-27 01:00:00.124", "3b 2026-10-27 01:00:00.124"}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Errorf("target rows %v, want %v", got, want)
 	}
 }
 
@@ -160,10 +245,10 @@ func TestSwapInTable(t *testing.T) {
 	if err := db.SwapInTable(ctx, cur, stg, prev); err != nil {
 		t.Fatal(err)
 	}
-	if n, _ := db.CountDistinctIDs(ctx, cur); n != 2 {
+	if n, _ := db.CountDistinctIDs(ctx, cur, time.Time{}); n != 2 {
 		t.Errorf("current has %d messages, want the staging table's 2", n)
 	}
-	if n, _ := db.CountDistinctIDs(ctx, prev); n != 1 {
+	if n, _ := db.CountDistinctIDs(ctx, prev, time.Time{}); n != 1 {
 		t.Errorf("previous has %d messages, want the old current table's 1", n)
 	}
 	if exists, _ := db.TableExists(ctx, stg); exists {
@@ -231,7 +316,7 @@ func TestBlockColumns(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := map[uint64]RawMessage{}
-	if err := db.StreamRawMessages(ctx, table, 10, func(m RawMessage) error { got[m.ID] = m; return nil }); err != nil {
+	if err := db.StreamRawMessages(ctx, table, 10, time.Time{}, func(m RawMessage) error { got[m.ID] = m; return nil }); err != nil {
 		t.Fatal(err)
 	}
 	if b := got[10]; b.MessageNumber != "D47A" || b.BlockID != "5" || b.BlockEnd == nil || *b.BlockEnd || len(b.AssembledFrom) != 0 ||

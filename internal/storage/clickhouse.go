@@ -739,16 +739,73 @@ func (d *ClickHouseDB) RenameTable(ctx context.Context, from, to string) error {
 	return d.conn.Exec(ctx, `RENAME TABLE `+from+` TO `+to)
 }
 
+// storedBeforeCondition returns the condition and argument that select the
+// rows stored (created_at) before t, or "1" and no argument when t is zero.
+// The time is bound as text at the column's millisecond precision: a
+// time.Time parameter is bound at whole seconds.
+func storedBeforeCondition(t time.Time) (string, []interface{}) {
+	if t.IsZero() {
+		return "1", nil
+	}
+	return "created_at < toDateTime64(?, 3, 'UTC')", []interface{}{t.UTC().Format("2006-01-02 15:04:05.000")}
+}
+
 // CountDistinctIDs returns the number of distinct message IDs in a messages
-// table (a message has one row per parse result).
-func (d *ClickHouseDB) CountDistinctIDs(ctx context.Context, table string) (uint64, error) {
+// table (a message has one row per parse result), counting only the rows
+// stored before storedBefore when it is not zero.
+func (d *ClickHouseDB) CountDistinctIDs(ctx context.Context, table string, storedBefore time.Time) (uint64, error) {
 	if err := checkTableName(table); err != nil {
 		return 0, err
 	}
+	cond, args := storedBeforeCondition(storedBefore)
 	var n uint64
 	err := d.conn.QueryRow(clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0})),
-		`SELECT uniqExact(id) FROM `+table).Scan(&n)
+		`SELECT uniqExact(id) FROM `+table+` WHERE `+cond, args...).Scan(&n)
 	return n, err
+}
+
+// missingSinceCondition selects the rows of from stored (created_at) at or
+// after since whose message ID is not in to. The IDs looked up in to are
+// only those stored in from since then, so that the set held in memory is
+// the size of the recent rows, not of the archive.
+func missingSinceCondition(from, to string, since time.Time) (string, []interface{}) {
+	at := since.UTC().Format("2006-01-02 15:04:05.000")
+	return `created_at >= toDateTime64(?, 3, 'UTC') AND id NOT IN (
+			SELECT id FROM ` + to + ` WHERE id IN (SELECT id FROM ` + from + ` WHERE created_at >= toDateTime64(?, 3, 'UTC')))`,
+		[]interface{}{at, at}
+}
+
+// MessagesMissingSince returns the number of distinct messages stored in
+// from at or after since that to does not have.
+func (d *ClickHouseDB) MessagesMissingSince(ctx context.Context, from, to string, since time.Time) (uint64, error) {
+	for _, name := range []string{from, to} {
+		if err := checkTableName(name); err != nil {
+			return 0, err
+		}
+	}
+	cond, args := missingSinceCondition(from, to, since)
+	var n uint64
+	err := d.conn.QueryRow(clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0})),
+		`SELECT uniqExact(id) FROM `+from+` WHERE `+cond, args...).Scan(&n)
+	return n, err
+}
+
+// CopyMessagesMissingSince copies to to the rows of the messages stored in
+// from at or after since that to does not have, with every column as
+// stored (created_at included). A message is copied whole or not at all,
+// by its ID: the rows of a message to already has (such as a retried
+// insert's duplicates) are not copied, so copying again changes nothing.
+func (d *ClickHouseDB) CopyMessagesMissingSince(ctx context.Context, from, to string, since time.Time) error {
+	for _, name := range []string{from, to} {
+		if err := checkTableName(name); err != nil {
+			return err
+		}
+	}
+	cond, args := missingSinceCondition(from, to, since)
+	// The columns are named: a table updated by CreateSchema may order
+	// them differently from one created with messagesDDL.
+	return d.conn.Exec(clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0})),
+		`INSERT INTO `+to+` (`+messageColumns+`) SELECT `+messageColumns+` FROM `+from+` WHERE `+cond, args...)
 }
 
 // RawMessage is a stored message's transmitted content and its block and
@@ -776,8 +833,9 @@ type RawMessage struct {
 // read first (8 bytes each: about 96 MB for 12 million messages), then the
 // messages in ranges of chunk IDs, one query per range, so that no query
 // stays open for long (on the 11.9M-message archive, each took about 0.2 s).
-// fn's error stops the stream and is returned.
-func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chunk int, fn func(RawMessage) error) error {
+// When storedBefore is not zero, only the rows stored (created_at) before
+// it are read. fn's error stops the stream and is returned.
+func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chunk int, storedBefore time.Time, fn func(RawMessage) error) error {
 	if err := checkTableName(table); err != nil {
 		return err
 	}
@@ -785,9 +843,10 @@ func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chun
 		return fmt.Errorf("chunk size %d: must be positive", chunk)
 	}
 	qctx := clickhouse.Context(ctx, clickhouse.WithSettings(clickhouse.Settings{"max_execution_time": 0}))
+	cond, args := storedBeforeCondition(storedBefore)
 
 	var ids []uint64
-	rows, err := d.conn.Query(qctx, `SELECT DISTINCT id FROM `+table+` ORDER BY id`)
+	rows, err := d.conn.Query(qctx, `SELECT DISTINCT id FROM `+table+` WHERE `+cond+` ORDER BY id`, args...)
 	if err != nil {
 		return fmt.Errorf("query message ids: %w", err)
 	}
@@ -807,24 +866,26 @@ func (d *ClickHouseDB) StreamRawMessages(ctx context.Context, table string, chun
 
 	for start := 0; start < len(ids); start += chunk {
 		end := min(start+chunk, len(ids)) - 1
-		if err := d.streamRange(qctx, table, ids[start], ids[end], fn); err != nil {
+		if err := d.streamRange(qctx, table, ids[start], ids[end], cond, args, fn); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// streamRange calls fn for each distinct message with an ID from lo to hi.
-// The rows of a message hold the same content; should rows of one ID hold
-// different text, the first text in order is streamed, and its fields and
-// stored direction are taken only from the rows with that text.
-func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uint64, fn func(RawMessage) error) error {
+// streamRange calls fn for each distinct message with an ID from lo to hi,
+// read from the rows that match cond (with its arguments). The rows of a
+// message hold the same content; should rows of one ID hold different
+// text, the first text in order is streamed, and its fields and stored
+// direction are taken only from the rows with that text.
+func (d *ClickHouseDB) streamRange(ctx context.Context, table string, lo, hi uint64, cond string, condArgs []interface{}, fn func(RawMessage) error) error {
+	args := append([]interface{}{lo, hi}, condArgs...)
 	rows, err := d.conn.Query(ctx,
 		`SELECT id, any(timestamp), any(label), any(tail), any(flight), raw_text,
 			any(message_number), any(block_id), any(block_end), any(assembled_from), any(link_direction),
 			anyIf(JSONExtractString(parsed_json, 'direction'), JSONExtractString(parsed_json, 'direction') IN ('uplink', 'downlink'))
-		FROM `+table+` WHERE id >= ? AND id <= ?
-		GROUP BY id, raw_text ORDER BY id, raw_text LIMIT 1 BY id`, lo, hi)
+		FROM `+table+` WHERE id >= ? AND id <= ? AND `+cond+`
+		GROUP BY id, raw_text ORDER BY id, raw_text LIMIT 1 BY id`, args...)
 	if err != nil {
 		return fmt.Errorf("query messages %d to %d: %w", lo, hi, err)
 	}

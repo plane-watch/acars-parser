@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"regexp"
 	"strconv"
@@ -13,9 +14,12 @@ import (
 	"acars_parser/internal/storage"
 )
 
-// openTestClickHouse opens the ClickHouse test database (default
-// acars_test, which must end in "_test"), creating it if needed, or skips
-// the test if ClickHouse is not reachable.
+// openTestClickHouse opens this package's ClickHouse test database,
+// creating it if needed, or skips the test if ClickHouse is not reachable.
+// The database is CLICKHOUSE_TEST_DATABASE (default acars_test, which must
+// end in "_test") with "_cmd" before the suffix (acars_cmd_test): the
+// storage tests use the messages table of CLICKHOUSE_TEST_DATABASE itself,
+// and "go test ./..." runs both packages at once.
 func openTestClickHouse(t *testing.T) *storage.ClickHouseDB {
 	t.Helper()
 	env := func(k, d string) string {
@@ -25,6 +29,10 @@ func openTestClickHouse(t *testing.T) *storage.ClickHouseDB {
 		return d
 	}
 	database := env("CLICKHOUSE_TEST_DATABASE", "acars_test")
+	if !testDatabaseRe.MatchString(database) {
+		t.Fatalf("refusing to use database %q: it must be a plain name ending in _test", database)
+	}
+	database = strings.TrimSuffix(database, "_test") + "_cmd_test"
 	if !testDatabaseRe.MatchString(database) {
 		t.Fatalf("refusing to use database %q: it must be a plain name ending in _test", database)
 	}
@@ -47,6 +55,16 @@ func openTestClickHouse(t *testing.T) *storage.ClickHouseDB {
 	}
 	t.Cleanup(func() { _ = db.Close() })
 	return db
+}
+
+// noSettle makes rebuilds in the test not wait for inserts in progress
+// (none are), and waits so that the rows stored before it were stored
+// before the rebuild starts (created_at is at millisecond precision).
+func noSettle(t *testing.T) {
+	settle := rebuildSettle
+	rebuildSettle = 0
+	t.Cleanup(func() { rebuildSettle = settle })
+	time.Sleep(5 * time.Millisecond)
 }
 
 // testDatabaseRe matches the names a test database may have: a plain
@@ -91,6 +109,7 @@ func TestRebuildArchive(t *testing.T) {
 	if err := db.InsertBatch(ctx, seed); err != nil {
 		t.Fatal(err)
 	}
+	noSettle(t)
 
 	stats, err := rebuildArchive(ctx, db, registry.Default(), time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC), 2)
 	if err != nil {
@@ -200,7 +219,7 @@ func TestRebuildRefusesUnsafeStarts(t *testing.T) {
 	if _, err := rebuildArchive(ctx, db, registry.Default(), time.Time{}, 10); err == nil {
 		t.Error("a rebuild started while the staging table exists")
 	}
-	if n, _ := db.CountDistinctIDs(ctx, rebuildTable); n != 1 {
+	if n, _ := db.CountDistinctIDs(ctx, rebuildTable, time.Time{}); n != 1 {
 		t.Errorf("the staging table was changed: %d messages", n)
 	}
 }
@@ -213,5 +232,78 @@ func TestTestDatabaseNames(t *testing.T) {
 	}
 	if !testDatabaseRe.MatchString("acars_test") {
 		t.Error("acars_test rejected")
+	}
+}
+
+// TestRebuildKeepsMessagesStoredMeanwhile checks that a rebuild run while
+// live stores messages keeps them: those stored while the archive is read,
+// as live parsed them, and those stored in the old archive around the swap
+// (an insert in progress at the exchange), each once, without a retried
+// insert's duplicate rows of a message that was rebuilt.
+func TestRebuildKeepsMessagesStoredMeanwhile(t *testing.T) {
+	db := openTestClickHouse(t)
+	ctx := context.Background()
+	for _, name := range []string{storage.MessagesTable, rebuildTable, previousTable} {
+		if err := db.DropTable(ctx, name); err != nil {
+			t.Fatal(err)
+		}
+	}
+	t.Cleanup(func() {
+		for _, name := range []string{storage.MessagesTable, rebuildTable, previousTable} {
+			_ = db.DropTable(context.Background(), name)
+		}
+		rebuildHooks.afterRead, rebuildHooks.afterExchange = nil, nil
+	})
+	if err := db.CreateMessagesTable(ctx, storage.MessagesTable); err != nil {
+		t.Fatal(err)
+	}
+	oct := time.Date(2026, 10, 4, 12, 0, 0, 0, time.UTC)
+	row := func(id uint64, parser string) storage.CHInsertParams {
+		return storage.CHInsertParams{ID: id, Timestamp: oct, Label: "H1", ParserType: parser, Tail: "VH-OQA", RawText: "NOTHING TO SEE", ParsedData: map[string]string{}}
+	}
+	store := func(table string, rows ...storage.CHInsertParams) {
+		t.Helper()
+		if err := db.InsertBatchInto(ctx, table, rows); err != nil {
+			t.Fatal(err)
+		}
+	}
+	store(storage.MessagesTable, row(1, "old_a"), row(1, "old_b"), row(2, "old_a"))
+	noSettle(t)
+
+	rebuildHooks.afterRead = func() {
+		// Live stores a message, and a retried insert stores message 2 again.
+		store(storage.MessagesTable, row(5, "live_a"), row(5, "live_b"), row(2, "old_a"))
+	}
+	rebuildHooks.afterExchange = func() {
+		// An insert in progress at the exchange ends in the old archive;
+		// the next is in the rebuilt one.
+		store(previousTable, row(6, "live_a"))
+		store(storage.MessagesTable, row(7, "live_a"))
+	}
+	stats, err := rebuildArchive(ctx, db, registry.Default(), time.Time{}, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stats.Messages != 2 || stats.Copied != 2 {
+		t.Errorf("stats %+v, want 2 messages rebuilt and 2 copied", stats)
+	}
+
+	r, err := db.Conn().Query(ctx, "SELECT id, parser_type FROM "+storage.MessagesTable+" ORDER BY id, parser_type")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = r.Close() }()
+	var got []string
+	for r.Next() {
+		var id uint64
+		var parser string
+		if err := r.Scan(&id, &parser); err != nil {
+			t.Fatal(err)
+		}
+		got = append(got, fmt.Sprintf("%d %s", id, parser))
+	}
+	want := []string{"1 unparsed", "2 unparsed", "5 live_a", "5 live_b", "6 live_a", "7 live_a"}
+	if fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Errorf("archive rows %v, want %v", got, want)
 	}
 }
