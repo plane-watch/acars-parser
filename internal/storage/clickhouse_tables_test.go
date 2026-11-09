@@ -210,10 +210,9 @@ func TestStoredBeforeAndCopy(t *testing.T) {
 	}
 }
 
-// TestInsertsStartedBefore checks the barrier a rebuild waits on: an insert
-// running since before a time is counted until it ends, and one started
-// after it is not.
-func TestInsertsStartedBefore(t *testing.T) {
+// TestRunningInserts checks the barrier a rebuild waits on: a running
+// insert is listed, and reported running by its ID until it ends.
+func TestRunningInserts(t *testing.T) {
 	db := setupTestClickHouse(t)
 	ctx := context.Background()
 	const table = "inserts_test"
@@ -232,21 +231,21 @@ func TestInsertsStartedBefore(t *testing.T) {
 			SETTINGS max_block_size = 1`)
 	}()
 	time.Sleep(500 * time.Millisecond)
-	before, err := db.ServerTime(ctx)
-	if err != nil {
-		t.Fatal(err)
+	ids, err := db.RunningInserts(ctx)
+	if err != nil || len(ids) != 1 {
+		t.Fatalf("RunningInserts = %v, %v; want the insert", ids, err)
 	}
-	if n, err := db.InsertsStartedBefore(ctx, before); err != nil || n != 1 {
+	if n, err := db.InsertsRunning(ctx, ids); err != nil || n != 1 {
 		t.Errorf("while the insert runs: %d, %v; want 1", n, err)
-	}
-	if n, err := db.InsertsStartedBefore(ctx, before.Add(-time.Minute)); err != nil || n != 0 {
-		t.Errorf("before the insert started: %d, %v; want 0", n, err)
 	}
 	if err := <-done; err != nil {
 		t.Fatal(err)
 	}
-	if n, err := db.InsertsStartedBefore(ctx, before); err != nil || n != 0 {
+	if n, err := db.InsertsRunning(ctx, ids); err != nil || n != 0 {
 		t.Errorf("after the insert: %d, %v; want 0", n, err)
+	}
+	if n, err := db.InsertsRunning(ctx, nil); err != nil || n != 0 {
+		t.Errorf("no IDs: %d, %v; want 0", n, err)
 	}
 }
 

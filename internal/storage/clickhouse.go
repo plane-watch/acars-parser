@@ -764,19 +764,36 @@ func (d *ClickHouseDB) CountDistinctIDs(ctx context.Context, table string, store
 	return n, err
 }
 
-// InsertsStartedBefore returns the number of inserts into the connection's
-// database that the server is running and that started before t. Unlike a
-// client's timeout, which only closes its connection, an insert's absence
-// here means the server has finished it: its rows are committed or never
-// will be.
-func (d *ClickHouseDB) InsertsStartedBefore(ctx context.Context, t time.Time) (uint64, error) {
+// RunningInserts returns the query IDs of the inserts into the connection's
+// database that the server is running.
+func (d *ClickHouseDB) RunningInserts(ctx context.Context) ([]string, error) {
+	rows, err := d.conn.Query(ctx, `SELECT query_id FROM system.processes
+		WHERE query_kind = 'Insert' AND current_database = currentDatabase()`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+// InsertsRunning returns how many of the queries with the given IDs the
+// server is still running. Unlike a client's timeout, which only closes its
+// connection, an insert's absence here means the server has finished it:
+// its rows are committed or never will be.
+func (d *ClickHouseDB) InsertsRunning(ctx context.Context, ids []string) (uint64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
 	var n uint64
-	// system.processes gives each query's running time, not its start; a
-	// query running for longer than the time since t started before t.
-	err := d.conn.QueryRow(ctx, `SELECT count() FROM system.processes
-		WHERE query_kind = 'Insert' AND current_database = currentDatabase()
-			AND elapsed * 1000 > dateDiff('millisecond', toDateTime64(?, 3, 'UTC'), now64(3))`,
-		t.UTC().Format("2006-01-02 15:04:05.000")).Scan(&n)
+	err := d.conn.QueryRow(ctx, `SELECT count() FROM system.processes WHERE query_id IN ?`, ids).Scan(&n)
 	return n, err
 }
 

@@ -91,7 +91,7 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 		return stats, err
 	}
 	fmt.Printf("  reading the messages stored before %s\n", formatStored(started))
-	if err := waitForInserts(ctx, db, started); err != nil {
+	if err := waitForInserts(ctx, db); err != nil {
 		return stats, err
 	}
 	source, err := db.CountDistinctIDs(ctx, storage.MessagesTable, started)
@@ -188,11 +188,7 @@ func rebuildArchive(ctx context.Context, db *storage.ClickHouseDB, reg *registry
 
 	// The messages stored in the old archive since the first copy: until
 	// the exchange, and by an insert in progress at it.
-	exchanged, err := db.ServerTime(ctx)
-	if err == nil {
-		err = waitForInserts(ctx, db, exchanged)
-	}
-	if err != nil {
+	if err := waitForInserts(ctx, db); err != nil {
 		return stats, fmt.Errorf("%w: the rebuilt archive is in place, but %s", err, lost)
 	}
 	n, err := copyStoredSince(ctx, db, previousTable, storage.MessagesTable, started)
@@ -222,11 +218,18 @@ func copyStoredSince(ctx context.Context, db *storage.ClickHouseDB, from, to str
 	return n, db.CopyMessagesMissingSince(ctx, from, to, since)
 }
 
-// waitForInserts waits until the server has finished every insert that
-// started before t, or until ctx ends.
-func waitForInserts(ctx context.Context, db *storage.ClickHouseDB, t time.Time) error {
+// waitForInserts waits until the server has finished every insert running
+// when it is called (and so every insert started before then), or until ctx
+// ends. The inserts are followed by their query IDs: system.processes gives
+// a query's running time on a monotonic clock, which cannot be compared
+// with the wall clock of created_at.
+func waitForInserts(ctx context.Context, db *storage.ClickHouseDB) error {
+	ids, err := db.RunningInserts(ctx)
+	if err != nil {
+		return err
+	}
 	for {
-		n, err := db.InsertsStartedBefore(ctx, t)
+		n, err := db.InsertsRunning(ctx, ids)
 		if err != nil || n == 0 {
 			return err
 		}
