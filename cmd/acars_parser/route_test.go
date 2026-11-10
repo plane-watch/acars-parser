@@ -41,4 +41,11 @@ func TestFlightRoute(t *testing.T) {
 	if r, ok := flightRoute(tail, seen); ok {
 		t.Errorf("a route under the registration was recorded: %+v", r)
 	}
+	// The extractor strips the flight's leading zeros, so "RPC0123" arrives
+	// as "RPC123".
+	tail = icao("RPC123")
+	tail.Registration = "RP-C0123"
+	if r, ok := flightRoute(tail, seen); ok {
+		t.Errorf("a route under the normalised registration was recorded: %+v", r)
+	}
 }

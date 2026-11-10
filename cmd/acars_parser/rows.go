@@ -103,12 +103,15 @@ func messageRows(msg *acars.Message, results []registry.Result) []storage.CHInse
 // one is an aircraft's movement, not a flight's route, and is not recorded
 // (it used to be recorded under the registration). Nor is a route whose
 // flight is the aircraft's registration, which some aircraft transmit in the
-// flight field: "RPC7783" would otherwise read as an ICAO callsign.
+// flight field: "RPC7783" would otherwise read as an ICAO callsign. The
+// extractor has stripped the flight's leading zeros, so the registration is
+// compared in that form too ("RP-C0123" arrives as flight "RPC123").
 func flightRoute(f *extractor.FlightUpdate, seen time.Time) (storage.Route, bool) {
 	if f == nil || f.AirportCodes != extractor.AirportCodesICAO || f.FlightNumber == "" {
 		return storage.Route{}, false
 	}
-	if reg := acars.NormaliseRegistration(f.Registration); reg != "" && acars.NormaliseRegistration(f.FlightNumber) == reg {
+	if reg := acars.NormaliseRegistration(f.Registration); reg != "" &&
+		(acars.NormaliseRegistration(f.FlightNumber) == reg || extractor.NormaliseFlightNumber(reg) == f.FlightNumber) {
 		return storage.Route{}, false
 	}
 	return storage.Route{
