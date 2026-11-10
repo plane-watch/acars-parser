@@ -76,16 +76,16 @@ func TestWorkerFor(t *testing.T) {
 	}
 }
 
-// TestBackfillArchived5L checks that an archived 5L route, stored with the
-// 5L designator as its callsign, is parsed again from its raw text, so that
-// it neither keys its flight as JST1701 nor teaches a QF1701/JST1701 alias.
+// TestBackfillArchived5L checks that an archived 5L route, whose designator
+// is always "JST" and the flight number whatever the operator, neither keys
+// its flight as JST1701 nor teaches a QF1701/JST1701 alias.
 func TestBackfillArchived5L(t *testing.T) {
 	var g messageGrouper
 	g.add(storage.CHMessage{
 		ID: 1, Timestamp: time.Date(2026, 10, 8, 2, 0, 0, 0, time.UTC), Label: "5L", ParserType: "route",
 		Flight: "QF1701", Tail: "VH-UVQ",
 		RawText:    "JST1701,.VH-UVQ,ZNE,YNWN,PER,YPPH,056032,08OCT26,2357,0006,0135,0141",
-		ParsedJSON: `{"callsign":"JST1701","tail":"VH-UVQ","origin_icao":"YNWN","dest_icao":"YPPH"}`,
+		ParsedJSON: `{"designator":"JST1701","flight_number_digits":"1701","tail":"VH-UVQ","origin_icao":"YNWN","dest_icao":"YPPH"}`,
 	})
 	item := g.flush()
 	if item == nil || len(item.results) != 1 {

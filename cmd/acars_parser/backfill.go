@@ -13,7 +13,6 @@ import (
 
 	"acars_parser/internal/acars"
 	"acars_parser/internal/extractor"
-	"acars_parser/internal/parsers/label5l"
 	"acars_parser/internal/registry"
 	"acars_parser/internal/storage"
 )
@@ -78,26 +77,10 @@ func firstMessages(rows []storage.CHMessage, n int) ([]storage.CHMessage, int) {
 	return rows, count
 }
 
-// storedResult returns a row's parse result as a field map. A 5L route is
-// parsed again from the raw text, since archived ones report the 5L
-// designator (always "JST" and the flight number) as their callsign (see
-// label5l), which would teach false flight aliases.
-// TODO: Read the stored result for 5L too once the archive has been rebuilt
-// (reparse -rebuild) with the current label5l parser.
+// storedResult returns a row's parse result as a field map.
 func storedResult(m storage.CHMessage) (map[string]interface{}, bool) {
-	data := []byte(m.ParsedJSON)
-	if m.Label == "5L" && m.ParserType == "route" {
-		r := (&label5l.Parser{}).Parse(&acars.Message{ID: acars.FlexInt64(m.ID), Label: m.Label, Text: m.RawText})
-		if r == nil {
-			return nil, false
-		}
-		var err error
-		if data, err = json.Marshal(r); err != nil {
-			return nil, false
-		}
-	}
 	var parsed map[string]interface{}
-	if err := json.Unmarshal(data, &parsed); err != nil {
+	if err := json.Unmarshal([]byte(m.ParsedJSON), &parsed); err != nil {
 		return nil, false
 	}
 	return parsed, true
