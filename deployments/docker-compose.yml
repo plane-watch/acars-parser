@@ -24,6 +24,8 @@ services:
       - "127.0.0.1:8123:8123"
     volumes:
       - clickhouse-data:/var/lib/clickhouse
+      # Keeps ClickHouse's own logs for 7 days.
+      - ./clickhouse/system-logs.xml:/etc/clickhouse-server/config.d/system-logs.xml:ro
     healthcheck:
       test: ["CMD-SHELL", "clickhouse-client --password \"$$CLICKHOUSE_PASSWORD\" --query 'SELECT 1'"]
       interval: 10s
