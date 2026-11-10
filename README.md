@@ -614,28 +614,29 @@ Exports waypoints from PostgreSQL to KML, for Google Earth or other GIS applicat
 
 ### routeexport
 
-Exports routes from PostgreSQL to CSV for the planewatch-atc `import_routes.rake` task.
+Exports routes from PostgreSQL to CSV for the planewatch-atc `routes:import` rake task (`lib/tasks/import_routes.rake`). Each flight's routes are merged under its ICAO callsign as the routes API merges them, and a callsign is exported only with a route that has most of its observations (see [docs/flight-routes.md](docs/flight-routes.md)).
 
 ```bash
-./bin/routeexport -pg-db acars_state -pg-password acars -min-obs 100 -output routes.csv
+./bin/routeexport -pg-db acars_state -pg-password acars -min-obs 10 -output routes.csv
 ```
 
 | Flag | Default | Description |
 |---|---|---|
 | `-pg-host`, `-pg-port`, `-pg-user`, `-pg-password`, `-pg-db` | `localhost`, `5432`, `acars`, empty, `acars` | PostgreSQL connection |
 | `-output` | stdout | Output CSV file |
-| `-min-obs` | `1` | Minimum observation count per route |
-| `-stats` | `false` | Show statistics only |
-| `-v` | `false` | Verbose output |
+| `-min-obs` | `1` | Minimum observations of a callsign's route |
+| `-min-share` | `0.8` | Minimum share of a callsign's observations its route must have (above 0.5) |
+| `-stats` | `false` | Print how many flights would be exported and why the others are not, without exporting |
+| `-v` | `false` | Print the same counts while exporting |
 
-The CSV has no header row. Each line is `callsign,ICAO1,ICAO2,...`, with multi-stop routes listing every airport in sequence:
+The CSV has no header row. Each line is an ICAO callsign, once, with its origin and destination:
 
 ```
-QFA1,YSSY,WSSS,EGLL
-JL300,RJTT,RJCC
+QTR869,ZSPD,OTHH
+DAL2592,KSAT,KSLC
 ```
 
-Multi-stop legs come from the `route_legs` table, which only `migrate` populates.
+Flights whose ICAO callsign is not known (an IATA flight number without a trusted alias or airline code pair) are not exported, since the rake task needs the ICAO operator code.
 
 ## Documentation
 

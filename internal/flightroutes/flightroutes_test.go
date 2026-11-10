@@ -231,3 +231,79 @@ func TestResolverCachesPairs(t *testing.T) {
 		}
 	}
 }
+
+// Group merges every stored route as Lookup merges a flight's routes: each
+// flight with a known callsign under the callsign, and every other
+// identifier under itself.
+func TestGroup(t *testing.T) {
+	got := Group(testStore.routes, testStore.aliases, testPairs)
+	keys := map[string]Flight{}
+	for _, f := range got {
+		key := f.Callsign
+		if key == "" {
+			key = f.Identifiers[0]
+		}
+		if _, dup := keys[key]; dup {
+			t.Fatalf("flight %s grouped twice", key)
+		}
+		keys[key] = f
+	}
+	want := map[string]struct {
+		callsign    string
+		identifiers []string
+		routes      map[string]int
+	}{
+		"QFA1":   {"QFA1", []string{"QF1", "QFA1"}, map[string]int{"YSSY-WSSS": 751, "WSSS-EGLL": 285}},
+		"QFA9X":  {"QFA9X", []string{"QF9", "QFA9X"}, map[string]int{"YMML-YPPH": 13}},
+		"LOT49H": {"LOT49H", []string{"LO495", "LOT49H"}, map[string]int{"EPWA-LFPG": 25}},
+		"DAL1":   {"DAL1", []string{"DAL1", "DL1", "NW1"}, map[string]int{"KATL-EGLL": 15}},
+		"XY12":   {"", []string{"XY12"}, map[string]int{"OERK-OEJN": 6}},
+		"LOT777": {"LOT777", []string{"LO777"}, map[string]int{"EPWA-KJFK": 9}},
+	}
+	if len(keys) != len(want) {
+		t.Errorf("got %d flights, want %d", len(keys), len(want))
+	}
+	for key, w := range want {
+		f, ok := keys[key]
+		if !ok {
+			t.Errorf("flight %s missing", key)
+			continue
+		}
+		routes := map[string]int{}
+		for _, r := range f.Routes {
+			routes[r.Origin+"-"+r.Destination] = r.Observations
+		}
+		if f.Callsign != w.callsign || !reflect.DeepEqual(f.Identifiers, w.identifiers) || !reflect.DeepEqual(routes, w.routes) {
+			t.Errorf("%s: callsign %q, identifiers %v, routes %v; want %q, %v, %v",
+				key, f.Callsign, f.Identifiers, routes, w.callsign, w.identifiers, w.routes)
+		}
+	}
+}
+
+// Group's flights have the routes that Lookup gives for their callsigns.
+func TestGroupMatchesLookup(t *testing.T) {
+	for _, f := range Group(testStore.routes, testStore.aliases, testPairs) {
+		if f.Callsign == "" {
+			continue
+		}
+		l, err := Lookup(context.Background(), testStore, f.Callsign)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(f.Routes, l.Routes) {
+			t.Errorf("%s: Group routes %+v, Lookup routes %+v", f.Callsign, f.Routes, l.Routes)
+		}
+	}
+}
+
+// A route stored with leading zeros in the flight number is the flight's.
+func TestGroupLeadingZeros(t *testing.T) {
+	routes := []Route{
+		{Flight: "QFA0001", Origin: "YSSY", Destination: "WSSS", Observations: 3, FirstSeen: t1, LastSeen: t2},
+		{Flight: "QF1", Origin: "YSSY", Destination: "WSSS", Observations: 4, FirstSeen: t1, LastSeen: t2},
+	}
+	got := Group(routes, nil, testPairs)
+	if len(got) != 1 || got[0].Callsign != "QFA1" || got[0].Routes[0].Observations != 7 {
+		t.Errorf("got %+v, want one flight QFA1 with 7 observations", got)
+	}
+}

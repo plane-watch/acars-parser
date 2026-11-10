@@ -71,8 +71,19 @@ func (d *PostgresDB) AirlinePairs(ctx context.Context) ([]flightroutes.Pair, err
 // FlightAliases returns the flight aliases whose IATA flight or ICAO
 // callsign is one of ids (flightroutes.Store).
 func (d *PostgresDB) FlightAliases(ctx context.Context, ids []string) ([]flightroutes.Alias, error) {
-	rows, err := d.pool.Query(ctx, `SELECT iata_flight, icao_callsign, observation_count FROM flight_aliases
+	return d.queryAliases(ctx, `SELECT iata_flight, icao_callsign, observation_count FROM flight_aliases
 		WHERE iata_flight = ANY($1) OR icao_callsign = ANY($1)`, ids)
+}
+
+// AllFlightAliases returns every flight alias, for flightroutes.Group.
+func (d *PostgresDB) AllFlightAliases(ctx context.Context) ([]flightroutes.Alias, error) {
+	return d.queryAliases(ctx, `SELECT iata_flight, icao_callsign, observation_count FROM flight_aliases`)
+}
+
+// queryAliases runs a query of the iata_flight, icao_callsign and
+// observation_count columns.
+func (d *PostgresDB) queryAliases(ctx context.Context, query string, args ...any) ([]flightroutes.Alias, error) {
+	rows, err := d.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,11 +99,23 @@ func (d *PostgresDB) FlightAliases(ctx context.Context, ids []string) ([]flightr
 	return out, rows.Err()
 }
 
+// routeColumns are the routes columns that queryRoutes scans.
+const routeColumns = `flight_pattern, origin_icao, dest_icao, observation_count, first_seen, last_seen`
+
 // Routes returns the routes stored under the given flight identifiers
 // (flightroutes.Store).
 func (d *PostgresDB) Routes(ctx context.Context, flights []string) ([]flightroutes.Route, error) {
-	rows, err := d.pool.Query(ctx, `SELECT flight_pattern, origin_icao, dest_icao, observation_count, first_seen, last_seen
-		FROM routes WHERE flight_pattern = ANY($1)`, flights)
+	return d.queryRoutes(ctx, `SELECT `+routeColumns+` FROM routes WHERE flight_pattern = ANY($1)`, flights)
+}
+
+// AllRoutes returns every stored route, for flightroutes.Group.
+func (d *PostgresDB) AllRoutes(ctx context.Context) ([]flightroutes.Route, error) {
+	return d.queryRoutes(ctx, `SELECT `+routeColumns+` FROM routes`)
+}
+
+// queryRoutes runs a query of routeColumns.
+func (d *PostgresDB) queryRoutes(ctx context.Context, query string, args ...any) ([]flightroutes.Route, error) {
+	rows, err := d.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

@@ -143,6 +143,63 @@ func Lookup(ctx context.Context, s Store, query string) (Flight, error) {
 	return Flight{Callsign: callsign, Identifiers: ids, Routes: merge(routes)}, nil
 }
 
+// Group merges stored routes by flight, as Lookup merges one flight's: the
+// routes of the identifiers whose callsign is known are returned under the
+// callsign, and those of any other identifier under the identifier alone,
+// with an empty Callsign. aliases must hold every alias of the routes' IATA
+// flights, since whether an alias is trusted depends on all of them. A
+// Flight's Identifiers are the stored identifiers whose routes it merges.
+// The flights are sorted by callsign, or by identifier when it is empty.
+func Group(routes []Route, aliases []Alias, pairs []Pair) []Flight {
+	c := newCodes(pairs)
+	// trustedAlias weighs only the aliases of one IATA flight, so they are
+	// indexed by it rather than scanned for each route.
+	byIATA := map[string][]Alias{}
+	for _, a := range aliases {
+		byIATA[a.IATA] = append(byIATA[a.IATA], a)
+	}
+
+	type group struct {
+		callsign string
+		ids      map[string]bool
+		routes   []Route
+	}
+	groups := map[string]*group{}
+	for _, r := range routes {
+		key, callsign := r.Flight, ""
+		if id, ok := flightid.Parse(r.Flight, ""); ok {
+			key = id.String()
+			if cs, known := canonical(id, byIATA[id.String()], c); known {
+				key, callsign = cs, cs
+			}
+		}
+		g, ok := groups[key]
+		if !ok {
+			g = &group{callsign: callsign, ids: map[string]bool{}}
+			groups[key] = g
+		}
+		g.ids[r.Flight] = true
+		g.routes = append(g.routes, r)
+	}
+
+	keys := make([]string, 0, len(groups))
+	for k := range groups {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	out := make([]Flight, 0, len(keys))
+	for _, k := range keys {
+		g := groups[k]
+		ids := make([]string, 0, len(g.ids))
+		for id := range g.ids {
+			ids = append(ids, id)
+		}
+		sort.Strings(ids)
+		out = append(out, Flight{Callsign: g.callsign, Identifiers: ids, Routes: merge(g.routes)})
+	}
+	return out
+}
+
 // own returns an identifier's own routes, for a flight whose callsign is
 // not known.
 func own(ctx context.Context, s Store, ident string) (Flight, error) {

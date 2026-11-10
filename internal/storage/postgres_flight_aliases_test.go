@@ -61,4 +61,23 @@ func TestFlightAliasesLookup(t *testing.T) {
 	if got.Callsign != "QQA1" || len(got.Routes) != 1 || got.Routes[0].Observations != 2 {
 		t.Errorf("Lookup(Q91) = %+v, want QQA1 with one route seen twice", got)
 	}
+
+	// Every route and alias, grouped as the route export groups them.
+	routes, err := pg.AllRoutes(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	aliases, err := pg.AllFlightAliases(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	grouped := false
+	for _, f := range flightroutes.Group(routes, aliases, pairs) {
+		if f.Callsign == "QQA1" {
+			grouped = len(f.Identifiers) == 2 && len(f.Routes) == 1 && f.Routes[0].Observations == 2
+		}
+	}
+	if !grouped {
+		t.Error("Group of all routes has no QQA1 merging Q91's and QQA1's route")
+	}
 }

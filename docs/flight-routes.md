@@ -24,3 +24,12 @@ A lookup:
 A flight whose callsign is not known (an IATA code without a usable pair, and no alias) is returned under its own identifier, with its own routes only and no callsign.
 
 The stored routes are not changed: the merge is made when routes are read, so an equivalence learned wrongly can be corrected without rewriting data.
+
+## Exporting every flight
+
+`flightroutes.Group` applies the same rules to every stored route at once: each route goes to its identifier's ICAO callsign when the callsign is known (step 1), or else stays under its own identifier. A flight's routes are therefore the routes a lookup of its callsign returns. `tools/routeexport` uses it to write the CSV for the planewatch-atc `routes:import` task, which takes the operator from a callsign's first three letters and keeps one route per callsign. The export writes:
+
+- only flights with a known ICAO callsign;
+- one line per callsign, `CALLSIGN,ORIGIN,DESTINATION`, with the flight's most observed route, and only when that route has at least `-min-share` (default 0.8) of the flight's observations and at least `-min-obs` observations.
+
+A callsign flown on several routes, such as both directions under one number (DAL1368 JFK–MSY and MSY–JFK) or two legs (QFA1 SYD–SIN and SIN–LHR), has no route with that share and is not exported. Run `routeexport -stats` to see how many flights each rule leaves out.

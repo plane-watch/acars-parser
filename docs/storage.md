@@ -119,8 +119,8 @@ This table has the same fields as `atis_current` (see below), stored as strings,
 
 Some tables have only one writer:
 
-- `route_legs`, `route_aircraft` and `aircraft_callsigns` are populated only by the SQLite migration. `live` and `backfill` do not maintain them. `routeexport` builds each route from its legs, so it exports only migrated routes.
-- `routes` stores a flight under the identifier the messages gave, in either form; `flight_aliases` and `airline_codes` relate the two forms (see [flight-routes.md](flight-routes.md)).
+- `route_legs`, `route_aircraft` and `aircraft_callsigns` are populated only by the SQLite migration. `live` and `backfill` do not maintain them.
+- `routes` stores a flight under the identifier the messages gave, in either form; `flight_aliases` and `airline_codes` relate the two forms (see [flight-routes.md](flight-routes.md)). `routeexport` reads them with `routes` to export each flight under its ICAO callsign.
 - `flight_state` is not written by `live`.
 
 Only transmitted data is stored. `live` and `backfill` do not take facts from Airframes' `airframe`, `flight` or `station` records (see [airframes-payload.md](airframes-payload.md)):
