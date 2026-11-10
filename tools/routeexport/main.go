@@ -57,8 +57,7 @@ func main() {
 	verbose := flag.Bool("v", false, "Verbose output")
 	flag.Parse()
 
-	if *minShare <= 0.5 || *minShare > 1 {
-		// At or below a half, two routes could both qualify.
+	if !validShare(*minShare) {
 		fmt.Fprintln(os.Stderr, "-min-share must be above 0.5 and at most 1")
 		os.Exit(2)
 	}
@@ -108,6 +107,13 @@ func main() {
 	if *verbose && *output != "" {
 		fmt.Fprintf(os.Stderr, "Wrote %d routes to %s\n", len(rows), *output)
 	}
+}
+
+// validShare reports whether a minimum share is above a half, so that at
+// most one route qualifies, and at most 1. NaN is not valid: every
+// comparison with it is false, so selectRoutes would accept any route.
+func validShare(share float64) bool {
+	return share > 0.5 && share <= 1
 }
 
 // groupedFlights reads every route, alias and airline code pair, and

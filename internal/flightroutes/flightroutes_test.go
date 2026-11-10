@@ -296,14 +296,16 @@ func TestGroupMatchesLookup(t *testing.T) {
 	}
 }
 
-// A route stored with leading zeros in the flight number is the flight's.
+// A route stored under an identifier that is not in the stored form (with
+// leading zeros) is not one a lookup reads, so Group keeps it apart too.
 func TestGroupLeadingZeros(t *testing.T) {
 	routes := []Route{
 		{Flight: "QFA0001", Origin: "YSSY", Destination: "WSSS", Observations: 3, FirstSeen: t1, LastSeen: t2},
 		{Flight: "QF1", Origin: "YSSY", Destination: "WSSS", Observations: 4, FirstSeen: t1, LastSeen: t2},
 	}
 	got := Group(routes, nil, testPairs)
-	if len(got) != 1 || got[0].Callsign != "QFA1" || got[0].Routes[0].Observations != 7 {
-		t.Errorf("got %+v, want one flight QFA1 with 7 observations", got)
+	if len(got) != 2 || got[0].Callsign != "" || got[0].Identifiers[0] != "QFA0001" ||
+		got[1].Callsign != "QFA1" || got[1].Routes[0].Observations != 4 {
+		t.Errorf("got %+v, want QFA0001 alone and QFA1 with QF1's 4 observations", got)
 	}
 }

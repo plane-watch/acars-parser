@@ -34,4 +34,11 @@ func TestFlightRoute(t *testing.T) {
 	if _, ok := flightRoute(nil, seen); ok {
 		t.Error("a nil update gave a route")
 	}
+	// An aircraft that transmits its registration as the flight has no
+	// flight number; "RPC7783" would read as an ICAO callsign.
+	tail := icao("RPC7783")
+	tail.Registration = "RP-C7783"
+	if r, ok := flightRoute(tail, seen); ok {
+		t.Errorf("a route under the registration was recorded: %+v", r)
+	}
 }

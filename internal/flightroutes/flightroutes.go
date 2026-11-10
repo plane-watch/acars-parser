@@ -166,10 +166,12 @@ func Group(routes []Route, aliases []Alias, pairs []Pair) []Flight {
 	}
 	groups := map[string]*group{}
 	for _, r := range routes {
+		// A lookup reads the routes stored under identifiers in the stored
+		// form (without leading zeros), so a route stored otherwise is kept
+		// under its own identifier, as a lookup of it would return it.
 		key, callsign := r.Flight, ""
-		if id, ok := flightid.Parse(r.Flight, ""); ok {
-			key = id.String()
-			if cs, known := canonical(id, byIATA[id.String()], c); known {
+		if id, ok := flightid.Parse(r.Flight, ""); ok && id.String() == r.Flight {
+			if cs, known := canonical(id, byIATA[r.Flight], c); known {
 				key, callsign = cs, cs
 			}
 		}

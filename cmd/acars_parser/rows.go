@@ -101,9 +101,14 @@ func messageRows(msg *acars.Message, results []registry.Result) []storage.CHInse
 // destination, so a route needs both ICAO endpoints (IATA pairs are kept by
 // the extractor for storage v2) and a flight number: a route seen without
 // one is an aircraft's movement, not a flight's route, and is not recorded
-// (it used to be recorded under the registration).
+// (it used to be recorded under the registration). Nor is a route whose
+// flight is the aircraft's registration, which some aircraft transmit in the
+// flight field: "RPC7783" would otherwise read as an ICAO callsign.
 func flightRoute(f *extractor.FlightUpdate, seen time.Time) (storage.Route, bool) {
 	if f == nil || f.AirportCodes != extractor.AirportCodesICAO || f.FlightNumber == "" {
+		return storage.Route{}, false
+	}
+	if reg := acars.NormaliseRegistration(f.Registration); reg != "" && acars.NormaliseRegistration(f.FlightNumber) == reg {
 		return storage.Route{}, false
 	}
 	return storage.Route{

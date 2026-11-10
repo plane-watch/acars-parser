@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"reflect"
 	"testing"
 
@@ -39,5 +40,13 @@ func TestSelectRoutes(t *testing.T) {
 	wantStats := selectStats{Flights: 5, Exported: 2, NoCallsign: 1, TooFew: 1, Ambiguous: 1}
 	if stats != wantStats {
 		t.Errorf("stats %+v, want %+v", stats, wantStats)
+	}
+}
+
+func TestValidShare(t *testing.T) {
+	for share, want := range map[float64]bool{0.8: true, 1: true, 0.5: false, 1.1: false, math.NaN(): false} {
+		if got := validShare(share); got != want {
+			t.Errorf("validShare(%v) = %v, want %v", share, got, want)
+		}
 	}
 }

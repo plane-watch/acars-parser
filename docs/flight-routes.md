@@ -27,7 +27,7 @@ The stored routes are not changed: the merge is made when routes are read, so an
 
 ## Exporting every flight
 
-`flightroutes.Group` applies the same rules to every stored route at once: each route goes to its identifier's ICAO callsign when the callsign is known (step 1), or else stays under its own identifier. A flight's routes are therefore the routes a lookup of its callsign returns. `tools/routeexport` uses it to write the CSV for the planewatch-atc `routes:import` task, which takes the operator from a callsign's first three letters and keeps one route per callsign. The export writes:
+`flightroutes.Group` applies the same rules to every stored route at once: each route goes to its identifier's ICAO callsign when the callsign is known (step 1), or else stays under its own identifier, as does a route stored under an identifier not in the stored form (with leading zeros), which a lookup does not read. A flight's routes are therefore the routes a lookup of its callsign returns. `tools/routeexport` uses it to write the CSV for the planewatch-atc `routes:import` task, which takes the operator from a callsign's first three letters and keeps one route per callsign. The export writes:
 
 - only flights with a known ICAO callsign;
 - one line per callsign, `CALLSIGN,ORIGIN,DESTINATION`, with the flight's most observed route, and only when that route has at least `-min-share` (default 0.8) of the flight's observations and at least `-min-obs` observations.
