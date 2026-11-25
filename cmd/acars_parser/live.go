@@ -814,14 +814,14 @@ func formatResult(result registry.Result, showEmpty bool) string {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("[%s]", strings.ToUpper(typeName)))
+	fmt.Fprintf(&sb, "[%s]", strings.ToUpper(typeName))
 
 	// Common fields to display.
 	if v, ok := m["flight_number"].(string); ok && v != "" {
-		sb.WriteString(fmt.Sprintf(" %s", v))
+		fmt.Fprintf(&sb, " %s", v)
 	}
 	if v, ok := m["flight_num"].(string); ok && v != "" {
-		sb.WriteString(fmt.Sprintf(" %s", v))
+		fmt.Fprintf(&sb, " %s", v)
 	}
 
 	// Route info.
@@ -840,7 +840,7 @@ func formatResult(result registry.Result, showEmpty bool) string {
 		dest = v
 	}
 	if origin != "" || dest != "" {
-		sb.WriteString(fmt.Sprintf(" %s->%s", origin, dest))
+		fmt.Fprintf(&sb, " %s->%s", origin, dest)
 	}
 
 	// Position info.
@@ -857,42 +857,42 @@ func formatResult(result registry.Result, showEmpty bool) string {
 		lon = fmt.Sprintf("%.3f", v)
 	}
 	if lat != "" && lon != "" {
-		sb.WriteString(fmt.Sprintf(" @%s,%s", lat, lon))
+		fmt.Fprintf(&sb, " @%s,%s", lat, lon)
 	}
 
 	// Flight level (preferred) or altitude.
 	if v, ok := m["flight_level"].(float64); ok && v > 0 {
-		sb.WriteString(fmt.Sprintf(" FL%d", int(v)))
+		fmt.Fprintf(&sb, " FL%d", int(v))
 	} else if v, ok := m["altitude"].(string); ok && v != "" {
-		sb.WriteString(fmt.Sprintf(" FL%s", v))
+		fmt.Fprintf(&sb, " FL%s", v)
 	} else if v, ok := m["altitude"].(float64); ok && v > 0 {
-		sb.WriteString(fmt.Sprintf(" FL%d", int(v)/100))
+		fmt.Fprintf(&sb, " FL%d", int(v)/100)
 	}
 
 	// Squawk.
 	if v, ok := m["squawk"].(string); ok && v != "" {
-		sb.WriteString(fmt.Sprintf(" SQK %s", v))
+		fmt.Fprintf(&sb, " SQK %s", v)
 	}
 
 	// SID.
 	if v, ok := m["sid"].(string); ok && v != "" {
-		sb.WriteString(fmt.Sprintf(" SID %s", v))
+		fmt.Fprintf(&sb, " SID %s", v)
 	}
 
 	// Runway.
 	if v, ok := m["runway"].(string); ok && v != "" {
-		sb.WriteString(fmt.Sprintf(" RWY %s", v))
+		fmt.Fprintf(&sb, " RWY %s", v)
 	}
 
 	// ADS-C specific: show message type and payload size for analysis.
 	if typeName == "adsc" {
 		if v, ok := m["message_type"].(string); ok && v != "" {
-			sb.WriteString(fmt.Sprintf(" [%s", v))
+			fmt.Fprintf(&sb, " [%s", v)
 			if bytes, ok := m["payload_bytes"].(float64); ok {
-				sb.WriteString(fmt.Sprintf("/%db", int(bytes)))
+				fmt.Fprintf(&sb, "/%db", int(bytes))
 			}
 			if hex, ok := m["raw_hex"].(string); ok && hex != "" {
-				sb.WriteString(fmt.Sprintf(" %s", hex))
+				fmt.Fprintf(&sb, " %s", hex)
 			}
 			sb.WriteString("]")
 		}
@@ -913,7 +913,7 @@ func formatResult(result registry.Result, showEmpty bool) string {
 			}
 		}
 		if len(empty) > 0 {
-			sb.WriteString(fmt.Sprintf(" [missing: %s]", strings.Join(empty, ", ")))
+			fmt.Fprintf(&sb, " [missing: %s]", strings.Join(empty, ", "))
 		}
 	}
 
@@ -942,7 +942,7 @@ func getOmitemptyFields(v interface{}) []string {
 	var fields []string
 
 	t := reflect.TypeOf(v)
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	if t.Kind() != reflect.Struct {

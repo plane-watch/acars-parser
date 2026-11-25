@@ -191,7 +191,7 @@ func unmarshalComplete(data []byte, v interface{}) error {
 // decodes them as integers without checking them.
 func checkEnumerations(v reflect.Value) error {
 	switch v.Kind() {
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if v.IsNil() {
 			return nil
 		}

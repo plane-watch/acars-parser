@@ -472,7 +472,7 @@ func (s *Server) handleExportGo(w http.ResponseWriter, r *http.Request) {
 	code.WriteString(")\n\n")
 
 	for parserType, msgs := range byType {
-		code.WriteString(fmt.Sprintf("func TestGolden_%s(t *testing.T) {\n", strings.ReplaceAll(parserType, "_", "")))
+		fmt.Fprintf(&code, "func TestGolden_%s(t *testing.T) {\n", strings.ReplaceAll(parserType, "_", ""))
 		code.WriteString("\treg := registry.Default()\n")
 		code.WriteString("\treg.Sort()\n\n")
 		code.WriteString("\tcases := []struct {\n")
@@ -489,7 +489,7 @@ func (s *Server) handleExportGo(w http.ResponseWriter, r *http.Request) {
 			}
 			// Escape backticks in raw text.
 			rawText := strings.ReplaceAll(m.RawText, "`", "` + \"`\" + `")
-			code.WriteString(fmt.Sprintf("\t\t{%q, `%s`, %q, %q},\n", name, rawText, m.Label, parserType))
+			fmt.Fprintf(&code, "\t\t{%q, `%s`, %q, %q},\n", name, rawText, m.Label, parserType)
 		}
 
 		code.WriteString("\t}\n\n")
