@@ -501,6 +501,13 @@ func routeIsFlight(m map[string]interface{}, flight, transmitted, tail string) b
 	return true
 }
 
+// typeNotProven are the result types whose aircraft type does not prove
+// the aircraft's type. A gate request's "-TYP/" (gate_info) is typed in by
+// the crew for each flight: in October and November 2026 it gave
+// conflicting types for 257 of 4,420 aircraft (EI-LRA as A321, A21N and
+// A320), against at most 0.5% for every other source.
+var typeNotProven = map[string]bool{"gate_info": true}
+
 func extractFromResult(update *FlightUpdate, data *ExtractedData, msg *acars.Message, resultType string, m map[string]interface{}) {
 
 	// Extract route (with validation to reject corrupted codes).
@@ -559,8 +566,10 @@ func extractFromResult(update *FlightUpdate, data *ExtractedData, msg *acars.Mes
 		update.Track = int(v)
 	}
 
-	// Extract the aircraft type as transmitted; Extract normalises it.
-	if v, ok := m["aircraft_type"].(string); ok && v != "" {
+	// Extract the aircraft type as transmitted; Extract normalises it. A
+	// result whose type is not the aircraft's (see typeNotProven) is
+	// skipped.
+	if v, ok := m["aircraft_type"].(string); ok && v != "" && !typeNotProven[resultType] {
 		update.AircraftTypeRaw = strings.TrimSpace(v)
 	}
 

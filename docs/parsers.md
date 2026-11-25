@@ -874,6 +874,8 @@ The header is `01`, a four-letter report code (ERDC, TATO, DCAP, ICCL and others
 
 **Extracted fields:** flight number, origin, destination, gate, ATIS letter and aircraft type.
 
+The aircraft type is the crew's entry for the flight and is not used as the aircraft's type (see [storage.md](storage.md), "Type").
+
 ---
 
 ### labelrf

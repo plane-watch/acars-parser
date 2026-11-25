@@ -408,6 +408,17 @@ func TestExtract(t *testing.T) {
 		}
 	})
 
+	// The type in a gate request (label B3 "-TYP/") is typed in by the
+	// crew for each flight: EI-LRA sent A321, A21N and A320 on different
+	// days. It does not prove the aircraft's type.
+	t.Run("aircraft type is not taken from a gate request", func(t *testing.T) {
+		msg := &acars.Message{ID: 1, Label: "B3", Tail: "EI-LRA"}
+		f := Extract(msg, []registry.Result{&mockResult{typeStr: "gate_info", AircraftType: "A320"}}).Flight
+		if f.AircraftTypeRaw != "" || f.AircraftType != "" {
+			t.Errorf("type = %q / %q, want none from gate_info", f.AircraftTypeRaw, f.AircraftType)
+		}
+	})
+
 	t.Run("routes are kept as transmitted, ICAO or IATA", func(t *testing.T) {
 		msg := &acars.Message{ID: 1, Label: "C1", Tail: "VH-VXA"}
 		tests := []struct {
